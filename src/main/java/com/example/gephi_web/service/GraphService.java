@@ -1,4 +1,7 @@
-package com.example.gephi_web.service.impl;
+package com.example.gephi_web.service;
 
-public class GraphService {
+import org.springframework.stereotype.Service;
+
+@Service
+public interface GraphService {
 }

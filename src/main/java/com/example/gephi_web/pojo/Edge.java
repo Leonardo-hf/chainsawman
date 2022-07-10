@@ -1,2 +1,7 @@
-package com.example.gephi_web.pojo;public class Edge {
+package com.example.gephi_web.pojo;
+
+import lombok.Data;
+
+@Data
+public class Edge {
 }

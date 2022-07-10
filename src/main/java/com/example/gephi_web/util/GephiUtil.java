@@ -1,2 +1,4 @@
-package com.example.gephi_web.util;public class GephiUtil {
+package com.example.gephi_web.util;
+
+public class GephiUtil {
 }
