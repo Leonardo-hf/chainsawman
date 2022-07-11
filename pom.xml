@@ -21,6 +21,13 @@
             <groupId>org.gephi</groupId>
             <artifactId>gephi-toolkit</artifactId>
             <version>0.9.6</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/gephi-toolkit-0.9.6-all.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>it.uniroma1.dis.wsngroup.gexf4j</groupId>
+            <artifactId>gexf4j</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
