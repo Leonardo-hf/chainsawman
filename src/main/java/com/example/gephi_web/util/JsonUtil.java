@@ -1,13 +1,16 @@
 package com.example.gephi_web.util;
 
+import com.alibaba.fastjson.JSON;
+
+import java.util.Map;
+
 public class JsonUtil {
 
-    // TODO, 序列化方法，到网上找个库
-    public static String marshall(Object src) {
-        return null;
+    public static String marshall(Map<String, Object> src) {
+        return JSON.toJSONString(src);
     }
 
-    public static Object unmarshall(String src) {
-        return null;
+    public static Map<String, Object> unmarshall(String src) {
+        return JSON.parseObject(src);
     }
 }

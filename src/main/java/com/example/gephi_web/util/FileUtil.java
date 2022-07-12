@@ -1,38 +1,44 @@
 package com.example.gephi_web.util;
 
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.DigestUtils;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileOutputStream;
+import java.util.Properties;
 
 public class FileUtil {
 
+    static Properties properties = System.getProperties();
+
+    public static String getPath(String... args) {
+        StringBuilder origin = new StringBuilder();
+        for (String arg : args) {
+            origin.append(arg);
+        }
+        return DigestUtils.md5DigestAsHex(origin.toString().getBytes());
+    }
+
     public static File getFile(String path) {
-        //TODO: 错误的，文件不存在时路径不正确
-        File file = null;
-        try {
-            ClassPathResource resource = new ClassPathResource(path);
-            if (resource.exists()) {
-                return resource.getFile();
-            } else {
-                assert resource.getPath() != null;
-                file = new File(resource.getPath());
-                return file;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return new File(properties.getProperty("user.dir") + File.separator + path);
     }
 
-    public static File saveFile(String path) {
-        File file = null;
+    public static File save(MultipartFile file, String name) {
+        if (file == null) {
+            return null;
+        }
+        File save = getFile(name);
         try {
-            file = new ClassPathResource(path).getFile();
-        } catch (IOException e) {
+            FileOutputStream fileOutputStream = new FileOutputStream(save);
+            FileCopyUtils.copy(file.getInputStream(), fileOutputStream);
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return file;
+        return save;
     }
 
+    public static File save(MultipartFile file) {
+        return save(file, file.getOriginalFilename());
+    }
 }

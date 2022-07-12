@@ -21,33 +21,55 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for edgeJava
 -- ----------------------------
 DROP TABLE IF EXISTS `edgeJava`;
-CREATE TABLE `edgeJava` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `source` varchar(255) NOT NULL,
-  `target` varchar(255) NOT NULL,
-  `attributes` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `edgeJava`
+(
+    `id`         int          NOT NULL AUTO_INCREMENT,
+    `source`     varchar(255) NOT NULL,
+    `target`     varchar(255) NOT NULL,
+    `attributes` varchar(255) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for nodeJava
 -- ----------------------------
 DROP TABLE IF EXISTS `nodeJava`;
-CREATE TABLE `nodeJava` (
-  `id` int NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `attributes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `nodeJava`
+(
+    `id`         int NOT NULL,
+    `name`       varchar(255)                                                  DEFAULT NULL,
+    `attributes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for stragety
 -- ----------------------------
 DROP TABLE IF EXISTS `stragety`;
-CREATE TABLE `stragety` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `attributes` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `stragety`
+(
+    `id`         int NOT NULL AUTO_INCREMENT,
+    `attributes` varchar(255) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Table structure for graph
+-- ----------------------------
+DROP TABLE IF EXISTS `graph`;
+CREATE TABLE `graph`
+(
+    `id`   int NOT NULL,
+    `name` varchar(255) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;

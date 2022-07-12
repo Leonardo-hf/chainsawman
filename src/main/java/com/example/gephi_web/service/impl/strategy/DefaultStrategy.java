@@ -1,5 +1,6 @@
-package com.example.gephi_web.util;
+package com.example.gephi_web.service.impl.strategy;
 
+import com.example.gephi_web.util.FileUtil;
 import org.gephi.appearance.api.*;
 import org.gephi.appearance.plugin.PartitionElementColorTransformer;
 import org.gephi.appearance.plugin.RankingNodeSizeTransformer;
@@ -28,10 +29,9 @@ import org.openide.util.Lookup;
 import java.io.File;
 import java.io.IOException;
 
-public class GephiUtil {
-
-
-    public static void getGraph(String srcPath, String destPath) {
+public class DefaultStrategy implements GraphStrategy {
+    @Override
+    public void getGraph(String srcPath, String destPath) {
         // 准备环境
         // 初始化一个项目
         ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
@@ -117,7 +117,7 @@ public class GephiUtil {
         previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);  // 是否展示node_label
         previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, Boolean.FALSE); // 禁用节点大小对文本大小的影响
         previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);  // 是否弯曲
-        // 导出gexf（仅导出可见部分）
+        // 导出gexf（仅导出可见部分） TODO: 最好找一下sigma.js的插件，导出为适应的格式
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
         GraphExporter exporter = (GraphExporter) ec.getExporter("gexf");
         exporter.setExportVisible(true);
@@ -131,8 +131,4 @@ public class GephiUtil {
 
     }
 
-
-    public static void main(String[] args) {
-        getGraph("Java.gexf", "Java2.gexf");
-    }
 }

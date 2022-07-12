@@ -4,7 +4,8 @@ import com.example.gephi_web.service.GraphService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
 
 @SpringBootTest
 class GephiWebApplicationTests {
@@ -18,7 +19,7 @@ class GephiWebApplicationTests {
 
     @Test
     public void testInsertData(){
-        graphService.addNode("nodeJava","/Users/taozehua/Downloads/研究任务/joup/node.csv");
+        graphService.addNode("nodeJava",new File("/Users/taozehua/Downloads/研究任务/joup/node.csv"));
 //        graphService.addEdge("edgeJava","/Users/taozehua/Downloads/研究任务/joup/edge.csv");
     }
 }
