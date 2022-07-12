@@ -40,6 +40,7 @@ public class GraphServiceImpl implements GraphService {
                     CSVNode csvNode=new CSVNode();
                     csvNode.setId(Integer.parseInt(tmp[0]));
                     csvNode.setName(tmp[1]);
+                    // todo attributes
                     nodes.add(csvNode);
                 }
             }
@@ -65,6 +66,7 @@ public class GraphServiceImpl implements GraphService {
                     CSVEdge csvEdge=new CSVEdge();
                     csvEdge.setSource(tmp[0]);
                     csvEdge.setTarget(tmp[1]);
+                    // todo attributes
                     edges.add(csvEdge);
                 }
             }

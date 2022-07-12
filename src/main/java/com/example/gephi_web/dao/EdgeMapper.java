@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Repository
 public class EdgeMapper {
-    @Autowired
+    @Resource
     JdbcTemplate jdbcTemplate;
 
     public void insertEdge(String tableName, List<CSVEdge> edges) {
