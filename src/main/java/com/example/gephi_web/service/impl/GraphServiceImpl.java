@@ -35,11 +35,13 @@ public class GraphServiceImpl implements GraphService {
             BufferedReader nodeFile = new BufferedReader(new FileReader(file));
             String lineDta = "";
             while ((lineDta = nodeFile.readLine()) != null){
+                if(lineDta.equals("")) continue;
                 if(!lineDta.startsWith("序号")){
-                    String[] tmp=lineDta.split(",");
+                    int index=lineDta.indexOf(",");
                     CSVNode csvNode=new CSVNode();
-                    csvNode.setId(Integer.parseInt(tmp[0]));
-                    csvNode.setName(tmp[1]);
+                    csvNode.setId(Integer.parseInt(lineDta.substring(0,index)));
+                    if(lineDta.length()>index+1)
+                        csvNode.setName(lineDta.substring(index+1));
                     // todo attributes
                     nodes.add(csvNode);
                 }
@@ -61,11 +63,12 @@ public class GraphServiceImpl implements GraphService {
             BufferedReader edgeFile = new BufferedReader(new FileReader(file));
             String lineDta = "";
             while ((lineDta = edgeFile.readLine()) != null){
+                if(lineDta.equals("")) continue;
                 if(!lineDta.startsWith("Source")){
-                    String[] tmp=lineDta.split(",");
+                    int index=lineDta.indexOf(",");
                     CSVEdge csvEdge=new CSVEdge();
-                    csvEdge.setSource(tmp[0]);
-                    csvEdge.setTarget(tmp[1]);
+                    csvEdge.setSource(lineDta.substring(0,index));
+                    csvEdge.setTarget(lineDta.substring(index+1));
                     // todo attributes
                     edges.add(csvEdge);
                 }
@@ -77,5 +80,19 @@ public class GraphServiceImpl implements GraphService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 根据查询条件计算出相应的图并返回图片的url
+     * @param type 查询的节点的种类 java/python/cpp/github……
+     * @param nodeNameList
+     * @return
+     */
+    @Override
+    public String searchNodes(String type, List<String> nodeNameList) {
+        List<CSVNode> nodes=nodeMapper.search(type,nodeNameList);
+        List<CSVEdge> edges=edgeMapper.search(type,nodeNameList);
+        //todo 生成图片并返回url
+        return "";
     }
 }

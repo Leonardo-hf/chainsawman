@@ -12,4 +12,7 @@ public interface GraphService {
     void addNode(String tableName, String filePath);
 
     void addEdge(String tableName,String filePath);
+
+    // 根据查询条件计算出相应的图并返回图片的url
+    String searchNodes(String type,List<String> nodeNameList);
 }
