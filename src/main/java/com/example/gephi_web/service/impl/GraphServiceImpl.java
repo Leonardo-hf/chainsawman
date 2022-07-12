@@ -30,7 +30,6 @@ public class GraphServiceImpl implements GraphService {
     @Override
     public void addNode(String tableName, String filePath) {
         File file = new File(filePath);
-        List<CSVNode> nodes=new ArrayList<>();
         try {
             BufferedReader nodeFile = new BufferedReader(new FileReader(file));
             String lineDta = "";
@@ -43,11 +42,11 @@ public class GraphServiceImpl implements GraphService {
                     if(lineDta.length()>index+1)
                         csvNode.setName(lineDta.substring(index+1));
                     // todo attributes
-                    nodes.add(csvNode);
+                    csvNode.setAttributes("");
+                    nodeMapper.insertNode(tableName,csvNode);
                 }
             }
             nodeFile.close();
-            nodeMapper.insertNode(tableName,nodes);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -58,7 +57,6 @@ public class GraphServiceImpl implements GraphService {
     @Override
     public void addEdge(String tableName, String filePath) {
         File file = new File(filePath);
-        List<CSVEdge> edges=new ArrayList<>();
         try {
             BufferedReader edgeFile = new BufferedReader(new FileReader(file));
             String lineDta = "";
@@ -70,11 +68,11 @@ public class GraphServiceImpl implements GraphService {
                     csvEdge.setSource(lineDta.substring(0,index));
                     csvEdge.setTarget(lineDta.substring(index+1));
                     // todo attributes
-                    edges.add(csvEdge);
+                    csvEdge.setAttributes("");
+                    edgeMapper.insertEdge(tableName,csvEdge);
                 }
             }
             edgeFile.close();
-            edgeMapper.insertEdge(tableName,edges);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
