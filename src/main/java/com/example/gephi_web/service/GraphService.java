@@ -15,7 +15,7 @@ public interface GraphService {
 
     void addEdge(String tableName, File file);
 
-    // 根据查询条件计算出相应的图并返回图片的url
+    // 根据查询条件计算出相应的图
     ResponseVO<GexfVO> searchNodes(String type, List<String> nodeNameList);
 
     ResponseVO<GexfVO> upload(UploadVO uploadVO);

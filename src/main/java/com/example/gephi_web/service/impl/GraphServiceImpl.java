@@ -65,7 +65,8 @@ public class GraphServiceImpl implements GraphService {
                     CSVNode csvNode = new CSVNode();
                     csvNode.setId(Integer.parseInt(columns[0]));
                     // TODO：还有没名字的吗？
-                    csvNode.setName(columns[1]);
+                    if(columns.length>=2)
+                        csvNode.setName(columns[1]);
                     Map<String, Object> attrMap = new HashMap<>();
                     for (int i = 2; i < columns.length; i++) {
                         attrMap.put(attrNames.get(i), columns[i]);
@@ -120,7 +121,7 @@ public class GraphServiceImpl implements GraphService {
     }
 
     /**
-     * 根据查询条件计算出相应的图并返回图片的url
+     * 根据查询条件计算出相应的图并返回图片
      *
      * @param graphName    查询的节点的种类 java/python/cpp/github……
      * @param nodeNameList

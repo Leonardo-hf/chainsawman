@@ -32,7 +32,7 @@ public class NodeMapper {
     public List<CSVNode> search(String type, List<String> nodeNameList) {
         List<CSVNode> nodeList = new ArrayList<>();
         for (String nodeName : nodeNameList) {
-            String sql = "select id, name, attributes from node" + type + " where name=" + nodeName;
+            String sql = "select id, name, attributes from node" + type + " where name= \"" + nodeName+"\"";
             CSVNode csvNode = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
                 CSVNode node = new CSVNode();
                 assert rs != null;
