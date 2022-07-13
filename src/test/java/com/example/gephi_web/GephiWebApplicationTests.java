@@ -19,7 +19,7 @@ class GephiWebApplicationTests {
 
     @Test
     public void testInsertData(){
-        graphService.addNode("nodeJava",new File("/Users/taozehua/Downloads/研究任务/joup/node.csv"));
-//        graphService.addEdge("edgeJava","/Users/taozehua/Downloads/研究任务/joup/edge.csv");
+        graphService.addNode("nodeJava","/Users/taozehua/Downloads/研究任务/joup/node.csv");
+        graphService.addEdge("edgeJava","/Users/taozehua/Downloads/研究任务/joup/edge.csv");
     }
 }
