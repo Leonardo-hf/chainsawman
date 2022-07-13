@@ -25,6 +25,8 @@ import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.gephi.statistics.plugin.Modularity;
 import org.openide.util.Lookup;
+import uk.ac.ox.oii.sigmaexporter.SigmaExporter;
+import uk.ac.ox.oii.sigmaexporter.model.ConfigFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,6 +130,14 @@ public class DefaultStrategy implements GraphStrategy {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
+        //导出web
+//        SigmaExporter se = new SigmaExporter();
+//        se.setWorkspace(workspace);
+//        ConfigFile cf = new ConfigFile();
+//        cf.setDefaults();
+//        se.setConfigFile(cf,"visualOutWeb/",false);
+//        se.execute();
 
     }
 
