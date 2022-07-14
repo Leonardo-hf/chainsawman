@@ -21,6 +21,7 @@ public class FileUtil {
     }
 
     public static File getFile(String path) {
+        System.out.println(properties.getProperty("user.dir") + File.separator + path);
         return new File(properties.getProperty("user.dir") + File.separator + path);
     }
 

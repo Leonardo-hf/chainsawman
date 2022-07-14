@@ -164,9 +164,9 @@ public class GraphServiceImpl implements GraphService {
         GexfUtil.createGexf(gexfNodes, gexfEdges, FileUtil.getPath(graphName));
         // TODO: 编写一种组织图像名称的方法，替换掉现在的File.getPath方法，比如：filename=md5(graph=?&strategy=?&filter=?)
         // TODO: 这里暂时写死为DefaultStrategy，可能之后通过工厂模式构造 graphStrategy
-        String destPath = FileUtil.getPath(graphName, "test");
+        String destPath = FileUtil.getPath(graphName, "test")+".gexf";
         GraphStrategy strategy = new DefaultStrategy();
-        strategy.getGraph(graphName, destPath);
+        strategy.getGraph(FileUtil.getPath(graphName)+".gexf", destPath);
         return new ResponseVO<>(HttpStatus.COMMON_OK, new GexfVO(graphName, destPath));
     }
 
