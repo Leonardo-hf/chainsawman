@@ -33,15 +33,16 @@ public class NodeMapper {
         List<CSVNode> nodeList = new ArrayList<>();
         for (String nodeName : nodeNameList) {
             String sql = "select id, name, attributes from node" + type + " where name= \"" + nodeName+"\"";
-            CSVNode csvNode = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-                CSVNode node = new CSVNode();
-                assert rs != null;
-                node.setId(rs.getInt(1));
-                node.setName(rs.getString(2));
-                node.setAttributes(rs.getString(3));
-                return node;
-            });
-            nodeList.add(csvNode);
+            List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
+            if (queryList != null && !queryList.isEmpty()) {
+                for (Map<String, Object> map : queryList) {
+                    CSVNode node = new CSVNode();
+                    node.setId((Integer) map.get("id"));
+                    node.setName((String) map.get("name"));
+                    node.setAttributes((String) map.get("attributes"));
+                    nodeList.add(node);
+                }
+            }
         }
         return nodeList;
     }

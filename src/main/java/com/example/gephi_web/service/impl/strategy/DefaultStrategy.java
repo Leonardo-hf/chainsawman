@@ -132,12 +132,12 @@ public class DefaultStrategy implements GraphStrategy {
         }
 
         //导出web
-//        SigmaExporter se = new SigmaExporter();
-//        se.setWorkspace(workspace);
-//        ConfigFile cf = new ConfigFile();
-//        cf.setDefaults();
-//        se.setConfigFile(cf,"visualOutWeb/",false);
-//        se.execute();
+        SigmaExporter se = new SigmaExporter();
+        se.setWorkspace(workspace);
+        ConfigFile cf = new ConfigFile();
+        cf.setDefaults();
+        se.setConfigFile(cf,"visualOutWeb/",false);
+        se.execute();
 
     }
 
