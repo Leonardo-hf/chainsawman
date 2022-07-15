@@ -1,6 +1,7 @@
 package com.example.gephi_web.config;
 
 
+import com.example.gephi_web.util.Const;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -18,6 +19,6 @@ public class FileConfig implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/**").addResourceLocations("file:" + System.getProperties().getProperty("user.dir") + File.separator);
+        registry.addResourceHandler("/**").addResourceLocations("file:" + Const.Resource);
     }
 }

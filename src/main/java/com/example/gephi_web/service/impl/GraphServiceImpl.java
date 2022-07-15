@@ -67,9 +67,10 @@ public class GraphServiceImpl implements GraphService {
                     String[] columns = lineDta.split(",");
                     CSVNode csvNode = new CSVNode();
                     csvNode.setId(Integer.parseInt(columns[0]));
-                    // TODO：还有没名字的吗？
-                    if (columns.length >= 2)
-                        csvNode.setName(columns[1]);
+                    if (columns.length >= 2){
+                        continue;
+                    }
+                    csvNode.setName(columns[1]);
                     Map<String, Object> attrMap = new HashMap<>();
                     for (int i = 2; i < columns.length; i++) {
                         attrMap.put(attrNames.get(i), columns[i]);

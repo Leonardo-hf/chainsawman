@@ -132,7 +132,7 @@ public class GraphUtil {
         cf.setDefaults();
         se.setConfigFile(cf, FileUtil.getRoot()+Const.TempDir, false);
         se.execute();
-        try (InputStream dataset = new FileInputStream(FileUtil.getRoot()+Const.TempDataSet); InputStream config = new FileInputStream(FileUtil.getRoot()+Const.TempDataSet); OutputStream sigmaJSON = new FileOutputStream(destPath)) {
+        try (InputStream dataset = new FileInputStream(FileUtil.getRoot()+Const.TempDataSet); InputStream config = new FileInputStream(FileUtil.getRoot()+Const.TempConfig); OutputStream sigmaJSON = new FileOutputStream(destPath)) {
             byte[] buf = new byte[1024];
             int bytesRead;
             while ((bytesRead = dataset.read(buf)) > 0) {
