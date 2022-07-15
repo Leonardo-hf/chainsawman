@@ -121,24 +121,28 @@ public class DefaultStrategy implements GraphStrategy {
         previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);  // 是否弯曲
         // 导出gexf（仅导出可见部分） TODO: 最好找一下sigma.js的插件，导出为适应的格式
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
-        GraphExporter exporter = (GraphExporter) ec.getExporter("gexf");
-        exporter.setExportVisible(true);
-        exporter.setWorkspace(workspace);
+//        GraphExporter exporter = (GraphExporter) ec.getExporter("gexf");
+//        exporter.setExportVisible(true);
+//        exporter.setWorkspace(workspace);
         try {
             ec.exportFile(FileUtil.getFile("test.pdf"));
-            ec.exportFile(FileUtil.getFile(destPath), exporter);
+//            ec.exportFile(FileUtil.getFile(destPath), exporter);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
-        //导出web
-//        SigmaExporter se = new SigmaExporter();
-//        se.setWorkspace(workspace);
-//        ConfigFile cf = new ConfigFile();
-//        cf.setDefaults();
-//        se.setConfigFile(cf,"visualOutWeb/",false);
-//        se.execute();
+        // 导出web
+        SigmaExporter se = new SigmaExporter();
+        se.setWorkspace(workspace);
+        ConfigFile cf = new ConfigFile();
+        cf.setDefaults();
+        se.setConfigFile(cf, FileUtil.getFile("testSigma").getPath(), false);
+        se.execute();
 
+    }
+
+    public static void main(String[] args) {
+        new DefaultStrategy().getGraph("Java.gexf", "Java2.gexf");
     }
 
 }
