@@ -33,10 +33,14 @@ public class EdgeMapper {
         Set<Integer> nodeIDList = new HashSet<>();
         for (String nodeName : nodeNameList) {
             String sql = "select id from node" + type + " where name= \"" + nodeName+"\"";
-            Map<String, Object> map = jdbcTemplate.queryForMap(sql);
-            assert map != null;
-            int id = (int) map.get("id");
-            nodeIDList.add(id);
+            System.out.println(nodeName);
+            List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
+            if (queryList != null && !queryList.isEmpty()) {
+                for (Map<String, Object> map : queryList) {
+                    int id = (int) map.get("id");
+                    nodeIDList.add(id);
+                }
+            }
         }
         List<CSVEdge> edges = new ArrayList<>();
         for (Integer id : nodeIDList) {

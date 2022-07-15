@@ -56,8 +56,10 @@ public class GexfUtil {
         // 设置点属性列表
         List<Attribute> attributes = new ArrayList<>();
         int cnt = 0;
-        for (String attrName : nodes.get(0).attributes.keySet()) {
-            attributes.add(attrList.createAttribute(String.valueOf(cnt++), AttributeType.STRING, attrName));
+        if(nodes.get(0).attributes!=null) {
+            for (String attrName : nodes.get(0).attributes.keySet()) {
+                attributes.add(attrList.createAttribute(String.valueOf(cnt++), AttributeType.STRING, attrName));
+            }
         }
         // 创建点
         Map<String, Node> nodeMap = new HashMap<>();
@@ -77,8 +79,10 @@ public class GexfUtil {
             // 设置边属性列表
             attributes.clear();
             cnt = 0;
-            for (String attrName : edges.get(0).attributes.keySet()) {
-                attributes.add(attrList.createAttribute(String.valueOf(cnt++), AttributeType.STRING, attrName));
+            if(edges.get(0).attributes!=null) {
+                for (String attrName : edges.get(0).attributes.keySet()) {
+                    attributes.add(attrList.createAttribute(String.valueOf(cnt++), AttributeType.STRING, attrName));
+                }
             }
             // 创建边
             for (GexfEdge gexfEdge : edges) {
@@ -98,7 +102,7 @@ public class GexfUtil {
         }
         // 生成gexf文件
         StaxGraphWriter graphWriter = new StaxGraphWriter();
-        File f = FileUtil.getFile(path);
+        File f = new File(path);
         Writer out;
         try {
             out = new FileWriter(f, false);

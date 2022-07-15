@@ -1,6 +1,5 @@
-package com.example.gephi_web.service.impl.strategy;
+package com.example.gephi_web.util;
 
-import com.example.gephi_web.util.FileUtil;
 import org.gephi.appearance.api.*;
 import org.gephi.appearance.plugin.PartitionElementColorTransformer;
 import org.gephi.appearance.plugin.RankingNodeSizeTransformer;
@@ -12,7 +11,6 @@ import org.gephi.filters.api.Range;
 import org.gephi.filters.plugin.graph.DegreeRangeBuilder;
 import org.gephi.graph.api.*;
 import org.gephi.io.exporter.api.ExportController;
-import org.gephi.io.exporter.spi.GraphExporter;
 import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.processor.plugin.DefaultProcessor;
@@ -28,12 +26,10 @@ import org.openide.util.Lookup;
 import uk.ac.ox.oii.sigmaexporter.SigmaExporter;
 import uk.ac.ox.oii.sigmaexporter.model.ConfigFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
-public class DefaultStrategy implements GraphStrategy {
-    @Override
-    public void getGraph(String srcPath, String destPath) {
+public class GraphUtil {
+    public static void getGraph(String srcPath, String destPath) {
         // 准备环境
         // 初始化一个项目
         ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
@@ -49,7 +45,7 @@ public class DefaultStrategy implements GraphStrategy {
         // 导入文件
         Container container = null;
         try {
-            File file = FileUtil.getFile(srcPath);
+            File file = new File(srcPath);
             container = importController.importFile(file);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -119,30 +115,36 @@ public class DefaultStrategy implements GraphStrategy {
         previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);  // 是否展示node_label
         previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, Boolean.FALSE); // 禁用节点大小对文本大小的影响
         previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);  // 是否弯曲
-        // 导出gexf（仅导出可见部分） TODO: 最好找一下sigma.js的插件，导出为适应的格式
+        // 导出gexf（仅导出可见部分
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
 //        GraphExporter exporter = (GraphExporter) ec.getExporter("gexf");
 //        exporter.setExportVisible(true);
 //        exporter.setWorkspace(workspace);
         try {
-            ec.exportFile(FileUtil.getFile("test.pdf"));
+            ec.exportFile(new File(FileUtil.getRoot()+"test.pdf"));
 //            ec.exportFile(FileUtil.getFile(destPath), exporter);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
-        // 导出web
         SigmaExporter se = new SigmaExporter();
         se.setWorkspace(workspace);
         ConfigFile cf = new ConfigFile();
         cf.setDefaults();
-        se.setConfigFile(cf, FileUtil.getFile("testSigma").getPath(), false);
+        se.setConfigFile(cf, FileUtil.getRoot()+Const.TempDir, false);
         se.execute();
+        try (InputStream dataset = new FileInputStream(FileUtil.getRoot()+Const.TempDataSet); InputStream config = new FileInputStream(FileUtil.getRoot()+Const.TempDataSet); OutputStream sigmaJSON = new FileOutputStream(destPath)) {
+            byte[] buf = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = dataset.read(buf)) > 0) {
+                sigmaJSON.write(buf, 0, bytesRead);
+            }
+            sigmaJSON.write(System.lineSeparator().getBytes());
+            while ((bytesRead = config.read(buf)) > 0) {
+                sigmaJSON.write(buf, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
-
-    public static void main(String[] args) {
-        new DefaultStrategy().getGraph("Java.gexf", "Java2.gexf");
-    }
-
 }

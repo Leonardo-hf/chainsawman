@@ -25,4 +25,9 @@ public class GraphMapper {
         }
         return graphs;
     }
+
+    public void insert(String name){
+        String sql=String.format("insert %s into graph",name);
+        jdbcTemplate.update(sql);
+    }
 }

@@ -12,7 +12,7 @@ public class FileUtil {
 
     static Properties properties = System.getProperties();
 
-    public static String getPath(String... args) {
+    public static String getMD5Name(String... args) {
         StringBuilder origin = new StringBuilder();
         for (String arg : args) {
             origin.append(arg);
@@ -20,15 +20,15 @@ public class FileUtil {
         return DigestUtils.md5DigestAsHex(origin.toString().getBytes());
     }
 
-    public static File getFile(String path) {
-        return new File(properties.getProperty("user.dir") + File.separator + path);
+    public static String getRoot(){
+        return properties.getProperty("user.dir")+File.separator;
     }
 
-    public static File save(MultipartFile file, String name) {
+    public static File save(MultipartFile file, String path) {
         if (file == null) {
             return null;
         }
-        File save = getFile(name);
+        File save = new File(path);
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(save);
             FileCopyUtils.copy(file.getInputStream(), fileOutputStream);
