@@ -2,14 +2,12 @@ package com.example.gephi_web.dao;
 
 import com.example.gephi_web.pojo.CSVEdge;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 @Repository
@@ -33,7 +31,7 @@ public class EdgeMapper {
         Set<Integer> nodeIDList = new HashSet<>();
         for (String nodeName : nodeNameList) {
             String sql = "select id from node" + type + " where name= \"" + nodeName+"\"";
-            System.out.println(nodeName);
+//            System.out.println(nodeName);
             List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
             if (queryList != null && !queryList.isEmpty()) {
                 for (Map<String, Object> map : queryList) {
@@ -42,7 +40,7 @@ public class EdgeMapper {
                 }
             }
         }
-        List<CSVEdge> edges = new ArrayList<>();
+        Set<CSVEdge> edges = new HashSet<>();
         for (Integer id : nodeIDList) {
             String sql1 = "select source,target,attributes from edge" + type + " where source= \"" + id+"\"";
             String sql2 = "select source,target,attributes from edge" + type + " where target= \"" + id+"\"";
@@ -69,7 +67,7 @@ public class EdgeMapper {
                 }
             }
         }
-        return edges;
+        return new ArrayList<>(edges);
     }
 
     public List<CSVEdge> search(String type) {

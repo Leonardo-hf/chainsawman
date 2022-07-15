@@ -1,14 +1,12 @@
 package com.example.gephi_web.pojo;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class CSVEdge {
     Integer id;
     String source;
