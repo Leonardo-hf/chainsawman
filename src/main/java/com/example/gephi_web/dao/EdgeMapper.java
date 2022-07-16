@@ -2,21 +2,33 @@ package com.example.gephi_web.dao;
 
 import com.example.gephi_web.pojo.CSVEdge;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.*;
 
 @Repository
 public class EdgeMapper {
+
     @Resource
     JdbcTemplate jdbcTemplate;
 
-    public void insertEdge(String tableName, CSVEdge edge) {
-        String sql = "insert into " + tableName + "(source, target, attributes) values(?, ?, ?);";
+    public void batchInsert(String tableName, List<CSVEdge> edges) {
+        String sql = "insert into edge" + tableName + "(source, target, attributes) values(?, ?, ?);";
+        jdbcTemplate.batchUpdate(sql, edges, 512, new ParameterizedPreparedStatementSetter<CSVEdge>() {
+            public void setValues(PreparedStatement ps, CSVEdge edge)
+                    throws SQLException {
+                ps.setInt(1, edge.getSource());
+                ps.setInt(2, edge.getTarget());
+                ps.setString(3, edge.getAttributes());
+            }
+        });
+    }
+
+    public void insert(String tableName, CSVEdge edge) {
+        String sql = "insert into edge" + tableName + "(source, target, attributes) values(?, ?, ?);";
         jdbcTemplate.update(sql, edge.getSource(), edge.getTarget(), edge.getAttributes());
     }
 
@@ -81,17 +93,24 @@ public class EdgeMapper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        jdbcTemplate.update("""
-                CREATE TABLE `edge%s`
+        jdbcTemplate.update(String.format("""
+                DROP TABLE IF EXISTS `edge%s`;
+                create table edge%s
                 (
-                `id`         int          NOT NULL AUTO_INCREMENT,
-                `source`     varchar(255) NOT NULL,
-                `target`     varchar(255) NOT NULL,
-                `attributes` varchar(255) DEFAULT NULL,
-                PRIMARY KEY (`id`)
+                    id         int auto_increment
+                        primary key,
+                    source     int          not null,
+                    target     int          not null,
+                    attributes varchar(255) null
                 ) ENGINE = InnoDB
-                DEFAULT CHARSET = utf8mb4
-                COLLATE = utf8mb4_0900_ai_ci;
-                """, graphName);
+                  DEFAULT CHARSET = utf8mb4
+                  COLLATE = utf8mb4_0900_ai_ci;
+
+                create index source__index
+                    on edge%s (source);
+
+                create index target__index
+                    on edge%s (target);
+                                """, graphName, graphName, graphName, graphName));
     }
 }

@@ -35,5 +35,7 @@ build/
 *.gexf
 *.pdf
 
-static
+!static/node.csv
+!static/edge.csv
+static/*
 temp

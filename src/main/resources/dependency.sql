@@ -20,22 +20,29 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- Table structure for edgeJava
 -- ----------------------------
-DROP TABLE IF EXISTS `edgeJava`;
-CREATE TABLE `edgeJava`
+DROP TABLE IF EXISTS `edgeExample`;
+create table edgeJava
 (
-    `id`         int NOT NULL AUTO_INCREMENT,
-    `source`     int NOT NULL,
-    `target`     int NOT NULL,
-    `attributes` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`)
+    id         int auto_increment
+        primary key,
+    source     int          not null,
+    target     int          not null,
+    attributes varchar(255) null
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
 
+create index source__index
+    on edgeJava (source);
+
+create index target__index
+    on edgeJava (target);
+
+
 -- ----------------------------
 -- Table structure for nodeJava
 -- ----------------------------
-DROP TABLE IF EXISTS `nodeJava`;
+DROP TABLE IF EXISTS `nodeExample`;
 CREATE TABLE `nodeJava`
 (
     `id`         int NOT NULL,

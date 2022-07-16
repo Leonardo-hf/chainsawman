@@ -1,14 +1,15 @@
 package com.example.gephi_web.dao;
 
+import com.example.gephi_web.pojo.CSVEdge;
 import com.example.gephi_web.pojo.CSVNode;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.*;
 
 @Repository
@@ -16,8 +17,21 @@ public class NodeMapper {
     @Resource
     JdbcTemplate jdbcTemplate;
 
+
+    public void batchInsert(String tableName, List<CSVNode> nodes) {
+        String sql = "insert into node" + tableName + "(id,name,attributes) values(?, ?, ?);";
+        jdbcTemplate.batchUpdate(sql, nodes, 512, new ParameterizedPreparedStatementSetter<CSVNode>() {
+            public void setValues(PreparedStatement ps, CSVNode node)
+                    throws SQLException {
+                ps.setInt(1, node.getId());
+                ps.setString(2, node.getName());
+                ps.setString(3, node.getAttributes());
+            }
+        });
+    }
+
     public void insertNode(String tableName, CSVNode node) {
-        String sql = "insert into " + tableName + "(id,name,attributes) values(?, ?, ?);";
+        String sql = "insert into node" + tableName + "(id,name,attributes) values(?, ?, ?);";
         jdbcTemplate.update(sql, node.getId(), node.getName(), node.getAttributes());
     }
 
@@ -79,7 +93,8 @@ public class NodeMapper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        jdbcTemplate.update("""
+        jdbcTemplate.update(String.format("""
+                DROP TABLE IF EXISTS `edge%s`;
                 CREATE TABLE `node%s`
                 (
                     `id`         int NOT NULL,
@@ -89,7 +104,7 @@ public class NodeMapper {
                 ) ENGINE = InnoDB
                   DEFAULT CHARSET = utf8mb4
                   COLLATE = utf8mb4_0900_ai_ci;
-                """, graphName);
+                """, graphName, graphName));
     }
 
 

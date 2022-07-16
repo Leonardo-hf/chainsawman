@@ -49,11 +49,12 @@ public class GraphServiceImpl implements GraphService {
             BufferedReader nodeFile = new BufferedReader(new FileReader(file));
             String lineDta;
             List<String> attrNames = new ArrayList<>();
+            List<CSVNode> nodes = new ArrayList<>();
             boolean header = true;
             while ((lineDta = nodeFile.readLine()) != null) {
                 if (header) {
                     String[] columns = lineDta.split(",");
-                    if (columns.length >= 2 && columns[0].equals("序号")) {
+                    if (columns.length >= 2 && columns[0].equals("id")) {
                         attrNames.addAll(Arrays.asList(columns).subList(2, columns.length));
                         // 创建表格
                         nodeMapper.createTable(tableName);
@@ -72,13 +73,14 @@ public class GraphServiceImpl implements GraphService {
                     }
                     csvNode.setName(columns[1]);
                     Map<String, Object> attrMap = new HashMap<>();
-                    for (int i = 2; i < columns.length; i++) {
-                        attrMap.put(attrNames.get(i), columns[i]);
+                    for (int i = 2, p = 0; i < columns.length; i++, p++) {
+                        attrMap.put(attrNames.get(p), columns[i]);
                     }
                     csvNode.setAttributes(JSON.toJSONString(attrMap));
-                    nodeMapper.insertNode(tableName, csvNode);
+                    nodes.add(csvNode);
                 }
             }
+            nodeMapper.batchInsert(tableName, nodes);
             nodeFile.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,12 +92,13 @@ public class GraphServiceImpl implements GraphService {
         try {
             BufferedReader edgeFile = new BufferedReader(new FileReader(file));
             String lineDta;
+            List<CSVEdge> edges = new ArrayList<>();
             List<String> attrNames = new ArrayList<>();
             boolean header = true;
             while ((lineDta = edgeFile.readLine()) != null) {
                 if (header) {
                     String[] columns = lineDta.split(",");
-                    if (columns.length >= 2 && columns[0].equals("Source") && columns[1].equals("Target")) {
+                    if (columns.length >= 2 && columns[1].equals("source") && columns[2].equals("target")) {
                         attrNames.addAll(Arrays.asList(columns).subList(2, columns.length));
                         // 创建表格
                         edgeMapper.createTable(tableName);
@@ -108,16 +111,17 @@ public class GraphServiceImpl implements GraphService {
                 if (!lineDta.isEmpty() && !lineDta.isBlank()) {
                     String[] columns = lineDta.split(",");
                     CSVEdge csvEdge = new CSVEdge();
-                    csvEdge.setSource(Integer.parseInt(columns[0]));
-                    csvEdge.setTarget(Integer.parseInt(columns[1]));
+                    csvEdge.setSource(Integer.parseInt(columns[1]));
+                    csvEdge.setTarget(Integer.parseInt(columns[2]));
                     Map<String, Object> attrMap = new HashMap<>();
-                    for (int i = 2; i < columns.length; i++) {
-                        attrMap.put(attrNames.get(i), columns[i]);
+                    for (int i = 3, p = 0; i < columns.length; i++, p++) {
+                        attrMap.put(attrNames.get(p), columns[i]);
                     }
                     csvEdge.setAttributes(JSON.toJSONString(attrMap));
-                    edgeMapper.insertEdge(tableName, csvEdge);
+                    edges.add(csvEdge);
                 }
             }
+            edgeMapper.batchInsert(tableName, edges);
             edgeFile.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -191,7 +195,7 @@ public class GraphServiceImpl implements GraphService {
                         attrMap.put(attrNames.get(i), columns[i]);
                     }
                     csvEdge.setAttributes(JSON.toJSONString(attrMap));
-                    edgeMapper.insertEdge(tableName, csvEdge);
+                    edgeMapper.insert(tableName, csvEdge);
                 }
             }
             edgeFile.close();
@@ -211,7 +215,7 @@ public class GraphServiceImpl implements GraphService {
      * @todoparam strategy 策略相关
      */
     // TODO: TEST
-    private ResponseVO<GexfVO> buildGraph(String graphName, List<CSVNode> nodes, List<CSVEdge> edges) {
+    public ResponseVO<GexfVO> buildGraph(String graphName, List<CSVNode> nodes, List<CSVEdge> edges) {
         List<GexfUtil.GexfNode> gexfNodes = nodes.stream().map(n -> GexfUtil.GexfNode.getInstance(n.getId(), n.getName(), JSON.parseObject(n.getAttributes()))).collect(Collectors.toList());
         List<GexfUtil.GexfEdge> gexfEdges = edges.stream().map(e -> GexfUtil.GexfEdge.getInstance(e.getSource(), e.getTarget(), JSON.parseObject(e.getAttributes()))).collect(Collectors.toList());
         String rawPath = Const.Resource + FileUtil.getMD5Name(graphName, Const.RAW) + Const.GexfEXT;
