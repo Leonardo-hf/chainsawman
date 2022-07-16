@@ -67,7 +67,7 @@ public class GraphServiceImpl implements GraphService {
                     String[] columns = lineDta.split(",");
                     CSVNode csvNode = new CSVNode();
                     csvNode.setId(Integer.parseInt(columns[0]));
-                    if (columns.length >= 2){
+                    if (columns.length < 2) {
                         continue;
                     }
                     csvNode.setName(columns[1]);
@@ -108,8 +108,8 @@ public class GraphServiceImpl implements GraphService {
                 if (!lineDta.isEmpty() && !lineDta.isBlank()) {
                     String[] columns = lineDta.split(",");
                     CSVEdge csvEdge = new CSVEdge();
-                    csvEdge.setSource(columns[0]);
-                    csvEdge.setTarget(columns[1]);
+                    csvEdge.setSource(Integer.parseInt(columns[0]));
+                    csvEdge.setTarget(Integer.parseInt(columns[1]));
                     Map<String, Object> attrMap = new HashMap<>();
                     for (int i = 2; i < columns.length; i++) {
                         attrMap.put(attrNames.get(i), columns[i]);
@@ -152,6 +152,54 @@ public class GraphServiceImpl implements GraphService {
         return buildGraph(graphName, nodes, edges);
     }
 
+    public void addEdgeWithName(String tableName, File edge) {
+        try {
+            BufferedReader edgeFile = new BufferedReader(new FileReader(edge));
+            String line;
+            List<String> attrNames = new ArrayList<>();
+            boolean header = true;
+            while ((line = edgeFile.readLine()) != null) {
+                if (header) {
+                    String[] columns = line.split(",");
+                    if (columns.length >= 2 && columns[0].equals("Source") && columns[1].equals("Target")) {
+                        attrNames.addAll(Arrays.asList(columns).subList(2, columns.length));
+                        // 创建表格
+                        edgeMapper.createTable(tableName);
+                    } else {
+                        // TODO 异常处理
+                        System.err.println("table format error");
+                        return;
+                    }
+                    header = false;
+                    continue;
+                }
+                if (!line.isEmpty() && !line.isBlank()) {
+                    String[] columns = line.split(",");
+                    CSVEdge csvEdge = new CSVEdge();
+                    CSVNode node = nodeMapper.search(tableName, columns[0]);
+                    if (node == null) {
+                        continue;
+                    }
+                    csvEdge.setSource(node.getId());
+                    node = nodeMapper.search(tableName, columns[1]);
+                    if (node == null) {
+                        continue;
+                    }
+                    csvEdge.setTarget(node.getId());
+                    Map<String, Object> attrMap = new HashMap<>();
+                    for (int i = 2; i < columns.length; i++) {
+                        attrMap.put(attrNames.get(i), columns[i]);
+                    }
+                    csvEdge.setAttributes(JSON.toJSONString(attrMap));
+                    edgeMapper.insertEdge(tableName, csvEdge);
+                }
+            }
+            edgeFile.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * 根据`节点`和`边`及其他属性构建图
@@ -164,7 +212,7 @@ public class GraphServiceImpl implements GraphService {
      */
     // TODO: TEST
     private ResponseVO<GexfVO> buildGraph(String graphName, List<CSVNode> nodes, List<CSVEdge> edges) {
-        List<GexfUtil.GexfNode> gexfNodes = nodes.stream().map(n -> GexfUtil.GexfNode.getInstance(n.getName(), JSON.parseObject(n.getAttributes()))).collect(Collectors.toList());
+        List<GexfUtil.GexfNode> gexfNodes = nodes.stream().map(n -> GexfUtil.GexfNode.getInstance(n.getId(), n.getName(), JSON.parseObject(n.getAttributes()))).collect(Collectors.toList());
         List<GexfUtil.GexfEdge> gexfEdges = edges.stream().map(e -> GexfUtil.GexfEdge.getInstance(e.getSource(), e.getTarget(), JSON.parseObject(e.getAttributes()))).collect(Collectors.toList());
         String rawPath = Const.Resource + FileUtil.getMD5Name(graphName, Const.RAW) + Const.GexfEXT;
         GexfUtil.createGexf(gexfNodes, gexfEdges, rawPath);

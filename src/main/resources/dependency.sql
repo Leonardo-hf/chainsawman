@@ -23,9 +23,9 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `edgeJava`;
 CREATE TABLE `edgeJava`
 (
-    `id`         int          NOT NULL AUTO_INCREMENT,
-    `source`     varchar(255) NOT NULL,
-    `target`     varchar(255) NOT NULL,
+    `id`         int NOT NULL AUTO_INCREMENT,
+    `source`     int NOT NULL,
+    `target`     int NOT NULL,
     `attributes` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -45,21 +45,6 @@ CREATE TABLE `nodeJava`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Table structure for stragety
--- ----------------------------
-DROP TABLE IF EXISTS `stragety`;
-CREATE TABLE `stragety`
-(
-    `id`         int NOT NULL AUTO_INCREMENT,
-    `attributes` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci;
-
-SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------
 -- Table structure for graph

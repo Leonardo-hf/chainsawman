@@ -19,11 +19,13 @@ import java.util.Map;
 public class GexfUtil {
 
     public static class GexfNode {
+        int id;
         String name;
         Map<String, Object> attributes;
 
-        public static GexfNode getInstance(String name, Map<String, Object> attributes) {
+        public static GexfNode getInstance(int nodeId, String name, Map<String, Object> attributes) {
             GexfNode gexfNode = new GexfNode();
+            gexfNode.id = nodeId;
             gexfNode.name = name;
             gexfNode.attributes = attributes;
             return gexfNode;
@@ -31,14 +33,14 @@ public class GexfUtil {
     }
 
     public static class GexfEdge {
-        String source;
-        String target;
+        int sourceId;
+        int targetId;
         Map<String, Object> attributes;
 
-        public static GexfEdge getInstance(String source, String target, Map<String, Object> attributes) {
+        public static GexfEdge getInstance(int sourceId, int targetId, Map<String, Object> attributes) {
             GexfEdge gexfEdge = new GexfEdge();
-            gexfEdge.source = source;
-            gexfEdge.target = target;
+            gexfEdge.sourceId = sourceId;
+            gexfEdge.targetId = targetId;
             gexfEdge.attributes = attributes;
             return gexfEdge;
         }
@@ -56,30 +58,28 @@ public class GexfUtil {
         // 设置点属性列表
         List<Attribute> attributes = new ArrayList<>();
         int cnt = 0;
-        if(nodes.get(0).attributes!=null) {
+        if (nodes.get(0).attributes != null) {
             for (String attrName : nodes.get(0).attributes.keySet()) {
                 attributes.add(attrList.createAttribute(String.valueOf(cnt++), AttributeType.STRING, attrName));
             }
         }
         // 创建点
-        Map<String, Node> nodeMap = new HashMap<>();
+        Map<Integer, Node> nodeMap = new HashMap<>();
         Node node;
-        int pointLength = nodes.size();
-        for (int i = 0; i < pointLength; i++) {
-            GexfNode gexfNode = nodes.get(i);
-            node = graph.createNode(String.valueOf(i))
+        for (GexfNode gexfNode : nodes) {
+            node = graph.createNode(String.valueOf(gexfNode.id))
                     .setLabel(gexfNode.name);
             AttributeValueList attributeValueList = node.getAttributeValues();
             for (Attribute attr : attributes) {
                 attributeValueList.addValue(attr, String.valueOf(gexfNode.attributes.get(attr.getTitle())));
             }
-            nodeMap.put(gexfNode.name, node);
+            nodeMap.put(gexfNode.id, node);
         }
         if (edges.size() != 0) {
             // 设置边属性列表
             attributes.clear();
             cnt = 0;
-            if(edges.get(0).attributes!=null) {
+            if (edges.get(0).attributes != null) {
                 for (String attrName : edges.get(0).attributes.keySet()) {
                     attributes.add(attrList.createAttribute(String.valueOf(cnt++), AttributeType.STRING, attrName));
                 }
@@ -87,10 +87,8 @@ public class GexfUtil {
             // 创建边
             for (GexfEdge gexfEdge : edges) {
                 try {
-                    String sourceNodeKey = gexfEdge.source;
-                    String targetNodeKey = gexfEdge.target;
-                    Node sourceNode = nodeMap.get(sourceNodeKey);
-                    Node targetNode = nodeMap.get(targetNodeKey);
+                    Node sourceNode = nodeMap.get(gexfEdge.sourceId);
+                    Node targetNode = nodeMap.get(gexfEdge.targetId);
                     Edge edge = sourceNode.connectTo(targetNode);
                     AttributeValueList attributeValueList = edge.getAttributeValues();
                     for (Attribute attr : attributes) {

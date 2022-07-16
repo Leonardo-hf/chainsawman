@@ -30,8 +30,7 @@ public class EdgeMapper {
     public List<CSVEdge> search(String type, List<String> nodeNameList) {
         Set<Integer> nodeIDList = new HashSet<>();
         for (String nodeName : nodeNameList) {
-            String sql = "select id from node" + type + " where name= \"" + nodeName+"\"";
-//            System.out.println(nodeName);
+            String sql = "select id from node" + type + " where name= \"" + nodeName + "\"";
             List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
             if (queryList != null && !queryList.isEmpty()) {
                 for (Map<String, Object> map : queryList) {
@@ -42,48 +41,33 @@ public class EdgeMapper {
         }
         Set<CSVEdge> edges = new HashSet<>();
         for (Integer id : nodeIDList) {
-            String sql1 = "select source,target,attributes from edge" + type + " where source= \"" + id+"\"";
-            String sql2 = "select source,target,attributes from edge" + type + " where target= \"" + id+"\"";
-            List<Map<String, Object>> queryList1 = jdbcTemplate.queryForList(sql1);
-            if (queryList1 != null && !queryList1.isEmpty()) {
-                for (Map<String, Object> map : queryList1) {
-                    CSVEdge edge = new CSVEdge();
-                    edge.setId((Integer) map.get("id"));
-                    edge.setSource((String) map.get("source"));
-                    edge.setTarget((String) map.get("target"));
-                    edge.setAttributes((String) map.get("attributes"));
-                    edges.add(edge);
-                }
-            }
-            List<Map<String, Object>> queryList2 = jdbcTemplate.queryForList(sql2);
-            if (queryList2 != null && !queryList2.isEmpty()) {
-                for (Map<String, Object> map : queryList2) {
-                    CSVEdge edge = new CSVEdge();
-                    edge.setId((Integer) map.get("id"));
-                    edge.setSource((String) map.get("source"));
-                    edge.setTarget((String) map.get("target"));
-                    edge.setAttributes((String) map.get("attributes"));
-                    edges.add(edge);
-                }
-            }
+            String sql1 = "select source,target,attributes from edge" + type + " where source= " + id + "";
+            String sql2 = "select source,target,attributes from edge" + type + " where target= " + id + "";
+            getEdgeIntoSet(edges, sql1);
+            getEdgeIntoSet(edges, sql2);
         }
         return new ArrayList<>(edges);
     }
 
     public List<CSVEdge> search(String type) {
-        List<CSVEdge> nodeList = new ArrayList<>();
+        Set<CSVEdge> edges = new HashSet<>();
         String sql = "select id, source, target, attributes from edge" + type;
-        List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
-        if (queryList != null && !queryList.isEmpty()) {
-            for (Map<String, Object> map : queryList) {
+        getEdgeIntoSet(edges, sql);
+        return new ArrayList<>(edges);
+    }
+
+    private void getEdgeIntoSet(Set<CSVEdge> edges, String sql) {
+        List<Map<String, Object>> queryList2 = jdbcTemplate.queryForList(sql);
+        if (queryList2 != null && !queryList2.isEmpty()) {
+            for (Map<String, Object> map : queryList2) {
                 CSVEdge edge = new CSVEdge();
                 edge.setId((Integer) map.get("id"));
-                edge.setSource((String) map.get("source"));
-                edge.setTarget((String) map.get("target"));
+                edge.setSource((Integer) map.get("source"));
+                edge.setTarget((Integer) map.get("target"));
                 edge.setAttributes((String) map.get("attributes"));
+                edges.add(edge);
             }
         }
-        return nodeList;
     }
 
     public void createTable(String graphName) {

@@ -21,6 +21,17 @@ public class NodeMapper {
         jdbcTemplate.update(sql, node.getId(), node.getName(), node.getAttributes());
     }
 
+
+    public CSVNode search(String type, String nodeName) {
+        List<String> nodeNameList = new ArrayList<>();
+        nodeNameList.add(nodeName);
+        List<CSVNode> res = search(type, nodeNameList);
+        if (res.size() == 0) {
+            return null;
+        }
+        return res.get(0);
+    }
+
     /**
      * 根据用户输入的节点名称列表，查找对应的完整的CSVNode
      *
@@ -32,16 +43,7 @@ public class NodeMapper {
         List<CSVNode> nodeList = new ArrayList<>();
         for (String nodeName : nodeNameList) {
             String sql = "select id, name, attributes from node" + type + " where name= \"" + nodeName + "\"";
-            List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
-            if (queryList != null && !queryList.isEmpty()) {
-                for (Map<String, Object> map : queryList) {
-                    CSVNode node = new CSVNode();
-                    node.setId((Integer) map.get("id"));
-                    node.setName((String) map.get("name"));
-                    node.setAttributes((String) map.get("attributes"));
-                    nodeList.add(node);
-                }
-            }
+            getNodeIntoList(nodeList, sql);
         }
         return nodeList;
     }
@@ -49,6 +51,11 @@ public class NodeMapper {
     public List<CSVNode> search(String type) {
         List<CSVNode> nodeList = new ArrayList<>();
         String sql = "select id, name, attributes from node" + type;
+        getNodeIntoList(nodeList, sql);
+        return nodeList;
+    }
+
+    private void getNodeIntoList(List<CSVNode> nodeList, String sql) {
         List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
         if (queryList != null && !queryList.isEmpty()) {
             for (Map<String, Object> map : queryList) {
@@ -56,9 +63,9 @@ public class NodeMapper {
                 node.setId((Integer) map.get("id"));
                 node.setName((String) map.get("name"));
                 node.setAttributes((String) map.get("attributes"));
+                nodeList.add(node);
             }
         }
-        return nodeList;
     }
 
     public void createTable(String graphName) {
@@ -94,13 +101,14 @@ public class NodeMapper {
     /**
      * 将closure进行处理，找到计算得到的闭包中的包对应的所有版本的序号
      * 以及这些版本依赖的包的序号（依赖的包也要在closure中），找到对应的版本名，返回出去
-     * @param type 处理的图片的类型 java/python/……
-     * @param closure 计算得到的闭包文件地址
+     *
+     * @param type        处理的图片的类型 java/python/……
+     * @param closure     计算得到的闭包文件地址
      * @param requirments requirements文件地址
      * @return nodeNameList
      * @throws IOException
      */
-    public List<String> dealClosure(String type,String closure, String requirments) throws IOException {
+    public List<String> dealClosure(String type, String closure, String requirments) throws IOException {
 
         List<String> nodeNameList = new ArrayList<>();
         // 读取closure file
@@ -128,9 +136,9 @@ public class NodeMapper {
                 if (packageSet.contains(data[2])) {
                     String sql1 = "select name from node" + type + " where id= " + data[1];
                     String sql2 = "select name from node" + type + " where id= " + data[3];
-                    Map<String, Object> map1=jdbcTemplate.queryForMap(sql1);
+                    Map<String, Object> map1 = jdbcTemplate.queryForMap(sql1);
                     nodeNameList.add((String) map1.get("name"));
-                    Map<String, Object> map2=jdbcTemplate.queryForMap(sql2);
+                    Map<String, Object> map2 = jdbcTemplate.queryForMap(sql2);
                     nodeNameList.add((String) map2.get("name"));
                 }
             }
