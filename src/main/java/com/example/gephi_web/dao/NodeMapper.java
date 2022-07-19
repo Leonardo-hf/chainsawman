@@ -20,7 +20,7 @@ public class NodeMapper {
 
     public void batchInsert(String tableName, List<CSVNode> nodes) {
         String sql = "insert into node" + tableName + "(id,name,attributes) values(?, ?, ?);";
-        jdbcTemplate.batchUpdate(sql, nodes, 512, new ParameterizedPreparedStatementSetter<CSVNode>() {
+        jdbcTemplate.batchUpdate(sql, nodes, 4096, new ParameterizedPreparedStatementSetter<CSVNode>() {
             public void setValues(PreparedStatement ps, CSVNode node)
                     throws SQLException {
                 ps.setInt(1, node.getId());

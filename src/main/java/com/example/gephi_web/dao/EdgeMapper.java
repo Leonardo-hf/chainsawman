@@ -17,7 +17,7 @@ public class EdgeMapper {
 
     public void batchInsert(String tableName, List<CSVEdge> edges) {
         String sql = "insert into edge" + tableName + "(source, target, attributes) values(?, ?, ?);";
-        jdbcTemplate.batchUpdate(sql, edges, 512, new ParameterizedPreparedStatementSetter<CSVEdge>() {
+        jdbcTemplate.batchUpdate(sql, edges, 4096, new ParameterizedPreparedStatementSetter<CSVEdge>() {
             public void setValues(PreparedStatement ps, CSVEdge edge)
                     throws SQLException {
                 ps.setInt(1, edge.getSource());

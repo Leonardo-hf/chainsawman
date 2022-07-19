@@ -16,7 +16,8 @@ public class Const {
 
     public static String TempDataSet = "temp/network/data.json";
 
-    public static String TempConfig = "temp/network/data.json";
+    public static String TempConfig = "temp/network/config.json";
+
     public static String Resource = FileUtil.getRoot() + File.separator + "static" + File.separator;
 
 }

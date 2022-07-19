@@ -86,15 +86,15 @@ public class GexfUtil {
             }
             // 创建边
             for (GexfEdge gexfEdge : edges) {
-                try {
-                    Node sourceNode = nodeMap.get(gexfEdge.sourceId);
-                    Node targetNode = nodeMap.get(gexfEdge.targetId);
-                    Edge edge = sourceNode.connectTo(targetNode);
-                    AttributeValueList attributeValueList = edge.getAttributeValues();
-                    for (Attribute attr : attributes) {
-                        attributeValueList.addValue(attr, String.valueOf(gexfEdge.attributes.get(attr.getTitle())));
-                    }
-                } catch (Exception ignored) {
+                Node sourceNode = nodeMap.get(gexfEdge.sourceId);
+                Node targetNode = nodeMap.get(gexfEdge.targetId);
+                if (sourceNode == null || targetNode == null) {
+                    continue;
+                }
+                Edge edge = sourceNode.connectTo(targetNode);
+                AttributeValueList attributeValueList = edge.getAttributeValues();
+                for (Attribute attr : attributes) {
+                    attributeValueList.addValue(attr, String.valueOf(gexfEdge.attributes.get(attr.getTitle())));
                 }
             }
         }
