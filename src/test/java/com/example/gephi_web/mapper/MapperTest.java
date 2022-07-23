@@ -38,15 +38,15 @@ public class MapperTest {
 
     @Test
     public void testSearchEdgeByNodeNameList(){
-        String type="Java";
-        List<String> nodeNameList = new ArrayList<>();
-        nodeNameList.add("abbot/abbot/1.4.0");
-        nodeNameList.add("junit/junit/4.8.2");
-        nodeNameList.add("androidx/compose/runtime/runtime/1.0.0-alpha09");
-        List<CSVEdge> edgeList=edgeMapper.search(type,nodeNameList);
-        for(CSVEdge edge:edgeList){
-            System.out.println(edge);
-        }
+//        String type="Java";
+//        List<String> nodeNameList = new ArrayList<>();
+//        nodeNameList.add("abbot/abbot/1.4.0");
+//        nodeNameList.add("junit/junit/4.8.2");
+//        nodeNameList.add("androidx/compose/runtime/runtime/1.0.0-alpha09");
+//        List<CSVEdge> edgeList=edgeMapper.search(type,nodeNameList);
+//        for(CSVEdge edge:edgeList){
+//            System.out.println(edge);
+//        }
     }
 
 }

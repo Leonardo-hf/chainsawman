@@ -1,8 +1,6 @@
 package com.example.gephi_web.dao;
 
-import com.example.gephi_web.pojo.CSVEdge;
 import com.example.gephi_web.pojo.CSVNode;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Repository;
@@ -77,6 +75,7 @@ public class NodeMapper {
         }
         return nodeList;
     }
+
 
     private void getNodeIntoList(List<CSVNode> nodeList, String sql) {
         List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
