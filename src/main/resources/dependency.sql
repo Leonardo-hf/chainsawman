@@ -20,8 +20,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- Table structure for edgeJava
 -- ----------------------------
-DROP TABLE IF EXISTS `edgeExample`;
-create table edgeJava
+DROP TABLE IF EXISTS `edgetest`;
+create table edgetest
 (
     id         int auto_increment
         primary key,
@@ -33,25 +33,25 @@ create table edgeJava
   COLLATE = utf8mb4_0900_ai_ci;
 
 create index source__index
-    on edgeJava (source);
+    on edgetest (source);
 
 create index target__index
-    on edgeJava (target);
+    on edgetest (target);
 
 
 -- ----------------------------
 -- Table structure for nodeJava
 -- ----------------------------
-DROP TABLE IF EXISTS `nodeExample`;
-CREATE TABLE `nodeJava`
-(
-    `id`         int NOT NULL,
-    `name`       varchar(255)                                                  DEFAULT NULL,
-    `attributes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci;
+# DROP TABLE IF EXISTS `nodetest`;
+# CREATE TABLE `nodetest`
+# (
+#     `id`         int NOT NULL,
+#     `name`       varchar(255)                                                  DEFAULT NULL,
+#     `attributes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+#     PRIMARY KEY (`id`)
+# ) ENGINE = InnoDB
+#   DEFAULT CHARSET = utf8mb4
+#   COLLATE = utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for graph

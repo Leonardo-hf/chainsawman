@@ -24,8 +24,6 @@ public class GraphMapper {
         }
         return graphs;
     }
-
-
     public boolean contains(String graphName) {
         String sql = String.format("select id from graph where name = '%s'", graphName);
         List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
