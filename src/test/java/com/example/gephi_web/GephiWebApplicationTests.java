@@ -42,9 +42,9 @@ class GephiWebApplicationTests {
     @Test
     public void testBuildGraph() {
         GraphServiceImpl graphService = new GraphServiceImpl();
-        List<CSVNode> nodes = nodeMapper.search("test");
-        List<CSVEdge> edges = edgeMapper.search("test");
-        graphService.buildGraph("test", nodes, edges);
+        List<CSVNode> nodes = nodeMapper.search("test2");
+        List<CSVEdge> edges = edgeMapper.search("test2");
+        graphService.buildGraph("test2", nodes, edges);
     }
 
 }

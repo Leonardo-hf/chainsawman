@@ -58,16 +58,22 @@ public class EdgeMapper {
     }
 
     private void getEdgeIntoSet(Set<CSVEdge> edges, String sql) {
-        List<Map<String, Object>> queryList2 = jdbcTemplate.queryForList(sql);
-        if (queryList2 != null && !queryList2.isEmpty()) {
-            for (Map<String, Object> map : queryList2) {
+        try {
+            Connection con = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
+            Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            stmt.setFetchSize(5000);
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
                 CSVEdge edge = new CSVEdge();
-                edge.setId((Integer) map.get("id"));
-                edge.setSource((Integer) map.get("source"));
-                edge.setTarget((Integer) map.get("target"));
-                edge.setAttributes((String) map.get("attributes"));
+                edge.setId(rs.getInt(1));
+                edge.setSource(rs.getInt(2));
+                edge.setTarget(rs.getInt(3));
+                edge.setAttributes(rs.getString(4));
                 edges.add(edge);
             }
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

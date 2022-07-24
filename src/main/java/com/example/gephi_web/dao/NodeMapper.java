@@ -1,5 +1,6 @@
 package com.example.gephi_web.dao;
 
+import com.example.gephi_web.pojo.CSVEdge;
 import com.example.gephi_web.pojo.CSVNode;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
@@ -78,15 +79,21 @@ public class NodeMapper {
 
 
     private void getNodeIntoList(List<CSVNode> nodeList, String sql) {
-        List<Map<String, Object>> queryList = jdbcTemplate.queryForList(sql);
-        if (queryList != null && !queryList.isEmpty()) {
-            for (Map<String, Object> map : queryList) {
+        try {
+            Connection con = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
+            Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            stmt.setFetchSize(5000);
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
                 CSVNode node = new CSVNode();
-                node.setId((Integer) map.get("id"));
-                node.setName((String) map.get("name"));
-                node.setAttributes((String) map.get("attributes"));
+                node.setId(rs.getInt(1));
+                node.setName(rs.getString(2));
+                node.setAttributes(rs.getString(3));
                 nodeList.add(node);
             }
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
