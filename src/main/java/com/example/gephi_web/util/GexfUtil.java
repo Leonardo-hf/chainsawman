@@ -11,10 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GexfUtil {
 
@@ -66,7 +63,9 @@ public class GexfUtil {
         // 创建点
         Map<Integer, Node> nodeMap = new HashMap<>();
         Node node;
-        for (GexfNode gexfNode : nodes) {
+        Iterator<GexfNode> nodeIt = nodes.listIterator();
+        while (nodeIt.hasNext()) {
+            GexfNode gexfNode = nodeIt.next();
             node = graph.createNode(String.valueOf(gexfNode.id))
                     .setLabel(gexfNode.name);
             AttributeValueList attributeValueList = node.getAttributeValues();
@@ -74,6 +73,7 @@ public class GexfUtil {
                 attributeValueList.addValue(attr, String.valueOf(gexfNode.attributes.get(attr.getTitle())));
             }
             nodeMap.put(gexfNode.id, node);
+            nodeIt.remove();
         }
         if (edges.size() != 0) {
             // 设置边属性列表
@@ -84,18 +84,20 @@ public class GexfUtil {
                     attributes.add(attrList.createAttribute(String.valueOf(cnt++), AttributeType.STRING, attrName));
                 }
             }
+            Iterator<GexfEdge> edgeIt = edges.listIterator();
             // 创建边
-            for (GexfEdge gexfEdge : edges) {
+            while (edgeIt.hasNext()) {
+                GexfEdge gexfEdge = edgeIt.next();
                 Node sourceNode = nodeMap.get(gexfEdge.sourceId);
                 Node targetNode = nodeMap.get(gexfEdge.targetId);
-                if (sourceNode == null || targetNode == null) {
-                    continue;
+                if (sourceNode != null && targetNode != null) {
+                    Edge edge = sourceNode.connectTo(targetNode);
+                    AttributeValueList attributeValueList = edge.getAttributeValues();
+                    for (Attribute attr : attributes) {
+                        attributeValueList.addValue(attr, String.valueOf(gexfEdge.attributes.get(attr.getTitle())));
+                    }
                 }
-                Edge edge = sourceNode.connectTo(targetNode);
-                AttributeValueList attributeValueList = edge.getAttributeValues();
-                for (Attribute attr : attributes) {
-                    attributeValueList.addValue(attr, String.valueOf(gexfEdge.attributes.get(attr.getTitle())));
-                }
+                edgeIt.remove();
             }
         }
         // 生成gexf文件
