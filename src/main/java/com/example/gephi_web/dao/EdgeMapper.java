@@ -16,8 +16,8 @@ public class EdgeMapper {
     JdbcTemplate jdbcTemplate;
 
     public void batchInsert(String tableName, List<CSVEdge> edges) {
-        String sql = "insert into edge" + tableName + "(source, target, attributes) values(?, ?, ?);";
-        jdbcTemplate.batchUpdate(sql, edges, 4096, new ParameterizedPreparedStatementSetter<CSVEdge>() {
+        String sql = "insert into edge" + tableName + "(source, target, attributes) values(?, ?, ?)";
+        jdbcTemplate.batchUpdate(sql, edges, 204800, new ParameterizedPreparedStatementSetter<CSVEdge>() {
             public void setValues(PreparedStatement ps, CSVEdge edge)
                     throws SQLException {
                 ps.setInt(1, edge.getSource());
@@ -28,7 +28,7 @@ public class EdgeMapper {
     }
 
     public void insert(String tableName, CSVEdge edge) {
-        String sql = "insert into edge" + tableName + "(source, target, attributes) values(?, ?, ?);";
+        String sql = "insert into edge" + tableName + "(source, target, attributes) values(?, ?, ?)";
         jdbcTemplate.update(sql, edge.getSource(), edge.getTarget(), edge.getAttributes());
     }
 
@@ -90,10 +90,8 @@ public class EdgeMapper {
                         primary key,
                     source     int          not null,
                     target     int          not null,
-                    attributes varchar(255) null
-                ) ENGINE = InnoDB
-                  DEFAULT CHARSET = utf8mb4
-                  COLLATE = utf8mb4_0900_ai_ci;
+                    attributes varchar(512) null
+                ) ENGINE = InnoDB;
 
                 create index source__index
                     on edge%s (source);

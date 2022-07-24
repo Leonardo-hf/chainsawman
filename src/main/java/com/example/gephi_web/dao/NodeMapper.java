@@ -17,8 +17,8 @@ public class NodeMapper {
 
 
     public void batchInsert(String tableName, List<CSVNode> nodes) {
-        String sql = "insert into node" + tableName + "(id,name,attributes) values(?, ?, ?);";
-        jdbcTemplate.batchUpdate(sql, nodes, 4096, new ParameterizedPreparedStatementSetter<CSVNode>() {
+        String sql = "insert into node" + tableName + "(id,name,attributes) values(?, ?, ?)";
+        jdbcTemplate.batchUpdate(sql, nodes, 204800, new ParameterizedPreparedStatementSetter<CSVNode>() {
             public void setValues(PreparedStatement ps, CSVNode node)
                     throws SQLException {
                 ps.setInt(1, node.getId());
@@ -102,16 +102,14 @@ public class NodeMapper {
             e.printStackTrace();
         }
         jdbcTemplate.update(String.format("""
-                DROP TABLE IF EXISTS `edge%s`;
+                DROP TABLE IF EXISTS `node%s`;
                 CREATE TABLE `node%s`
                 (
                     `id`         int NOT NULL,
-                    `name`       varchar(255)                                                  DEFAULT NULL,
-                    `attributes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+                    `name`       varchar(512)  DEFAULT NULL,
+                    `attributes` varchar(512)  DEFAULT NULL,
                     PRIMARY KEY (`id`)
-                ) ENGINE = InnoDB
-                  DEFAULT CHARSET = utf8mb4
-                  COLLATE = utf8mb4_0900_ai_ci;
+                ) ENGINE = InnoDB;
                 """, graphName, graphName));
     }
 

@@ -81,8 +81,8 @@ public class GraphServiceImpl implements GraphService {
                     nodes.add(csvNode);
                 }
             }
-            nodeMapper.batchInsert(tableName, nodes);
             nodeFile.close();
+            nodeMapper.batchInsert(tableName, nodes);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -122,8 +122,8 @@ public class GraphServiceImpl implements GraphService {
                     edges.add(csvEdge);
                 }
             }
-            edgeMapper.batchInsert(tableName, edges);
             edgeFile.close();
+            edgeMapper.batchInsert(tableName, edges);
         } catch (IOException e) {
             e.printStackTrace();
         }

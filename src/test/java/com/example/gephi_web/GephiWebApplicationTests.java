@@ -26,10 +26,10 @@ class GephiWebApplicationTests {
 
     @Test
     public void testInsertData() {
-        File fileNode = new File(Const.Resource + "node.csv");
-        File fileEdge = new File(Const.Resource + "edge.csv");
-        graphService.addNode("test", fileNode);
-        graphService.addEdge("test", fileEdge);
+        File fileNode = new File(Const.Resource + "node2.csv");
+        File fileEdge = new File(Const.Resource + "edge2.csv");
+        graphService.addNode("test2", fileNode);
+        graphService.addEdge("test2", fileEdge);
     }
 
 
