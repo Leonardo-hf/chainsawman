@@ -80,7 +80,7 @@ public class NodeMapper {
 
     private void getNodeIntoList(List<CSVNode> nodeList, String sql) {
         try {
-            Connection con = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
+            Connection con = jdbcTemplate.getDataSource().getConnection();
             Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             stmt.setFetchSize(5000);
             ResultSet rs = stmt.executeQuery(sql);
@@ -91,6 +91,7 @@ public class NodeMapper {
                 node.setAttributes(rs.getString(3));
                 nodeList.add(node);
             }
+            con.close();
             rs.close();
         } catch (Exception e) {
             e.printStackTrace();

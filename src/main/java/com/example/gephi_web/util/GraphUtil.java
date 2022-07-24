@@ -27,7 +27,6 @@ import uk.ac.ox.oii.sigmaexporter.SigmaExporter;
 import uk.ac.ox.oii.sigmaexporter.model.ConfigFile;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class GraphUtil {
     public static void getGraph(String srcPath, String destPath) {

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.util.List;
 
 @SpringBootTest
@@ -19,12 +18,13 @@ public class ServiceTest {
     NodeMapper nodeMapper;
 
     @Test
-    public void testBuildGraphWithFliter() throws IOException {
-        String grahName = "Java";
-        List<String> nodeNameList = nodeMapper.dealClosure(grahName,"/Users/taozehua/Downloads/研究任务/图谱构建/closure.csv","/Users/taozehua/Downloads/研究任务/图谱构建/requirements.csv");
-        FilterVO filterVO=new FilterVO();
+    public void testBuildGraphWithFliter() {
+        String grahName = "test";
+        List<String> nodeNameList = List.of("pytest", "requests", "six", "numpy", "flake8", "pandas", "matplotlib", "scipy", "sphinx", "nose", "toml", "lxml");
+        FilterVO filterVO = new FilterVO();
         filterVO.setGraphName(grahName);
         filterVO.setNodeNameList(nodeNameList);
+        filterVO.setDistance(2);
         System.out.println(graphService.searchNodes(filterVO));
     }
 }

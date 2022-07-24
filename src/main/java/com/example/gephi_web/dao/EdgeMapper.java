@@ -52,7 +52,7 @@ public class EdgeMapper {
 
     public List<CSVEdge> search(String type) {
         Set<CSVEdge> edges = new HashSet<>();
-        String sql = "select id, source, target, attributes from edge" + type;
+        String sql = "select source, target, attributes from edge" + type;
         getEdgeIntoSet(edges, sql);
         return new ArrayList<>(edges);
     }
@@ -65,12 +65,12 @@ public class EdgeMapper {
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 CSVEdge edge = new CSVEdge();
-                edge.setId(rs.getInt(1));
-                edge.setSource(rs.getInt(2));
-                edge.setTarget(rs.getInt(3));
-                edge.setAttributes(rs.getString(4));
+                edge.setSource(rs.getInt(1));
+                edge.setTarget(rs.getInt(2));
+                edge.setAttributes(rs.getString(3));
                 edges.add(edge);
             }
+            con.close();
             rs.close();
         } catch (Exception e) {
             e.printStackTrace();

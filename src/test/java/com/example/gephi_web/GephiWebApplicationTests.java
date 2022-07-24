@@ -21,15 +21,11 @@ class GephiWebApplicationTests {
     GraphService graphService;
 
     @Test
-    void contextLoads() {
-    }
-
-    @Test
     public void testInsertData() {
-        File fileNode = new File(Const.Resource + "node2.csv");
-        File fileEdge = new File(Const.Resource + "edge2.csv");
-        graphService.addNode("test2", fileNode);
-        graphService.addEdge("test2", fileEdge);
+        File fileNode = new File(Const.Resource + "node.csv");
+        File fileEdge = new File(Const.Resource + "edge.csv");
+        graphService.addNode("test", fileNode);
+        graphService.addEdge("test", fileEdge);
     }
 
 
@@ -42,9 +38,9 @@ class GephiWebApplicationTests {
     @Test
     public void testBuildGraph() {
         GraphServiceImpl graphService = new GraphServiceImpl();
-        List<CSVNode> nodes = nodeMapper.search("test2");
-        List<CSVEdge> edges = edgeMapper.search("test2");
-        graphService.buildGraph("test2", nodes, edges);
+        List<CSVNode> nodes = nodeMapper.search("test");
+        List<CSVEdge> edges = edgeMapper.search("test");
+        graphService.buildGraph("test", nodes, edges);
     }
 
 }
