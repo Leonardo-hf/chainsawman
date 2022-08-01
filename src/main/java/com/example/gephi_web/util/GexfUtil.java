@@ -47,6 +47,10 @@ public class GexfUtil {
         if (nodes.size() == 0) {
             return;
         }
+        File f = new File(path);
+        if (f.exists()){
+            return;
+        }
         // 定义gexf文件
         Gexf gexf = new GexfImpl();
         Graph graph = gexf.getGraph();
@@ -102,7 +106,6 @@ public class GexfUtil {
         }
         // 生成gexf文件
         StaxGraphWriter graphWriter = new StaxGraphWriter();
-        File f = new File(path);
         Writer out;
         try {
             out = new FileWriter(f, false);

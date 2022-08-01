@@ -31,6 +31,9 @@ import java.nio.charset.StandardCharsets;
 
 public class GraphUtil {
     public static void getGraph(String srcPath, String destPath) {
+        if (new File(destPath).exists()){
+            return;
+        }
         // 准备环境
         // 初始化一个项目
         ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
@@ -58,7 +61,7 @@ public class GraphUtil {
         FilterController filterController = Lookup.getDefault().lookup(FilterController.class);
         DegreeRangeBuilder.DegreeRangeFilter degreeFilter = new DegreeRangeBuilder.DegreeRangeFilter();
         degreeFilter.init(graphModel.getGraph());
-        degreeFilter.setRange(new Range(1, Integer.MAX_VALUE));
+        degreeFilter.setRange(new Range(10, Integer.MAX_VALUE));
         Query query = filterController.createQuery(degreeFilter);
         GraphView view = filterController.filter(query);
         graphModel.setVisibleView(view);
@@ -126,6 +129,10 @@ public class GraphUtil {
 //            ec.exportFile(FileUtil.getFile(destPath), exporter);
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+        File dir=new File(FileUtil.getRoot()+Const.TempDir);
+        if(!dir.exists()){
+            dir.mkdir();
         }
         SigmaExporter se = new SigmaExporter();
         se.setWorkspace(workspace);
