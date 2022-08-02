@@ -36,6 +36,5 @@ build/
 *.pdf
 
 static/*
-!static/node.csv
-!static/edge.csv
+lib/*
 temp
