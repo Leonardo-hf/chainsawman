@@ -42,9 +42,9 @@ public class EdgeMapper {
     public List<CSVEdge> search(String type, List<Integer> nodeIdList) {
         Set<CSVEdge> edges = new HashSet<>();
         for (Integer id : nodeIdList) {
-            String sql1 = "select source,target,attributes from edge" + type + " where source= " + id + "";
+//            String sql1 = "select source,target,attributes from edge" + type + " where source= " + id + "";
             String sql2 = "select source,target,attributes from edge" + type + " where target= " + id + "";
-            getEdgeIntoSet(edges, sql1);
+//            getEdgeIntoSet(edges, sql1);
             getEdgeIntoSet(edges, sql2);
         }
         return new ArrayList<>(edges);

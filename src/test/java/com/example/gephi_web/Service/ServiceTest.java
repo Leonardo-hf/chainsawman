@@ -20,11 +20,11 @@ public class ServiceTest {
     @Test
     public void testBuildGraphWithFliter() {
         String grahName = "test";
-        List<String> nodeNameList = List.of("pytest", "requests", "six", "numpy", "flake8", "pandas", "matplotlib", "scipy", "sphinx", "nose", "toml", "lxml");
+        List<String> nodeNameList = List.of("six");
         FilterVO filterVO = new FilterVO();
         filterVO.setGraphName(grahName);
         filterVO.setNodeNameList(nodeNameList);
-        filterVO.setDistance(2);
+        filterVO.setDistance(1);
         System.out.println(graphService.searchNodes(filterVO));
     }
 }
