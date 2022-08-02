@@ -141,17 +141,17 @@ public class GraphUtil {
         se.setConfigFile(cf, FileUtil.getRoot()+Const.TempDir, false);
         se.execute();
         try (InputStream dataset = new FileInputStream(FileUtil.getRoot()+Const.TempDataSet); InputStream config = new FileInputStream(FileUtil.getRoot()+Const.TempConfig); OutputStream sigmaJSON = new FileOutputStream(destPath)) {
-            sigmaJSON.write("{\"config\":".getBytes());
+//            sigmaJSON.write("{\"config\":".getBytes());
             byte[] buf = new byte[1024];
             int bytesRead;
-            while ((bytesRead = config.read(buf)) > 0) {
-                sigmaJSON.write(buf, 0, bytesRead);
-            }
-            sigmaJSON.write(",\n\"data\":".getBytes());
+//            while ((bytesRead = config.read(buf)) > 0) {
+//                sigmaJSON.write(buf, 0, bytesRead);
+//            }
+//            sigmaJSON.write(",\n\"data\":".getBytes());
             while ((bytesRead = dataset.read(buf)) > 0) {
                 sigmaJSON.write(buf, 0, bytesRead);
             }
-            sigmaJSON.write("}".getBytes());
+//            sigmaJSON.write("}".getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

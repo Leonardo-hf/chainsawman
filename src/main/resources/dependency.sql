@@ -59,7 +59,7 @@ create index target__index
 DROP TABLE IF EXISTS `graph`;
 CREATE TABLE `graph`
 (
-    `id`   int NOT NULL,
+    `id`   int auto_increment NOT NULL,
     `name` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB

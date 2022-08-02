@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "spring.datasource.servlet.multipart.max-file-size",
+      "type": "java.lang.String",
+      "description": "Description for spring.datasource.servlet.multipart.max-file-size."
+  }
+] }
