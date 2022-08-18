@@ -31,22 +31,12 @@ public class MapperTest {
         for (CSVNode node : nodeList) {
             System.out.println(node);
         }
-        assert nodeList.get(0).getId()==3;
-        assert nodeList.get(1).getId()==4;
-        assert nodeList.get(2).getId()==14;
+        assert nodeList.get(0).getId() == 3;
+        assert nodeList.get(1).getId() == 4;
+        assert nodeList.get(2).getId() == 14;
     }
 
     @Test
-    public void testSearchEdgeByNodeNameList(){
-//        String type="Java";
-//        List<String> nodeNameList = new ArrayList<>();
-//        nodeNameList.add("abbot/abbot/1.4.0");
-//        nodeNameList.add("junit/junit/4.8.2");
-//        nodeNameList.add("androidx/compose/runtime/runtime/1.0.0-alpha09");
-//        List<CSVEdge> edgeList=edgeMapper.search(type,nodeNameList);
-//        for(CSVEdge edge:edgeList){
-//            System.out.println(edge);
-//        }
+    public void testSearchEdgeByNodeNameList() {
     }
-
 }

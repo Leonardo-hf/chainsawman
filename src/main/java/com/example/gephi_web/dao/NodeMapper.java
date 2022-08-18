@@ -77,7 +77,6 @@ public class NodeMapper {
         return nodeList;
     }
 
-
     private void getNodeIntoList(List<CSVNode> nodeList, String sql) {
         try {
             Connection con = jdbcTemplate.getDataSource().getConnection();

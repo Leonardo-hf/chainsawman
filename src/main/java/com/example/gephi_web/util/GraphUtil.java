@@ -22,6 +22,7 @@ import org.gephi.preview.api.PreviewProperty;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.gephi.statistics.plugin.Modularity;
+import org.gephi.statistics.plugin.PageRank;
 import org.openide.util.Lookup;
 import uk.ac.ox.oii.sigmaexporter.SigmaExporter;
 import uk.ac.ox.oii.sigmaexporter.model.ConfigFile;
@@ -30,6 +31,9 @@ import java.io.*;
 
 public class GraphUtil {
     public static void getGraph(String srcPath, String destPath) {
+        if (new File(destPath).exists()) {
+            return;
+        }
         // 准备环境
         // 初始化一个项目
         ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
@@ -77,18 +81,19 @@ public class GraphUtil {
         modularity.execute(graphModel);
         // 由模块化算法创建分类并设置颜色
         Column modColumn = graphModel.getNodeTable().getColumn(Modularity.MODULARITY_CLASS);
-
         Function func = appearanceModel.getNodeFunction(modColumn, PartitionElementColorTransformer.class);
-        Partition partition = ((PartitionFunction) func).getPartition();
-        int divisionCount = partition.size(filterNewGraph); // 社区划分数量
-        System.out.println(divisionCount + " partitions found");
-        Palette palette = PaletteManager.getInstance().randomPalette(divisionCount);
-        partition.setColors(filterNewGraph, palette.getColors());
-        appearanceController.transform(func);
+        if (func != null) {
+            Partition partition = ((PartitionFunction) func).getPartition();
+            int divisionCount = partition.size(filterNewGraph); // 社区划分数量
+            System.out.println(divisionCount + " partitions found");
+            Palette palette = PaletteManager.getInstance().randomPalette(divisionCount);
+            partition.setColors(filterNewGraph, palette.getColors());
+            appearanceController.transform(func);
+        }
         // 分配节点大小：按中心性排序大小
         Column centralityColumn = graphModel.getNodeTable().getColumn(Modularity.MODULARITY_CLASS);
-        // TODO?没有传入图真得没事吗
         Function centralityRanking = appearanceModel.getNodeFunction(centralityColumn, RankingNodeSizeTransformer.class);
+
         RankingNodeSizeTransformer centralityTransformer = centralityRanking.getTransformer();
         centralityTransformer.setMinSize(1);
         centralityTransformer.setMaxSize(5);
@@ -121,29 +126,33 @@ public class GraphUtil {
 //        exporter.setExportVisible(true);
 //        exporter.setWorkspace(workspace);
         try {
-            ec.exportFile(new File(FileUtil.getRoot()+"test.pdf"));
+            ec.exportFile(new File(FileUtil.getRoot() + "test.pdf"));
 //            ec.exportFile(FileUtil.getFile(destPath), exporter);
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+        File dir = new File(FileUtil.getRoot() + Const.TempDir);
+        if (!dir.exists()) {
+            dir.mkdir();
         }
         SigmaExporter se = new SigmaExporter();
         se.setWorkspace(workspace);
         ConfigFile cf = new ConfigFile();
         cf.setDefaults();
-        se.setConfigFile(cf, FileUtil.getRoot()+Const.TempDir, false);
+        se.setConfigFile(cf, FileUtil.getRoot() + Const.TempDir, false);
         se.execute();
-        try (InputStream dataset = new FileInputStream(FileUtil.getRoot()+Const.TempDataSet); InputStream config = new FileInputStream(FileUtil.getRoot()+Const.TempConfig); OutputStream sigmaJSON = new FileOutputStream(destPath)) {
-            sigmaJSON.write("{\"config\":".getBytes());
+        try (InputStream dataset = new FileInputStream(FileUtil.getRoot() + Const.TempDataSet); InputStream config = new FileInputStream(FileUtil.getRoot() + Const.TempConfig); OutputStream sigmaJSON = new FileOutputStream(destPath)) {
+//            sigmaJSON.write("{\"config\":".getBytes());
             byte[] buf = new byte[1024];
             int bytesRead;
-            while ((bytesRead = config.read(buf)) > 0) {
-                sigmaJSON.write(buf, 0, bytesRead);
-            }
-            sigmaJSON.write(",\n\"data\":".getBytes());
+//            while ((bytesRead = config.read(buf)) > 0) {
+//                sigmaJSON.write(buf, 0, bytesRead);
+//            }
+//            sigmaJSON.write(",\n\"data\":".getBytes());
             while ((bytesRead = dataset.read(buf)) > 0) {
                 sigmaJSON.write(buf, 0, bytesRead);
             }
-            sigmaJSON.write("}".getBytes());
+//            sigmaJSON.write("}".getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

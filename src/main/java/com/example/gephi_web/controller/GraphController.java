@@ -6,9 +6,8 @@ import com.example.gephi_web.vo.GexfVO;
 import com.example.gephi_web.vo.ResponseVO;
 import com.example.gephi_web.vo.UploadVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,12 +19,14 @@ public class GraphController {
 
     /**
      * 上传新的图表
-     * @param uploadVO
      * @return
      */
     @PostMapping("/upload")
-    public ResponseVO<GexfVO> upload(UploadVO uploadVO) {
-        return graphService.upload(uploadVO);
+    public ResponseVO<GexfVO> upload(String graphName, MultipartFile nodeFile,MultipartFile edgeFile) {
+        UploadVO uploadVO=new UploadVO(graphName,nodeFile,edgeFile);
+        ResponseVO<GexfVO> ret=graphService.upload(uploadVO);
+        System.out.println("end");
+        return ret;
     }
 
     /**
@@ -33,7 +34,7 @@ public class GraphController {
      * @return
      */
     @PostMapping("/filter")
-    public ResponseVO<GexfVO> filter(FilterVO filterVO) {
+    public ResponseVO<GexfVO> filter(@RequestBody FilterVO filterVO) {
         return graphService.searchNodes(filterVO);
     }
 

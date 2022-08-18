@@ -135,6 +135,9 @@ public class GraphServiceImpl implements GraphService {
     @Override
     public ResponseVO<GexfVO> searchNodes(FilterVO filterVO) {
         String graphName = filterVO.getGraphName();
+        if (!graphMapper.contains(graphName)) {
+            return new ResponseVO<>(HttpStatus.FILE_NOT_EXIST);
+        }
         List<CSVNode> nodes = nodeMapper.search(graphName, filterVO.getNodeNameList());
         Set<Integer> nodeIdSet = nodes.stream().map(CSVNode::getId).collect(Collectors.toSet()),
                 visitIdSet = new HashSet<>();
@@ -155,12 +158,13 @@ public class GraphServiceImpl implements GraphService {
         List<CSVNode> allNode = nodeMapper.searchById(graphName, new ArrayList<>(nodeIdSet));
         return buildTempGraph(allNode, new ArrayList<>(allEdge));
     }
-    // TODO: TEST
+
+
     @Override
     public ResponseVO<GexfVO> upload(UploadVO uploadVO) {
         String graphName = uploadVO.getGraphName();
         if (graphMapper.contains(graphName)) {
-            return new ResponseVO<>(HttpStatus.FILE_ALREADY_EXISTS);
+            return new ResponseVO<>(HttpStatus.FILE_ALREADY_EXISTS, new GexfVO(graphName, FileUtil.getMD5Name(graphName, Const.MODIFY) + Const.JsonEXT));
         }
         File node = FileUtil.save(uploadVO.getNodeFile());
         addNode(graphName, node);
@@ -171,53 +175,6 @@ public class GraphServiceImpl implements GraphService {
         graphMapper.insert(graphName);
         return buildGraph(graphName, nodes, edges);
     }
-
-//    public void addEdgeWithName(String tableName, File edge) {
-//        try {
-//            BufferedReader edgeFile = new BufferedReader(new FileReader(edge));
-//            String line;
-//            List<String> attrNames = new ArrayList<>();
-//            boolean header = true;
-//            while ((line = edgeFile.readLine()) != null) {
-//                if (header) {
-//                    String[] columns = line.split(",");
-//                    if (columns.length >= 2 && columns[0].equals("Source") && columns[1].equals("Target")) {
-//                        attrNames.addAll(Arrays.asList(columns).subList(2, columns.length));
-//                        // 创建表格
-//                        edgeMapper.createTable(tableName);
-//                    } else {
-//                        System.err.println("table format error");
-//                        return;
-//                    }
-//                    header = false;
-//                    continue;
-//                }
-//                if (!line.isEmpty() && !line.isBlank()) {
-//                    String[] columns = line.split(",");
-//                    CSVEdge csvEdge = new CSVEdge();
-//                    CSVNode node = nodeMapper.search(tableName, columns[0]);
-//                    if (node == null) {
-//                        continue;
-//                    }
-//                    csvEdge.setSource(node.getId());
-//                    node = nodeMapper.search(tableName, columns[1]);
-//                    if (node == null) {
-//                        continue;
-//                    }
-//                    csvEdge.setTarget(node.getId());
-//                    Map<String, Object> attrMap = new HashMap<>();
-//                    for (int i = 2; i < columns.length; i++) {
-//                        attrMap.put(attrNames.get(i), columns[i]);
-//                    }
-//                    csvEdge.setAttributes(JSON.toJSONString(attrMap));
-//                    edgeMapper.insert(tableName, csvEdge);
-//                }
-//            }
-//            edgeFile.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public ResponseVO<GexfVO> buildTempGraph(List<CSVNode> nodes, List<CSVEdge> edges) {
         return buildGraph(UUID.randomUUID().toString(), nodes, edges);
@@ -240,7 +197,7 @@ public class GraphServiceImpl implements GraphService {
         GexfUtil.createGexf(gexfNodes, gexfEdges, rawPath);
         String modPath = Const.Resource + FileUtil.getMD5Name(graphName, Const.MODIFY) + Const.JsonEXT;
         GraphUtil.getGraph(rawPath, modPath);
-        return new ResponseVO<>(HttpStatus.COMMON_OK, new GexfVO(graphName, modPath));
+        return new ResponseVO<>(HttpStatus.COMMON_OK, new GexfVO(graphName, FileUtil.getMD5Name(graphName, Const.MODIFY) + Const.JsonEXT));
     }
 
     @Override
@@ -248,7 +205,7 @@ public class GraphServiceImpl implements GraphService {
         List<String> graphs = graphMapper.looksAll();
         List<GexfVO> gexfs = new ArrayList<>();
         for (String graph : graphs) {
-            gexfs.add(new GexfVO(graph, Const.Resource + FileUtil.getMD5Name(graph, Const.MODIFY) + Const.JsonEXT));
+            gexfs.add(new GexfVO(graph, FileUtil.getMD5Name(graph, Const.MODIFY) + Const.JsonEXT));
         }
         return new ResponseVO<>(HttpStatus.COMMON_OK, gexfs);
     }
