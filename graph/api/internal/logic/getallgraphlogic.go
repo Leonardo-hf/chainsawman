@@ -1,12 +1,10 @@
 package logic
 
 import (
-	"chainsawman/graph/config"
-	"context"
-
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
-
+	"chainsawman/graph/config"
+	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -29,6 +27,7 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err e
 	if err != nil {
 		return nil, err
 	}
+	resp = &types.SearchAllGraphReply{}
 	for _, graph := range graphs {
 		resp.Graphs = append(resp.Graphs, &types.Graph{
 			Name:  graph.Name,

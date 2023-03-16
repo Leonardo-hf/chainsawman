@@ -29,6 +29,7 @@ func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGr
 	if err != nil {
 		return nil, err
 	}
+	resp = &types.SearchGraphDetailReply{}
 	for _, node := range nodes {
 		resp.Nodes = append(resp.Nodes, &types.Node{
 			Name: node.Name,
