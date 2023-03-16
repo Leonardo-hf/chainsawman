@@ -1,0 +1,55 @@
+type (
+	Graph {
+		Name  string `json:"name"`
+		Desc  string `json:"desc"`
+		Nodes int64  `json:"nodes"`
+		Edges int64  `json:"edges"`
+	}
+
+	Node {
+		Name string `json:"name"`
+		Desc string `json:"desc"`
+	}
+
+	Edge {
+		Source string `json:"source"`
+		Target string `json:"target"`
+	}
+
+	SearchAllGraphReply {
+		Base   *BaseReply `json:"base"`
+		Graphs []*Graph   `json:"graphs"`
+	}
+
+	SearchGraphReply {
+		Base  *BaseReply `json:"base"`
+		Graph *Graph     `json:"graph"`
+	}
+
+	SearchGraphDetailReply {
+		Base  *BaseReply `json:"base"`
+		Nodes []*Node    `json:"nodes"`
+		Edges []*Edge    `json:"edges"`
+	}
+
+	BaseReply {
+		Status int64             `json:"status"`
+		Msg    string            `json:"msg"`
+		Extra  map[string]string `json:"extra"`
+	}
+
+	SearchRequest {
+		Graph string `path:"graph"`
+	}
+)
+service graph {
+	@handler getAllGraph
+	get /api/graph/getAll returns (SearchAllGraphReply)
+	
+	@handler getGraph
+	get /api/graph/get/:graph (SearchRequest) returns (SearchGraphDetailReply)
+	
+	// request: file - 文件
+	@handler upload
+	post /api/graph/upload returns (SearchGraphReply)
+}
