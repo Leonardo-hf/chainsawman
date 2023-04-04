@@ -41,6 +41,10 @@ type (
 	SearchRequest {
 		Graph string `path:"graph"`
 	}
+
+	DropRequest {
+		Graph string `json:"graph"`
+	}
 )
 service graph {
 	@handler getAllGraph
@@ -48,6 +52,9 @@ service graph {
 	
 	@handler getGraph
 	get /api/graph/get/:graph (SearchRequest) returns (SearchGraphDetailReply)
+	
+	@handler dropGraph
+	post /api/graph/drop (DropRequest) returns (BaseReply)
 	
 	// request: file - 文件
 	@handler upload

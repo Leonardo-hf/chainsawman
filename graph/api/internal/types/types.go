@@ -43,3 +43,7 @@ type BaseReply struct {
 type SearchRequest struct {
 	Graph string `path:"graph"`
 }
+
+type DropRequest struct {
+	Graph string `json:"graph"`
+}

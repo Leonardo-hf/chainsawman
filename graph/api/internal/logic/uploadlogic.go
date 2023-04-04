@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"chainsawman/graph/model"
 	"context"
 	"fmt"
 	"io"
@@ -12,8 +13,6 @@ import (
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
 	"chainsawman/graph/config"
-	"chainsawman/graph/db"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -33,6 +32,7 @@ func NewUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadLogi
 	}
 }
 
+// Upload TODO: 改变为提交task
 func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err error) {
 	_ = r.ParseMultipartForm(maxFileSize)
 	graph := r.FormValue("graph")
@@ -44,13 +44,13 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 	if err != nil {
 		return nil, err
 	}
-	var nodes []*db.Node
+	var nodes []*model.Node
 	records, err := handle(file)
 	for _, record := range records {
 		name, nameOK := record["name"]
 		desc, descOK := record["desc"]
 		if nameOK && descOK {
-			node := &db.Node{Name: name, Desc: desc}
+			node := &model.Node{Name: name, Desc: desc}
 			nodes = append(nodes, node)
 		}
 	}
@@ -62,13 +62,13 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 	if err != nil {
 		return nil, err
 	}
-	var edges []*db.Edge
+	var edges []*model.Edge
 	records, err = handle(file)
 	for _, record := range records {
 		source, sourceOK := record["source"]
 		target, targetOK := record["target"]
 		if sourceOK && targetOK {
-			edge := &db.Edge{Source: source, Target: target}
+			edge := &model.Edge{Source: source, Target: target}
 			edges = append(edges, edge)
 		}
 	}

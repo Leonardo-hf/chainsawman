@@ -24,6 +24,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/api/graph/drop",
+				Handler: dropGraphHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/api/graph/upload",
 				Handler: uploadHandler(serverCtx),
 			},
