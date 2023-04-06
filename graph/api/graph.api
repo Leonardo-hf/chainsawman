@@ -26,6 +26,15 @@ type (
 		Graph *Graph     `json:"graph"`
 	}
 
+	SearchNodeReply {
+		Base   *BaseReply `json:"base"`
+		TaskID int64      `json:"taskId"`
+		Status int64      `json:"status"`
+		Info   *Node      `json:"node"`
+		Nodes  []*Node    `json:"nodes"`
+		Edges  []*Edge    `json:"edges"`
+	}
+
 	SearchGraphDetailReply {
 		Base  *BaseReply `json:"base"`
 		Nodes []*Node    `json:"nodes"`
@@ -42,6 +51,14 @@ type (
 		Graph string `path:"graph"`
 	}
 
+	SearchNodeRequest {
+		TaskID   int64  `json:"taskId"`
+		Graph    string `json:"graph"`
+		Node     string `json:"node"`
+		Distance int64  `json:"distance"`
+		Min      int64  `json:"min"`
+	}
+
 	DropRequest {
 		Graph string `json:"graph"`
 	}
@@ -52,6 +69,9 @@ service graph {
 	
 	@handler getGraph
 	get /api/graph/get/:graph (SearchRequest) returns (SearchGraphDetailReply)
+	
+	@handler getNode
+	get /api/node/get (SearchNodeRequest) returns (SearchNodeReply)
 	
 	@handler dropGraph
 	post /api/graph/drop (DropRequest) returns (BaseReply)

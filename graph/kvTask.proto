@@ -5,8 +5,9 @@ option go_package = "./model";
 message KVTask {
   int64 id = 1;
   string name = 2;
-  string script = 3;
+  string params = 3;
   int64 status = 4;
   int64 createTime = 5;
   int64 updateTime = 6;
+  string result = 7;
 }

@@ -23,6 +23,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: getGraphHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/api/node/get",
+				Handler: getNodeHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/api/graph/drop",
 				Handler: dropGraphHandler(serverCtx),

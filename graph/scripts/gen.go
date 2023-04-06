@@ -2,13 +2,15 @@ package main
 
 import (
 	"chainsawman/graph/config"
+
 	"fmt"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
-const dsn = config.Dsn
+const dsn = config.MysqlAddr
 
 func main() {
 	db, err := gorm.Open(mysql.Open(dsn))

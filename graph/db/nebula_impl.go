@@ -1,16 +1,40 @@
 package db
 
 import (
-	nebula2 "chainsawman/graph/model"
+	"chainsawman/graph/model"
 	"fmt"
-
 	nebula "github.com/vesoft-inc/nebula-go/v3"
+	"log"
 )
 
 type NebulaClientImpl struct {
 	Pool     *nebula.ConnectionPool
 	Username string
 	Password string
+}
+
+type NebulaConfig struct {
+	Addr     string
+	Port     int
+	Log      nebula.Logger
+	Username string
+	Passwd   string
+}
+
+func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
+	hostAddress := nebula.HostAddress{Host: cfg.Addr, Port: cfg.Port}
+	hostList := []nebula.HostAddress{hostAddress}
+	testPoolConfig := nebula.GetDefaultConf()
+	pool, err := nebula.NewConnectionPool(hostList, testPoolConfig, cfg.Log)
+	if err != nil {
+		msg := fmt.Sprintf("Fail to initialize the connection pool, host: %s, port: %d, %s", cfg.Addr, cfg.Port, err.Error())
+		log.Fatal(msg)
+	}
+	return &NebulaClientImpl{
+		Pool:     pool,
+		Username: cfg.Username,
+		Password: cfg.Passwd,
+	}
 }
 
 func (n *NebulaClientImpl) CreateGraph(graph string) error {
@@ -34,7 +58,7 @@ func (n *NebulaClientImpl) CreateGraph(graph string) error {
 	return err
 }
 
-func (n *NebulaClientImpl) InsertNode(graph string, node *nebula2.Node) (int, error) {
+func (n *NebulaClientImpl) InsertNode(graph string, node *model.Node) (int, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return 0, err
@@ -51,7 +75,7 @@ func (n *NebulaClientImpl) InsertNode(graph string, node *nebula2.Node) (int, er
 	return res.GetColSize(), nil
 }
 
-func (n *NebulaClientImpl) MultiInsertNodes(graph string, nodes []*nebula2.Node) (int, error) {
+func (n *NebulaClientImpl) MultiInsertNodes(graph string, nodes []*model.Node) (int, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return 0, err
@@ -70,7 +94,7 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph string, nodes []*nebula2.Node)
 	return len(nodes), nil
 }
 
-func (n *NebulaClientImpl) InsertEdge(graph string, edge *nebula2.Edge) (int, error) {
+func (n *NebulaClientImpl) InsertEdge(graph string, edge *model.Edge) (int, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return 0, err
@@ -87,7 +111,7 @@ func (n *NebulaClientImpl) InsertEdge(graph string, edge *nebula2.Edge) (int, er
 	return res.GetColSize(), nil
 }
 
-func (n *NebulaClientImpl) MultiInsertEdges(graph string, edges []*nebula2.Edge) (int, error) {
+func (n *NebulaClientImpl) MultiInsertEdges(graph string, edges []*model.Edge) (int, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return 0, err
@@ -134,7 +158,7 @@ func countEdges(graph string, session *nebula.Session) (int64, error) {
 	return count(graph, "sedge YIELD edge AS e", session)
 }
 
-func (n *NebulaClientImpl) GetGraphs() ([]*nebula2.Graph, error) {
+func (n *NebulaClientImpl) GetGraphs() ([]*model.Graph, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
@@ -147,7 +171,7 @@ func (n *NebulaClientImpl) GetGraphs() ([]*nebula2.Graph, error) {
 	if !res.IsSucceed() {
 		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
-	var graphs []*nebula2.Graph
+	var graphs []*model.Graph
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
 		name, _ := record.GetValueByColName("Name")
@@ -160,7 +184,7 @@ func (n *NebulaClientImpl) GetGraphs() ([]*nebula2.Graph, error) {
 		if err != nil {
 			return nil, err
 		}
-		graphs = append(graphs, &nebula2.Graph{
+		graphs = append(graphs, &model.Graph{
 			Name:  nameStr,
 			Nodes: nodeCnt,
 			Edges: edgeCnt,
@@ -169,7 +193,7 @@ func (n *NebulaClientImpl) GetGraphs() ([]*nebula2.Graph, error) {
 	return graphs, nil
 }
 
-func (n *NebulaClientImpl) GetNodes(graph string) ([]*nebula2.Node, error) {
+func (n *NebulaClientImpl) GetNodes(graph string) ([]*model.Node, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
@@ -184,14 +208,14 @@ func (n *NebulaClientImpl) GetNodes(graph string) ([]*nebula2.Node, error) {
 	if !res.IsSucceed() {
 		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
-	var nodes []*nebula2.Node
+	var nodes []*model.Node
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
 		name, _ := record.GetValueByColName("name")
 		nameStr, _ := name.AsString()
 		desc, _ := record.GetValueByColName("intro")
 		descStr, _ := desc.AsString()
-		nodes = append(nodes, &nebula2.Node{
+		nodes = append(nodes, &model.Node{
 			Name: nameStr,
 			Desc: descStr,
 		})
@@ -199,7 +223,7 @@ func (n *NebulaClientImpl) GetNodes(graph string) ([]*nebula2.Node, error) {
 	return nodes, nil
 }
 
-func (n *NebulaClientImpl) GetEdges(graph string) ([]*nebula2.Edge, error) {
+func (n *NebulaClientImpl) GetEdges(graph string) ([]*model.Edge, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
@@ -214,14 +238,14 @@ func (n *NebulaClientImpl) GetEdges(graph string) ([]*nebula2.Edge, error) {
 	if !res.IsSucceed() {
 		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
-	var edges []*nebula2.Edge
+	var edges []*model.Edge
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
 		source, _ := record.GetValueByColName("src")
 		sourceStr, _ := source.AsString()
 		target, _ := record.GetValueByColName("dst")
 		targetStr, _ := target.AsString()
-		edges = append(edges, &nebula2.Edge{
+		edges = append(edges, &model.Edge{
 			Source: sourceStr,
 			Target: targetStr,
 		})
@@ -241,6 +265,51 @@ func (n *NebulaClientImpl) DropGraph(graph string) error {
 		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
 	return err
+}
+
+// GetNeighbors TODO: 这方法是给消费者用的，好像可以用UNWIND优化一下输出结果；没有应用上度数过滤，emm
+func (n *NebulaClientImpl) GetNeighbors(graph string, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error) {
+	session, err := n.getSession()
+	if err != nil {
+		return nil, nil, err
+	}
+	goSchema := fmt.Sprintf("USE %v;"+
+		"GET SUBGRAPH WITH PROP %v STEPS FROM \"%v\" YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, node)
+	res, err := session.Execute(goSchema)
+	if !res.IsSucceed() {
+		return nil, nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+	}
+	var nodes []*model.Node
+	var edges []*model.Edge
+	for i := 0; i < res.GetRowSize(); i++ {
+		record, _ := res.GetRowValuesByIndex(i)
+		snodes, _ := record.GetValueByColName("nodes")
+		snodesList, _ := snodes.AsList()
+		for _, snodeWrapper := range snodesList {
+			snode, _ := snodeWrapper.AsNode()
+			snodeProps, _ := snode.Properties("snode")
+			name, _ := snode.GetID().AsString()
+			intro, _ := snodeProps["intro"].AsString()
+			crt := &model.Node{
+				Name: name,
+				Desc: intro,
+			}
+			nodes = append(nodes, crt)
+		}
+		sedges, _ := record.GetValueByColName("relations")
+		sedgesList, _ := sedges.AsList()
+		for _, sedgeWrapper := range sedgesList {
+			sedge, _ := sedgeWrapper.AsRelationship()
+			src, _ := sedge.GetSrcVertexID().AsString()
+			dst, _ := sedge.GetDstVertexID().AsString()
+			crt := &model.Edge{
+				Source: src,
+				Target: dst,
+			}
+			edges = append(edges, crt)
+		}
+	}
+	return nodes, edges, nil
 }
 
 func (n *NebulaClientImpl) getSession() (*nebula.Session, error) {

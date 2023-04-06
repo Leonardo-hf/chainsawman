@@ -28,6 +28,15 @@ type SearchGraphReply struct {
 	Graph *Graph     `json:"graph"`
 }
 
+type SearchNodeReply struct {
+	Base   *BaseReply `json:"base"`
+	TaskID int64      `json:"taskId"`
+	Status int64      `json:"status"`
+	Info   *Node      `json:"node"`
+	Nodes  []*Node    `json:"nodes"`
+	Edges  []*Edge    `json:"edges"`
+}
+
 type SearchGraphDetailReply struct {
 	Base  *BaseReply `json:"base"`
 	Nodes []*Node    `json:"nodes"`
@@ -42,6 +51,14 @@ type BaseReply struct {
 
 type SearchRequest struct {
 	Graph string `path:"graph"`
+}
+
+type SearchNodeRequest struct {
+	TaskID   int64  `json:"taskId"`
+	Graph    string `json:"graph"`
+	Node     string `json:"node"`
+	Distance int64  `json:"distance"`
+	Min      int64  `json:"min"`
 }
 
 type DropRequest struct {
