@@ -44,6 +44,6 @@ func initMysql() {
 }
 
 func init() {
-	//initNebula()
+	initNebula()
 	//initMysql()
 }

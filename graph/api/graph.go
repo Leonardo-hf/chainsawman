@@ -13,6 +13,7 @@ import (
 var configFile = flag.String("f", "graph/api/etc/graph.yaml", "the config file")
 
 func main() {
+
 	flag.Parse()
 
 	var c config.Config
