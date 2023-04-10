@@ -11,7 +11,6 @@ type Graph struct {
 type Node struct {
 	Name string `json:"name"`
 	Desc string `json:"desc"`
-	Deg  int64  `json:"deg"`
 }
 
 type Edge struct {
@@ -51,8 +50,7 @@ type BaseReply struct {
 }
 
 type SearchRequest struct {
-	Graph string `json:"graph"`
-	Min   int64  `json:"min"`
+	Graph string `path:"graph"`
 }
 
 type SearchNodeRequest struct {

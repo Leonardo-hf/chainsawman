@@ -19,7 +19,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/api/graph/get/:graph",
+				Path:    "/api/graph/get",
 				Handler: getGraphHandler(serverCtx),
 			},
 			{

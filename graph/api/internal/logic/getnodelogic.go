@@ -52,7 +52,7 @@ func (l *GetNodeLogic) GetNode(req *types.SearchNodeRequest) (resp *types.Search
 				Id:         oTask.ID,
 				Name:       oTask.Name,
 				Params:     oTask.Params,
-				Status:     oTask.Status,
+				Status:     model.KVTask_Status(oTask.Status),
 				CreateTime: oTask.CreateTime,
 				UpdateTime: oTask.UpdateTime,
 				Result:     oTask.Result,
@@ -64,7 +64,7 @@ func (l *GetNodeLogic) GetNode(req *types.SearchNodeRequest) (resp *types.Search
 			return nil, err
 		}
 		// 任务完成了
-		if status == 1 {
+		if status == int(model.KVTask_Finished) {
 			err = jsonx.UnmarshalFromString(result, resp)
 			if err != nil {
 				return nil, err
@@ -90,7 +90,7 @@ func (l *GetNodeLogic) GetNode(req *types.SearchNodeRequest) (resp *types.Search
 		Id:         oTask.ID,
 		Name:       oTask.Name,
 		Params:     oTask.Params,
-		Status:     oTask.Status,
+		Status:     model.KVTask_Status(oTask.Status),
 		CreateTime: oTask.CreateTime,
 		UpdateTime: oTask.UpdateTime,
 	})

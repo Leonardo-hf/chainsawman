@@ -32,7 +32,7 @@ func NewUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadLogi
 	}
 }
 
-// Upload TODO: 改变为提交task
+// Upload TODO: 改变为提交task，改变为从request中拿到文件地址
 func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err error) {
 	_ = r.ParseMultipartForm(maxFileSize)
 	graph := r.FormValue("graph")
@@ -45,6 +45,7 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 		return nil, err
 	}
 	var nodes []*model.Node
+	nodeMap := make(map[string]*model.Node)
 	records, err := handle(file)
 	for _, record := range records {
 		name, nameOK := record["name"]
@@ -52,11 +53,9 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 		if nameOK && descOK {
 			node := &model.Node{Name: name, Desc: desc}
 			nodes = append(nodes, node)
+			// 把点放到nodeMap, 后面赋度数
+			nodeMap[name] = node
 		}
-	}
-	_, err = config.NebulaClient.MultiInsertNodes(graph, nodes)
-	if err != nil {
-		return nil, err
 	}
 	file, _, err = r.FormFile("edges")
 	if err != nil {
@@ -67,10 +66,23 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 	for _, record := range records {
 		source, sourceOK := record["source"]
 		target, targetOK := record["target"]
+		if _, sourceExist := nodeMap[source]; !sourceExist {
+			continue
+		}
+		if _, targetExist := nodeMap[target]; !targetExist {
+			continue
+		}
 		if sourceOK && targetOK {
 			edge := &model.Edge{Source: source, Target: target}
 			edges = append(edges, edge)
+			// 给点加度数
+			nodeMap[source].Deg++
+			nodeMap[target].Deg++
 		}
+	}
+	_, err = config.NebulaClient.MultiInsertNodes(graph, nodes)
+	if err != nil {
+		return nil, err
 	}
 	_, err = config.NebulaClient.MultiInsertEdges(graph, edges)
 	if err != nil {
