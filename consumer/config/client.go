@@ -1,7 +1,7 @@
 package config
 
 import (
-	"chainsawman/graph/db"
+	"chainsawman/consumer/db"
 	"time"
 
 	nebula "github.com/vesoft-inc/nebula-go/v3"
