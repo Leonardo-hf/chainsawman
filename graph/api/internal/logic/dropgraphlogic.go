@@ -15,6 +15,9 @@ type DropGraphLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
+type test struct {
+}
+
 func NewDropGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DropGraphLogic {
 	return &DropGraphLogic{
 		Logger: logx.WithContext(ctx),
