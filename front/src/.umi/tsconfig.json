@@ -27,7 +27,7 @@
         "src/.umi/*"
       ],
       "@umijs/max": [
-        "/home/approdite/IdeaProjects/chainsawman-frontend/node_modules/umi"
+        "/home/approdite/GolandProjects/chainsawman/front/node_modules/umi"
       ],
       "@umijs/max/typings": [
         "src/.umi/typings"

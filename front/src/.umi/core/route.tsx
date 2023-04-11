@@ -11,8 +11,8 @@ export async function getRoutes() {
 '1': React.lazy(() => import( './EmptyRoute')),
 '2': React.lazy(() => import( './EmptyRoute')),
 '3': React.lazy(() => import(/* webpackChunkName: "p__Graph__index" */'@/pages/Graph/index.tsx')),
-'ant-design-pro-layout': React.lazy(() => import(/* webpackChunkName: "umi__plugin-layout__Layout" */'/home/approdite/IdeaProjects/chainsawman-frontend/src/.umi/plugin-layout/Layout.tsx')),
-'umi/plugin/openapi': React.lazy(() => import(/* webpackChunkName: "umi__plugin-openapi__openapi" */'/home/approdite/IdeaProjects/chainsawman-frontend/src/.umi/plugin-openapi/openapi.tsx')),
+'ant-design-pro-layout': React.lazy(() => import(/* webpackChunkName: "umi__plugin-layout__Layout" */'/home/approdite/GolandProjects/chainsawman/front/src/.umi/plugin-layout/Layout.tsx')),
+'umi/plugin/openapi': React.lazy(() => import(/* webpackChunkName: "umi__plugin-openapi__openapi" */'/home/approdite/GolandProjects/chainsawman/front/src/.umi/plugin-openapi/openapi.tsx')),
 },
   };
 }

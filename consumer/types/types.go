@@ -66,3 +66,9 @@ type SearchNodeRequest struct {
 type DropRequest struct {
 	Graph string `json:"graph"`
 }
+
+type UploadRequest struct {
+	Graph  string `json:"graph"`
+	NodeID string `json:"nodeId"`
+	EdgeID string `json:"edgeId"`
+}

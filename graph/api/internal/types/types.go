@@ -19,6 +19,14 @@ type Edge struct {
 	Target string `json:"target"`
 }
 
+type BaseReply struct {
+	Status     int64             `json:"status"`
+	Msg        string            `json:"msg"`
+	TaskID     int64             `json:"taskId"`
+	TaskStatus int64             `json:"taskStatus"`
+	Extra      map[string]string `json:"extra"`
+}
+
 type SearchAllGraphReply struct {
 	Base   *BaseReply `json:"base"`
 	Graphs []*Graph   `json:"graphs"`
@@ -30,12 +38,10 @@ type SearchGraphReply struct {
 }
 
 type SearchNodeReply struct {
-	Base   *BaseReply `json:"base"`
-	TaskID int64      `json:"taskId"`
-	Status int64      `json:"status"`
-	Info   *Node      `json:"node"`
-	Nodes  []*Node    `json:"nodes"`
-	Edges  []*Edge    `json:"edges"`
+	Base  *BaseReply `json:"base"`
+	Info  *Node      `json:"node"`
+	Nodes []*Node    `json:"nodes"`
+	Edges []*Edge    `json:"edges"`
 }
 
 type SearchGraphDetailReply struct {
@@ -44,15 +50,10 @@ type SearchGraphDetailReply struct {
 	Edges []*Edge    `json:"edges"`
 }
 
-type BaseReply struct {
-	Status int64             `json:"status"`
-	Msg    string            `json:"msg"`
-	Extra  map[string]string `json:"extra"`
-}
-
 type SearchRequest struct {
-	Graph string `json:"graph"`
-	Min   int64  `json:"min"`
+	TaskID int64  `json:"taskId"`
+	Graph  string `json:"graph"`
+	Min    int64  `json:"min"`
 }
 
 type SearchNodeRequest struct {
@@ -65,4 +66,11 @@ type SearchNodeRequest struct {
 
 type DropRequest struct {
 	Graph string `json:"graph"`
+}
+
+type UploadRequest struct {
+	TaskID int64  `json:"taskId"`
+	Graph  string `json:"graph"`
+	NodeID string `json:"nodeId"`
+	EdgeID string `json:"edgeId"`
 }

@@ -1,5 +1,5 @@
-import {useRequest} from 'umi';
-import {getAllGraph} from "@/services/graph/graph";
+import type {RequestConfig} from 'umi';
+
 // 运行时配置
 
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
@@ -7,6 +7,19 @@ import {getAllGraph} from "@/services/graph/graph";
 export async function getInitialState(): Promise<{ name: string }> {
     return {name: '@umijs/m322x'};
 }
+
+export const request: RequestConfig = {
+    timeout: 1000,
+    // other axios options you want
+    errorConfig: {
+        errorHandler() {
+        },
+        errorThrower() {
+        }
+    },
+    requestInterceptors: [],
+    responseInterceptors: []
+};
 
 // async function getMenu() {
 //     const {data, error, loading} = useRequest(getAllGraph(), {throwOnError: true});

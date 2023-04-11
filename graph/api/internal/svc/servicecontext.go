@@ -6,13 +6,18 @@ import (
 )
 
 type ServiceContext struct {
-	Config       config.Config
+	Config config.Config
+
 	NebulaClient db.NebulaClient
+	RedisClient  db.RedisClient
+	MysqlClient  db.MysqlClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:       c,
-		NebulaClient: db.InitNebulaClient(&c.NebulaConfig),
+		NebulaClient: db.InitNebulaClient(&c.Nebula),
+		RedisClient:  db.InitRedisClient(&c.Redis),
+		MysqlClient:  db.InitMysqlClient(&c.Mysql),
 	}
 }

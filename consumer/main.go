@@ -17,16 +17,17 @@ import (
 var handleTable map[string]handler.Handler
 
 func initHandleTable() {
-	handleTable["getGraph"] = &handler.GetGraph{}
-	handleTable["getNode"] = &handler.GetNode{}
-	handleTable["upload"] = &handler.Upload{}
+	handleTable["GetGraph"] = &handler.GetGraph{}
+	handleTable["GetNode"] = &handler.GetNode{}
+	handleTable["Upload"] = &handler.Upload{}
 }
 
 func main() {
 	var configFile = flag.String("f", "consumer/api/etc/consumer.yaml", "the config api")
 	var c config.Config
+	_ = conf.Load(*configFile, &c)
+	config.Init(&c)
 	initHandleTable()
-	conf.MustLoad(*configFile, &c)
 	consumerID := uuid.New().String()
 	ctx := context.Background()
 	for true {

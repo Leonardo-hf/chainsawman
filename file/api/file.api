@@ -3,7 +3,7 @@ type UploadReply {
 	Size int64  `json:"size"`
 }
 
-service file-api {
+service file {
 	@handler upload
 	post /api/file/upload returns (UploadReply)
 }

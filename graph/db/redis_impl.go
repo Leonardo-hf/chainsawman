@@ -17,10 +17,10 @@ type RedisClientImpl struct {
 }
 
 type RedisConfig struct {
-	Addr       string
-	Topic      string
-	Group      string
-	Expiration time.Duration
+	Addr    string
+	Topic   string
+	Group   string
+	Expired int64
 }
 
 func InitRedisClient(cfg *RedisConfig) RedisClient {
@@ -31,7 +31,7 @@ func InitRedisClient(cfg *RedisConfig) RedisClient {
 	return &RedisClientImpl{
 		rdb:        rdb,
 		topic:      cfg.Topic,
-		expiration: cfg.Expiration,
+		expiration: time.Duration(cfg.Expired) * time.Second,
 		group:      cfg.Group,
 	}
 }

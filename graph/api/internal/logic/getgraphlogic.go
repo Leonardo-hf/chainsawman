@@ -3,10 +3,10 @@ package logic
 import (
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
+	"chainsawman/graph/api/internal/util"
 
 	"context"
 
-	set "github.com/deckarep/golang-set"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,32 +25,17 @@ func NewGetGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetGraph
 }
 
 func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGraphDetailReply, err error) {
-
-	nodes, err := l.svcCtx.NebulaClient.GetNodes(req.Graph, req.Min)
-
-	if err != nil {
-		return nil, err
-	}
 	resp = &types.SearchGraphDetailReply{}
-	nodeSet := set.NewThreadUnsafeSet()
-	for _, node := range nodes {
-		resp.Nodes = append(resp.Nodes, &types.Node{
-			Name: node.Name,
-			Desc: node.Desc,
-		})
-		nodeSet.Add(node.Name)
+	if req.TaskID != 0 {
+		// 任务已经提交过
+		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
 	}
-	edges, err := l.svcCtx.NebulaClient.GetEdges(req.Graph)
+	// 任务没提交过，创建任务
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, "GetGraph", req)
 	if err != nil {
 		return nil, err
 	}
-	for _, edge := range edges {
-		if nodeSet.Contains(edge.Source) || nodeSet.Contains(edge.Target) {
-			resp.Edges = append(resp.Edges, &types.Edge{
-				Source: edge.Source,
-				Target: edge.Target,
-			})
-		}
-	}
-	return resp, nil
+	req.TaskID = taskID
+	// 重试一次
+	return l.GetGraph(req)
 }

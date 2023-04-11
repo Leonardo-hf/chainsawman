@@ -7,5 +7,8 @@ import (
 
 type Config struct {
 	rest.RestConf
-	NebulaConfig db.NebulaConfig
+
+	Nebula db.NebulaConfig
+	Redis  db.RedisConfig
+	Mysql  db.MysqlConfig
 }

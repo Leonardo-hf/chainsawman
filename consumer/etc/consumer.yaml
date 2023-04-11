@@ -1,0 +1,17 @@
+FileRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: file.rpc
+
+NebulaCfg:
+  Addr: "127.0.0.1"
+  Port: 9669
+  Username: "root"
+  Passwd: "nebula"
+RedisCfg:
+  Addr: "localhost:6379"
+  Topic: "task"
+  Group: "task_consumers"
+MysqlCfg:
+  Addr: "root:12345678@(localhost:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"

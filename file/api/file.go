@@ -19,7 +19,6 @@ func main() {
 
 	var c config.Config
 	_ = conf.Load(*configFile, &c)
-	c.Init()
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()

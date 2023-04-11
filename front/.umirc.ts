@@ -5,7 +5,9 @@ export default defineConfig({
     access: {},
     model: {},
     initialState: {},
-    request: {},
+    request: {
+        dataField: 'data'
+    },
     dva: {},
     layout: {
         title: 'chainsawman',
