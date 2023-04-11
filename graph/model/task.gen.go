@@ -9,7 +9,7 @@ const TableNameTask = "task"
 // Task mapped from table <task>
 type Task struct {
 	ID         int64  `gorm:"column:id;type:int;primaryKey;autoIncrement:true" json:"id"`
-	Script     string `gorm:"column:script;type:varchar(1024)" json:"script"`
+	Params     string `gorm:"column:params;type:varchar(1024)" json:"params"`
 	UpdateTime int64  `gorm:"column:update_time;type:int unsigned;autoUpdateTime" json:"update_time"`
 	Name       string `gorm:"column:name;type:varchar(255);not null" json:"name"`
 	Status     int64  `gorm:"column:status;type:int;not null" json:"status"`

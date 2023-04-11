@@ -17,22 +17,22 @@ type RedisClientImpl struct {
 }
 
 type RedisConfig struct {
-	addr       string
-	topic      string
-	group      string
-	expiration time.Duration
+	Addr       string
+	Topic      string
+	Group      string
+	Expiration time.Duration
 }
 
-func InitRedisClient(config *RedisConfig) RedisClient {
+func InitRedisClient(cfg *RedisConfig) RedisClient {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: config.addr,
+		Addr: cfg.Addr,
 	})
-	rdb.XGroupCreate(context.Background(), config.topic, config.group, "0")
+	rdb.XGroupCreate(context.Background(), cfg.Topic, cfg.Group, "0")
 	return &RedisClientImpl{
 		rdb:        rdb,
-		topic:      config.topic,
-		expiration: config.expiration,
-		group:      config.group,
+		topic:      cfg.Topic,
+		expiration: cfg.Expiration,
+		group:      cfg.Group,
 	}
 }
 
@@ -66,7 +66,7 @@ func (r *RedisClientImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask
 		Values: map[string]interface{}{
 			"id":     task.Id,
 			"name":   task.Name,
-			"script": task.Script,
+			"params": task.Params,
 		},
 	})
 	return cmd.Err()
@@ -91,7 +91,7 @@ func (r *RedisClientImpl) ConsumeTaskMsg(ctx context.Context, consumer string, h
 		task := &model.KVTask{
 			Id:     msg.Values["id"].(int64),
 			Name:   msg.Values["name"].(string),
-			Script: msg.Values["script"].(string),
+			Params: msg.Values["params"].(string),
 		}
 		if err = handle(task); err == nil {
 			cmd := r.rdb.XAck(ctx, r.topic, r.group, msg.ID)

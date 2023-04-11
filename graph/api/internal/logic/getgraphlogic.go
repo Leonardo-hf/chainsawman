@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"chainsawman/graph/config"
 	"context"
 
 	"chainsawman/graph/api/internal/svc"
@@ -25,7 +24,7 @@ func NewGetGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetGraph
 }
 
 func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGraphDetailReply, err error) {
-	nodes, err := config.NebulaClient.GetNodes(req.Graph)
+	nodes, err := l.svcCtx.NebulaClient.GetNodes(req.Graph)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +35,7 @@ func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGr
 			Desc: node.Desc,
 		})
 	}
-	edges, err := config.NebulaClient.GetEdges(req.Graph)
+	edges, err := l.svcCtx.NebulaClient.GetEdges(req.Graph)
 	if err != nil {
 		return nil, err
 	}

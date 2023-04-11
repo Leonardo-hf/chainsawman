@@ -28,7 +28,7 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	tableName := _task.taskDo.TableName()
 	_task.ALL = field.NewAsterisk(tableName)
 	_task.ID = field.NewInt64(tableName, "id")
-	_task.Script = field.NewString(tableName, "script")
+	_task.Params = field.NewString(tableName, "params")
 	_task.UpdateTime = field.NewInt64(tableName, "update_time")
 	_task.Name = field.NewString(tableName, "name")
 	_task.Status = field.NewInt64(tableName, "status")
@@ -45,7 +45,7 @@ type task struct {
 
 	ALL        field.Asterisk
 	ID         field.Int64
-	Script     field.String
+	Params     field.String
 	UpdateTime field.Int64
 	Name       field.String
 	Status     field.Int64
@@ -68,7 +68,7 @@ func (t task) As(alias string) *task {
 func (t *task) updateTableName(table string) *task {
 	t.ALL = field.NewAsterisk(table)
 	t.ID = field.NewInt64(table, "id")
-	t.Script = field.NewString(table, "script")
+	t.Params = field.NewString(table, "params")
 	t.UpdateTime = field.NewInt64(table, "update_time")
 	t.Name = field.NewString(table, "name")
 	t.Status = field.NewInt64(table, "status")
@@ -92,7 +92,7 @@ func (t *task) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (t *task) fillFieldMap() {
 	t.fieldMap = make(map[string]field.Expr, 7)
 	t.fieldMap["id"] = t.ID
-	t.fieldMap["script"] = t.Script
+	t.fieldMap["params"] = t.Params
 	t.fieldMap["update_time"] = t.UpdateTime
 	t.fieldMap["name"] = t.Name
 	t.fieldMap["status"] = t.Status

@@ -3,7 +3,6 @@ package logic
 import (
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
-	"chainsawman/graph/config"
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,7 +22,7 @@ func NewGetAllGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetAl
 }
 
 func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err error) {
-	graphs, err := config.NebulaClient.GetGraphs()
+	graphs, err := l.svcCtx.NebulaClient.GetGraphs()
 	if err != nil {
 		return nil, err
 	}

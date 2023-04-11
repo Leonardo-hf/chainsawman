@@ -1,7 +1,11 @@
 package config
 
-import "github.com/zeromicro/go-zero/rest"
+import (
+	"chainsawman/graph/db"
+	"github.com/zeromicro/go-zero/rest"
+)
 
 type Config struct {
 	rest.RestConf
+	NebulaConfig db.NebulaConfig
 }

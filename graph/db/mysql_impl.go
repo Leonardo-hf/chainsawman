@@ -8,31 +8,35 @@ import (
 	"gorm.io/gorm"
 )
 
-type ClientImpl struct {
+type MysqlClientImpl struct {
 }
 
-func InitClientImpl(dsn string) MysqlClient {
-	database, err := gorm.Open(mysql.Open(dsn))
+type MysqlConfig struct {
+	Addr string
+}
+
+func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
+	database, err := gorm.Open(mysql.Open(cfg.Addr))
 	if err != nil {
 		panic(err)
 	}
 	query.SetDefault(database)
-	return &ClientImpl{}
+	return &MysqlClientImpl{}
 }
 
-func (c *ClientImpl) InsertTask(task *model.Task) error {
+func (c *MysqlClientImpl) InsertTask(task *model.Task) error {
 	t := query.Task
 	task.Status = 0
-	return t.Select(t.Name, t.Script, t.Status).Create(task)
+	return t.Select(t.Name, t.Params, t.Status).Create(task)
 }
 
-func (c *ClientImpl) UpdateTask(task *model.Task) (int64, error) {
+func (c *MysqlClientImpl) UpdateTask(task *model.Task) (int64, error) {
 	t := query.Task
 	info, err := t.Update(t.Status, task.Status)
 	return info.RowsAffected, err
 }
 
-func (c *ClientImpl) SearchTaskById(id int64) (*model.Task, error) {
+func (c *MysqlClientImpl) SearchTaskById(id int64) (*model.Task, error) {
 	t := query.Task
 	return t.Where(t.ID.Eq(id)).First()
 }

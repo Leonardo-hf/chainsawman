@@ -12,7 +12,6 @@ import (
 	"chainsawman/common"
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
-	"chainsawman/graph/config"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -36,7 +35,7 @@ func NewUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadLogi
 func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err error) {
 	_ = r.ParseMultipartForm(maxFileSize)
 	graph := r.FormValue("graph")
-	err = config.NebulaClient.CreateGraph(graph)
+	err = l.svcCtx.NebulaClient.CreateGraph(graph)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +53,7 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 			nodes = append(nodes, node)
 		}
 	}
-	_, err = config.NebulaClient.MultiInsertNodes(graph, nodes)
+	_, err = l.svcCtx.NebulaClient.MultiInsertNodes(graph, nodes)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +71,7 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 			edges = append(edges, edge)
 		}
 	}
-	_, err = config.NebulaClient.MultiInsertEdges(graph, edges)
+	_, err = l.svcCtx.NebulaClient.MultiInsertEdges(graph, edges)
 	if err != nil {
 		return nil, err
 	}
