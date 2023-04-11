@@ -3,6 +3,7 @@ module chainsawman
 go 1.20
 
 require (
+	github.com/deckarep/golang-set v1.8.0
 	github.com/extrame/xls v0.0.1
 	github.com/golang/protobuf v1.5.2
 	github.com/redis/go-redis/v9 v9.0.3

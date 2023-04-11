@@ -4,7 +4,6 @@ import (
 	"chainsawman/graph/model"
 )
 
-// NebulaClient TODO: 删掉用不上的接口
 type NebulaClient interface {
 	CreateGraph(graph string) error
 
@@ -18,7 +17,7 @@ type NebulaClient interface {
 
 	GetGraphs() ([]*model.Graph, error)
 
-	GetNodes(graph string, min int64) ([]*model.Node, error)
+	GetNodes(graph string) ([]*model.Node, error)
 
 	GetEdges(graph string) ([]*model.Edge, error)
 
