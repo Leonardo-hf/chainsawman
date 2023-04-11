@@ -1,22 +1,25 @@
 package main
 
 import (
-	"chainsawman/graph/api/internal/config"
-	"chainsawman/graph/api/internal/handler"
-	"chainsawman/graph/api/internal/svc"
 	"flag"
 	"fmt"
+
+	"chainsawman/file/api/internal/config"
+	"chainsawman/file/api/internal/handler"
+	"chainsawman/file/api/internal/svc"
+
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "graph/api/etc/graph.yaml", "the config api")
+var configFile = flag.String("f", "etc/file.yaml", "the config api")
 
 func main() {
 	flag.Parse()
 
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	_ = conf.Load(*configFile, &c)
+	c.Init()
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()

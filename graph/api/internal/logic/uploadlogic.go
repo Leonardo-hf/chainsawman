@@ -32,8 +32,8 @@ func NewUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadLogi
 	}
 }
 
-// Upload TODO: 改变为提交task，改变为从request中拿到文件地址
 func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err error) {
+
 	_ = r.ParseMultipartForm(maxFileSize)
 	graph := r.FormValue("graph")
 	err = config.NebulaClient.CreateGraph(graph)

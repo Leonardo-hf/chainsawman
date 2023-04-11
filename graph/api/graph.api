@@ -78,7 +78,6 @@ service graph {
 	@handler dropGraph
 	post /api/graph/drop (DropRequest) returns (BaseReply)
 	
-	// request: file - 文件
 	@handler upload
 	post /api/graph/upload returns (SearchGraphReply)
 }

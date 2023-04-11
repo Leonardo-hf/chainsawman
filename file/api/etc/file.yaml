@@ -1,0 +1,5 @@
+Name: file
+Host: 0.0.0.0
+Port: 8890
+Path: ../storage
+Expired: 120

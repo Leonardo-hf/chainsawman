@@ -135,7 +135,7 @@ func (c *xlsxParser) Next() (Record, error) {
 func NewExcelParser(path string) (ExcelParser, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("[Excel] no such file, path = %v", path)
+		return nil, fmt.Errorf("[Excel] no such api, path = %v", path)
 	}
 	if strings.HasSuffix(path, ".csv") {
 		return initCSVParser(file)
@@ -144,5 +144,5 @@ func NewExcelParser(path string) (ExcelParser, error) {
 	} else if strings.HasSuffix(path, ".xlsx") {
 		return initXLSXParser(file)
 	}
-	return nil, fmt.Errorf("[Excel] only suppot csv, xls and xlsx, but the file passed is %v", path)
+	return nil, fmt.Errorf("[Excel] only suppot csv, xls and xlsx, but the api passed is %v", path)
 }

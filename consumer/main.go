@@ -23,7 +23,7 @@ func initHandleTable() {
 }
 
 func main() {
-	var configFile = flag.String("f", "consumer/api/etc/consumer.yaml", "the config file")
+	var configFile = flag.String("f", "consumer/api/etc/consumer.yaml", "the config api")
 	var c config.Config
 	initHandleTable()
 	conf.MustLoad(*configFile, &c)
