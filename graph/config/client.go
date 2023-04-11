@@ -3,8 +3,6 @@ package config
 import (
 	"chainsawman/graph/db"
 	"time"
-
-	nebula "github.com/vesoft-inc/nebula-go/v3"
 )
 
 var NebulaClient db.NebulaClient
@@ -33,18 +31,16 @@ func initDB() {
 	NebulaClient = db.InitNebulaClient(&db.NebulaConfig{
 		Addr:     nebulaAddr,
 		Port:     nebulaPort,
-		Log:      nebula.DefaultLogger{},
 		Username: nebulaUsername,
 		Passwd:   nebulaPasswd,
 	})
-	MysqlClient = db.InitMysqlClient(&db.MysqlConfig{Addr: MysqlAddr})
-	RedisClient = db.InitRedisClient(&db.RedisConfig{
-		Addr:       redisAddr,
-		Topic:      redisTopic,
-		Group:      redisGroup,
-		Expiration: redisExpiration,
-	})
+	MysqlClient = nil
+	RedisClient = nil
 }
 func init() {
+
+	//initMysql()
+
 	//initDB()
+
 }

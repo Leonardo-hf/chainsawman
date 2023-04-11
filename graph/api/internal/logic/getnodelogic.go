@@ -29,6 +29,7 @@ func NewGetNodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetNodeLo
 
 func (l *GetNodeLogic) GetNode(req *types.SearchNodeRequest) (resp *types.SearchNodeReply, err error) {
 	// TODO: 这个方法里的先查redis再查mysql之类的流程可以抽象成通用的方法
+
 	resp = &types.SearchNodeReply{TaskID: req.TaskID}
 	if req.TaskID != 0 {
 		// 任务已经提交过

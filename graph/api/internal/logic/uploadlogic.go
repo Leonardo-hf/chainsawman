@@ -12,7 +12,6 @@ import (
 	"chainsawman/common"
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
-	"chainsawman/graph/config"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -36,7 +35,7 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 
 	_ = r.ParseMultipartForm(maxFileSize)
 	graph := r.FormValue("graph")
-	err = config.NebulaClient.CreateGraph(graph)
+	err = l.svcCtx.NebulaClient.CreateGraph(graph)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +55,11 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 			// 把点放到nodeMap, 后面赋度数
 			nodeMap[name] = node
 		}
+	}
+
+	_, err = l.svcCtx.NebulaClient.MultiInsertNodes(graph, nodes)
+	if err != nil {
+		return nil, err
 	}
 	file, _, err = r.FormFile("edges")
 	if err != nil {
@@ -80,11 +84,9 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.SearchGraphReply, err
 			nodeMap[target].Deg++
 		}
 	}
-	_, err = config.NebulaClient.MultiInsertNodes(graph, nodes)
-	if err != nil {
-		return nil, err
-	}
-	_, err = config.NebulaClient.MultiInsertEdges(graph, edges)
+
+	_, err = l.svcCtx.NebulaClient.MultiInsertEdges(graph, edges)
+
 	if err != nil {
 		return nil, err
 	}

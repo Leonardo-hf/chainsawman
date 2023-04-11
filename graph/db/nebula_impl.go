@@ -18,7 +18,6 @@ type NebulaClientImpl struct {
 type NebulaConfig struct {
 	Addr     string
 	Port     int
-	Log      nebula.Logger
 	Username string
 	Passwd   string
 }
@@ -27,7 +26,7 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 	hostAddress := nebula.HostAddress{Host: cfg.Addr, Port: cfg.Port}
 	hostList := []nebula.HostAddress{hostAddress}
 	testPoolConfig := nebula.GetDefaultConf()
-	pool, err := nebula.NewConnectionPool(hostList, testPoolConfig, cfg.Log)
+	pool, err := nebula.NewConnectionPool(hostList, testPoolConfig, nebula.DefaultLogger{})
 	if err != nil {
 		msg := fmt.Sprintf("Fail to initialize the connection pool, host: %s, port: %d, %s", cfg.Addr, cfg.Port, err.Error())
 		log.Fatal(msg)

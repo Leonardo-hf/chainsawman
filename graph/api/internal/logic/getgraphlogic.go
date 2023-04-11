@@ -3,7 +3,6 @@ package logic
 import (
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
-	"chainsawman/graph/config"
 
 	"context"
 
@@ -26,8 +25,9 @@ func NewGetGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetGraph
 }
 
 func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGraphDetailReply, err error) {
-	// TODO: 改变为提交task
-	nodes, err := config.NebulaClient.GetNodes(req.Graph, req.Min)
+
+	nodes, err := l.svcCtx.NebulaClient.GetNodes(req.Graph, req.Min)
+
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGr
 		})
 		nodeSet.Add(node.Name)
 	}
-	edges, err := config.NebulaClient.GetEdges(req.Graph)
+	edges, err := l.svcCtx.NebulaClient.GetEdges(req.Graph)
 	if err != nil {
 		return nil, err
 	}
