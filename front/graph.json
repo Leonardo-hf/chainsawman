@@ -1,0 +1,280 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/graph/drop": {
+      "post": {
+        "operationId": "dropGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DropRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/get/{graph}": {
+      "get": {
+        "operationId": "getGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchGraphDetailReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "graph",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/getAll": {
+      "get": {
+        "operationId": "getAllGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchAllGraphReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/upload": {
+      "post": {
+        "operationId": "upload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchGraphReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "BaseReply": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "extra": {
+          "type": "object"
+        }
+      },
+      "title": "BaseReply",
+      "required": [
+        "status",
+        "msg",
+        "extra"
+      ]
+    },
+    "DropRequest": {
+      "type": "object",
+      "properties": {
+        "graph": {
+          "type": "string"
+        }
+      },
+      "title": "DropRequest",
+      "required": [
+        "graph"
+      ]
+    },
+    "Edge": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "title": "Edge",
+      "required": [
+        "source",
+        "target"
+      ]
+    },
+    "Graph": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "edges": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Graph",
+      "required": [
+        "name",
+        "desc",
+        "nodes",
+        "edges"
+      ]
+    },
+    "Node": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        }
+      },
+      "title": "Node",
+      "required": [
+        "name",
+        "desc"
+      ]
+    },
+    "SearchAllGraphReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "graphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Graph"
+          }
+        }
+      },
+      "title": "SearchAllGraphReply",
+      "required": [
+        "base",
+        "graphs"
+      ]
+    },
+    "SearchGraphDetailReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          }
+        }
+      },
+      "title": "SearchGraphDetailReply",
+      "required": [
+        "base",
+        "nodes",
+        "edges"
+      ]
+    },
+    "SearchGraphReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "graph": {
+          "$ref": "#/definitions/Graph"
+        }
+      },
+      "title": "SearchGraphReply",
+      "required": [
+        "base",
+        "graph"
+      ]
+    },
+    "SearchRequest": {
+      "type": "object",
+      "properties": {
+        "graph": {
+          "type": "string"
+        }
+      },
+      "title": "SearchRequest",
+      "required": [
+        "graph"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ]
+}

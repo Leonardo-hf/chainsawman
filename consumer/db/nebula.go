@@ -1,7 +1,7 @@
 package db
 
 import (
-	"chainsawman/graph/model"
+	"chainsawman/consumer/model"
 )
 
 type NebulaClient interface {
@@ -15,11 +15,13 @@ type NebulaClient interface {
 
 	MultiInsertEdges(graph string, edges []*model.Edge) (int, error)
 
-	GetGraphs() ([]*model.Graph, error)
+	GetNodeByName(graph string, name string) (*model.Node, error)
 
-	GetNodes(graph string) ([]*model.Node, error)
+	GetNodes(graph string, min int64) ([]*model.Node, error)
 
 	GetEdges(graph string) ([]*model.Edge, error)
+
+	GetNeighbors(graph string, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error)
 
 	DropGraph(graph string) error
 }

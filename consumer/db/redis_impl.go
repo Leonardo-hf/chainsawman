@@ -1,12 +1,14 @@
 package db
 
 import (
-	"chainsawman/graph/model"
+	"chainsawman/consumer/model"
+
 	"context"
-	"github.com/golang/protobuf/proto"
-	"github.com/redis/go-redis/v9"
 	"strconv"
 	"time"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/redis/go-redis/v9"
 )
 
 type RedisClientImpl struct {
@@ -36,21 +38,6 @@ func InitRedisClient(cfg *RedisConfig) RedisClient {
 	}
 }
 
-func (r *RedisClientImpl) GetTaskById(ctx context.Context, id int64) (*model.KVTask, error) {
-	cmd := r.rdb.Get(ctx, strconv.FormatInt(id, 10))
-	if cmd.Err() == redis.Nil {
-		return nil, nil
-	} else if cmd.Err() != nil {
-		return nil, cmd.Err()
-	}
-	res := &model.KVTask{}
-	err := proto.Unmarshal([]byte(cmd.String()), res)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
 func (r *RedisClientImpl) UpsertTask(ctx context.Context, task *model.KVTask) error {
 	v, err := proto.Marshal(task)
 	if err != nil {
@@ -60,24 +47,7 @@ func (r *RedisClientImpl) UpsertTask(ctx context.Context, task *model.KVTask) er
 	return cmd.Err()
 }
 
-func (r *RedisClientImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) error {
-	cmd := r.rdb.XAdd(ctx, &redis.XAddArgs{
-		Stream: r.topic,
-		Values: map[string]interface{}{
-			"id":     task.Id,
-			"name":   task.Name,
-			"params": task.Params,
-		},
-	})
-	return cmd.Err()
-}
-
-func (r *RedisClientImpl) DelTaskMsg(ctx context.Context, id int64) error {
-	cmd := r.rdb.XDel(ctx, r.topic, strconv.FormatInt(id, 10))
-	return cmd.Err()
-}
-
-func (r *RedisClientImpl) ConsumeTaskMsg(ctx context.Context, consumer string, handle func(task *model.KVTask) error) error {
+func (r *RedisClientImpl) ConsumeTaskMsg(ctx context.Context, consumer string, handle func(ctx context.Context, task *model.KVTask) error) error {
 	result, err := r.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
 		Group:    r.group,
 		Streams:  []string{r.topic, ">"},
@@ -93,10 +63,11 @@ func (r *RedisClientImpl) ConsumeTaskMsg(ctx context.Context, consumer string, h
 			Name:   msg.Values["name"].(string),
 			Params: msg.Values["params"].(string),
 		}
-		if err = handle(task); err == nil {
-			cmd := r.rdb.XAck(ctx, r.topic, r.group, msg.ID)
-			return cmd.Err()
+		if err = handle(ctx, task); err != nil {
+			return err
 		}
+		cmd := r.rdb.XAck(ctx, r.topic, r.group, msg.ID)
+		return cmd.Err()
 	}
 	return nil
 }

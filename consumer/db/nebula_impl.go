@@ -1,10 +1,12 @@
 package db
 
 import (
-	"chainsawman/graph/model"
+	"chainsawman/consumer/model"
+
 	"fmt"
-	nebula "github.com/vesoft-inc/nebula-go/v3"
 	"log"
+
+	nebula "github.com/vesoft-inc/nebula-go/v3"
 )
 
 type NebulaClientImpl struct {
@@ -43,7 +45,7 @@ func (n *NebulaClientImpl) CreateGraph(graph string) error {
 		return err
 	}
 	//_, _ = session.Execute("ADD HOSTS 127.0.0.1:9779;")
-	createSchema := fmt.Sprintf(
+	create := fmt.Sprintf(
 		"CREATE SPACE IF NOT EXISTS %v(vid_type = FIXED_STRING(30));"+
 			"USE %v;"+
 			"CREATE TAG IF NOT EXISTS snode(intro string, deg int);"+
@@ -51,7 +53,7 @@ func (n *NebulaClientImpl) CreateGraph(graph string) error {
 			"CREATE EDGE IF NOT EXISTS sedge();"+
 			"CREATE EDGE INDEX IF NOT EXISTS sedge_tag_index on sedge();",
 		graph, graph)
-	res, err := session.Execute(createSchema)
+	res, err := session.Execute(create)
 	if !res.IsSucceed() {
 		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
@@ -63,9 +65,9 @@ func (n *NebulaClientImpl) InsertNode(graph string, node *model.Node) (int, erro
 	if err != nil {
 		return 0, err
 	}
-	insertSchema := fmt.Sprintf("USE %v;"+
-		"INSERT VERTEX node(desc) VALUES \"%v\":(%v);", graph, node.Name, node.Desc)
-	res, err := session.Execute(insertSchema)
+	insert := fmt.Sprintf("USE %v;"+
+		"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", \"%v\");", graph, node.Name, node.Desc, node.Deg)
+	res, err := session.Execute(insert)
 	if err != nil {
 		return 0, err
 	}
@@ -81,9 +83,9 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph string, nodes []*model.Node) (
 		return 0, err
 	}
 	for i, node := range nodes {
-		insertSchema := fmt.Sprintf("USE %v;"+
-			"INSERT VERTEX snode(intro) VALUES \"%v\":(\"%v\");", graph, node.Name, node.Desc)
-		res, err := session.Execute(insertSchema)
+		insert := fmt.Sprintf("USE %v;"+
+			"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", \"%v\");", graph, node.Name, node.Desc, node.Deg)
+		res, err := session.Execute(insert)
 		if err != nil {
 			return i, err
 		}
@@ -99,9 +101,9 @@ func (n *NebulaClientImpl) InsertEdge(graph string, edge *model.Edge) (int, erro
 	if err != nil {
 		return 0, err
 	}
-	insertSchema := fmt.Sprintf("USE %v;"+
+	insert := fmt.Sprintf("USE %v;"+
 		"INSERT EDGE sedge() VALUES \"%v\"->\"%v\";", graph, edge.Source, edge.Target)
-	res, err := session.Execute(insertSchema)
+	res, err := session.Execute(insert)
 	if err != nil {
 		return 0, err
 	}
@@ -117,9 +119,9 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph string, edges []*model.Edge) (
 		return 0, err
 	}
 	for i, edge := range edges {
-		insertSchema := fmt.Sprintf("USE %v;"+
+		insert := fmt.Sprintf("USE %v;"+
 			"INSERT EDGE sedge() VALUES \"%v\"->\"%v\":();", graph, edge.Source, edge.Target)
-		res, err := session.Execute(insertSchema)
+		res, err := session.Execute(insert)
 		if err != nil {
 			return i, err
 		}
@@ -130,78 +132,42 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph string, edges []*model.Edge) (
 	return len(edges), nil
 }
 
-func count(graph string, target string, session *nebula.Session) (int64, error) {
-	cntSchema := fmt.Sprintf("USE %v;"+
-		"LOOKUP ON %v| YIELD COUNT(*) AS cnt;",
-		graph, target)
-	res, err := session.Execute(cntSchema)
-	if err != nil {
-		return 0, err
-	}
-	if !res.IsSucceed() {
-		return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
-	}
-	record, err := res.GetRowValuesByIndex(0)
-	if err != nil {
-		return 0, err
-	}
-	cnt, _ := record.GetValueByColName("cnt")
-	cntInt64, _ := cnt.AsInt()
-	return cntInt64, nil
-}
-
-func countNodes(graph string, session *nebula.Session) (int64, error) {
-	return count(graph, "snode YIELD id(vertex)", session)
-}
-
-func countEdges(graph string, session *nebula.Session) (int64, error) {
-	return count(graph, "sedge YIELD edge AS e", session)
-}
-
-func (n *NebulaClientImpl) GetGraphs() ([]*model.Graph, error) {
+func (n *NebulaClientImpl) GetNodeByName(graph string, name string) (*model.Node, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
 	}
-	getSchema := "SHOW SPACES;"
-	res, err := session.Execute(getSchema)
+	query := fmt.Sprintf("USE %v;"+
+		"FETCH PROP ON snode \"%v\" YIELD properties(vertex).intro AS intro, properties(vertex).deg AS deg;", graph, name)
+	res, err := session.Execute(query)
 	if err != nil {
 		return nil, err
 	}
 	if !res.IsSucceed() {
 		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
-	var graphs []*model.Graph
-	for i := 0; i < res.GetRowSize(); i++ {
-		record, _ := res.GetRowValuesByIndex(i)
-		name, _ := record.GetValueByColName("Name")
-		nameStr, _ := name.AsString()
-		nodeCnt, err := countNodes(nameStr, session)
-		if err != nil {
-			return nil, err
-		}
-		edgeCnt, err := countEdges(nameStr, session)
-		if err != nil {
-			return nil, err
-		}
-		graphs = append(graphs, &model.Graph{
-			Name:  nameStr,
-			Nodes: nodeCnt,
-			Edges: edgeCnt,
-		})
-	}
-	return graphs, nil
+	node, _ := res.GetRowValuesByIndex(0)
+	desc, _ := node.GetValueByColName("intro")
+	descStr, _ := desc.AsString()
+	deg, _ := node.GetValueByColName("deg")
+	degInt, _ := deg.AsInt()
+	return &model.Node{
+		Name: name,
+		Desc: descStr,
+		Deg:  degInt,
+	}, nil
 }
 
-func (n *NebulaClientImpl) GetNodes(graph string) ([]*model.Node, error) {
+func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
 	}
-	getSchema := fmt.Sprintf("USE %v;"+
-		"LOOKUP ON snode YIELD id(vertex) AS name, properties(vertex).intro AS intro;",
-		graph)
-	res, err := session.Execute(getSchema)
+	query := fmt.Sprintf("USE %v;"+
+		"LOOKUP ON snode WHERE snode.deg > %v "+
+		"YIELD id(vertex) AS name, properties(vertex).intro AS intro, properties(vertex).deg AS deg;",
+		graph, min)
+	res, err := session.Execute(query)
 	if err != nil {
 		return nil, err
 	}
@@ -215,9 +181,12 @@ func (n *NebulaClientImpl) GetNodes(graph string) ([]*model.Node, error) {
 		nameStr, _ := name.AsString()
 		desc, _ := record.GetValueByColName("intro")
 		descStr, _ := desc.AsString()
+		deg, _ := record.GetValueByColName("deg")
+		degInt, _ := deg.AsInt()
 		nodes = append(nodes, &model.Node{
 			Name: nameStr,
 			Desc: descStr,
+			Deg:  degInt,
 		})
 	}
 	return nodes, nil
@@ -228,10 +197,10 @@ func (n *NebulaClientImpl) GetEdges(graph string) ([]*model.Edge, error) {
 	if err != nil {
 		return nil, err
 	}
-	getSchema := fmt.Sprintf("USE %v;"+
+	query := fmt.Sprintf("USE %v;"+
 		"LOOKUP ON sedge YIELD src(edge) AS src, dst(edge) AS dst;",
 		graph)
-	res, err := session.Execute(getSchema)
+	res, err := session.Execute(query)
 	if err != nil {
 		return nil, err
 	}
@@ -258,24 +227,24 @@ func (n *NebulaClientImpl) DropGraph(graph string) error {
 	if err != nil {
 		return err
 	}
-	dropSchema := fmt.Sprintf("DROP SPACE IF EXISTS %v;",
+	drop := fmt.Sprintf("DROP SPACE IF EXISTS %v;",
 		graph)
-	res, err := session.Execute(dropSchema)
+	res, err := session.Execute(drop)
 	if !res.IsSucceed() {
 		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
 	return err
 }
 
-// GetNeighbors TODO: 这方法是给消费者用的，好像可以用UNWIND优化一下输出结果；没有应用上度数过滤，考虑在代码里判断，或者给node加上度数的属性
 func (n *NebulaClientImpl) GetNeighbors(graph string, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, nil, err
 	}
-	goSchema := fmt.Sprintf("USE %v;"+
-		"GET SUBGRAPH WITH PROP %v STEPS FROM \"%v\" YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, node)
-	res, err := session.Execute(goSchema)
+	query := fmt.Sprintf("USE %v;"+
+		"GET SUBGRAPH WITH PROP %v STEPS FROM \"%v\" WHERE v.snode.deg >= %v "+
+		"YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, min, node)
+	res, err := session.Execute(query)
 	if !res.IsSucceed() {
 		return nil, nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 	}
@@ -290,9 +259,11 @@ func (n *NebulaClientImpl) GetNeighbors(graph string, node string, min int64, di
 			snodeProps, _ := snode.Properties("snode")
 			name, _ := snode.GetID().AsString()
 			intro, _ := snodeProps["intro"].AsString()
+			deg, _ := snodeProps["deg"].AsInt()
 			crt := &model.Node{
 				Name: name,
 				Desc: intro,
+				Deg:  deg,
 			}
 			nodes = append(nodes, crt)
 		}
