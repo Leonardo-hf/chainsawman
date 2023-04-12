@@ -19,6 +19,14 @@ type Edge struct {
 	Target string `json:"target"`
 }
 
+type BaseReply struct {
+	Status     int64             `json:"status"`
+	Msg        string            `json:"msg"`
+	TaskID     int64             `json:"taskId"`
+	TaskStatus int64             `json:"taskStatus"`
+	Extra      map[string]string `json:"extra"`
+}
+
 type SearchAllGraphReply struct {
 	Base   *BaseReply `json:"base"`
 	Graphs []*Graph   `json:"graphs"`
@@ -30,12 +38,10 @@ type SearchGraphReply struct {
 }
 
 type SearchNodeReply struct {
-	Base   *BaseReply `json:"base"`
-	TaskID int64      `json:"taskId"`
-	Status int64      `json:"status"`
-	Info   *Node      `json:"node"`
-	Nodes  []*Node    `json:"nodes"`
-	Edges  []*Edge    `json:"edges"`
+	Base  *BaseReply `json:"base"`
+	Info  *Node      `json:"node"`
+	Nodes []*Node    `json:"nodes"`
+	Edges []*Edge    `json:"edges"`
 }
 
 type SearchGraphDetailReply struct {
@@ -44,31 +50,27 @@ type SearchGraphDetailReply struct {
 	Edges []*Edge    `json:"edges"`
 }
 
-type BaseReply struct {
-	Status int64             `json:"status"`
-	Msg    string            `json:"msg"`
-	Extra  map[string]string `json:"extra"`
-}
-
 type SearchRequest struct {
-	Graph string `json:"graph"`
-	Min   int64  `json:"min"`
+	TaskID int64  `form:"taskId"`
+	Graph  string `form:"graph"`
+	Min    int64  `form:"min"`
 }
 
 type SearchNodeRequest struct {
-	TaskID   int64  `json:"taskId"`
-	Graph    string `json:"graph"`
-	Node     string `json:"node"`
-	Distance int64  `json:"distance"`
-	Min      int64  `json:"min"`
+	TaskID   int64  `form:"taskId"`
+	Graph    string `form:"graph"`
+	Node     string `form:"node"`
+	Distance int64  `form:"distance"`
+	Min      int64  `form:"min"`
 }
 
 type DropRequest struct {
-	Graph string `json:"graph"`
+	Graph string `form:"graph"`
 }
 
 type UploadRequest struct {
-	Graph  string `json:"graph"`
-	NodeID string `json:"nodeId"`
-	EdgeID string `json:"edgeId"`
+	TaskID int64  `form:"taskId"`
+	Graph  string `form:"graph"`
+	NodeID string `form:"nodeId"`
+	EdgeID string `form:"edgeId"`
 }

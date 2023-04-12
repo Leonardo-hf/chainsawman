@@ -26,6 +26,6 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 
 func (c *MysqlClientImpl) UpdateTask(task *model.Task) (int64, error) {
 	t := query.Task
-	info, err := t.Update(t.Status, task.Status)
+	info, err := t.Where(t.ID.Eq(task.ID)).Updates(map[string]interface{}{"status": task.Status, "result": task.Result})
 	return info.RowsAffected, err
 }

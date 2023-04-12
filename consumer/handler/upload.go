@@ -7,7 +7,6 @@ import (
 	"chainsawman/consumer/types"
 	file "chainsawman/consumer/types/rpc"
 	"context"
-
 	"io"
 	"os"
 
@@ -17,7 +16,7 @@ import (
 type Upload struct {
 }
 
-func (h *Upload) Handle(params string) (string, error) {
+func (h *Upload) Handle(params string, taskID int64) (string, error) {
 	req := &types.UploadRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
@@ -79,6 +78,10 @@ func (h *Upload) Handle(params string) (string, error) {
 	}
 
 	resp := &types.SearchGraphReply{
+		Base: &types.BaseReply{
+			TaskID:     taskID,
+			TaskStatus: int64(model.KVTask_Finished),
+		},
 		Graph: &types.Graph{
 			Name:  req.Graph,
 			Nodes: int64(len(nodes)),

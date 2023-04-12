@@ -3,10 +3,8 @@ package util
 import (
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/model"
-	"github.com/redis/go-redis/v9"
-
 	"context"
-
+	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/jsonx"
 )
 
@@ -40,20 +38,20 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, taskName strin
 }
 
 func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, resp interface{}) error {
-	var result string
-	status := 0
+	result := ""
+	status := model.KVTask_New
 	task, err := svcCtx.RedisClient.GetTaskById(ctx, taskID)
 	if err == nil {
 		// redis里有记录
 		result = task.Result
-		status = int(task.Status)
+		status = task.Status
 	} else if err == redis.Nil {
 		// redis里没有记录，查询mysql
 		oTask, err := svcCtx.MysqlClient.SearchTaskById(taskID)
 		if err != nil {
 			return err
 		}
-		status = int(oTask.Status)
+		status = model.KVTask_Status(oTask.Status)
 		result = oTask.Result
 		// 更新redis
 		err = svcCtx.RedisClient.UpsertTask(ctx, &model.KVTask{
@@ -71,10 +69,8 @@ func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, re
 	} else {
 		return err
 	}
-	// 任务完成了
-	if status == int(model.KVTask_Finished) {
-		err = jsonx.UnmarshalFromString(result, resp)
-		if err != nil {
+	if status == model.KVTask_Finished {
+		if err = jsonx.UnmarshalFromString(result, resp); err != nil {
 			return err
 		}
 	}

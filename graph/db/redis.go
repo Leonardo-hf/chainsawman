@@ -14,6 +14,4 @@ type RedisClient interface {
 	ProduceTaskMsg(ctx context.Context, task *model.KVTask) error
 
 	DelTaskMsg(ctx context.Context, id int64) error
-
-	ConsumeTaskMsg(ctx context.Context, consumer string, handle func(task *model.KVTask) error) error
 }

@@ -4,6 +4,7 @@ import (
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
 	"chainsawman/graph/api/internal/util"
+	"chainsawman/graph/model"
 
 	"context"
 
@@ -25,7 +26,10 @@ func NewGetGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetGraph
 }
 
 func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGraphDetailReply, err error) {
-	resp = &types.SearchGraphDetailReply{}
+	resp = &types.SearchGraphDetailReply{Base: &types.BaseReply{
+		TaskID:     req.TaskID,
+		TaskStatus: int64(model.KVTask_New),
+	}}
 	if req.TaskID != 0 {
 		// 任务已经提交过
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)

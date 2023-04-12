@@ -49,31 +49,31 @@ type (
 	}
 
 	SearchRequest {
-		TaskID int64 `json:"taskId"`
+		TaskID int64 `form:"taskId"`
 
-		Graph string `json:"graph"`
-		Min   int64  `json:"min"`
+		Graph string `form:"graph"`
+		Min   int64  `form:"min"`
 	}
 
 	SearchNodeRequest {
-		TaskID int64 `json:"taskId"`
+		TaskID int64 `form:"taskId"`
 
-		Graph    string `json:"graph"`
-		Node     string `json:"node"`
-		Distance int64  `json:"distance"`
-		Min      int64  `json:"min"`
+		Graph    string `form:"graph"`
+		Node     string `form:"node"`
+		Distance int64  `form:"distance"`
+		Min      int64  `form:"min"`
 	}
 
 	DropRequest {
-		Graph string `json:"graph"`
+		Graph string `form:"graph"`
 	}
 
 	UploadRequest {
-		TaskID int64 `json:"taskId"`
+		TaskID int64 `form:"taskId"`
 
-		Graph  string `json:"graph"`
-		NodeID string `json:"nodeId"`
-		EdgeID string `json:"edgeId"`
+		Graph  string `form:"graph"`
+		NodeID string `form:"nodeId"`
+		EdgeID string `form:"edgeId"`
 	}
 )
 service graph {

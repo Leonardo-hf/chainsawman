@@ -37,7 +37,7 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.UploadReply, err erro
 	if err != nil {
 		return nil, err
 	}
-	id := l.svcCtx.IDGenerator.String()
+	id := l.svcCtx.IDGen.New()
 	path := p.Join(c.Path, id+".csv")
 	target, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, os.ModePerm)
 	_, err = io.Copy(target, file)

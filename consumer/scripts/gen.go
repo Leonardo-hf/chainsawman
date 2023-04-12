@@ -14,17 +14,17 @@ import (
 
 func main() {
 	flag.Parse()
-	var configFile = flag.String("f", "graph/api/etc/consumer.yaml", "the config api")
+	var configFile = flag.String("f", "consumer/etc/consumer.yaml", "the config api")
 	var c config.Config
-	_ = conf.Load(*configFile, &c)
+	conf.MustLoad(*configFile, &c)
 	db, err := gorm.Open(mysql.Open(c.Mysql.Addr))
 	if err != nil {
 		panic(fmt.Errorf("[db] cannot establish db connection, err: %v", err))
 	}
 
 	g := gen.NewGenerator(gen.Config{
-		OutPath:           "./graph/db/query",
-		ModelPkgPath:      "./graph/model",
+		OutPath:           "./consumer/db/query",
+		ModelPkgPath:      "./consumer/model",
 		Mode:              gen.WithDefaultQuery | gen.WithoutContext | gen.WithQueryInterface,
 		FieldNullable:     false,
 		FieldCoverable:    false,

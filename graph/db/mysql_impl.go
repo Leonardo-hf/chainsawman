@@ -30,12 +30,6 @@ func (c *MysqlClientImpl) InsertTask(task *model.Task) error {
 	return t.Select(t.Name, t.Params, t.Status).Create(task)
 }
 
-func (c *MysqlClientImpl) UpdateTask(task *model.Task) (int64, error) {
-	t := query.Task
-	info, err := t.Update(t.Status, task.Status)
-	return info.RowsAffected, err
-}
-
 func (c *MysqlClientImpl) SearchTaskById(id int64) (*model.Task, error) {
 	t := query.Task
 	return t.Where(t.ID.Eq(id)).First()

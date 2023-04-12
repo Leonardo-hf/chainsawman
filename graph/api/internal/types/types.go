@@ -51,26 +51,26 @@ type SearchGraphDetailReply struct {
 }
 
 type SearchRequest struct {
-	TaskID int64  `json:"taskId"`
-	Graph  string `json:"graph"`
-	Min    int64  `json:"min"`
+	TaskID int64  `form:"taskId"`
+	Graph  string `form:"graph"`
+	Min    int64  `form:"min"`
 }
 
 type SearchNodeRequest struct {
-	TaskID   int64  `json:"taskId"`
-	Graph    string `json:"graph"`
-	Node     string `json:"node"`
-	Distance int64  `json:"distance"`
-	Min      int64  `json:"min"`
+	TaskID   int64  `form:"taskId"`
+	Graph    string `form:"graph"`
+	Node     string `form:"node"`
+	Distance int64  `form:"distance"`
+	Min      int64  `form:"min"`
 }
 
 type DropRequest struct {
-	Graph string `json:"graph"`
+	Graph string `form:"graph"`
 }
 
 type UploadRequest struct {
-	TaskID int64  `json:"taskId"`
-	Graph  string `json:"graph"`
-	NodeID string `json:"nodeId"`
-	EdgeID string `json:"edgeId"`
+	TaskID int64  `form:"taskId"`
+	Graph  string `form:"graph"`
+	NodeID string `form:"nodeId"`
+	EdgeID string `form:"edgeId"`
 }

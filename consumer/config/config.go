@@ -3,6 +3,7 @@ package config
 import (
 	"chainsawman/consumer/db"
 	file "chainsawman/consumer/types/rpc"
+
 	"github.com/zeromicro/go-zero/zrpc"
 )
 

@@ -7,8 +7,8 @@ import (
 )
 
 type ServiceContext struct {
-	Config      config.Config
-	IDGenerator uuid.UUID
+	Config config.Config
+	IDGen  IDGenerator
 }
 
 func initStorage(c *config.Config) {
@@ -28,7 +28,18 @@ func initStorage(c *config.Config) {
 func NewServiceContext(c config.Config) *ServiceContext {
 	initStorage(&c)
 	return &ServiceContext{
-		Config:      c,
-		IDGenerator: uuid.New(),
+		Config: c,
+		IDGen:  &IDGeneratorImpl{},
 	}
+}
+
+// TODO 放到其他包里去
+type IDGenerator interface {
+	New() string
+}
+
+type IDGeneratorImpl struct{}
+
+func (g *IDGeneratorImpl) New() string {
+	return uuid.New().String()
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"chainsawman/consumer/model"
+
 	"context"
 )
 
