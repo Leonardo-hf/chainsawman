@@ -1,7 +1,7 @@
 package util
 
 import (
-	"chainsawman/graph/api/internal/svc"
+	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/model"
 	"context"
 	"github.com/redis/go-redis/v9"

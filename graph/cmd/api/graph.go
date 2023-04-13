@@ -1,9 +1,9 @@
 package main
 
 import (
-	"chainsawman/graph/api/internal/config"
-	"chainsawman/graph/api/internal/handler"
-	"chainsawman/graph/api/internal/svc"
+	"chainsawman/graph/cmd/api/internal/config"
+	"chainsawman/graph/cmd/api/internal/handler"
+	"chainsawman/graph/cmd/api/internal/svc"
 
 	"flag"
 	"fmt"
@@ -12,7 +12,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "graph/api/etc/graph.yaml", "the config api")
+var configFile = flag.String("f", "graph/cmd/api/etc/graph.yaml", "the config api")
 
 func main() {
 

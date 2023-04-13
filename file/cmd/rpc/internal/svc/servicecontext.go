@@ -1,6 +1,8 @@
 package svc
 
-import "chainsawman/file/rpc/internal/config"
+import (
+	"chainsawman/file/cmd/rpc/internal/config"
+)
 
 type ServiceContext struct {
 	Config config.Config

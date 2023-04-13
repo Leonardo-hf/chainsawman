@@ -4,7 +4,7 @@
     "title": "",
     "version": ""
   },
-  "host": "127.0.0.1",
+  "host": "127.0.0.1:8888",
   "basePath": "/api/graph",
   "schemes": [
     "http",
@@ -17,7 +17,34 @@
     "application/json"
   ],
   "paths": {
-    "api/graph/drop": {
+    "/api/graph/create": {
+      "post": {
+        "summary": "上传图",
+        "operationId": "createGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchGraphReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UploadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/drop": {
       "post": {
         "summary": "删除图",
         "operationId": "dropGraph",
@@ -39,13 +66,12 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
       }
     },
-    "api/graph/get": {
+    "/api/graph/get": {
       "get": {
         "summary": "获取图的详细节点信息",
         "operationId": "getGraph",
@@ -79,13 +105,12 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
       }
     },
-    "api/graph/getAll": {
+    "/api/graph/getAll": {
       "get": {
         "summary": "获取图列表",
         "operationId": "getAllGraph",
@@ -97,16 +122,15 @@
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "graph"
         ]
       }
     },
-    "api/graph/node/get": {
+    "/api/graph/node/get": {
       "get": {
         "summary": "获取节点信息及邻居节点",
-        "operationId": "getNode",
+        "operationId": "getNeighbors",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -150,35 +174,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "api/graph/upload": {
-      "post": {
-        "summary": "上传图",
-        "operationId": "upload",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/SearchGraphReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UploadRequest"
-            }
-          }
-        ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]

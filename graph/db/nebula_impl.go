@@ -40,6 +40,7 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 
 func (n *NebulaClientImpl) DropGraph(graph string) error {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return err
 	}
@@ -82,6 +83,7 @@ func countEdges(graph string, session *nebula.Session) (int64, error) {
 
 func (n *NebulaClientImpl) GetGraphs() ([]*model.Graph, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return nil, err
 	}

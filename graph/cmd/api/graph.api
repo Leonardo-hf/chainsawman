@@ -78,7 +78,7 @@ type (
 )
 
 @server(
-	prefix: api/graph
+	prefix: /api/graph
 )
 service graph {
 	@doc "获取图列表"
@@ -90,7 +90,7 @@ service graph {
 	get /get (SearchRequest) returns (SearchGraphDetailReply)
 	
 	@doc "获取节点信息及邻居节点"
-	@handler getNode
+	@handler getNeighbors
 	get /node/get (SearchNodeRequest) returns (SearchNodeReply)
 	
 	@doc "删除图"
@@ -98,6 +98,6 @@ service graph {
 	post /drop (DropRequest) returns (BaseReply)
 	
 	@doc "上传图"
-	@handler upload
-	post /upload (UploadRequest) returns (SearchGraphReply)
+	@handler createGraph
+	post /create (UploadRequest) returns (SearchGraphReply)
 }

@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"chainsawman/graph/api/internal/config"
+	"chainsawman/graph/cmd/api/internal/config"
 	"chainsawman/graph/db"
 )
 

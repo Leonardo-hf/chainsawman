@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"chainsawman/graph/api/internal/svc"
-	"chainsawman/graph/api/internal/types"
+	"chainsawman/graph/cmd/api/internal/svc"
+	"chainsawman/graph/cmd/api/internal/types"
 
 	"context"
 

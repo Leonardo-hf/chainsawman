@@ -1,18 +1,17 @@
 package main
 
 import (
+	"chainsawman/file/cmd/api/internal/config"
+	"chainsawman/file/cmd/api/internal/handler"
+	"chainsawman/file/cmd/api/internal/svc"
 	"flag"
 	"fmt"
-
-	"chainsawman/file/api/internal/config"
-	"chainsawman/file/api/internal/handler"
-	"chainsawman/file/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "file/api/etc/file.yaml", "the config api")
+var configFile = flag.String("f", "file/cmd/api/etc/file.yaml", "the config api")
 
 func main() {
 	flag.Parse()

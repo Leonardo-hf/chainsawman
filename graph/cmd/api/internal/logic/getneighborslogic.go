@@ -11,22 +11,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetGraphLogic struct {
+type GetNeighborsLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewGetGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetGraphLogic {
-	return &GetGraphLogic{
+func NewGetNeighborsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetNeighborsLogic {
+	return &GetNeighborsLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGraphDetailReply, err error) {
-	resp = &types.SearchGraphDetailReply{Base: &types.BaseReply{
+func (l *GetNeighborsLogic) GetNeighbors(req *types.SearchNodeRequest) (resp *types.SearchNodeReply, err error) {
+	resp = &types.SearchNodeReply{Base: &types.BaseReply{
 		TaskID:     req.TaskID,
 		TaskStatus: int64(model.KVTask_New),
 	}}
@@ -35,11 +35,11 @@ func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGr
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
 	}
 	// 任务没提交过，创建任务
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, "GetGraph", req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, "GetNode", req)
 	if err != nil {
 		return nil, err
 	}
 	req.TaskID = taskID
 	// 重试一次
-	return l.GetGraph(req)
+	return l.GetNeighbors(req)
 }

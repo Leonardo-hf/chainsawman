@@ -1,13 +1,12 @@
 package main
 
 import (
+	"chainsawman/file/cmd/rpc/internal/config"
+	"chainsawman/file/cmd/rpc/internal/server"
+	"chainsawman/file/cmd/rpc/internal/svc"
+	"chainsawman/file/cmd/rpc/types/rpc"
 	"flag"
 	"fmt"
-
-	"chainsawman/file/rpc/internal/config"
-	"chainsawman/file/rpc/internal/server"
-	"chainsawman/file/rpc/internal/svc"
-	"chainsawman/file/rpc/types/rpc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -16,7 +15,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "file/rpc/etc/file.yaml", "the config file")
+var configFile = flag.String("f", "file/cmd/rpc/etc/file.yaml", "the config file")
 
 func main() {
 	flag.Parse()

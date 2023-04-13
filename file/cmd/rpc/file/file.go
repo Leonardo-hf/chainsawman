@@ -4,17 +4,16 @@
 package file
 
 import (
+	rpc2 "chainsawman/file/cmd/rpc/types/rpc"
 	"context"
-
-	"chainsawman/file/rpc/types/rpc"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	FileReply = rpc.FileReply
-	IDReq     = rpc.IDReq
+	FileReply = rpc2.FileReply
+	IDReq     = rpc2.IDReq
 
 	File interface {
 		FetchFile(ctx context.Context, in *IDReq, opts ...grpc.CallOption) (*FileReply, error)
@@ -32,6 +31,6 @@ func NewFile(cli zrpc.Client) File {
 }
 
 func (m *defaultFile) FetchFile(ctx context.Context, in *IDReq, opts ...grpc.CallOption) (*FileReply, error) {
-	client := rpc.NewFileClient(m.cli.Conn())
+	client := rpc2.NewFileClient(m.cli.Conn())
 	return client.FetchFile(ctx, in, opts...)
 }

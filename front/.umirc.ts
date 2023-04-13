@@ -11,11 +11,12 @@ export default defineConfig({
     },
     proxy: {
         '/api': {
-            'target': '127.0.0.1:8888/api',
+            'target': 'http://127.0.0.1:8888/',
             'changeOrigin': true,
+            // 'pathRewrite': {'^/api': ''},
         },
     },
-    mock: false,
+    // mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
@@ -44,25 +45,15 @@ export default defineConfig({
             path: '/home',
             component: './Home',
         },
-        // {
-        //     name: '权限演示',
-        //     path: '/access',
-        //     component: './Access',
-        // },
-        // {
-        //     name: ' CRUD 示例',
-        //     path: '/table',
-        //     component: './Table',
-        // },
         {
             name: 'graph',
             path: '/graph',
             routes: [
-                {
-                    name: 'python',
-                    path: '/graph/test',
-                    component: './Graph'
-                }
+                // {
+                //     name: 'python',
+                //     path: '/graph/test0',
+                //     component: './Graph'
+                // }
             ]
         },
     ],

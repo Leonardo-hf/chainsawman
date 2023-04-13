@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"chainsawman/file/api/internal/config"
+	"chainsawman/file/cmd/api/internal/config"
 	"github.com/google/uuid"
 	"os"
 )

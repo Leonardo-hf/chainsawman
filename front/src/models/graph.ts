@@ -1,23 +1,36 @@
 import {getAllGraph, getGraph} from "@/services/graph/graph";
 
 export default {
+
     state: {
-        graphs: [],
+        graphs: [1, 2],
     },
 
     effects: {
         * queryGraphs({}, {call, put}) {
-            const {data} = yield call(getAllGraph);
-            yield put({type: 'queryGraphsSuccess', payload: data.graphs});
+            const data: Promise<Graph.SearchAllGraphReply> = yield call(getAllGraph);
+            yield put({type: 'getGraph', payload: data});
         },
     },
 
     reducers: {
-        queryGraphsSuccess(state, {payload}) {
+        getGraph(state, {payload}) {
             return {
                 ...state,
                 graphs: payload
             }
         },
+    },
+
+    subscriptions: {
+        setup({dispatch, history}) {
+            history.listen(({location}) => {
+                if (location.pathname === '/home') {
+                    dispatch({
+                        type: 'queryGraphs'
+                    })
+                }
+            });
+        }
     },
 };
