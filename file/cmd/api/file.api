@@ -1,0 +1,13 @@
+type UploadReply {
+	ID   string `json:"id"`
+	Size int64  `json:"size"`
+}
+
+@server(
+	prefix: api/file
+)
+service file {
+	@doc "上传文件"
+	@handler upload
+	post /upload returns (UploadReply)
+}

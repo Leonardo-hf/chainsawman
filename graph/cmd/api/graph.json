@@ -4,7 +4,7 @@
     "title": "",
     "version": ""
   },
-  "host": "127.0.0.1:8888",
+  "host": "127.0.0.1",
   "basePath": "/api/graph",
   "schemes": [
     "http",
@@ -17,7 +17,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/graph/drop": {
+    "api/graph/drop": {
       "post": {
         "summary": "删除图",
         "operationId": "dropGraph",
@@ -39,12 +39,13 @@
             }
           }
         ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]
       }
     },
-    "/api/graph/get": {
+    "api/graph/get": {
       "get": {
         "summary": "获取图的详细节点信息",
         "operationId": "getGraph",
@@ -78,12 +79,13 @@
             "format": "int64"
           }
         ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]
       }
     },
-    "/api/graph/getAll": {
+    "api/graph/getAll": {
       "get": {
         "summary": "获取图列表",
         "operationId": "getAllGraph",
@@ -95,12 +97,13 @@
             }
           }
         },
+        "requestBody": {},
         "tags": [
           "graph"
         ]
       }
     },
-    "/api/graph/node/get": {
+    "api/graph/node/get": {
       "get": {
         "summary": "获取节点信息及邻居节点",
         "operationId": "getNode",
@@ -147,12 +150,13 @@
             "format": "int64"
           }
         ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]
       }
     },
-    "/api/graph/upload": {
+    "api/graph/upload": {
       "post": {
         "summary": "上传图",
         "operationId": "upload",
@@ -174,6 +178,7 @@
             }
           }
         ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]

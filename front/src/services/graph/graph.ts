@@ -2,9 +2,9 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 此处后端没有提供注释 POST /api/graph/drop */
-export async function dropGraph(body: API.DropRequest, options?: { [key: string]: any }) {
-  return request<API.BaseReply>('/api/graph/drop', {
+/** 上传图 POST /api/graph/create */
+export async function createGraph(body: Graph.UploadRequest, options?: { [key: string]: any }) {
+  return request<Graph.SearchGraphReply>('/api/graph/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -14,32 +14,52 @@ export async function dropGraph(body: API.DropRequest, options?: { [key: string]
   });
 }
 
-/** 此处后端没有提供注释 GET /api/graph/get/${param0} */
+/** 删除图 POST /api/graph/drop */
+export async function dropGraph(body: Graph.DropRequest, options?: { [key: string]: any }) {
+  return request<Graph.BaseReply>('/api/graph/drop', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 获取图的详细节点信息 GET /api/graph/get */
 export async function getGraph(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getGraphParams,
+  params: Graph.getGraphParams,
   options?: { [key: string]: any },
 ) {
-  const { graph: param0, ...queryParams } = params;
-  return request<API.SearchGraphDetailReply>(`/api/graph/get/${param0}`, {
+  return request<Graph.SearchGraphDetailReply>('/api/graph/get', {
     method: 'GET',
-    params: { ...queryParams },
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
 
-/** 此处后端没有提供注释 GET /api/graph/getAll */
+/** 获取图列表 GET /api/graph/getAll */
 export async function getAllGraph(options?: { [key: string]: any }) {
-  return request<API.SearchAllGraphReply>('/api/graph/getAll', {
+  return request<Graph.SearchAllGraphReply>('/api/graph/getAll', {
     method: 'GET',
     ...(options || {}),
   });
 }
 
-/** 此处后端没有提供注释 POST /api/graph/upload */
-export async function upload(options?: { [key: string]: any }) {
-  return request<API.SearchGraphReply>('/api/graph/upload', {
-    method: 'POST',
+/** 获取节点信息及邻居节点 GET /api/graph/node/get */
+export async function getNeighbors(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getNeighborsParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.SearchNodeReply>('/api/graph/node/get', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

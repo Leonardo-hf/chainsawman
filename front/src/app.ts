@@ -1,4 +1,5 @@
 import type {RequestConfig} from 'umi';
+import {getAllGraph} from "@/services/graph/graph";
 
 // 运行时配置
 
@@ -10,41 +11,34 @@ export async function getInitialState(): Promise<{ name: string }> {
 
 export const request: RequestConfig = {
     timeout: 1000,
-    // other axios options you want
-    errorConfig: {
-        errorHandler() {
-        },
-        errorThrower() {
-        }
-    },
-    requestInterceptors: [],
-    responseInterceptors: []
 };
 
-// async function getMenu() {
-//     const {data, error, loading} = useRequest(getAllGraph(), {throwOnError: true});
-//     const routes: { name: string; path: string; component: string }[] = []
-//     let menu = {
-//         name: 'graph',
-//         path: '/graph',
-//         routes: routes
-//     }
-//     if (data) {
-//         console.log(data)
-//         for (let r in data["graphs"]) {
-//             menu.routes.push(
-//                 {
-//                     name: r,
-//                     path: '/graph/' + r,
-//                     component: './Graph'
-//                 })
-//         }
-//     }
-//     return menu
-// }
+async function getMenu() {
+    return getAllGraph().then(data => {
+        const routes: { name: string; path: string; component: string }[] = []
+        let menu = {
+            name: 'graph',
+            path: '/graph',
+            routes: routes
+        }
+        if (data) {
+            for (let r in data.graphs) {
+                menu.routes.push(
+                    {
+                        name: r,
+                        path: '/graph/' + r,
+                        component: './Graph'
+                    })
+            }
+        }
+        return menu
+    })
+}
 
 export const layout = () => {
-    // const menu = getMenu()
+    getMenu().then(menu => {
+        console.log(menu)
+    })
     return {
         logo: 'https://i.328888.xyz/2023/03/22/YMzqZ.png',
         menu: {

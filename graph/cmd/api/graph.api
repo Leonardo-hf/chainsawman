@@ -1,0 +1,103 @@
+type (
+	Graph {
+		Name  string `json:"name"`
+		Desc  string `json:"desc"`
+		Nodes int64  `json:"nodes"`
+		Edges int64  `json:"edges"`
+	}
+
+	Node {
+		Name string `json:"name"`
+		Desc string `json:"desc"`
+		Deg  int64  `json:"deg"`
+	}
+
+	Edge {
+		Source string `json:"source"`
+		Target string `json:"target"`
+	}
+
+	BaseReply {
+		Status     int64             `json:"status"`
+		Msg        string            `json:"msg"`
+		TaskID     int64             `json:"taskId"`
+		TaskStatus int64             `json:"taskStatus"`
+		Extra      map[string]string `json:"extra"`
+	}
+
+	SearchAllGraphReply {
+		Base   *BaseReply `json:"base"`
+		Graphs []*Graph   `json:"graphs"`
+	}
+
+	SearchGraphReply {
+		Base  *BaseReply `json:"base"`
+		Graph *Graph     `json:"graph"`
+	}
+
+	SearchNodeReply {
+		Base  *BaseReply `json:"base"`
+		Info  *Node      `json:"node"`
+		Nodes []*Node    `json:"nodes"`
+		Edges []*Edge    `json:"edges"`
+	}
+
+	SearchGraphDetailReply {
+		Base  *BaseReply `json:"base"`
+		Nodes []*Node    `json:"nodes"`
+		Edges []*Edge    `json:"edges"`
+	}
+
+	SearchRequest {
+		TaskID int64 `form:"taskId"`
+
+		Graph string `form:"graph"`
+		Min   int64  `form:"min"`
+	}
+
+	SearchNodeRequest {
+		TaskID int64 `form:"taskId"`
+
+		Graph    string `form:"graph"`
+		Node     string `form:"node"`
+		Distance int64  `form:"distance"`
+		Min      int64  `form:"min"`
+	}
+
+	DropRequest {
+		Graph string `form:"graph"`
+	}
+
+	UploadRequest {
+		TaskID int64 `form:"taskId"`
+
+		Graph  string `form:"graph"`
+		NodeID string `form:"nodeId"`
+		EdgeID string `form:"edgeId"`
+	}
+)
+
+@server(
+	prefix: api/graph
+)
+service graph {
+	@doc "获取图列表"
+	@handler getAllGraph
+	get /getAll returns (SearchAllGraphReply)
+	
+	@doc "获取图的详细节点信息"
+	@handler getGraph
+	get /get (SearchRequest) returns (SearchGraphDetailReply)
+	
+	@doc "获取节点信息及邻居节点"
+	@handler getNode
+	get /node/get (SearchNodeRequest) returns (SearchNodeReply)
+	
+	@doc "删除图"
+	@handler dropGraph
+	post /drop (DropRequest) returns (BaseReply)
+	
+	@doc "上传图"
+	@handler upload
+	post /upload (UploadRequest) returns (SearchGraphReply)
+}
