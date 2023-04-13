@@ -257,6 +257,9 @@ interface IConfigTypes {
     classPropertiesLoose: boolean | {
 
 };
+    ui: {
+
+};
     access: { [x: string]: any };
     analytics: {
     baidu?: (string | undefined);

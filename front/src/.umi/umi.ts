@@ -3,7 +3,7 @@
 // DO NOT CHANGE IT MANUALLY!
 import './core/polyfill';
 
-import { renderClient } from '/home/approdite/GolandProjects/chainsawman/front/node_modules/@umijs/renderer-react';
+import { renderClient } from '/home/czw/Desktop/gephi_toolkits_service/front/node_modules/@umijs/renderer-react';
 import { getRoutes } from './core/route';
 import { createPluginManager } from './core/plugin';
 import { createHistory } from './core/history';
@@ -72,5 +72,5 @@ async function render() {
 render();
 
 window.g_umi = {
-  version: '4.0.63',
+  version: '4.0.65',
 };

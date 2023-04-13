@@ -16,7 +16,7 @@ export default defineConfig({
     openAPI: {
         // /umi/plugin/openapi
         requestLibPath: "import { request } from '@umijs/max';",
-        schemaPath: '/home/approdite/IdeaProjects/chainsawman-frontend/graph.json',
+        schemaPath: '/home/czw/GolandProjects/gephi_toolkits_service/front/graph.json',
         mock: false,
     },
     routes: [
@@ -24,11 +24,11 @@ export default defineConfig({
             path: '/',
             redirect: '/home',
         },
-        // {
-        //     name: '首页',
-        //     path: '/home',
-        //     component: './Home',
-        // },
+        {
+            name: '首页',
+            path: '/home',
+            component: './Home',
+        },
         // {
         //     name: '权限演示',
         //     path: '/access',

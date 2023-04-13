@@ -27,7 +27,7 @@
         "src/.umi/*"
       ],
       "@umijs/max": [
-        "/home/approdite/GolandProjects/chainsawman/front/node_modules/umi"
+        "/home/czw/Desktop/gephi_toolkits_service/front/node_modules/umi"
       ],
       "@umijs/max/typings": [
         "src/.umi/typings"

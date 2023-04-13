@@ -6,8 +6,8 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
   type AxiosError,
-} from '/home/approdite/GolandProjects/chainsawman/front/node_modules/axios';
-import useUmiRequest, { UseRequestProvider } from '/home/approdite/GolandProjects/chainsawman/front/node_modules/@ahooksjs/use-request';
+} from '/home/czw/Desktop/gephi_toolkits_service/front/node_modules/axios';
+import useUmiRequest, { UseRequestProvider } from '/home/czw/Desktop/gephi_toolkits_service/front/node_modules/@ahooksjs/use-request';
 import { ApplyPluginsType } from 'umi';
 import { getPluginManager } from '../core/plugin';
 
@@ -26,7 +26,7 @@ import {
   PaginatedOptionsWithFormat,
   PaginatedParams,
   PaginatedResult,
-} from '/home/approdite/GolandProjects/chainsawman/front/node_modules/@ahooksjs/use-request/es/types';
+} from '/home/czw/Desktop/gephi_toolkits_service/front/node_modules/@ahooksjs/use-request/es/types';
 
 type ResultWithData< T = any > = { data?: T; [key: string]: any };
 

@@ -1,23 +1,43 @@
 import {getAllGraph, getGraph} from "@/services/graph/graph";
+import {useState} from "react";
+import { request } from '@umijs/max';
+import {history} from 'umi';
 
 export default {
+
     state: {
-        graphs: [],
+        graphs: [1,2],
     },
 
     effects: {
         * queryGraphs({}, {call, put}) {
-            const {data} = yield call(getAllGraph);
-            yield put({type: 'queryGraphsSuccess', payload: data.graphs});
+            const data:Promise<API.SearchAllGraphReply> = yield call(getAllGraph);
+            yield put({type: 'getGraph', payload: data});
         },
     },
 
     reducers: {
-        queryGraphsSuccess(state, {payload}) {
+        getGraph(state, {payload}) {
             return {
                 ...state,
                 graphs: payload
             }
         },
+    },
+
+    subscriptions: {
+        setup ({dispatch, history}) {
+            history.listen(({action,location}) => {
+                if (location.pathname==='/home')
+                    dispatch({
+                        type:'queryGraphs'
+                    })
+            });
+        }
+    },
+
+    test(state) {
+        console.log('test');
+        return state;
     },
 };
