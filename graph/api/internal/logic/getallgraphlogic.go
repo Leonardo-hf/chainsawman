@@ -4,6 +4,7 @@ import (
 	"chainsawman/graph/api/internal/svc"
 	"chainsawman/graph/api/internal/types"
 	"context"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -22,6 +23,7 @@ func NewGetAllGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetAl
 }
 
 func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err error) {
+	fmt.Println("wdnmd")
 	graphs, err := l.svcCtx.NebulaClient.GetGraphs()
 	if err != nil {
 		return nil, err
@@ -34,5 +36,6 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err e
 			Edges: graph.Edges,
 		})
 	}
+	resp.Graphs = append(resp.Graphs, &types.Graph{Name: "wdnmd"})
 	return resp, nil
 }
