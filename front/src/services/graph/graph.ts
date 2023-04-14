@@ -4,7 +4,7 @@ import { request } from '@umijs/max';
 
 /** 此处后端没有提供注释 POST /api/graph/drop */
 export async function dropGraph(body: API.DropRequest, options?: { [key: string]: any }) {
-  return request<API.BaseReply>('/api/graph/drop', {
+  const data=request<API.BaseReply>('/api/graph/drop', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -12,6 +12,8 @@ export async function dropGraph(body: API.DropRequest, options?: { [key: string]
     data: body,
     ...(options || {}),
   });
+  console.log(data)
+  return data
 }
 
 /** 此处后端没有提供注释 GET /api/graph/get/${param0} */
@@ -30,10 +32,13 @@ export async function getGraph(
 
 /** 此处后端没有提供注释 GET /api/graph/getAll */
 export async function getAllGraph(options?: { [key: string]: any }) {
-  return request<API.SearchAllGraphReply>('/api/graph/getAll', {
+  console.log("wnm,d")
+  const data=request<API.SearchAllGraphReply>('/api/graph/getAll', {
     method: 'GET',
     ...(options || {}),
   });
+  console.log(data)
+  return data;
 }
 
 /** 此处后端没有提供注释 POST /api/graph/upload */
