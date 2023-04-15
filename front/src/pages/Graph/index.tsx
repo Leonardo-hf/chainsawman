@@ -9,10 +9,10 @@ import {
     CustomerServiceFilled,
     ShareAltOutlined,
 } from '@ant-design/icons';
-import Graphin, {Utils} from '@antv/graphin';
-import {history} from 'umi';
-import {Select, Row, Col, Card} from 'antd';
-import React, {SetStateAction} from "react";
+import Graphin from '@antv/graphin';
+import {Select, Row, Col, Card, Spin} from 'antd';
+import React, {Component, SetStateAction} from "react";
+import {connect} from "@@/exports";
 
 const tabListNoTitle = [
     {
@@ -36,6 +36,107 @@ const iconMap = {
     radial: <ShareAltOutlined/>,
 };
 
+const mapStateToProps = state => {
+    const {details} = state.graph
+    return {
+        details: details
+    }
+}
+
+const getRandomColor = function () {
+    const text = '00000' + (Math.random() * 0x1000000 << 0).toString(16)
+    return '#' + text.substring(text.length - 6);
+}
+
+@connect(mapStateToProps)
+class Graph extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            type: 'graphin-force'
+        }
+    }
+
+    render() {
+        const {graph, details} = this.props
+        const loading = details[graph] === undefined || details[graph].status === 0
+        const nodes: { id: string, style: { keyshape: { size: number, fill: string }, label: { value: string } } }[] = []
+        const edges: { source: string, target: string }[] = []
+        const data = {
+            nodes: nodes,
+            edges: edges,
+        }
+        const handleChange = (value: SetStateAction<string>) => {
+            this.setState({
+                type: value
+            })
+        };
+        const layout = layouts.find(item => item.type === this.state.type);
+        if (details[graph] === undefined) {
+            const queryDetail = async () => {
+                let taskId = 0
+                if (this.props.details[graph] !== undefined) {
+                    taskId = this.props.details[graph].taskId
+                }
+                await this.props.dispatch({
+                    type: 'graph/queryDetail',
+                    payload: {
+                        graph: graph,
+                        taskId: taskId,
+                        min: 0,
+                    }
+                })
+                console.log(this.props.details[graph])
+                if (this.props.details[graph].status === 1) {
+                    clearInterval(timer)
+                }
+            }
+            const timer = setInterval(queryDetail, 3000)
+        }
+        if (!loading) {
+            details[graph].nodes.forEach(n => nodes.push({
+                id: n.name,
+                style: {
+                    keyshape:
+                        {
+                            fill: getRandomColor(),
+                            size: (Math.log(n.deg + 1) + 1) * 10,
+                        },
+                    label: {
+                        value: n.name
+                    }
+                }
+            }))
+            details[graph].edges.forEach(e => edges.push({
+                source: e.source,
+                target: e.target,
+            }))
+        }
+        return (
+            <PageContainer header={{title: ''}}>
+                <Row gutter={16}>
+                    <Col span={18}>
+                        <Card
+                            title={graph}
+                            bodyStyle={{height: '800px'}}
+                            extra={<LayoutSelector options={layouts} value={this.state.type} onChange={handleChange}/>}
+                        >
+                            {loading ? <Spin/> : <Graphin data={data} layout={layout} fitView={true}/>}
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card tabList={tabListNoTitle} bodyStyle={{minHeight: '600px'}}>
+                            还在开发中...
+                        </Card>
+                    </Col>
+                </Row>
+            </PageContainer>
+        );
+    }
+}
+
+export default Graph;
 
 const SelectOption = Select.Option;
 const LayoutSelector = (props: { value: any; onChange: any; options: any; }) => {
@@ -196,40 +297,3 @@ const layouts = [
         // },
     },
 ];
-
-
-const Graph: React.FC = () => {
-    const [type, setLayout] = React.useState('graphin-force');
-    const data = Utils.mock(10)
-        .tree()
-        .graphin();
-    const handleChange = (value: SetStateAction<string>) => {
-        console.log('value', value);
-        setLayout(value);
-    };
-    let title = history.location.pathname
-    title = title.substring(title.lastIndexOf('/') + 1)
-    const layout = layouts.find(item => item.type === type);
-    return (
-        <PageContainer header={{title: ''}}>
-            <Row gutter={16}>
-                <Col span={18}>
-                    <Card
-                        title={title}
-                        bodyStyle={{height: '800px'}}
-                        extra={<LayoutSelector options={layouts} value={type} onChange={handleChange}/>}
-                    >
-                        <Graphin data={data} layout={layout} fitView={true}/>
-                    </Card>
-                </Col>
-                <Col span={6}>
-                    <Card tabList={tabListNoTitle} bodyStyle={{minHeight: '600px'}}>
-                        还在开发中...
-                    </Card>
-                </Col>
-            </Row>
-        </PageContainer>
-    );
-};
-
-export default Graph;

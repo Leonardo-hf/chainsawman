@@ -1,6 +1,7 @@
 import {getAllGraph} from "@/services/graph/graph";
 import Graph from "@/pages/Graph";
 import {RequestConfig} from "@@/plugin-request/request";
+import HomePage from "@/pages/Home";
 
 let graphs: any
 
@@ -10,7 +11,7 @@ export function render(oldRender) {
         if (data) {
             data.graphs.forEach((graph: { name: string; }) => routes.push({
                 path: '/graph/' + graph.name,
-                element: <Graph/>,
+                element: <Graph graph={"test"}/>,
                 name: graph.name,
             }))
         }
@@ -29,7 +30,7 @@ export function patchClientRoutes({routes}) {
         // menu.routes.push(graph)
         menu.children.push(graph)
     })
-    console.log(routes)
+    // console.log(routes)
 }
 
 export async function getInitialState(): Promise<{ name: string }> {
