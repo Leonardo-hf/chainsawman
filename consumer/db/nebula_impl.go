@@ -4,7 +4,6 @@ import (
 	"chainsawman/consumer/model"
 
 	"fmt"
-	"log"
 
 	nebula "github.com/vesoft-inc/nebula-go/v3"
 )
@@ -18,7 +17,6 @@ type NebulaClientImpl struct {
 type NebulaConfig struct {
 	Addr     string
 	Port     int
-	Log      nebula.Logger
 	Username string
 	Passwd   string
 }
@@ -27,10 +25,10 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 	hostAddress := nebula.HostAddress{Host: cfg.Addr, Port: cfg.Port}
 	hostList := []nebula.HostAddress{hostAddress}
 	testPoolConfig := nebula.GetDefaultConf()
-	pool, err := nebula.NewConnectionPool(hostList, testPoolConfig, cfg.Log)
+	pool, err := nebula.NewConnectionPool(hostList, testPoolConfig, nebula.DefaultLogger{})
 	if err != nil {
 		msg := fmt.Sprintf("Fail to initialize the connection pool, host: %s, port: %d, %s", cfg.Addr, cfg.Port, err.Error())
-		log.Fatal(msg)
+		panic(msg)
 	}
 	return &NebulaClientImpl{
 		Pool:     pool,
@@ -41,6 +39,7 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 
 func (n *NebulaClientImpl) CreateGraph(graph string) error {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return err
 	}
@@ -62,11 +61,12 @@ func (n *NebulaClientImpl) CreateGraph(graph string) error {
 
 func (n *NebulaClientImpl) InsertNode(graph string, node *model.Node) (int, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
 	insert := fmt.Sprintf("USE %v;"+
-		"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", \"%v\");", graph, node.Name, node.Desc, node.Deg)
+		"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", %v);", graph, node.Name, node.Desc, node.Deg)
 	res, err := session.Execute(insert)
 	if err != nil {
 		return 0, err
@@ -79,12 +79,13 @@ func (n *NebulaClientImpl) InsertNode(graph string, node *model.Node) (int, erro
 
 func (n *NebulaClientImpl) MultiInsertNodes(graph string, nodes []*model.Node) (int, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
 	for i, node := range nodes {
 		insert := fmt.Sprintf("USE %v;"+
-			"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", \"%v\");", graph, node.Name, node.Desc, node.Deg)
+			"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", %v);", graph, node.Name, node.Desc, node.Deg)
 		res, err := session.Execute(insert)
 		if err != nil {
 			return i, err
@@ -98,6 +99,7 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph string, nodes []*model.Node) (
 
 func (n *NebulaClientImpl) InsertEdge(graph string, edge *model.Edge) (int, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
@@ -115,6 +117,7 @@ func (n *NebulaClientImpl) InsertEdge(graph string, edge *model.Edge) (int, erro
 
 func (n *NebulaClientImpl) MultiInsertEdges(graph string, edges []*model.Edge) (int, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
@@ -134,6 +137,7 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph string, edges []*model.Edge) (
 
 func (n *NebulaClientImpl) GetNodeByName(graph string, name string) (*model.Node, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return nil, err
 	}
@@ -160,6 +164,7 @@ func (n *NebulaClientImpl) GetNodeByName(graph string, name string) (*model.Node
 
 func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return nil, err
 	}
@@ -183,6 +188,7 @@ func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, err
 		descStr, _ := desc.AsString()
 		deg, _ := record.GetValueByColName("deg")
 		degInt, _ := deg.AsInt()
+		fmt.Println(degInt)
 		nodes = append(nodes, &model.Node{
 			Name: nameStr,
 			Desc: descStr,
@@ -194,6 +200,7 @@ func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, err
 
 func (n *NebulaClientImpl) GetEdges(graph string) ([]*model.Edge, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return nil, err
 	}
@@ -224,6 +231,7 @@ func (n *NebulaClientImpl) GetEdges(graph string) ([]*model.Edge, error) {
 
 func (n *NebulaClientImpl) DropGraph(graph string) error {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return err
 	}
@@ -238,6 +246,7 @@ func (n *NebulaClientImpl) DropGraph(graph string) error {
 
 func (n *NebulaClientImpl) GetNeighbors(graph string, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error) {
 	session, err := n.getSession()
+	defer func() { session.Release() }()
 	if err != nil {
 		return nil, nil, err
 	}

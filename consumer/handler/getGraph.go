@@ -2,6 +2,7 @@ package handler
 
 import (
 	"chainsawman/consumer/config"
+	"chainsawman/consumer/model"
 	"chainsawman/consumer/types"
 
 	set "github.com/deckarep/golang-set"
@@ -11,9 +12,14 @@ import (
 type GetGraph struct {
 }
 
-func (h *GetGraph) Handle(params string) (string, error) {
+func (h *GetGraph) Handle(params string, taskID int64) (string, error) {
 	req := &types.SearchRequest{}
-	resp := &types.SearchGraphDetailReply{}
+	resp := &types.SearchGraphDetailReply{
+		Base: &types.BaseReply{
+			TaskID:     taskID,
+			TaskStatus: int64(model.KVTask_Finished),
+		},
+	}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
 	}
@@ -26,6 +32,7 @@ func (h *GetGraph) Handle(params string) (string, error) {
 		resp.Nodes = append(resp.Nodes, &types.Node{
 			Name: node.Name,
 			Desc: node.Desc,
+			Deg:  node.Deg,
 		})
 		nodeSet.Add(node.Name)
 	}

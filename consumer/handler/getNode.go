@@ -11,7 +11,7 @@ import (
 type GetNode struct {
 }
 
-func (h *GetNode) Handle(params string) (string, error) {
+func (h *GetNode) Handle(params string, taskID int64) (string, error) {
 	req := &types.SearchNodeRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
@@ -37,11 +37,13 @@ func (h *GetNode) Handle(params string) (string, error) {
 		})
 	}
 	resp := &types.SearchNodeReply{
-		TaskID: req.TaskID,
-		Status: int64(model.KVTask_Finished),
-		Info:   nodesRet[0],
-		Nodes:  nodesRet,
-		Edges:  edgesRet,
+		Base: &types.BaseReply{
+			TaskID:     taskID,
+			TaskStatus: int64(model.KVTask_Finished),
+		},
+		Info:  nodesRet[0],
+		Nodes: nodesRet,
+		Edges: edgesRet,
 	}
 	return jsonx.MarshalToString(resp)
 }

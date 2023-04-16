@@ -1,6 +1,11 @@
 *.csv
 .idea
 
+file/storage
+
 front/node_modules
 front/package-lock.json
 front/*.iml
+front/src/.umi
+
+default.etcd

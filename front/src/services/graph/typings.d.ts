@@ -1,7 +1,9 @@
-declare namespace API {
+declare namespace Graph {
   type BaseReply = {
     status: number;
     msg: string;
+    taskId: number;
+    taskStatus: number;
     extra: Record<string, any>;
   };
 
@@ -15,7 +17,17 @@ declare namespace API {
   };
 
   type getGraphParams = {
+    taskId: number;
     graph: string;
+    min: number;
+  };
+
+  type getNeighborsParams = {
+    taskId: number;
+    graph: string;
+    node: string;
+    distance: number;
+    min: number;
   };
 
   type Graph = {
@@ -28,6 +40,7 @@ declare namespace API {
   type Node = {
     name: string;
     desc: string;
+    deg: number;
   };
 
   type SearchAllGraphReply = {
@@ -46,7 +59,31 @@ declare namespace API {
     graph: Graph;
   };
 
-  type SearchRequest = {
+  type SearchNodeReply = {
+    base: BaseReply;
+    node: Node;
+    nodes: Node[];
+    edges: Edge[];
+  };
+
+  type SearchNodeRequest = {
+    taskId: number;
     graph: string;
+    node: string;
+    distance: number;
+    min: number;
+  };
+
+  type SearchRequest = {
+    taskId: number;
+    graph: string;
+    min: number;
+  };
+
+  type UploadRequest = {
+    taskId: number;
+    graph: string;
+    nodeId: string;
+    edgeId: string;
   };
 }

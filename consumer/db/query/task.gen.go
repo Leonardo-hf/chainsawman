@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"chainsawman/graph/model"
+	"chainsawman/consumer/model"
 )
 
 func newTask(db *gorm.DB, opts ...gen.DOOption) task {

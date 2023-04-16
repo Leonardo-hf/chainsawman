@@ -6,12 +6,15 @@ import {history} from 'umi';
 export default {
 
     state: {
-        graphs: [1,2],
+
+        graphs: [1, 2],
     },
 
     effects: {
         * queryGraphs({}, {call, put}) {
+
             const data:Promise<API.SearchAllGraphReply> = yield call(getAllGraph);
+
             yield put({type: 'getGraph', payload: data});
         },
     },
@@ -26,6 +29,7 @@ export default {
     },
 
     subscriptions: {
+
         setup ({dispatch, history}) {
             history.listen(({action,location}) => {
                 if (location.pathname==='/home')
@@ -40,4 +44,5 @@ export default {
         console.log('test');
         return state;
     },
+
 };

@@ -17,16 +17,19 @@ import (
 var handleTable map[string]handler.Handler
 
 func initHandleTable() {
-	handleTable["getGraph"] = &handler.GetGraph{}
-	handleTable["getNode"] = &handler.GetNode{}
-	handleTable["upload"] = &handler.Upload{}
+	handleTable = make(map[string]handler.Handler)
+	handleTable["GetGraph"] = &handler.GetGraph{}
+	handleTable["GetNode"] = &handler.GetNode{}
+	handleTable["Upload"] = &handler.Upload{}
 }
 
 func main() {
-	var configFile = flag.String("f", "consumer/api/etc/consumer.yaml", "the config file")
+	flag.Parse()
+	var configFile = flag.String("f", "consumer/etc/consumer.yaml", "the config api")
 	var c config.Config
-	initHandleTable()
 	conf.MustLoad(*configFile, &c)
+	config.Init(&c)
+	initHandleTable()
 	consumerID := uuid.New().String()
 	ctx := context.Background()
 	for true {
@@ -41,7 +44,7 @@ func handle(ctx context.Context, task *model.KVTask) error {
 	if !ok {
 		return fmt.Errorf("no such method, err: name=%v", task.Name)
 	}
-	res, err := h.Handle(task.Params)
+	res, err := h.Handle(task.Params, task.Id)
 	if err != nil {
 		return err
 	}

@@ -2,13 +2,12 @@ package db
 
 import (
 	"chainsawman/consumer/model"
-
-	"context"
-	"strconv"
 	"time"
 
+	"context"
 	"github.com/golang/protobuf/proto"
 	"github.com/redis/go-redis/v9"
+	"strconv"
 )
 
 type RedisClientImpl struct {
@@ -19,10 +18,10 @@ type RedisClientImpl struct {
 }
 
 type RedisConfig struct {
-	Addr       string
-	Topic      string
-	Group      string
-	Expiration time.Duration
+	Addr    string
+	Topic   string
+	Group   string
+	Expired int64
 }
 
 func InitRedisClient(cfg *RedisConfig) RedisClient {
@@ -33,8 +32,8 @@ func InitRedisClient(cfg *RedisConfig) RedisClient {
 	return &RedisClientImpl{
 		rdb:        rdb,
 		topic:      cfg.Topic,
-		expiration: cfg.Expiration,
 		group:      cfg.Group,
+		expiration: time.Duration(cfg.Expired) * time.Second,
 	}
 }
 
@@ -47,6 +46,7 @@ func (r *RedisClientImpl) UpsertTask(ctx context.Context, task *model.KVTask) er
 	return cmd.Err()
 }
 
+// ConsumeTaskMsg TODO: 消费失败了消息会丢失，应该解决
 func (r *RedisClientImpl) ConsumeTaskMsg(ctx context.Context, consumer string, handle func(ctx context.Context, task *model.KVTask) error) error {
 	result, err := r.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
 		Group:    r.group,
@@ -58,8 +58,9 @@ func (r *RedisClientImpl) ConsumeTaskMsg(ctx context.Context, consumer string, h
 		return err
 	}
 	for _, msg := range result[0].Messages {
+		id, _ := strconv.ParseInt(msg.Values["id"].(string), 10, 64)
 		task := &model.KVTask{
-			Id:     msg.Values["id"].(int64),
+			Id:     id,
 			Name:   msg.Values["name"].(string),
 			Params: msg.Values["params"].(string),
 		}

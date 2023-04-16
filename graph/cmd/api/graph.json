@@ -1,0 +1,473 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "host": "127.0.0.1:8888",
+  "basePath": "/api/graph",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/graph/create": {
+      "post": {
+        "summary": "上传图",
+        "operationId": "createGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchGraphReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UploadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/drop": {
+      "post": {
+        "summary": "删除图",
+        "operationId": "dropGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DropRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/get": {
+      "get": {
+        "summary": "获取图的详细节点信息",
+        "operationId": "getGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchGraphDetailReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graph",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "min",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/getAll": {
+      "get": {
+        "summary": "获取图列表",
+        "operationId": "getAllGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchAllGraphReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/node/get": {
+      "get": {
+        "summary": "获取节点信息及邻居节点",
+        "operationId": "getNeighbors",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchNodeReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graph",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "node",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "distance",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "min",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "BaseReply": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "taskStatus": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "extra": {
+          "type": "object"
+        }
+      },
+      "title": "BaseReply",
+      "required": [
+        "status",
+        "msg",
+        "taskId",
+        "taskStatus",
+        "extra"
+      ]
+    },
+    "DropRequest": {
+      "type": "object",
+      "properties": {
+        "graph": {
+          "type": "string"
+        }
+      },
+      "title": "DropRequest",
+      "required": [
+        "graph"
+      ]
+    },
+    "Edge": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "title": "Edge",
+      "required": [
+        "source",
+        "target"
+      ]
+    },
+    "Graph": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "edges": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Graph",
+      "required": [
+        "name",
+        "desc",
+        "nodes",
+        "edges"
+      ]
+    },
+    "Node": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "deg": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Node",
+      "required": [
+        "name",
+        "desc",
+        "deg"
+      ]
+    },
+    "SearchAllGraphReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "graphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Graph"
+          }
+        }
+      },
+      "title": "SearchAllGraphReply",
+      "required": [
+        "base",
+        "graphs"
+      ]
+    },
+    "SearchGraphDetailReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          }
+        }
+      },
+      "title": "SearchGraphDetailReply",
+      "required": [
+        "base",
+        "nodes",
+        "edges"
+      ]
+    },
+    "SearchGraphReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "graph": {
+          "$ref": "#/definitions/Graph"
+        }
+      },
+      "title": "SearchGraphReply",
+      "required": [
+        "base",
+        "graph"
+      ]
+    },
+    "SearchNodeReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "node": {
+          "$ref": "#/definitions/Node"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          }
+        }
+      },
+      "title": "SearchNodeReply",
+      "required": [
+        "base",
+        "node",
+        "nodes",
+        "edges"
+      ]
+    },
+    "SearchNodeRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graph": {
+          "type": "string"
+        },
+        "node": {
+          "type": "string"
+        },
+        "distance": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "SearchNodeRequest",
+      "required": [
+        "taskId",
+        "graph",
+        "node",
+        "distance",
+        "min"
+      ]
+    },
+    "SearchRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graph": {
+          "type": "string"
+        },
+        "min": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "SearchRequest",
+      "required": [
+        "taskId",
+        "graph",
+        "min"
+      ]
+    },
+    "UploadRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graph": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "edgeId": {
+          "type": "string"
+        }
+      },
+      "title": "UploadRequest",
+      "required": [
+        "taskId",
+        "graph",
+        "nodeId",
+        "edgeId"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ]
+}

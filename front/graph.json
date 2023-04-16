@@ -4,6 +4,8 @@
     "title": "",
     "version": ""
   },
+  "host": "127.0.0.1:8888",
+  "basePath": "/api/graph",
   "schemes": [
     "http",
     "https"
@@ -17,6 +19,7 @@
   "paths": {
     "/api/graph/drop": {
       "post": {
+        "summary": "删除图",
         "operationId": "dropGraph",
         "responses": {
           "200": {
@@ -41,8 +44,9 @@
         ]
       }
     },
-    "/api/graph/get/{graph}": {
+    "/api/graph/get": {
       "get": {
+        "summary": "获取图的详细节点信息",
         "operationId": "getGraph",
         "responses": {
           "200": {
@@ -54,10 +58,24 @@
         },
         "parameters": [
           {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
             "name": "graph",
-            "in": "path",
+            "in": "query",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "min",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
           }
         ],
         "tags": [
@@ -67,6 +85,7 @@
     },
     "/api/graph/getAll": {
       "get": {
+        "summary": "获取图列表",
         "operationId": "getAllGraph",
         "responses": {
           "200": {
@@ -81,8 +100,61 @@
         ]
       }
     },
+    "/api/graph/node/get": {
+      "get": {
+        "summary": "获取节点信息及邻居节点",
+        "operationId": "getNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchNodeReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graph",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "node",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "distance",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "min",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/upload": {
       "post": {
+        "summary": "上传图",
         "operationId": "upload",
         "responses": {
           "200": {
@@ -92,6 +164,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UploadRequest"
+            }
+          }
+        ],
         "tags": [
           "graph"
         ]
@@ -109,6 +191,14 @@
         "msg": {
           "type": "string"
         },
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "taskStatus": {
+          "type": "integer",
+          "format": "int64"
+        },
         "extra": {
           "type": "object"
         }
@@ -117,6 +207,8 @@
       "required": [
         "status",
         "msg",
+        "taskId",
+        "taskStatus",
         "extra"
       ]
     },
@@ -182,12 +274,17 @@
         },
         "desc": {
           "type": "string"
+        },
+        "deg": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "Node",
       "required": [
         "name",
-        "desc"
+        "desc",
+        "deg"
       ]
     },
     "SearchAllGraphReply": {
@@ -251,16 +348,112 @@
         "graph"
       ]
     },
+    "SearchNodeReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "node": {
+          "$ref": "#/definitions/Node"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          }
+        }
+      },
+      "title": "SearchNodeReply",
+      "required": [
+        "base",
+        "node",
+        "nodes",
+        "edges"
+      ]
+    },
+    "SearchNodeRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graph": {
+          "type": "string"
+        },
+        "node": {
+          "type": "string"
+        },
+        "distance": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "SearchNodeRequest",
+      "required": [
+        "taskId",
+        "graph",
+        "node",
+        "distance",
+        "min"
+      ]
+    },
     "SearchRequest": {
       "type": "object",
       "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
         "graph": {
           "type": "string"
+        },
+        "min": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "SearchRequest",
       "required": [
-        "graph"
+        "taskId",
+        "graph",
+        "min"
+      ]
+    },
+    "UploadRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graph": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "edgeId": {
+          "type": "string"
+        }
+      },
+      "title": "UploadRequest",
+      "required": [
+        "taskId",
+        "graph",
+        "nodeId",
+        "edgeId"
       ]
     }
   },

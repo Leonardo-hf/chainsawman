@@ -1,0 +1,18 @@
+Name: graph
+Host: 0.0.0.0
+
+Port: 8888
+
+Nebula:
+  Addr: "127.0.0.1"
+  Port: 9669
+  Username: "root"
+  Passwd: "nebula"
+Redis:
+  Addr: "localhost:6379"
+  Topic: "task"
+  Group: "task_consumers"
+  Expired: 3600
+Mysql:
+  Addr: "root:12345678@(localhost:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"
+

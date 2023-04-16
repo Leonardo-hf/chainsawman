@@ -1,19 +1,23 @@
 package main
 
 import (
-	"chainsawman/graph/config"
+	"chainsawman/consumer/config"
 
+	"flag"
 	"fmt"
 
+	"github.com/zeromicro/go-zero/core/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
-const dsn = config.MysqlAddr
-
 func main() {
-	db, err := gorm.Open(mysql.Open(dsn))
+	flag.Parse()
+	var configFile = flag.String("f", "graph/api/etc/consumer.yaml", "the config api")
+	var c config.Config
+	_ = conf.Load(*configFile, &c)
+	db, err := gorm.Open(mysql.Open(c.Mysql.Addr))
 	if err != nil {
 		panic(fmt.Errorf("[db] cannot establish db connection, err: %v", err))
 	}

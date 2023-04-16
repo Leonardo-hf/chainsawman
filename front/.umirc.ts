@@ -1,22 +1,42 @@
 import {defineConfig} from '@umijs/max';
 
+
+
 export default defineConfig({
     antd: {},
-    access: {},
+    // access: {},
     model: {},
     initialState: {},
-    request: {},
+    request: {
+        dataField: 'data'
+    },
+    // proxy: {
+    //     '/api': {
+    //         'target': 'http://127.0.0.1:8888/',
+    //         'changeOrigin': true,
+    //         // 'pathRewrite': {'^/api': ''},
+    //     },
+    // },
+    // mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
     },
     plugins: ['@umijs/max-plugin-openapi'],
-    openAPI: {
-        // /umi/plugin/openapi
+
+    openAPI: [{
         requestLibPath: "import { request } from '@umijs/max';",
-        schemaPath: '/home/czw/GolandProjects/gephi_toolkits_service/front/graph.json',
-        mock: false,
-    },
+        schemaPath: [__dirname, 'graph.json'].join('/'),
+        mock: true,
+        namespace: 'Graph',
+        projectName: 'graph'
+    }, {
+        requestLibPath: "import { request } from '@umijs/max';",
+        schemaPath: [__dirname, 'file.json'].join('/'),
+        mock: true,
+        namespace: 'File',
+        projectName: 'file'
+    }],
     routes: [
         {
             path: '/',
@@ -27,25 +47,12 @@ export default defineConfig({
             path: '/home',
             component: './Home',
         },
-        // {
-        //     name: '权限演示',
-        //     path: '/access',
-        //     component: './Access',
-        // },
-        // {
-        //     name: ' CRUD 示例',
-        //     path: '/table',
-        //     component: './Table',
-        // },
+
         {
             name: 'graph',
             path: '/graph',
             routes: [
-                {
-                    name: 'python',
-                    path: '/graph/test',
-                    component: './Graph'
-                }
+
             ]
         },
     ],
