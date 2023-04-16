@@ -3,21 +3,23 @@ import {defineConfig} from '@umijs/max';
 
 
 export default defineConfig({
-    antd: {},
+    antd: {
+    },
     // access: {},
     model: {},
     initialState: {},
     request: {
         dataField: 'data'
     },
-    // proxy: {
-    //     '/api': {
-    //         'target': 'http://127.0.0.1:8888/',
-    //         'changeOrigin': true,
-    //         // 'pathRewrite': {'^/api': ''},
-    //     },
-    // },
-    // mock: false,
+
+    proxy: {
+        '/api': {
+            'target': 'http://127.0.0.1:8888/',
+            'changeOrigin': true,
+            // 'pathRewrite': {'^/api': ''},
+        },
+    },
+    mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
@@ -55,6 +57,10 @@ export default defineConfig({
 
             ]
         },
+        {
+            name: 'addFile',
+            path: 'addFile'
+        }
     ],
     npmClient: 'npm',
 });
