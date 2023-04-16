@@ -1,4 +1,5 @@
-import {getAllGraph, getGraph} from "@/services/graph/graph";
+import {getAllGraph, getGraph, getNeighbors} from "@/services/graph/graph";
+import {getTag} from "@/utils/format";
 
 
 const getRandomColor = function () {
@@ -24,6 +25,13 @@ export default {
             yield put({type: 'getDetail', payload: data});
             return data.base.taskStatus
         },
+
+        * queryNeibors({payload}, {call, put}){
+            const data: Promise<Graph.SearchNodeRequest> = yield call(getNeighbors, payload);
+            data['graph'] = getTag(payload.graph, payload.node);
+            yield put({type: 'getDetail', payload: data});
+            return data.base.taskStatus
+        }
     },
 
     reducers: {

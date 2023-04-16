@@ -37,7 +37,7 @@ export function patchClientRoutes({routes}) {
 }
 
 export async function getInitialState(): Promise<{ name: string }> {
-    return {name: '@umijs/m322x'};
+    return {name: '@umijs/max'};
 }
 
 export const request: RequestConfig = {
