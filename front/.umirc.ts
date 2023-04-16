@@ -16,7 +16,7 @@ export default defineConfig({
             // 'pathRewrite': {'^/api': ''},
         },
     },
-    mock: false,
+    // mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
