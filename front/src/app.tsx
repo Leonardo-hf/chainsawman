@@ -1,7 +1,8 @@
 import {getAllGraph} from "@/services/graph/graph";
 import Graph from "@/pages/Graph";
 import {RequestConfig} from "@@/plugin-request/request";
-import HomePage from "@/pages/Home";
+import {setInitGraphs} from "@/models/global";
+
 
 let graphs: any
 
@@ -10,11 +11,13 @@ export function render(oldRender) {
     getAllGraph().then(data => {
         const routes: { name: string, path: string, element: JSX.Element }[] = []
         if (data) {
-            data.graphs.forEach((graph: { name: string; }) => routes.push({
+            setInitGraphs(data.graphs)
+            graphs = data.graphs
+            data.graphs.forEach((graph) => routes.push({
                 path: '/graph/' + graph.name,
-                element: <Graph graph={"test"}/>,
-                name: graph.name,
-            }))
+                element: <Graph graph={graph}/>,
+            name: graph.name,
+        }))
         }
         graphs = routes
         oldRender()

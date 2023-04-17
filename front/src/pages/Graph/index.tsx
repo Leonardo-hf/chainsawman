@@ -9,10 +9,14 @@ import {
     CustomerServiceFilled,
     ShareAltOutlined,
 } from '@ant-design/icons';
-import Graphin from '@antv/graphin';
-import {Select, Row, Col, Card, Spin} from 'antd';
-import React, {Component, SetStateAction} from "react";
+import Graphin, {Behaviors} from '@antv/graphin';
+import {Select, Row, Col, Card, Spin, Divider} from 'antd';
+import React, {SetStateAction} from "react";
 import {connect} from "@@/exports";
+import {Space, Typography} from 'antd';
+
+const {Text, Paragraph} = Typography;
+const {Hoverable} = Behaviors;
 
 const tabListNoTitle = [
     {
@@ -36,101 +40,183 @@ const iconMap = {
     radial: <ShareAltOutlined/>,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any) => {
     const {details} = state.graph
     return {
         details: details
     }
 }
 
-const getRandomColor = function () {
-    const text = '00000' + (Math.random() * 0x1000000 << 0).toString(16)
-    return '#' + text.substring(text.length - 6);
-}
 
 @connect(mapStateToProps)
-class Graph extends Component {
+class Graph extends React.Component<{ graph: { name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }, any> {
 
-    constructor(props) {
+    constructor(props: { graph: { name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }) {
         super(props)
+        const graphinRef = React.createRef();
         this.state = {
-            type: 'graphin-force'
+            type: 'graphin-force',
+            tab: 'attr',
+            graphinRef: graphinRef,
+            nodeSelect: false,
+            nodeName: '',
+            nodeDesc: '',
+            nodeDeg: 0,
         }
     }
 
+    handleNodeClick = (e: { item: { get: (arg0: string) => string; }; }) => {
+        // console.log(e.item)
+        const id = e.item.get('id')
+        const node = this.props.details[this.props.graph.name].nodes.find((n: { name: string; }) => n.name === id);
+        this.setState({
+            nodeSelect: true,
+            nodeName: id,
+            nodeDesc: node.desc,
+            nodeDeg: node.deg,
+        });
+    };
+
+    componentDidMount() {
+        // console.log('mount')
+        const {graph} = this.state.graphinRef.current;
+        graph.on('node:click', this.handleNodeClick);
+        graph.on('canvas:click', () => {
+            this.setState({
+                nodeSelect: false
+            })
+        })
+    }
+
+    componentWillUnmount() {
+        // console.log('unmount')
+        const {graph} = this.state.graphinRef.current;
+        graph.off('node:click');
+        graph.off('canvas:click')
+    }
+
     render() {
+        // console.log('render')
         const {graph, details} = this.props
-        const loading = details[graph] === undefined || details[graph].status === 0
+        const {name} = graph
+        const loading = details[name] === undefined || details[name].status === 0
         const nodes: { id: string, style: { keyshape: { size: number, fill: string }, label: { value: string } } }[] = []
         const edges: { source: string, target: string }[] = []
         const data = {
             nodes: nodes,
             edges: edges,
         }
+
         const handleChange = (value: SetStateAction<string>) => {
             this.setState({
                 type: value
             })
         };
         const layout = layouts.find(item => item.type === this.state.type);
-        if (details[graph] === undefined) {
+        if (details[name] === undefined) {
             const queryDetail = async () => {
                 let taskId = 0
-                if (this.props.details[graph] !== undefined) {
-                    taskId = this.props.details[graph].taskId
+                if (this.props.details[name] !== undefined) {
+                    taskId = this.props.details[name].taskId
                 }
-                await this.props.dispatch({
+                this.props.dispatch({
                     type: 'graph/queryDetail',
                     payload: {
-                        graph: graph,
+                        graph: name,
                         taskId: taskId,
                         min: 0,
                     }
+                }).then(taskStatus => {
+                    if (taskStatus === 1) {
+                        clearInterval(timer)
+                    }
                 })
-                console.log(this.props.details[graph])
-                if (this.props.details[graph].status === 1) {
-                    clearInterval(timer)
-                }
+                // console.log(this.props.details)
+                // if (this.props.details[name].status === 1) {
+                //     clearInterval(timer)
+                // }
             }
+            queryDetail()
             const timer = setInterval(queryDetail, 3000)
         }
         if (!loading) {
-            details[graph].nodes.forEach(n => nodes.push({
+            details[name].nodes.forEach((n: { name: string; deg: number; color: string; }) => nodes.push({
                 id: n.name,
                 style: {
                     keyshape:
                         {
-                            fill: getRandomColor(),
-                            size: (Math.log(n.deg + 1) + 1) * 10,
+                            fill: n.color,
+                            size: Math.floor((Math.log(n.deg + 1) + 1) * 10),
                         },
                     label: {
                         value: n.name
                     }
                 }
             }))
-            details[graph].edges.forEach(e => edges.push({
+            details[name].edges.forEach((e: { source: string; target: string; }) => edges.push({
                 source: e.source,
                 target: e.target,
             }))
         }
+
+        const getTabContent = () => {
+            if (this.state.tab == 'attr') {
+                return this.state.nodeSelect ?
+                    <Space direction="vertical">
+                        <Space><Text strong>节点：</Text><Text>{this.state.nodeName}</Text></Space>
+                        <Space><Text strong>描述：</Text><Paragraph ellipsis={{
+                            rows: 3,
+                            expandable: true,
+                            symbol: 'more'
+                        }} style={{marginBottom: 0}}>{this.state.nodeDesc}</Paragraph></Space>
+                        <Space><Text strong>度数：</Text><Text>{this.state.nodeDeg}</Text></Space>
+                    </Space> :
+                    <Space direction="vertical">
+                        <Space><Text strong>图：</Text><Text>{name}</Text></Space>
+                        <Space><Text strong>描述：</Text><Paragraph ellipsis={{
+                            rows: 3,
+                            expandable: true,
+                            symbol: 'more'
+                        }} style={{marginBottom: 0}}>{this.props.graph.desc}</Paragraph></Space>
+                        <Space><Text strong>节点数：</Text><Text>{this.props.graph.nodes}</Text></Space>
+                        <Space><Text strong>边数：</Text><Text>{this.props.graph.edges}</Text></Space>
+                    </Space>
+            }
+            return <Space direction={"vertical"}>
+                <Space><Text strong>来源：</Text><Text>文件导入</Text></Space>
+            </Space>
+        }
+
+
         return (
-            <PageContainer header={{title: ''}}>
-                <Row gutter={16}>
+            <PageContainer header={{title: ''}} content={
+                <Row gutter={16} style={{height: '100%'}}>
                     <Col span={18}>
                         <Card
-                            title={graph}
-                            bodyStyle={{height: '800px'}}
+                            title={name}
+                            style={{height: '100%'}}
+                            bodyStyle={{padding: '0 0 0 0'}}
                             extra={<LayoutSelector options={layouts} value={this.state.type} onChange={handleChange}/>}
                         >
-                            {loading ? <Spin/> : <Graphin data={data} layout={layout} fitView={true}/>}
+                            <Spin spinning={loading}>
+                                <Graphin data={data} layout={layout} fitView={true} containerStyle={{height: '80vh'}}
+                                         ref={this.state.graphinRef}>
+                                    <Hoverable bindType="node"/>
+                                    <Hoverable bindType="edge"/>
+                                </Graphin>
+                            </Spin>
                         </Card>
                     </Col>
-                    <Col span={6}>
-                        <Card tabList={tabListNoTitle} bodyStyle={{minHeight: '600px'}}>
-                            还在开发中...
+                    <Col span={6} style={{height: '100%'}}>
+                        <Card
+                            style={{height: '100%'}}
+                            tabList={tabListNoTitle}
+                            onTabChange={key => this.setState({tab: key})}>
+                            {getTabContent()}
                         </Card>
                     </Col>
                 </Row>
+            }>
             </PageContainer>
         );
     }
@@ -141,7 +227,6 @@ export default Graph;
 const SelectOption = Select.Option;
 const LayoutSelector = (props: { value: any; onChange: any; options: any; }) => {
     const {value, onChange, options} = props;
-    // 包裹在graphin内部的组件，将获得graphin提供的额外props
     return (
         <div
             // style={{ position: 'absolute', top: 10, left: 10 }}
