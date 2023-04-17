@@ -10,13 +10,15 @@ import {
     ShareAltOutlined,
 } from '@ant-design/icons';
 import Graphin, {Behaviors} from '@antv/graphin';
-import {Select, Row, Col, Card, Spin, Divider} from 'antd';
+import {Select, Row, Col, Card, Spin, Input, Button, InputNumber} from 'antd';
 import React, {SetStateAction} from "react";
 import {connect} from "@@/exports";
 import {Space, Typography} from 'antd';
+import {getTag} from "@/utils/format";
 
 const {Text, Paragraph} = Typography;
 const {Hoverable} = Behaviors;
+const {Search} = Input
 
 const tabListNoTitle = [
     {
@@ -47,6 +49,12 @@ const mapStateToProps = (state: any) => {
     }
 }
 
+const defaultNameProps = {
+    hint: '目标查询节点',
+    status: undefined,
+    min: 2,
+    distance: 1,
+}
 
 @connect(mapStateToProps)
 class Graph extends React.Component<{ graph: { name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }, any> {
@@ -58,22 +66,41 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
             type: 'graphin-force',
             tab: 'attr',
             graphinRef: graphinRef,
-            nodeSelect: false,
-            nodeName: '',
-            nodeDesc: '',
-            nodeDeg: 0,
+            select: {
+                ok: false,
+                name: '',
+                desc: '',
+                deg: '',
+            },
+            query: {
+                ok: false,
+                nameHint: defaultNameProps.hint,
+                nameStatus: defaultNameProps.status,
+                // 绑定input
+                name: '',
+                min: 0,
+                distance: 0,
+                // 记录搜索成功后的input值
+                kname: '',
+                kmin: defaultNameProps.min,
+                kdistance: defaultNameProps.distance,
+            }
         }
     }
 
     handleNodeClick = (e: { item: { get: (arg0: string) => string; }; }) => {
         // console.log(e.item)
         const id = e.item.get('id')
-        const node = this.props.details[this.props.graph.name].nodes.find((n: { name: string; }) => n.name === id);
+        const target = this.state.query.ok ? getTag(this.props.graph.name, this.state.query.name) : this.props.graph.name
+        // 图模式和节点模式需要查询不同的图
+        const node = this.props.details[target].nodes.find((n: { name: string; }) => n.name === id);
         this.setState({
-            nodeSelect: true,
-            nodeName: id,
-            nodeDesc: node.desc,
-            nodeDeg: node.deg,
+            select: {
+                ok: true,
+                name: id,
+                desc: node.desc,
+                deg: node.deg,
+            }
         });
     };
 
@@ -83,7 +110,10 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
         graph.on('node:click', this.handleNodeClick);
         graph.on('canvas:click', () => {
             this.setState({
-                nodeSelect: false
+                select: {
+                    ...this.state.select,
+                    ok: false
+                }
             })
         })
     }
@@ -98,8 +128,10 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
     render() {
         // console.log('render')
         const {graph, details} = this.props
-        const {name} = graph
-        const loading = details[name] === undefined || details[name].status === 0
+        let {name} = graph
+        const {tab, type, graphinRef, select, query} = this.state
+        const tag = getTag(name, query.name)
+        const loading = query.ok ? (details[tag] === undefined || details[tag].status === 0) : (details[name] === undefined || details[name].status === 0)
         const nodes: { id: string, style: { keyshape: { size: number, fill: string }, label: { value: string } } }[] = []
         const edges: { source: string, target: string }[] = []
         const data = {
@@ -112,8 +144,9 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                 type: value
             })
         };
-        const layout = layouts.find(item => item.type === this.state.type);
-        if (details[name] === undefined) {
+        const layout = layouts.find(item => item.type === type);
+        // 图模式，如果graph state没有就发起查询
+        if (!query.ok && details[name] === undefined) {
             const queryDetail = async () => {
                 let taskId = 0
                 if (this.props.details[name] !== undefined) {
@@ -126,12 +159,11 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                         taskId: taskId,
                         min: 0,
                     }
-                }).then(taskStatus => {
+                }).then((taskStatus: number) => {
                     if (taskStatus === 1) {
                         clearInterval(timer)
                     }
                 })
-                // console.log(this.props.details)
                 // if (this.props.details[name].status === 1) {
                 //     clearInterval(timer)
                 // }
@@ -139,8 +171,38 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
             queryDetail()
             const timer = setInterval(queryDetail, 3000)
         }
+        // 节点模式
+        if (query.ok && details[tag] === undefined) {
+            const queryNeibors = async () => {
+                let taskId = 0
+                if (this.props.details[tag] !== undefined) {
+                    taskId = this.props.details[tag].taskId
+                }
+                this.props.dispatch({
+                    type: 'graph/queryNeibors',
+                    payload: {
+                        graph: name,
+                        taskId: taskId,
+                        node: query.name,
+                        min: query.min,
+                        distance: query.distance
+                    }
+                }).then((taskStatus: number) => {
+                    if (taskStatus === 1) {
+                        clearInterval(timer)
+                    }
+                })
+                // if (this.props.details[name].status === 1) {
+                //     clearInterval(timer)
+                // }
+            }
+            queryNeibors()
+            const timer = setInterval(queryNeibors, 3000)
+        }
+
         if (!loading) {
-            details[name].nodes.forEach((n: { name: string; deg: number; color: string; }) => nodes.push({
+            const target = query.ok ? tag : name
+            details[target].nodes.forEach((n: { name: string; deg: number; color: string; }) => nodes.push({
                 id: n.name,
                 style: {
                     keyshape:
@@ -153,33 +215,79 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                     }
                 }
             }))
-            details[name].edges.forEach((e: { source: string; target: string; }) => edges.push({
+            details[target].edges.forEach((e: { source: string; target: string; }) => edges.push({
                 source: e.source,
                 target: e.target,
             }))
         }
 
+        const getSearch = () => {
+            const resetGraph = (name: string) => {
+                // console.log('search')
+                if (!query.name) {
+                    this.setState({
+                        query: {
+                            ...this.state.query,
+                            nameHint: '必须设置目标查询节点',
+                            nameStatus: 'error'
+                        }
+                    })
+                    return
+                }
+                this.setState({
+                    query: {
+                        ...this.state.query,
+                        ok: true,
+                        nameHint: defaultNameProps.hint,
+                        nameStatus: defaultNameProps.status
+                    }
+                })
+            }
+            const format = (v: any) => Math.floor(v).toString()
+            return <Space direction="horizontal">
+                <Search addonBefore={<Text strong>{graph.name}</Text>} placeholder={query.nameHint}
+                        status={query.nameStatus}
+                        onSearch={resetGraph}
+                        onChange={(v) => {
+                            this.state.query.name = v.target.value
+                        }}/>
+                <InputNumber addonBefore='距离' defaultValue={defaultNameProps.distance} formatter={format}
+                             onChange={(v) => this.state.query.distance = v}/>
+                <InputNumber addonBefore='最小度数' defaultValue={defaultNameProps.min} formatter={format}
+                             onChange={(v) => this.state.query.min = v}/>
+            </Space>
+        }
+
         const getTabContent = () => {
-            if (this.state.tab == 'attr') {
-                return this.state.nodeSelect ?
+            if (tab == 'attr') {
+                return select.ok ?
                     <Space direction="vertical">
-                        <Space><Text strong>节点：</Text><Text>{this.state.nodeName}</Text></Space>
+                        <Space><Text strong>节点：</Text><Text>{select.name}</Text></Space>
                         <Space><Text strong>描述：</Text><Paragraph ellipsis={{
                             rows: 3,
                             expandable: true,
                             symbol: 'more'
-                        }} style={{marginBottom: 0}}>{this.state.nodeDesc}</Paragraph></Space>
-                        <Space><Text strong>度数：</Text><Text>{this.state.nodeDeg}</Text></Space>
+                        }} style={{marginBottom: 0}}>{select.desc}</Paragraph></Space>
+                        <Space><Text strong>度数：</Text><Text>{select.deg}</Text></Space>
                     </Space> :
                     <Space direction="vertical">
                         <Space><Text strong>图：</Text><Text>{name}</Text></Space>
+                        {
+                            query.ok && <Space direction="vertical">
+                                <Space><Text strong>子节点：</Text><Text>{query.name}</Text></Space>
+                                <Space><Text strong>距离：</Text><Text>{query.distance}</Text></Space>
+                                <Space><Text strong>最小度数：</Text><Text>{query.min}</Text></Space>
+                            </Space>
+                        }
                         <Space><Text strong>描述：</Text><Paragraph ellipsis={{
                             rows: 3,
                             expandable: true,
                             symbol: 'more'
-                        }} style={{marginBottom: 0}}>{this.props.graph.desc}</Paragraph></Space>
-                        <Space><Text strong>节点数：</Text><Text>{this.props.graph.nodes}</Text></Space>
-                        <Space><Text strong>边数：</Text><Text>{this.props.graph.edges}</Text></Space>
+                        }} style={{marginBottom: 0}}>{graph.desc}</Paragraph></Space>
+                        <Space><Text strong>总节点数：</Text><Text>{graph.nodes}</Text></Space>
+                        <Space><Text strong>总边数：</Text><Text>{graph.edges}</Text></Space>
+                        <Space><Text strong>当前节点数：</Text><Text>{nodes.length}</Text></Space>
+                        <Space><Text strong>当前边数：</Text><Text>{edges.length}</Text></Space>
                     </Space>
             }
             return <Space direction={"vertical"}>
@@ -193,14 +301,30 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                 <Row gutter={16} style={{height: '100%'}}>
                     <Col span={18}>
                         <Card
-                            title={name}
+                            title={getSearch()}
                             style={{height: '100%'}}
                             bodyStyle={{padding: '0 0 0 0'}}
-                            extra={<LayoutSelector options={layouts} value={this.state.type} onChange={handleChange}/>}
+                            extra={
+                                <Space>
+                                    <Button type={'primary'} onClick={() => {
+                                        const {graph} = graphinRef.current
+                                        graph.emit('canvas:click')
+                                        this.setState({
+                                            query: {
+                                                ...this.state.query,
+                                                ok: false
+                                            }
+                                        })
+                                    }}>
+                                        重置
+                                    </Button>
+                                    <LayoutSelector options={layouts} value={type} onChange={handleChange}/>
+                                </Space>
+                            }
                         >
                             <Spin spinning={loading}>
                                 <Graphin data={data} layout={layout} fitView={true} containerStyle={{height: '80vh'}}
-                                         ref={this.state.graphinRef}>
+                                         ref={graphinRef}>
                                     <Hoverable bindType="node"/>
                                     <Hoverable bindType="edge"/>
                                 </Graphin>

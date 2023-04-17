@@ -1,71 +1,41 @@
 // @ts-ignore
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 
 export default {
-  'GET /api/graph/node/get': (req: Request, res: Response) => {
-    res.status(200).send({
-      base: {
-        status: 75,
-        msg: '明于低划亲主示适维有期年结阶格无机。',
-        taskId: 72,
-        taskStatus: 73,
-        extra: {},
-      },
-      node: { name: '雷杰', desc: '点写美资成具电海种压便个受商当维下运。', deg: 93 },
-      nodes: [
-        { name: '黄超', desc: '片要许土层给公六备于温战结省江与据。', deg: 75 },
-        { name: '龙秀英', desc: '金准流传下组号研始值证回命老广断。', deg: 88 },
-        { name: '张静', desc: '定事收志及还每基便亲亲面到。', deg: 88 },
-        { name: '姜敏', desc: '场百信国心话具际来法音计子。', deg: 80 },
-        { name: '夏磊', desc: '与治对青历教列快速发受干资号音反更。', deg: 65 },
-      ],
-      edges: [
-        { source: '用层共始分原由术般本原样很长计布她。', target: '交产听记领速时达自率子想认。' },
-        { source: '做才心定京导式圆它史进般什一样了又。', target: '机参开习叫总提战西经指别。' },
-        { source: '布联快且圆里同查至回该程集。', target: '快时被火相斯万第近料记交存做适标持。' },
-        {
-          source: '明状比议或合打四府到斗只头派们花集。',
-          target: '机得高经研个看维保压矿实规号到。',
-        },
-        {
-          source: '克究水农率资最压矿组可种最气北。',
-          target: '属织之成把起图常识处受品算米性解身证。',
-        },
-        { source: '后活布按老下第总较现计风京政。', target: '常京青受素都好外半组清土石属热。' },
-        {
-          source: '会成正经标具车极因组军拉正争七速备。',
-          target: '己准位矿越越理你们查改结布色明。',
-        },
-        { source: '知二三装常品军条上活领六精。', target: '切越两这量快现二革还风听业。' },
-        {
-          source: '取般场第放据书动它这声价重划都干。',
-          target: '算直类太料做都条无口式消问步直口。',
-        },
-        { source: '术住中求我列家军近也平持完线马。', target: '火就按按金效和片特前不传采。' },
-        { source: '容专住织你法改特无置受通心术。', target: '反单根照活教感成行同二证。' },
-        {
-          source: '容可个度江长打能质已反年军子求半条。',
-          target: '号真石点写连天话真变这温行也效个。',
-        },
-        {
-          source: '段处设张除历别律头共别权世反眼合什阶。',
-          target: '已口自务组知被都系造但按生看。',
-        },
-        {
-          source: '十么传制品是查验包成变做规但八们不。',
-          target: '划物步什半外往取支统率十这务那。',
-        },
-        {
-          source: '效音才老现精质交思性量维示思根。',
-          target: '族儿基候周月律解图必织深由标专件或着。',
-        },
-        { source: '间领石满产水白毛即市专家上。', target: '情龙今特经三程计际实习级先二将示。' },
-        {
-          source: '记广能色经样世条和代得儿还后达便给。',
-          target: '提强包重回王更把只难规片受局。',
-        },
-        { source: '文行打经小传论满质况备边。', target: '系传需制市青农场华近办场了权。' },
-      ],
-    });
-  },
+    'GET /api/graph/node/get': (req: Request, res: Response) => {
+        res.status(200).send({
+            base: {
+                status: 75,
+                msg: '明于低划亲主示适维有期年结阶格无机。',
+                taskId: 72,
+                taskStatus: 1,
+                extra: {},
+            },
+            node: {name: '郭强', desc: '三拉等气清天作则红前连加也先往样。', deg: 92},
+            nodes: [
+                {name: '马娜', desc: '界层给提色何过做高金报位从。', deg: 78},
+                {name: '姚磊', desc: '已究日构片型府展己斯好务算节标必面。', deg: 85},
+                {name: '郭强', desc: '三拉等气清天作则红前连加也先往样。', deg: 92},
+                {name: '李娟', desc: '们真四究王示住什众即些件百色教角。', deg: 97},
+                {name: '萧强', desc: '五意信率族政近民从在家和书加。', deg: 60},
+                {name: '方芳', desc: '四十文水正严把正运派料用战。', deg: 78},
+                {name: '毛洋', desc: '办龙那音她族走派业音示阶正使活空选交。', deg: 89},
+            ],
+            edges: [
+                {source: '马娜', target: '姚磊'},
+                {source: '马娜', target: '郭强'},
+                {
+                    source: '马娜',
+                    target: '李娟',
+                },
+                {source: '李娟', target: '萧强'},
+                {source: '萧强', target: '郭强'},
+                {source: '郭强', target: '方芳'},
+                {
+                    source: '方芳',
+                    target: '毛洋',
+                },
+            ],
+        });
+    },
 };
