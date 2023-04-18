@@ -10,8 +10,6 @@ const getRandomColor = function () {
 
 export default {
     state: {
-
-        graphs: [1, 2],
         details: {}
     },
 

@@ -4,9 +4,10 @@ import {EllipsisOutlined, InboxOutlined, UploadOutlined} from "@ant-design/icons
 import ProCard from "@ant-design/pro-card";
 import {ProForm} from "@ant-design/pro-form/lib";
 import { Input } from 'antd';
-import {useState} from "react";
+import {useRef, useState} from "react";
 
 import {upload} from "@/services/file/file";
+import {createGraph} from "@/services/graph/graph";
 import axios from "axios";
 import FormItem from "antd/es/form/FormItem";
 import {values} from "@antv/util";
@@ -14,11 +15,10 @@ import Icon from "antd/es/icon";
 
 const AddPage: React.FC = () => {
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [ifSuccess,setIfSuccess]=useState(false)
     const uploadProps: UploadProps = {
 
         beforeUpload: (file) => {
-            setFileList([...fileList, file]);
-            console.log(fileList)
             return false;
         },
 
@@ -30,16 +30,22 @@ const AddPage: React.FC = () => {
         return e?.fileList;
     };
 
-    const handleFinish = (value: any) => {
-        const { name,file } = value;
-        console.log(name)
-        console.log(file)
-        const formData = new FormData();
-        file.forEach((item, index) => {
-            formData.append(`file-${index}`, item.originFileObj);
-            console.log(item.originFileObj)
-        })
-
+    const handleFinish = async (value: any) => {
+        const {name, file} = value;
+        const nodeData = new FormData();
+        nodeData.append('node', file[0].originFileObj)
+        //console.log(nodeData.get('node'))
+        const edgeData = new FormData();
+        edgeData.append('edge', file[1].originFileObj)
+        let nodeId='', edgeId='';
+        await upload(nodeData).then(res => {
+            nodeId = res.id
+        }).catch(e => console.log(e))
+        await upload(edgeData).then(res => {
+            edgeId = res.id
+        }).catch(e => console.log(e))
+        createGraph({taskId: 0, nodeId: nodeId,edgeId:edgeId,graph:name})
+            .then(res=>{setIfSuccess(true)})
     }
 
     const uploadFile=async (options:any)=>{
@@ -49,11 +55,9 @@ const AddPage: React.FC = () => {
         <PageContainer>
             <ProCard style={{height:"fit-content"}}>
                 <Form onFinish={handleFinish} >
-
                     <FormItem name='name'>
                         <Input></Input>
                     </FormItem>
-
                     <Form.Item
                         name="file"
                         valuePropName="file"
@@ -75,7 +79,6 @@ const AddPage: React.FC = () => {
                     </Form.Item>
                 </Form>
             </ProCard>
-
 
         </PageContainer>
     )

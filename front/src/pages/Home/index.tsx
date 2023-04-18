@@ -1,10 +1,14 @@
 
-import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
+import {EllipsisOutlined, InboxOutlined, PlusOutlined, UploadOutlined} from '@ant-design/icons';
 import type {ActionType, ProColumns} from '@ant-design/pro-components';
 import {PageContainer, ProTable} from '@ant-design/pro-components';
-import {Button, Dropdown, Typography} from 'antd';
-import {useRef} from 'react';
+import {Button, Dropdown, Form, Input, message, Modal, Typography, Upload, UploadProps} from 'antd';
+import {useRef, useState} from 'react';
 import {useModel} from "@@/exports";
+import FormItem from "antd/es/form/FormItem";
+import ProCard from "@ant-design/pro-card";
+import {upload} from "@/services/file/file";
+import {createGraph} from "@/services/graph/graph";
 
 const {Title} = Typography;
 
@@ -110,17 +114,108 @@ const columns: ProColumns<Graph.Graph>[] = [
 ];
 
 const HomePage: React.FC = (props) => {
-    const actionRef = useRef<ActionType>();
+
+
     const {graphs} = useModel('global')
+    const [modalOpen,setModalOpen] = useState(false)
+    const getModal = ()=> {
+
+        const uploadProps: UploadProps = {
+            beforeUpload: (file) => {
+                return false;
+            },
+            maxCount:1
+        };
+
+        const normFile = (e: any) => {
+            return e?.fileList;
+        };
+
+        const handleFinish = async (value: any) => {
+
+            const {name, node,edge} = value;
+            const nodeData = new FormData();
+            if (!name){
+                message.error('必须输入一个图名称')
+                return
+            }
+            if (!node){
+                message.error('必须上传一个节点文件')
+                return
+            }
+            if (!edge){
+                message.error('必须上传一个边文件')
+                return
+            }
+            nodeData.append('file', node[0].originFileObj)
+            //console.log(nodeData.get('node'))
+            const edgeData = new FormData();
+            edgeData.append('file', edge[0].originFileObj)
+            let nodeId:string='', edgeId:string='';
+            await upload(nodeData).then(res => {
+                nodeId = res.id
+            }).catch(e => console.log(e))
+            await upload(edgeData).then(res => {
+                edgeId = res.id
+            }).catch(e => console.log(e))
+            createGraph({taskId: 0, nodeId: nodeId,edgeId:edgeId,graph:name})
+                .then(()=>{
+                    setModalOpen(false)
+                    message.success("文件上传成功")
+                })
+        }
+
+
+        return <Modal open={modalOpen} footer={null}>
+            <ProCard style={{height:"fit-content"}}>
+                <Form onFinish={handleFinish} >
+                    <FormItem
+                        name='name'
+                        label={"图名称"}
+                    >
+                        <Input></Input>
+                    </FormItem>
+                    <FormItem
+                        name="node"
+                        valuePropName="file"
+                        getValueFromEvent={normFile}
+                        label="节点文件"
+                    >
+                        <Upload {...uploadProps}>
+                            <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                        </Upload>
+                    </FormItem>
+                    <FormItem
+                        name="edge"
+                        valuePropName="file"
+                        getValueFromEvent={normFile}
+                        label="边文件"
+                    >
+                        <Upload {...uploadProps}>
+                            <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                        </Upload>
+                    </FormItem>
+
+                    <FormItem wrapperCol={{ span: 12, offset: 6 }}>
+                        <Button type="primary" htmlType="submit">
+                            确认发布
+                        </Button>
+                    </FormItem>
+                </Form>
+            </ProCard>
+        </Modal>
+    }
     return (
         <PageContainer>
+            {getModal()}
             <ProTable<Graph.Graph>
                 columns={columns}
-                actionRef={actionRef}
                 cardBordered
                 request={async (params, sort, filter) => {
                     // TODO: graphs是打开主页发起查询获得的，感觉这里有可能会查不到graphs
                     // TODO: 根据status查询
+                    // 读以下global的图，如果有效直接返回
+                    // 如果无效（新增了），发起查询，看有没有正在创建的，有就个五秒
                     const keyword = params.name ? params.name : ''
                     const fGraphs = graphs.filter(g => g.name.includes(keyword))
                     return {
@@ -169,7 +264,7 @@ const HomePage: React.FC = (props) => {
                         key="button"
                         icon={<PlusOutlined/>}
                         onClick={() => {
-                            actionRef.current?.reload();
+                            setModalOpen(true)
                         }}
                         type="primary"
                     >
