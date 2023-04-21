@@ -84,9 +84,15 @@ func (h *Upload) Handle(params string, taskID int64) (string, error) {
 		},
 		Graph: &types.Graph{
 			Name:  req.Graph,
+			Desc:  req.Desc,
+			Id:    req.GraphId,
 			Nodes: int64(len(nodes)),
 			Edges: int64(len(edges)),
 		},
+	}
+	_, err = config.MysqlClient.UpdateGraphStatus(int64(req.GraphId), 1, ctx)
+	if err != nil {
+		return "", err
 	}
 	return jsonx.MarshalToString(resp)
 }

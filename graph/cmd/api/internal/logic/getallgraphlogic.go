@@ -6,7 +6,6 @@ import (
 
 	"context"
 
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,19 +24,19 @@ func NewGetAllGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetAl
 }
 
 func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err error) {
-	fmt.Println("wdnmd")
-	graphs, err := l.svcCtx.NebulaClient.GetGraphs()
+	graphs, err := l.svcCtx.MysqlClient.GetAllGraph(l.ctx)
 	if err != nil {
 		return nil, err
 	}
 	resp = &types.SearchAllGraphReply{}
 	for _, graph := range graphs {
 		resp.Graphs = append(resp.Graphs, &types.Graph{
+			Id:    int(graph.ID),
 			Name:  graph.Name,
+			Desc:  graph.Desc,
 			Nodes: graph.Nodes,
 			Edges: graph.Edges,
 		})
 	}
-	resp.Graphs = append(resp.Graphs, &types.Graph{Name: "wdnmd"})
 	return resp, nil
 }

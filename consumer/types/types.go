@@ -2,6 +2,7 @@
 package types
 
 type Graph struct {
+	Id    int    `json:"id"`
 	Name  string `json:"name"`
 	Desc  string `json:"desc"`
 	Nodes int64  `json:"nodes"`
@@ -69,8 +70,10 @@ type DropRequest struct {
 }
 
 type UploadRequest struct {
-	TaskID int64  `form:"taskId"`
-	Graph  string `form:"graph"`
-	NodeID string `form:"nodeId"`
-	EdgeID string `form:"edgeId"`
+	TaskID  int64  `form:"taskId"`
+	GraphId int    `form:"graphId"`
+	Graph   string `form:"graph"`
+	Desc    string `form:"description"`
+	NodeID  string `form:"nodeId"`
+	EdgeID  string `form:"edgeId"`
 }

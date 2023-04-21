@@ -14,7 +14,7 @@ import (
 
 func main() {
 	flag.Parse()
-	var configFile = flag.String("f", "graph/api/etc/consumer.yaml", "the config api")
+	var configFile = flag.String("f", "graph/cmd/api/etc/graph.yaml", "the config api")
 	var c config.Config
 	_ = conf.Load(*configFile, &c)
 	db, err := gorm.Open(mysql.Open(c.Mysql.Addr))
