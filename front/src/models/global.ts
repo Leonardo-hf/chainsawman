@@ -4,7 +4,6 @@ import {useState} from 'react';
 let init_graphs: Graph.Graph[] = []
 
 export function setInitGraphs(graphs: Graph.Graph[]) {
-    console.log(graphs)
     init_graphs = graphs
 }
 

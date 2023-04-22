@@ -54,14 +54,13 @@ export default defineConfig({
             name: 'graph',
             path: '/graph',
             routes: [
-
+                {
+                    name: 'test',
+                    path: '/graph/test',
+                    component: './Graph'
+                }
             ]
         },
-        {
-            name: '上传文件',
-            path: 'addFile',
-            component: './AddFile'
-        }
     ],
     npmClient: 'npm',
 });

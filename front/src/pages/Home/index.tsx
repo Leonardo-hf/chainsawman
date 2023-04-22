@@ -1,16 +1,16 @@
-
-import {EllipsisOutlined, InboxOutlined, PlusOutlined, UploadOutlined} from '@ant-design/icons';
+import {EllipsisOutlined, PlusOutlined, UploadOutlined} from '@ant-design/icons';
 import type {ActionType, ProColumns} from '@ant-design/pro-components';
 import {PageContainer, ProTable} from '@ant-design/pro-components';
 import {Button, Dropdown, Form, Input, message, Modal, Typography, Upload, UploadProps} from 'antd';
-import {MutableRefObject, useRef, useState} from 'react';
-import {useModel} from "@@/exports";
+import React, {useRef, useState} from 'react';
 import FormItem from "antd/es/form/FormItem";
 import ProCard from "@ant-design/pro-card";
 import {upload} from "@/services/file/file";
 import {createGraph, getAllGraph} from "@/services/graph/graph";
-import {nil} from "@umijs/bundler-webpack/compiled/schema-utils/ajv/dist/compile/codegen";
-import {request} from "@umijs/max";
+import {
+    CSSProperties
+} from "../../../../../../../../usr/local/src/GoLand-2022.3.1/plugins/javascript-impl/jsLanguageServicesImpl/external/react";
+import {useModel} from '@umijs/max';
 
 const {Title} = Typography;
 
@@ -54,11 +54,11 @@ const columns: ProColumns<Graph.Graph>[] = [
         onFilter: true,
         valueType: 'select',
         valueEnum: {
-            online: {
+            1: {
                 text: '在线',
                 status: 'Online',
             },
-            offline: {
+            0: {
                 text: '离线',
                 status: 'Offline',
             },
@@ -88,48 +88,29 @@ const columns: ProColumns<Graph.Graph>[] = [
         title: '操作',
         valueType: 'option',
         key: 'option',
-        render: (text, record, _, action) => [
-            // <a
-            //     key="editable"
-            //     onClick={() => {
-            //         action?.startEditable?.(record.id);
-            //     }}
-            // >
-            //     编辑
-            // </a>,
-            <a href={'/graph/' + record.name}>
-                查看
-            </a>,
-            <a>
-                删除
-            </a>,
-            // <TableDropdown
-            //     key="actionGroup"
-            //     onSelect={() => action?.reload()}
-            //     menus={[
-            //         {key: 'copy', name: '复制'},
-            //         {key: 'delete', name: '删除'},
-            //     ]}
-            // />,
-        ],
+        render: (text, record, _, action) => {
+            const disable: CSSProperties | undefined = record.status === 0 ? {
+                pointerEvents: 'none',
+                color: 'grey'
+            } : undefined
+            return [
+                <a href={'/graph/' + record.name} style={disable}>
+                    查看
+                </a>,
+                <a style={disable}>
+                    删除
+                </a>,
+            ]
+        },
     },
 ];
 
 
-
 const HomePage: React.FC = (props) => {
-
-    const ref = useRef(null)
-    const {graphs, setGraphs} = useModel('global')
+    const ref = useRef<ActionType>();
+    const {setGraphs} = useModel('global')
     const [modalOpen, setModalOpen] = useState(false)
-    const test=()=>{
-        const haha= graphs
-        haha.at(0).status=1
-        setGraphs(haha)
-        console.log(graphs)
-    }
     const getModal = () => {
-
         const uploadProps: UploadProps = {
             beforeUpload: (file) => {
                 return false;
@@ -142,7 +123,6 @@ const HomePage: React.FC = (props) => {
         };
 
         const handleFinish = async (value: any) => {
-
             const {name, desc, node, edge} = value;
             const nodeData = new FormData();
             if (!name) {
@@ -176,10 +156,10 @@ const HomePage: React.FC = (props) => {
                 .then((res) => {
                     setModalOpen(false)
                     message.success("文件上传成功")
-                    let haha: Graph.Graph[] = graphs
-                    haha.push({id: res.graph.id, name: name, desc: desc, nodes: 0, edges: 0, status: 0})
-                    setGraphs(haha)
-                    ref.current.reload()
+                    // let haha: Graph.Graph[] = graphs
+                    // haha.push({id: res.graph.id, name: name, desc: desc, nodes: 0, edges: 0, status: 0})
+                    // setGraphs(haha)
+                    ref.current?.reload()
                 })
         }
         return <Modal open={modalOpen} footer={null}>
@@ -228,36 +208,25 @@ const HomePage: React.FC = (props) => {
         </Modal>
     }
 
-    async function ha() {
-        setTimeout(()=>{
-            request('/api/graph/getAll1')
-            // getAllGraph()
-                .then(res=>{
-                    const temp=res.graphs
-                    const notFinished=graphs.filter(a=>a.status==0)
-                    let flag=false
-                    notFinished.forEach(g=>{
-                        for (let i = 0; i < temp.length; i++) {
-                            if (temp[i].id==g.id&&temp[i].status==1){
-                                flag=true
-                                setGraphs(temp)
-                                ref.current.reload()
-                                break
-                            }
-                        }
-                    })
-                    if (!flag)
-                        ha()
-                    else
-                        return
-                })
-        },3000)
+    async function checkGraphs() {
+        let graphs: Graph.Graph[] = []
+        await getAllGraph()
+            .then(res => {
+                graphs = res.graphs
+                setGraphs(graphs)
+                if (graphs.filter(a => a.status === 0).length) {
+                    setTimeout(_ => {
+                        ref.current?.reload()
+                    }, 5000)
+                }
+            })
+        return graphs
     }
 
     return (
         <PageContainer>
             {getModal()}
-            <button onClick={test}></button>
+            {/*<button onClick={test}></button>*/}
             <ProTable<Graph.Graph>
                 columns={columns}
                 cardBordered
@@ -267,17 +236,15 @@ const HomePage: React.FC = (props) => {
                     // TODO: 根据status查询
                     // 读以下global的图，如果有效直接返回
                     // 如果无效（新增了），发起查询，看有没有正在创建的，有就个五秒
+                    console.log('reload')
                     const keyword = params.name ? params.name : ''
-                    console.log(keyword)
-                    ha()
-
-                    const fGraphs = graphs.filter(g => g.name.includes(keyword))
+                    const graphs = await checkGraphs()
+                    const fGraphs = graphs.filter(g => g.name.includes(keyword) && (!params.status || g.status == params.status))
                     return {
                         data: fGraphs,
                         success: true,
                         total: graphs.length
                     }
-
                 }}
                 columnsState={{
                     persistenceKey: 'graphs_columns_state',
@@ -314,7 +281,7 @@ const HomePage: React.FC = (props) => {
                 }}
                 dateFormatter="string"
                 headerTitle={<Title level={4} style={{margin: '0 0 0 0'}}>图谱列表</Title>}
-                toolBarRender={() => [
+                toolBarRender={(action) => [
                     <Button
                         key="button"
                         icon={<PlusOutlined/>}

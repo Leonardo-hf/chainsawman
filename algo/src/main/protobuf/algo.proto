@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package services;
+
+message Empty{}
+
+message Element{
+  string key = 1;
+  Type type = 2;
+  enum Type{
+    INT64 = 0;
+    DOUBLE = 1;
+    STRING = 2;
+    LIST_DOUBLE = 3;
+    LIST_STRING = 4;
+  }
+}
+
+message CreateAlgoReq{
+  string name = 1;
+  string desc = 2;
+  repeated Element params = 3;
+  repeated Element rets = 4;
+  string code = 5;
+  Algo.Type type = 6;
+}
+
+message DropAlgoReq{
+  string name = 1;
+}
+
+message AlgoReply{
+  repeated Algo algos = 1;
+}
+
+message Algo{
+  int64 id = 1;
+  string name = 2;
+  string desc = 3;
+  bool isCustom = 4;
+  Type type = 5;
+  enum Type{
+    Rank = 0;
+    Cluster = 1;
+    Metrics = 2;
+    Others = 3;
+  }
+}
+
+message Rank{
+  string name = 1;
+  double score = 2;
+}
+
+message RankReply{
+  repeated Rank ranks = 1;
+}
+
+message Cluster{
+  string name = 1;
+  repeated string nodes = 2;
+}
+
+message ClusterReply{
+  repeated Cluster clusters = 1;
+}
+
+message MetricsReply{
+  double score = 1;
+}
+
+message BaseReq{
+  string graph = 1;
+  string exportKey = 2;
+}
+
+message ShortestPathReq{
+  BaseReq base = 1;
+  string src = 2;
+  string dst = 3;
+}
+
+message CustomAlgoReq{
+  BaseReq base = 1;
+  string params = 2;
+}
+
+message CustomAlgoReply{
+  string rets = 1;
+}
+
+service algo {
+  rpc createAlgo(CreateAlgoReq) returns(AlgoReply);
+
+  rpc queryAlgo(Empty) returns(AlgoReply);
+
+  rpc dropAlgo(DropAlgoReq) returns(AlgoReply);
+
+  rpc degree(BaseReq) returns(RankReply);
+
+  rpc pagerank(BaseReq) returns(RankReply);
+
+  rpc louvain(BaseReq) returns(ClusterReply);
+
+  rpc shortestPath(ShortestPathReq) returns(ClusterReply);
+
+  rpc avgShortestPath(BaseReq) returns(MetricsReply);
+
+  rpc avgClustering(BaseReq) returns(MetricsReply);
+
+  rpc custom(CustomAlgoReq) returns(CustomAlgoReply);
+}

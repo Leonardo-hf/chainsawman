@@ -1,13 +1,14 @@
-import {getAllGraph} from "@/services/graph/graph";
-import Graph from "@/pages/Graph";
 import {RequestConfig} from "@@/plugin-request/request";
-import {setInitGraphs} from "@/models/global";
-
+import React from "react";
+import {useModel} from "@umijs/max";
+import Graph from "./pages/Graph"
+import { setInitGraphs } from "./models/global";
+import { getAllGraph } from "./services/graph/graph";
 
 let graphs: any
 
 
-export function render(oldRender) {
+export function render(oldRender: () => void) {
     getAllGraph().then(data => {
         const routes: { name: string, path: string, element: JSX.Element }[] = []
         if (data) {
@@ -16,8 +17,8 @@ export function render(oldRender) {
             data.graphs.forEach((graph) => routes.push({
                 path: '/graph/' + graph.name,
                 element: <Graph graph={graph}/>,
-            name: graph.name,
-        }))
+                name: graph.name,
+            }))
         }
         graphs = routes
         oldRender()
@@ -41,6 +42,22 @@ export async function getInitialState(): Promise<{ name: string }> {
     return {name: '@umijs/max'};
 }
 
+//
+// export function rootContainer(container) {
+//     return React.createElement(RoutesProvider, null, container);
+// }
+//
+// const RoutesProvider: React.FC = (props) => {
+//     const clone = Object.assign({}, props.children)
+//     console.log(clone.props)
+//     const cloneProps = {...clone.props}
+//     cloneProps.routes = []
+//     clone.props = cloneProps
+//     console.log(clone.props)
+//     return <div>{clone}</div>
+// }
+
+
 export const request: RequestConfig = {
     timeout: 1000,
 };
@@ -50,6 +67,9 @@ export const layout = () => {
         logo: 'https://i.328888.xyz/2023/03/22/YMzqZ.png',
         menu: {
             locale: false,
+            // request: () => {
+            //     return []
+            // }
         },
     };
 };
