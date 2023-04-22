@@ -9,4 +9,7 @@ front/package-lock.json
 front/*.iml
 front/src/.umi
 
+algo/target
+
 default.etcd
+
