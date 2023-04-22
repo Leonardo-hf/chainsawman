@@ -110,6 +110,35 @@
       <artifactId>grpc-stub</artifactId>
       <version>${grpc.version}</version>
     </dependency>
+
+    <!-- mysql connector-->
+    <dependency>
+      <groupId>org.scalikejdbc</groupId>
+      <artifactId>scalikejdbc_2.13</artifactId>
+      <version>4.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.scalikejdbc</groupId>
+      <artifactId>scalikejdbc-config_2.13</artifactId>
+      <version>4.0.0</version>
+    </dependency>
+    <!-- spark connector-->
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-core_2.13</artifactId>
+      <version>3.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql_2.13</artifactId>
+      <version>3.4.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.vesoft</groupId>
+      <artifactId>nebula-algorithm</artifactId>
+      <version>3.1.0</version>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>src/main/scala</sourceDirectory>
