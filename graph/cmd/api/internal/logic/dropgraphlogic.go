@@ -23,6 +23,10 @@ func NewDropGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DropGra
 }
 
 func (l *DropGraphLogic) DropGraph(req *types.DropRequest) (resp *types.BaseReply, err error) {
-	err = l.svcCtx.NebulaClient.DropGraph(req.Graph)
+	err = l.svcCtx.NebulaClient.DropGraph(req.GraphID)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.MysqlClient.DropGraphByID(l.ctx, req.GraphID)
 	return nil, err
 }

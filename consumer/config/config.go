@@ -2,7 +2,8 @@ package config
 
 import (
 	"chainsawman/consumer/db"
-	file "chainsawman/consumer/types/rpc"
+	"chainsawman/consumer/types/rpc/algo"
+	"chainsawman/consumer/types/rpc/file"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -13,15 +14,19 @@ type Config struct {
 	Mysql  db.MysqlConfig
 
 	FileRPC zrpc.RpcClientConf
+	AlgoRPC zrpc.RpcClientConf
 }
 
-var NebulaClient db.NebulaClient
+var (
+	NebulaClient db.NebulaClient
+	MysqlClient  db.MysqlClient
+	RedisClient  db.RedisClient
+)
 
-var MysqlClient db.MysqlClient
-
-var RedisClient db.RedisClient
-
-var FileRPC file.FileClient
+var (
+	FileRPC file.FileClient
+	AlgoRPC algo.AlgoClient
+)
 
 func Init(c *Config) {
 	NebulaClient = db.InitNebulaClient(&c.Nebula)
@@ -29,4 +34,5 @@ func Init(c *Config) {
 	RedisClient = db.InitRedisClient(&c.Redis)
 
 	FileRPC = file.NewFileClient(zrpc.MustNewClient(c.FileRPC).Conn())
+	//AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
 }

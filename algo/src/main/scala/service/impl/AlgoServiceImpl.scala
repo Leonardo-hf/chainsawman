@@ -21,7 +21,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   override def createAlgo(in: CreateAlgoReq): Future[AlgoReply] = {
     val (_, err) = ClientConfig.mysqlClient.createAlgo(AlgoPO(name = in.name, desc = Option.apply(in.desc), `type` = in.`type`.value))
     if (err != null) {
-      return Future.failed(err)
+      return Future.failed(err.get)
     }
     Future.successful(AlgoReply(algos = List.apply(Algo(name = in.name, desc = in.desc, `type` = in.`type`, isCustom = true))))
   }
@@ -29,7 +29,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   override def queryAlgo(in: Empty): Future[AlgoReply] = {
     val (res, err) = ClientConfig.mysqlClient.queryAlgo()
     if (err != null) {
-      return Future.failed(err)
+      return Future.failed(err.get)
     }
     Future.successful(AlgoReply(algos = res.map(a => Algo(name = a.name, desc = a.desc.get, `type` = Algo.Type.fromValue(a.`type`), isCustom = a.isCustom))))
   }
@@ -37,15 +37,15 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   override def dropAlgo(in: DropAlgoReq): Future[AlgoReply] = {
     val (_, err) = ClientConfig.mysqlClient.dropAlgo(in.name)
     if (err != null) {
-      return Future.failed(err)
+      return Future.failed(err.get)
     }
     Future.successful(AlgoReply())
   }
 
   override def degree(in: BaseReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.degree(in.graph)
-    if (err != null) {
-      return Future.failed(err)
+    val (res, err) = ClientConfig.sparkClient.degree(in.graphID)
+    if (err != null || res == null) {
+      return Future.failed(err.get)
     }
     Future.successful(RankReply(ranks = res.ranks.map(r => Rank(name = r.node, score = r.score))))
   }

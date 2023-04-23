@@ -37,6 +37,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/create",
 				Handler: createGraphHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/degree",
+				Handler: algoDegreeHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/api/graph"),
 	)

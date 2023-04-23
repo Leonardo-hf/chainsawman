@@ -4,6 +4,15 @@ FileRpc:
       - 127.0.0.1:2379
     Key: file.rpc
 
+AlgoRpc:
+  Endpoints:
+    - 127.0.0.1:8081
+  Timeout: 86400000
+#  Etcd:
+#    Hosts:
+#      - 127.0.0.1:2379
+#    Key: algo.rpc
+
 Nebula:
   Addr: "127.0.0.1"
   Port: 9669

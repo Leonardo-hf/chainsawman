@@ -8,15 +8,15 @@ import (
 	"github.com/zeromicro/go-zero/core/jsonx"
 )
 
-type GetNode struct {
+type GetNeighbors struct {
 }
 
-func (h *GetNode) Handle(params string, taskID int64) (string, error) {
+func (h *GetNeighbors) Handle(params string, taskID int64) (string, error) {
 	req := &types.SearchNodeRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
 	}
-	nodes, edges, err := config.NebulaClient.GetNeighbors(req.Graph, req.Node, req.Min, req.Distance)
+	nodes, edges, err := config.NebulaClient.GetNeighbors(req.GraphID, req.Node, req.Min, req.Distance)
 	if err != nil {
 		return "", err
 	}
@@ -25,6 +25,7 @@ func (h *GetNode) Handle(params string, taskID int64) (string, error) {
 	var edgesRet []*types.Edge
 	for _, node := range nodes {
 		nodesRet = append(nodesRet, &types.Node{
+			ID:   node.ID,
 			Name: node.Name,
 			Desc: node.Desc,
 			Deg:  node.Deg,

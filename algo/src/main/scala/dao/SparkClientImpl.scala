@@ -34,10 +34,10 @@ object SparkClientImpl extends SparkClient {
     this
   }
 
-  def readDf(graph: String): DataFrame = {
+  def readDf(graph: Long): DataFrame = {
     val nebulaReadEdgeConfig: ReadNebulaConfig = ReadNebulaConfig
       .builder()
-      .withSpace(graph)
+      .withSpace(graph.toString)
       .withLabel("sedges")
       .withNoColumn(true)
       //      .withLimit(2000)
@@ -46,10 +46,13 @@ object SparkClientImpl extends SparkClient {
     spark.read.nebula(nebulaCfg, nebulaReadEdgeConfig).loadEdgesToDF()
   }
 
-  override def degree(graph: String): (RankPO, Exception) = {
+  override def degree(graph: Long): (RankPO, Option[Exception]) = {
     val pageRankConfig = PRConfig(3, 0.85)
     val df = PageRankAlgo.apply(spark, readDf(graph), pageRankConfig, hasWeight = false)
     //    df.map(row=>row)
-    (null, null)
+    df.show()
+    (RankPO(ranks = List.empty), Option.empty)
   }
+
+
 }

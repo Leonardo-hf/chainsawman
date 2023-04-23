@@ -31,7 +31,7 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err e
 	resp = &types.SearchAllGraphReply{}
 	for _, graph := range graphs {
 		resp.Graphs = append(resp.Graphs, &types.Graph{
-			Id:    int(graph.ID),
+			Id:    graph.ID,
 			Name:  graph.Name,
 			Desc:  graph.Desc,
 			Nodes: graph.Nodes,

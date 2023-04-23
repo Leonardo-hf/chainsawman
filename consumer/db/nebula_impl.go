@@ -37,7 +37,7 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 	}
 }
 
-func (n *NebulaClientImpl) CreateGraph(graph string) error {
+func (n *NebulaClientImpl) CreateGraph(graph int64) error {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
@@ -45,9 +45,9 @@ func (n *NebulaClientImpl) CreateGraph(graph string) error {
 	}
 	//_, _ = session.Execute("ADD HOSTS 127.0.0.1:9779;")
 	create := fmt.Sprintf(
-		"CREATE SPACE IF NOT EXISTS %v(vid_type = FIXED_STRING(30));"+
-			"USE %v;"+
-			"CREATE TAG IF NOT EXISTS snode(intro string, deg int);"+
+		"CREATE SPACE IF NOT EXISTS G%v (vid_type = FIXED_STRING(30));"+
+			"USE G%v;"+
+			"CREATE TAG IF NOT EXISTS snode(name string, intro string, deg int);"+
 			"CREATE TAG INDEX IF NOT EXISTS snode_tag_index on snode();"+
 			"CREATE EDGE IF NOT EXISTS sedge();"+
 			"CREATE EDGE INDEX IF NOT EXISTS sedge_tag_index on sedge();",
@@ -59,14 +59,15 @@ func (n *NebulaClientImpl) CreateGraph(graph string) error {
 	return err
 }
 
-func (n *NebulaClientImpl) InsertNode(graph string, node *model.Node) (int, error) {
+func (n *NebulaClientImpl) InsertNode(graph int64, node *model.Node) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
-	insert := fmt.Sprintf("USE %v;"+
-		"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", %v);", graph, node.Name, node.Desc, node.Deg)
+	insert := fmt.Sprintf("USE G%v;"+
+		"INSERT VERTEX snode(name, intro, deg) VALUES \"%v\":(\"%v\", \"%v\", %v);",
+		graph, node.ID, node.Name, node.Desc, node.Deg)
 	res, err := session.Execute(insert)
 	if err != nil {
 		return 0, err
@@ -77,33 +78,35 @@ func (n *NebulaClientImpl) InsertNode(graph string, node *model.Node) (int, erro
 	return res.GetColSize(), nil
 }
 
-func (n *NebulaClientImpl) MultiInsertNodes(graph string, nodes []*model.Node) (int, error) {
+func (n *NebulaClientImpl) MultiInsertNodes(graph int64, nodes []*model.Node) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
 	for i, node := range nodes {
-		insert := fmt.Sprintf("USE %v;"+
-			"INSERT VERTEX snode(intro, deg) VALUES \"%v\":(\"%v\", %v);", graph, node.Name, node.Desc, node.Deg)
+		insert := fmt.Sprintf("USE G%v;"+
+			"INSERT VERTEX snode(name, intro, deg) VALUES \"%v\":(\"%v\", \"%v\", %v);",
+			graph, node.ID, node.Name, node.Desc, node.Deg)
 		res, err := session.Execute(insert)
 		if err != nil {
 			return i, err
 		}
 		if !res.IsSucceed() {
+			fmt.Println("nodes")
 			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 		}
 	}
 	return len(nodes), nil
 }
 
-func (n *NebulaClientImpl) InsertEdge(graph string, edge *model.Edge) (int, error) {
+func (n *NebulaClientImpl) InsertEdge(graph int64, edge *model.Edge) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
-	insert := fmt.Sprintf("USE %v;"+
+	insert := fmt.Sprintf("USE G%v;"+
 		"INSERT EDGE sedge() VALUES \"%v\"->\"%v\";", graph, edge.Source, edge.Target)
 	res, err := session.Execute(insert)
 	if err != nil {
@@ -115,62 +118,36 @@ func (n *NebulaClientImpl) InsertEdge(graph string, edge *model.Edge) (int, erro
 	return res.GetColSize(), nil
 }
 
-func (n *NebulaClientImpl) MultiInsertEdges(graph string, edges []*model.Edge) (int, error) {
+func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edges []*model.Edge) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
 	for i, edge := range edges {
-		insert := fmt.Sprintf("USE %v;"+
+		insert := fmt.Sprintf("USE G%v;"+
 			"INSERT EDGE sedge() VALUES \"%v\"->\"%v\":();", graph, edge.Source, edge.Target)
 		res, err := session.Execute(insert)
 		if err != nil {
 			return i, err
 		}
 		if !res.IsSucceed() {
+			fmt.Println("edges")
 			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 		}
 	}
 	return len(edges), nil
 }
 
-func (n *NebulaClientImpl) GetNodeByName(graph string, name string) (*model.Node, error) {
+func (n *NebulaClientImpl) GetNodes(graph int64, min int64) ([]*model.Node, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return nil, err
 	}
-	query := fmt.Sprintf("USE %v;"+
-		"FETCH PROP ON snode \"%v\" YIELD properties(vertex).intro AS intro, properties(vertex).deg AS deg;", graph, name)
-	res, err := session.Execute(query)
-	if err != nil {
-		return nil, err
-	}
-	if !res.IsSucceed() {
-		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
-	}
-	node, _ := res.GetRowValuesByIndex(0)
-	desc, _ := node.GetValueByColName("intro")
-	descStr, _ := desc.AsString()
-	deg, _ := node.GetValueByColName("deg")
-	degInt, _ := deg.AsInt()
-	return &model.Node{
-		Name: name,
-		Desc: descStr,
-		Deg:  degInt,
-	}, nil
-}
-
-func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, error) {
-	session, err := n.getSession()
-	defer func() { session.Release() }()
-	if err != nil {
-		return nil, err
-	}
-	query := fmt.Sprintf("USE %v;"+
+	query := fmt.Sprintf("USE G%v;"+
 		"LOOKUP ON snode WHERE snode.deg > %v "+
-		"YIELD id(vertex) AS name, properties(vertex).intro AS intro, properties(vertex).deg AS deg;",
+		"YIELD id(vertex) AS nid, properties(vertex).name AS name, properties(vertex).intro AS intro, properties(vertex).deg AS deg;",
 		graph, min)
 	res, err := session.Execute(query)
 	if err != nil {
@@ -182,6 +159,8 @@ func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, err
 	var nodes []*model.Node
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
+		id, _ := record.GetValueByColName("nid")
+		idInt, _ := id.AsInt()
 		name, _ := record.GetValueByColName("name")
 		nameStr, _ := name.AsString()
 		desc, _ := record.GetValueByColName("intro")
@@ -190,6 +169,7 @@ func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, err
 		degInt, _ := deg.AsInt()
 		fmt.Println(degInt)
 		nodes = append(nodes, &model.Node{
+			ID:   idInt,
 			Name: nameStr,
 			Desc: descStr,
 			Deg:  degInt,
@@ -198,13 +178,13 @@ func (n *NebulaClientImpl) GetNodes(graph string, min int64) ([]*model.Node, err
 	return nodes, nil
 }
 
-func (n *NebulaClientImpl) GetEdges(graph string) ([]*model.Edge, error) {
+func (n *NebulaClientImpl) GetEdges(graph int64) ([]*model.Edge, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return nil, err
 	}
-	query := fmt.Sprintf("USE %v;"+
+	query := fmt.Sprintf("USE G%v;"+
 		"LOOKUP ON sedge YIELD src(edge) AS src, dst(edge) AS dst;",
 		graph)
 	res, err := session.Execute(query)
@@ -218,18 +198,18 @@ func (n *NebulaClientImpl) GetEdges(graph string) ([]*model.Edge, error) {
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
 		source, _ := record.GetValueByColName("src")
-		sourceStr, _ := source.AsString()
+		sourceInt, _ := source.AsInt()
 		target, _ := record.GetValueByColName("dst")
-		targetStr, _ := target.AsString()
+		targetInt, _ := target.AsInt()
 		edges = append(edges, &model.Edge{
-			Source: sourceStr,
-			Target: targetStr,
+			Source: sourceInt,
+			Target: targetInt,
 		})
 	}
 	return edges, nil
 }
 
-func (n *NebulaClientImpl) DropGraph(graph string) error {
+func (n *NebulaClientImpl) DropGraph(graph int64) error {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
@@ -244,13 +224,13 @@ func (n *NebulaClientImpl) DropGraph(graph string) error {
 	return err
 }
 
-func (n *NebulaClientImpl) GetNeighbors(graph string, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error) {
+func (n *NebulaClientImpl) GetNeighbors(graph int64, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return nil, nil, err
 	}
-	query := fmt.Sprintf("USE %v;"+
+	query := fmt.Sprintf("USE G%v;"+
 		"GET SUBGRAPH WITH PROP %v STEPS FROM \"%v\" WHERE v.snode.deg >= %v "+
 		"YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, min, node)
 	res, err := session.Execute(query)
@@ -266,10 +246,12 @@ func (n *NebulaClientImpl) GetNeighbors(graph string, node string, min int64, di
 		for _, snodeWrapper := range snodesList {
 			snode, _ := snodeWrapper.AsNode()
 			snodeProps, _ := snode.Properties("snode")
-			name, _ := snode.GetID().AsString()
+			id, _ := snode.GetID().AsInt()
+			name, _ := snodeProps["name"].AsString()
 			intro, _ := snodeProps["intro"].AsString()
 			deg, _ := snodeProps["deg"].AsInt()
 			crt := &model.Node{
+				ID:   id,
 				Name: name,
 				Desc: intro,
 				Deg:  deg,
@@ -280,8 +262,8 @@ func (n *NebulaClientImpl) GetNeighbors(graph string, node string, min int64, di
 		sedgesList, _ := sedges.AsList()
 		for _, sedgeWrapper := range sedgesList {
 			sedge, _ := sedgeWrapper.AsRelationship()
-			src, _ := sedge.GetSrcVertexID().AsString()
-			dst, _ := sedge.GetDstVertexID().AsString()
+			src, _ := sedge.GetSrcVertexID().AsInt()
+			dst, _ := sedge.GetDstVertexID().AsInt()
 			crt := &model.Edge{
 				Source: src,
 				Target: dst,

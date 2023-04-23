@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/extrame/xls"
@@ -13,11 +14,38 @@ import (
 )
 
 var fmtErr = func(err error) error { return fmt.Errorf("[Excel] wrong excel format, err = %v", err.Error()) }
+var convErr = func(column string) error {
+	return fmt.Errorf("[Excel] cannot find or parse target column, err = %v", column)
+}
 
-type Record map[string]string
+type strMap map[string]string
+type Record struct {
+	strMap
+}
+
+func (r *Record) Put(key string, value string) {
+	r.strMap[key] = value
+}
+
+func (r *Record) Get(key string) (string, error) {
+	if v, ok := r.strMap[key]; ok {
+		return v, nil
+	}
+	return "", convErr(key)
+}
+
+func (r *Record) GetAsInt(key string) (int64, error) {
+	if v, ok := r.strMap[key]; ok {
+		vInt, err := strconv.ParseInt(v, 10, 64)
+		if err == nil {
+			return vInt, nil
+		}
+	}
+	return 0, convErr(key)
+}
 
 type ExcelParser interface {
-	Next() (Record, error)
+	Next() (*Record, error)
 }
 
 type csvParser struct {
@@ -40,7 +68,7 @@ func initCSVParser(file *os.File) (*csvParser, error) {
 	return parser, nil
 }
 
-func (c *csvParser) Next() (Record, error) {
+func (c *csvParser) Next() (*Record, error) {
 	records, err := c.reader.Read()
 	if err == io.EOF {
 		return nil, err
@@ -48,9 +76,9 @@ func (c *csvParser) Next() (Record, error) {
 	if err != nil || len(records) != len(c.titles) {
 		return nil, fmtErr(err)
 	}
-	r := make(map[string]string)
+	r := &Record{make(map[string]string)}
 	for i, v := range records {
-		r[c.titles[i]] = strings.TrimSpace(v)
+		r.Put(c.titles[i], strings.TrimSpace(v))
 	}
 	return r, nil
 }
@@ -80,14 +108,14 @@ func initXLSParser(file *os.File) (*xlsParser, error) {
 	return parser, nil
 }
 
-func (c *xlsParser) Next() (Record, error) {
+func (c *xlsParser) Next() (*Record, error) {
 	if c.index >= int(c.reader.MaxRow) {
 		return nil, io.EOF
 	}
-	r := make(map[string]string)
+	r := &Record{make(map[string]string)}
 	row := c.reader.Row(c.index)
 	for i := 0; i < len(c.titles); i++ {
-		r[c.titles[i]] = strings.TrimSpace(row.Col(i))
+		r.Put(c.titles[i], strings.TrimSpace(row.Col(i)))
 	}
 	c.index++
 	return r, nil
@@ -119,14 +147,14 @@ func initXLSXParser(file *os.File) (*xlsxParser, error) {
 	return parser, nil
 }
 
-func (c *xlsxParser) Next() (Record, error) {
+func (c *xlsxParser) Next() (*Record, error) {
 	if c.index >= c.reader.MaxRow {
 		return nil, io.EOF
 	}
-	r := make(map[string]string)
+	r := &Record{make(map[string]string)}
 	row := c.reader.Row(c.index)
 	for i := 0; i < len(c.titles); i++ {
-		r[c.titles[i]] = strings.TrimSpace(row.Cells[i].Value)
+		r.Put(c.titles[i], strings.TrimSpace(row.Cells[i].Value))
 	}
 	c.index++
 	return r, nil

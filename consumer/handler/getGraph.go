@@ -23,20 +23,21 @@ func (h *GetGraph) Handle(params string, taskID int64) (string, error) {
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
 	}
-	nodes, err := config.NebulaClient.GetNodes(req.Graph, req.Min)
+	nodes, err := config.NebulaClient.GetNodes(req.GraphID, req.Min)
 	if err != nil {
 		return "", err
 	}
 	nodeSet := set.NewThreadUnsafeSet()
 	for _, node := range nodes {
 		resp.Nodes = append(resp.Nodes, &types.Node{
+			ID:   node.ID,
 			Name: node.Name,
 			Desc: node.Desc,
 			Deg:  node.Deg,
 		})
 		nodeSet.Add(node.Name)
 	}
-	edges, err := config.NebulaClient.GetEdges(req.Graph)
+	edges, err := config.NebulaClient.GetEdges(req.GraphID)
 	if err != nil {
 		return "", err
 	}

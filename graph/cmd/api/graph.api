@@ -1,6 +1,6 @@
 type (
 	Graph {
-		Id     int    `json:"id"`
+		Id     int64  `json:"id"`
 		Status int    `json:"status"`
 		Name   string `json:"name"`
 		Desc   string `json:"desc"`
@@ -9,14 +9,20 @@ type (
 	}
 
 	Node {
+		ID   int64  `json:"id"`
 		Name string `json:"name"`
 		Desc string `json:"desc"`
 		Deg  int64  `json:"deg"`
 	}
 
 	Edge {
-		Source string `json:"source"`
-		Target string `json:"target"`
+		Source int64 `json:"source"`
+		Target int64 `json:"target"`
+	}
+
+	Rank {
+		Node  string  `json:"node"`
+		Score float64 `json:"score"`
 	}
 
 	BaseReply {
@@ -50,34 +56,43 @@ type (
 		Edges []*Edge    `json:"edges"`
 	}
 
-	SearchRequest {
-		TaskID int64 `form:"taskId"`
+	AlgoRankReply {
+		Base  *BaseReply `json:"base"`
+		Ranks []*Rank    `json:"ranks"`
+	}
 
-		Graph string `form:"graph"`
-		Min   int64  `form:"min"`
+	SearchRequest {
+		TaskID  int64 `form:"taskId,optional"`
+		GraphID int64 `form:"graphId"`
+		Min     int64 `form:"min"`
 	}
 
 	SearchNodeRequest {
-		TaskID int64 `form:"taskId"`
+		TaskID int64 `form:"taskId,optional"`
 
-		Graph    string `form:"graph"`
+		GraphID  int64  `form:"graphId"`
 		Node     string `form:"node"`
 		Distance int64  `form:"distance"`
 		Min      int64  `form:"min"`
 	}
 
 	DropRequest {
-		Graph string `form:"graph"`
+		GraphID int64 `form:"graphId"`
 	}
 
 	UploadRequest {
-		TaskID int64 `form:"taskId"`
+		TaskID int64  `form:"taskId,optional"`
+		Graph  string `form:"graph"`
+		Desc   string `form:"desc,optional"`
+		NodeID string `form:"nodeId"`
+		EdgeID string `form:"edgeId"`
 
-		GraphId int    `form:"graphId"`
-		Graph   string `form:"graph"`
-		Desc    string `form:"description"`
-		NodeID  string `form:"nodeId"`
-		EdgeID  string `form:"edgeId"`
+		GraphID int64 `form:"graphId,optional"`
+	}
+
+	AlgoDegreeRequest {
+		TaskID  int64 `form:"taskId"`
+		GraphID int64 `form:"graphId"`
 	}
 )
 
@@ -104,4 +119,8 @@ service graph {
 	@doc "上传图"
 	@handler createGraph
 	post /create (UploadRequest) returns (SearchGraphReply)
+	
+	@doc "度中心度算法"
+	@handler algoDegree
+	get /algo/degree (AlgoDegreeRequest) returns (AlgoRankReply)
 }

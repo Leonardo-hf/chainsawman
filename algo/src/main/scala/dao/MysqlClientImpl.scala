@@ -12,7 +12,7 @@ object MysqlClientImpl extends MysqlClient {
   }
 
 
-  override def createAlgo(algo: AlgoPO): (Int, Exception) = {
+  override def createAlgo(algo: AlgoPO): (Int, Option[Exception]) = {
     try {
       DB autoCommit { implicit s =>
         val res = withSQL {
@@ -24,14 +24,14 @@ object MysqlClientImpl extends MysqlClient {
             a.`type` -> algo.`type`
           )
         }.update.apply()
-        (res, null)
+        (res, Option.empty)
       }
     } catch {
-      case e: Exception => (0, e)
+      case e: Exception => (0, Option.apply(e))
     }
   }
 
-  override def queryAlgo(): (List[AlgoPO], Exception) = {
+  override def queryAlgo(): (List[AlgoPO], Option[Exception]) = {
     try {
       DB autoCommit { implicit s =>
         val a = AlgoPO.syntax("a")
@@ -39,24 +39,24 @@ object MysqlClientImpl extends MysqlClient {
           select.
             from(AlgoPO as a)
         }.map(AlgoPO(a)).list.apply()
-        (res, null)
+        (res, Option.empty)
       }
     } catch {
-      case e: Exception => (null, e)
+      case e: Exception => (List.empty, Option.apply(e))
     }
   }
 
-  override def dropAlgo(name: String): (Int, Exception) = {
+  override def dropAlgo(name: String): (Int, Option[Exception]) = {
     try {
       DB autoCommit { implicit s =>
         val a = AlgoPO.column
         val res = withSQL {
           delete.from(AlgoPO).where.eq(a.name, name)
         }.update.apply()
-        (res, null)
+        (res, Option.empty)
       }
     } catch {
-      case e: Exception => (null, e)
+      case e: Exception => (0, Option.apply(e))
     }
   }
 }

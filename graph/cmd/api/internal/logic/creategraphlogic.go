@@ -31,9 +31,7 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 			TaskID:     req.TaskID,
 			TaskStatus: int64(model.KVTask_New),
 		},
-		Graph: &types.Graph{
-			Id: req.GraphId,
-		},
+		Graph: &types.Graph{},
 	}
 	if req.TaskID != 0 {
 		// 任务已经提交过
@@ -42,17 +40,16 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 		}
 		return resp, nil
 	}
-	toInsert := &model.Graph{
-		Name:   req.Graph,
-		Desc:   req.Desc,
-		Status: 0,
+	graph := &model.Graph{
+		Name: req.Graph,
+		Desc: req.Desc,
 	}
-	err = l.svcCtx.MysqlClient.InsertGraph(toInsert, l.ctx)
+	err = l.svcCtx.MysqlClient.InsertGraph(l.ctx, graph)
 	if err != nil {
 		return nil, err
 	}
 	// 任务没提交过，创建任务
-	req.GraphId = int(toInsert.ID)
+	req.GraphID = graph.ID
 	taskID, err := util.PublishTask(l.ctx, l.svcCtx, "Upload", req)
 	if err != nil {
 		return nil, err

@@ -1,6 +1,6 @@
 package config
 
-import dao.{MysqlClient, MysqlClientImpl, SparkClient}
+import dao.{MysqlClient, MysqlClientImpl, SparkClient, SparkClientImpl}
 
 
 object ClientConfig {
@@ -9,7 +9,8 @@ object ClientConfig {
 
   var sparkClient: SparkClient = _
 
-  def init(): Unit = {
+  def Init(): Unit = {
     mysqlClient = MysqlClientImpl.Init()
+    sparkClient = SparkClientImpl.Init()
   }
 }

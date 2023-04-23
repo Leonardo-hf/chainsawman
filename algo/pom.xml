@@ -11,10 +11,10 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <akka.version>2.8.0</akka.version>
-    <akka.http.version>10.5.1</akka.http.version>
-    <akka.grpc.version>2.3.1</akka.grpc.version>
-    <scala.binary.version>2.13</scala.binary.version>
+    <akka.version>2.5.21</akka.version>
+    <akka.http.version>10.1.15</akka.http.version>
+    <akka.grpc.version>0.5.0</akka.grpc.version>
+    <scala.binary.version>2.11</scala.binary.version>
     <grpc.version>1.28.1</grpc.version>
     <project.encoding>UTF-8</project.encoding>
   </properties>
@@ -45,11 +45,6 @@
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-stream_${scala.binary.version}</artifactId>
-      <version>${akka.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-pki_${scala.binary.version}</artifactId>
       <version>${akka.version}</version>
     </dependency>
 
@@ -114,26 +109,20 @@
     <!-- mysql connector-->
     <dependency>
       <groupId>org.scalikejdbc</groupId>
-      <artifactId>scalikejdbc_2.13</artifactId>
-      <version>4.0.0</version>
+      <artifactId>scalikejdbc_2.11</artifactId>
+      <version>3.4.2</version>
     </dependency>
     <dependency>
       <groupId>org.scalikejdbc</groupId>
-      <artifactId>scalikejdbc-config_2.13</artifactId>
-      <version>4.0.0</version>
+      <artifactId>scalikejdbc-config_2.11</artifactId>
+      <version>3.4.2</version>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.33</version>
     </dependency>
     <!-- spark connector-->
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.13</artifactId>
-      <version>3.4.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-sql_2.13</artifactId>
-      <version>3.4.0</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>com.vesoft</groupId>
       <artifactId>nebula-algorithm</artifactId>
@@ -233,7 +222,7 @@
               <arguments>
                 <argument>-classpath</argument>
                 <classpath />
-                <argument>com.example.helloworld.GreeterServer</argument>
+                <argument>AlgoApplication</argument>
               </arguments>
             </configuration>
           </execution>

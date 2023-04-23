@@ -2,7 +2,7 @@
 package types
 
 type Graph struct {
-	Id     int    `json:"id"`
+	Id     int64  `json:"id"`
 	Status int    `json:"status"`
 	Name   string `json:"name"`
 	Desc   string `json:"desc"`
@@ -11,14 +11,20 @@ type Graph struct {
 }
 
 type Node struct {
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 	Desc string `json:"desc"`
 	Deg  int64  `json:"deg"`
 }
 
 type Edge struct {
-	Source string `json:"source"`
-	Target string `json:"target"`
+	Source int64 `json:"source"`
+	Target int64 `json:"target"`
+}
+
+type Rank struct {
+	Node  string  `json:"node"`
+	Score float64 `json:"score"`
 }
 
 type BaseReply struct {
@@ -52,29 +58,39 @@ type SearchGraphDetailReply struct {
 	Edges []*Edge    `json:"edges"`
 }
 
+type AlgoRankReply struct {
+	Base  *BaseReply `json:"base"`
+	Ranks []*Rank    `json:"ranks"`
+}
+
 type SearchRequest struct {
-	TaskID int64  `form:"taskId"`
-	Graph  string `form:"graph"`
-	Min    int64  `form:"min"`
+	TaskID  int64 `form:"taskId,optional"`
+	GraphID int64 `form:"graphId"`
+	Min     int64 `form:"min"`
 }
 
 type SearchNodeRequest struct {
-	TaskID   int64  `form:"taskId"`
-	Graph    string `form:"graph"`
+	TaskID   int64  `form:"taskId,optional"`
+	GraphID  int64  `form:"graphId"`
 	Node     string `form:"node"`
 	Distance int64  `form:"distance"`
 	Min      int64  `form:"min"`
 }
 
 type DropRequest struct {
-	Graph string `form:"graph"`
+	GraphID int64 `form:"graphId"`
 }
 
 type UploadRequest struct {
-	TaskID  int64  `form:"taskId"`
-	GraphId int    `form:"graphId"`
+	TaskID  int64  `form:"taskId,optional"`
 	Graph   string `form:"graph"`
-	Desc    string `form:"description"`
+	Desc    string `form:"desc,optional"`
 	NodeID  string `form:"nodeId"`
 	EdgeID  string `form:"edgeId"`
+	GraphID int64  `form:"graphId,optional"`
+}
+
+type AlgoDegreeRequest struct {
+	TaskID  int64 `form:"taskId"`
+	GraphID int64 `form:"graphId"`
 }

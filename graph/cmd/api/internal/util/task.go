@@ -47,7 +47,7 @@ func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, re
 		status = task.Status
 	} else if err == redis.Nil {
 		// redis里没有记录，查询mysql
-		oTask, err := svcCtx.MysqlClient.SearchTaskById(taskID)
+		oTask, err := svcCtx.MysqlClient.SearchTaskByID(taskID)
 		if err != nil {
 			return err
 		}

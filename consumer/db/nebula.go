@@ -5,23 +5,21 @@ import (
 )
 
 type NebulaClient interface {
-	CreateGraph(graph string) error
+	CreateGraph(graph int64) error
 
-	InsertNode(graph string, node *model.Node) (int, error)
+	InsertNode(graph int64, node *model.Node) (int, error)
 
-	MultiInsertNodes(graph string, nodes []*model.Node) (int, error)
+	MultiInsertNodes(graph int64, nodes []*model.Node) (int, error)
 
-	InsertEdge(graph string, edge *model.Edge) (int, error)
+	InsertEdge(graph int64, edge *model.Edge) (int, error)
 
-	MultiInsertEdges(graph string, edges []*model.Edge) (int, error)
+	MultiInsertEdges(graph int64, edges []*model.Edge) (int, error)
 
-	GetNodeByName(graph string, name string) (*model.Node, error)
+	GetNodes(graph int64, min int64) ([]*model.Node, error)
 
-	GetNodes(graph string, min int64) ([]*model.Node, error)
+	GetEdges(graph int64) ([]*model.Edge, error)
 
-	GetEdges(graph string) ([]*model.Edge, error)
+	GetNeighbors(graph int64, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error)
 
-	GetNeighbors(graph string, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error)
-
-	DropGraph(graph string) error
+	DropGraph(graph int64) error
 }

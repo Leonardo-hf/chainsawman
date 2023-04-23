@@ -5,12 +5,12 @@ import (
 	"chainsawman/consumer/config"
 	"chainsawman/consumer/model"
 	"chainsawman/consumer/types"
-	file "chainsawman/consumer/types/rpc"
+	"chainsawman/consumer/types/rpc/file"
 	"context"
+	"github.com/zeromicro/go-zero/core/jsonx"
 	"io"
 	"os"
-
-	"github.com/zeromicro/go-zero/core/jsonx"
+	"time"
 )
 
 type Upload struct {
@@ -33,46 +33,60 @@ func (h *Upload) Handle(params string, taskID int64) (string, error) {
 	// 处理文件
 	var nodes []*model.Node
 	var edges []*model.Edge
-	nodeMap := make(map[string]*model.Node)
+	nodeMap := make(map[int64]*model.Node)
 	records, err := handle(nodeFile.Data)
 	for _, record := range records {
-		name, nameOK := record["name"]
-		desc, descOK := record["desc"]
-		if nameOK && descOK {
-			node := &model.Node{Name: name, Desc: desc}
+		id, idErr := record.GetAsInt("id")
+		name, nameErr := record.Get("name")
+		desc, descErr := record.Get("desc")
+		if idErr == nil && nameErr == nil && descErr == nil {
+			node := &model.Node{ID: id, Name: name, Desc: desc}
 			nodes = append(nodes, node)
 			// 把点放到nodeMap, 后面赋度数
-			nodeMap[name] = node
+			nodeMap[id] = node
 		}
 	}
 	records, err = handle(edgeFile.Data)
 	for _, record := range records {
-		source, sourceOK := record["source"]
-		target, targetOK := record["target"]
+		source, sourceErr := record.GetAsInt("source")
+		target, targetErr := record.GetAsInt("target")
+		if sourceErr != nil || targetErr != nil {
+			continue
+		}
 		if _, sourceExist := nodeMap[source]; !sourceExist {
 			continue
 		}
 		if _, targetExist := nodeMap[target]; !targetExist {
 			continue
 		}
-		if sourceOK && targetOK {
-			edge := &model.Edge{Source: source, Target: target}
-			edges = append(edges, edge)
-			// 给点加度数
-			nodeMap[source].Deg++
-			nodeMap[target].Deg++
-		}
+		edge := &model.Edge{Source: source, Target: target}
+		edges = append(edges, edge)
+		// 给点加度数
+		nodeMap[source].Deg++
+		nodeMap[target].Deg++
 	}
+
 	// 插入数据
-	err = config.NebulaClient.CreateGraph(req.Graph)
+	err = config.NebulaClient.CreateGraph(req.GraphID)
 	if err != nil {
 		return "", err
 	}
-	_, err = config.NebulaClient.MultiInsertNodes(req.Graph, nodes)
+	// TODO: az，时间贼长！
+	time.Sleep(20 * time.Second)
+	_, err = config.NebulaClient.MultiInsertNodes(req.GraphID, nodes)
 	if err != nil {
 		return "", err
 	}
-	_, err = config.NebulaClient.MultiInsertEdges(req.Graph, edges)
+	_, err = config.NebulaClient.MultiInsertEdges(req.GraphID, edges)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
+		ID:    req.GraphID,
+		Nodes: int64(len(nodes)),
+		Edges: int64(len(edges)),
+	})
 	if err != nil {
 		return "", err
 	}
@@ -85,19 +99,15 @@ func (h *Upload) Handle(params string, taskID int64) (string, error) {
 		Graph: &types.Graph{
 			Name:  req.Graph,
 			Desc:  req.Desc,
-			Id:    req.GraphId,
+			Id:    req.GraphID,
 			Nodes: int64(len(nodes)),
 			Edges: int64(len(edges)),
 		},
 	}
-	_, err = config.MysqlClient.UpdateGraphStatus(int64(req.GraphId), 1, ctx)
-	if err != nil {
-		return "", err
-	}
 	return jsonx.MarshalToString(resp)
 }
 
-func handle(content []byte) ([]common.Record, error) {
+func handle(content []byte) ([]*common.Record, error) {
 	path, err := tempSave(content)
 	if err != nil {
 		return nil, err
@@ -106,7 +116,7 @@ func handle(content []byte) ([]common.Record, error) {
 	if err != nil {
 		return nil, err
 	}
-	var records []common.Record
+	var records []*common.Record
 	for {
 		record, err := parser.Next()
 		if err == io.EOF {

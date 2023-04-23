@@ -19,7 +19,7 @@ var handleTable map[string]handler.Handler
 func initHandleTable() {
 	handleTable = make(map[string]handler.Handler)
 	handleTable["GetGraph"] = &handler.GetGraph{}
-	handleTable["GetNode"] = &handler.GetNode{}
+	handleTable["GetNeighbors"] = &handler.GetNeighbors{}
 	handleTable["Upload"] = &handler.Upload{}
 }
 
@@ -53,7 +53,7 @@ func handle(ctx context.Context, task *model.KVTask) error {
 	if err = config.RedisClient.UpsertTask(ctx, task); err != nil {
 		return err
 	}
-	_, err = config.MysqlClient.UpdateTask(&model.Task{
+	_, err = config.MysqlClient.UpdateTaskByID(&model.Task{
 		ID:     task.Id,
 		Status: int64(task.Status),
 		Result: res,

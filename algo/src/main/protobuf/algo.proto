@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package services;
+package service;
+
+option go_package = "./rpc/algo";
 
 message Empty{}
 
@@ -70,8 +72,7 @@ message MetricsReply{
 }
 
 message BaseReq{
-  string graph = 1;
-  string exportKey = 2;
+  int64 graphID = 1;
 }
 
 message ShortestPathReq{

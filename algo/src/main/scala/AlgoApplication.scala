@@ -9,8 +9,8 @@ object AlgoApplication {
     // important to enable HTTP/2 in ActorSystem's config
     val conf = ConfigFactory.parseString("akka.http.server.preview.enable-http2 = on")
       .withFallback(ConfigFactory.defaultApplication())
-    ClientConfig.init()
-    val system = ActorSystem[Nothing](Behaviors.empty, "GreeterServer", conf)
+    ClientConfig.Init()
+    val system = ActorSystem[Nothing](Behaviors.empty, "AlgoServer", conf)
     new GrpcServer(system).run()
   }
 }

@@ -9,13 +9,13 @@ import (
 type MysqlClient interface {
 	InsertTask(task *model.Task) error
 
-	SearchTaskById(id int64) (*model.Task, error)
+	SearchTaskByID(id int64) (*model.Task, error)
 
-	InsertGraph(graph *model.Graph, ctx context.Context) error
+	InsertGraph(ctx context.Context, graph *model.Graph) error
 
-	GetGraphById(id int64, ctx context.Context) (*model.Graph, error)
+	DropGraphByID(ctx context.Context, id int64) (int64, error)
+
+	GetGraphByID(ctx context.Context, id int64) (*model.Graph, error)
 
 	GetAllGraph(ctx context.Context) ([]*model.Graph, error)
-
-	UpdateGraphStatus(id int64, status int64, ctx context.Context) (int64, error)
 }
