@@ -1,13 +1,14 @@
 package dao
 
 import com.facebook.thrift.protocol.TCompactProtocol
-import com.vesoft.nebula.algorithm.config.PRConfig
-import com.vesoft.nebula.algorithm.lib.PageRankAlgo
-import com.vesoft.nebula.connector.connector.NebulaDataFrameReader
-import com.vesoft.nebula.connector.{NebulaConnectionConfig, ReadNebulaConfig}
-import model.RankPO
+import com.vesoft.nebula.connector.NebulaConnectionConfig
+import model.{RankItem, Rank}
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.graphx.Graph
+import org.apache.spark.graphx.lib._
+import org.apache.spark.sql.SparkSession
+import service.PRConfig
+import util.GraphUtil
 
 object SparkClientImpl extends SparkClient {
 
@@ -24,34 +25,34 @@ object SparkClientImpl extends SparkClient {
       .master("local")
       .config(sparkConf)
       .getOrCreate()
+    spark.sparkContext.setLogLevel("WARN")
     nebulaCfg =
       NebulaConnectionConfig
         .builder()
-        .withMetaAddress("127.0.0.1:9669")
-        .withTimeout(6000)
+        .withMetaAddress("127.0.0.1:9559")
         .withConenctionRetry(2)
+        .withExecuteRetry(2)
+        .withTimeout(6000)
         .build()
     this
   }
 
-  def readDf(graph: Long): DataFrame = {
-    val nebulaReadEdgeConfig: ReadNebulaConfig = ReadNebulaConfig
-      .builder()
-      .withSpace(graph.toString)
-      .withLabel("sedges")
-      .withNoColumn(true)
-      //      .withLimit(2000)
-      //      .withPartitionNum(100)
-      .build()
-    spark.read.nebula(nebulaCfg, nebulaReadEdgeConfig).loadEdgesToDF()
+  override def degree(graphID: Long): (Rank, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+    (Rank(ranks = graph.degrees.map(r => RankItem.apply(r._1, r._2)).collect()), Option.empty)
   }
 
-  override def degree(graph: Long): (RankPO, Option[Exception]) = {
-    val pageRankConfig = PRConfig(3, 0.85)
-    val df = PageRankAlgo.apply(spark, readDf(graph), pageRankConfig, hasWeight = false)
-    //    df.map(row=>row)
-    df.show()
-    (RankPO(ranks = List.empty), Option.empty)
+  override def pagerank(graphID: Long, cfg: PRConfig): (Rank, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+    val prResultRDD = PageRank.run(graph, cfg.iter.toInt, cfg.prob).vertices
+    //    val schema = StructType(
+    //      List(
+    //        StructField(AlgoConstants.ALGO_ID_COL, LongType, nullable = false),
+    //        StructField(AlgoConstants.PAGERANK_RESULT_COL, DoubleType, nullable = true)
+    //      ))
+    //    val algoResult = spark.sqlContext
+    //      .createDataFrame(prResultRDD, schema)
+    (Rank(ranks = prResultRDD.map(r => RankItem.apply(r._1, r._2)).collect()), Option.empty)
   }
 
 

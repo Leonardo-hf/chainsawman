@@ -21,8 +21,8 @@ type (
 	}
 
 	Rank {
-		Node  string  `json:"node"`
-		Score float64 `json:"score"`
+		NodeID int64   `json:"nodeId"`
+		Score  float64 `json:"score"`
 	}
 
 	BaseReply {

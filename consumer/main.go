@@ -4,12 +4,12 @@ import (
 	"chainsawman/consumer/config"
 	"chainsawman/consumer/handler"
 	"chainsawman/consumer/model"
+	"chainsawman/consumer/types/rpc/algo"
 
 	"context"
 	"flag"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -21,6 +21,8 @@ func initHandleTable() {
 	handleTable["GetGraph"] = &handler.GetGraph{}
 	handleTable["GetNeighbors"] = &handler.GetNeighbors{}
 	handleTable["Upload"] = &handler.Upload{}
+	handleTable["AlgoDegree"] = &handler.AlgoDegree{}
+	handleTable["AlgoPageRank"] = &handler.AlgoPageRank{}
 }
 
 func main() {
@@ -30,13 +32,33 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	config.Init(&c)
 	initHandleTable()
-	consumerID := uuid.New().String()
-	ctx := context.Background()
-	for true {
-		if err := config.RedisClient.ConsumeTaskMsg(ctx, consumerID, handle); err != nil {
-			logx.Errorf("[consumer] consumer fail, err: %v", err)
-		}
+	//res, err := config.AlgoRPC.CreateAlgo(context.Background(), &algo.CreateAlgoReq{
+	//	Name: "testname",
+	//	Desc: "testdesc",
+	//	Params: []*algo.Element{
+	//		{
+	//			Key:  "123",
+	//			Type: algo.Element_INT64,
+	//		},
+	//		{
+	//			Key:  "456",
+	//			Type: algo.Element_LIST_DOUBLE,
+	//		},
+	//	},
+	//	Type: algo.Algo_Rank,
+	//})
+	res, err := config.AlgoRPC.QueryAlgo(context.Background(), &algo.Empty{})
+	fmt.Println(res)
+	if err != nil {
+		logx.Error(err)
 	}
+	//consumerID := uuid.New().String()
+	//ctx := context.Background()
+	//for true {
+	//	if err := config.RedisClient.ConsumeTaskMsg(ctx, consumerID, handle); err != nil {
+	//		logx.Errorf("[consumer] consumer fail, err: %v", err)
+	//	}
+	//}
 }
 
 func handle(ctx context.Context, task *model.KVTask) error {

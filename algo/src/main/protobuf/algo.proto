@@ -18,13 +18,22 @@ message Element{
   }
 }
 
+message PRConfig{
+  int64 iter = 1;
+  double prob = 2;
+}
+
+message SPConfig{
+  int64 src = 1;
+  int64 dst = 2;
+}
+
 message CreateAlgoReq{
   string name = 1;
   string desc = 2;
   repeated Element params = 3;
-  repeated Element rets = 4;
-  string code = 5;
-  Algo.Type type = 6;
+  string code = 4;
+  Algo.Type type = 5;
 }
 
 message DropAlgoReq{
@@ -47,10 +56,11 @@ message Algo{
     Metrics = 2;
     Others = 3;
   }
+  repeated Element params = 6;
 }
 
 message Rank{
-  string name = 1;
+  int64 id = 1;
   double score = 2;
 }
 
@@ -75,15 +85,20 @@ message BaseReq{
   int64 graphID = 1;
 }
 
+message PageRankReq{
+  BaseReq base = 1;
+  PRConfig cfg = 2;
+}
+
 message ShortestPathReq{
   BaseReq base = 1;
-  string src = 2;
-  string dst = 3;
+  SPConfig cfg = 2;
 }
 
 message CustomAlgoReq{
   BaseReq base = 1;
-  string params = 2;
+  int64 algoID = 2;
+  string params = 3;
 }
 
 message CustomAlgoReply{
@@ -99,7 +114,7 @@ service algo {
 
   rpc degree(BaseReq) returns(RankReply);
 
-  rpc pagerank(BaseReq) returns(RankReply);
+  rpc pagerank(PageRankReq) returns(RankReply);
 
   rpc louvain(BaseReq) returns(ClusterReply);
 

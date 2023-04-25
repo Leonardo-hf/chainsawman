@@ -23,8 +23,8 @@ type Edge struct {
 }
 
 type Rank struct {
-	Node  string  `json:"node"`
-	Score float64 `json:"score"`
+	NodeID int64   `json:"nodeId"`
+	Score  float64 `json:"score"`
 }
 
 type BaseReply struct {

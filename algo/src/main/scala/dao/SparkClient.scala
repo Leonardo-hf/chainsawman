@@ -1,7 +1,10 @@
 package dao
 
-import model.RankPO
+import model.Rank
+import service.PRConfig
 
 trait SparkClient {
-  def degree(graph: Long): (RankPO, Option[Exception])
+  def degree(graphID: Long): (Rank, Option[Exception])
+
+  def pagerank(graphID: Long, cfg: PRConfig): (Rank, Option[Exception])
 }

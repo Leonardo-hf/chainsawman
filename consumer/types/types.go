@@ -23,8 +23,8 @@ type Edge struct {
 }
 
 type Rank struct {
-	Node  string  `json:"node"`
-	Score float64 `json:"score"`
+	NodeID int64   `json:"nodeId"`
+	Score  float64 `json:"score"`
 }
 
 type BaseReply struct {
@@ -64,13 +64,13 @@ type AlgoRankReply struct {
 }
 
 type SearchRequest struct {
-	TaskID  int64 `form:"taskId"`
+	TaskID  int64 `form:"taskId,optional"`
 	GraphID int64 `form:"graphId"`
 	Min     int64 `form:"min"`
 }
 
 type SearchNodeRequest struct {
-	TaskID   int64  `form:"taskId"`
+	TaskID   int64  `form:"taskId,optional"`
 	GraphID  int64  `form:"graphId"`
 	Node     string `form:"node"`
 	Distance int64  `form:"distance"`
@@ -82,12 +82,12 @@ type DropRequest struct {
 }
 
 type UploadRequest struct {
-	TaskID  int64  `form:"taskId"`
+	TaskID  int64  `form:"taskId,optional"`
 	Graph   string `form:"graph"`
-	Desc    string `form:"description"`
+	Desc    string `form:"desc,optional"`
 	NodeID  string `form:"nodeId"`
 	EdgeID  string `form:"edgeId"`
-	GraphID int64  `form:"graphId"`
+	GraphID int64  `form:"graphId,optional"`
 }
 
 type AlgoDegreeRequest struct {
