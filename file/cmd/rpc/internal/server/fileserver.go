@@ -4,15 +4,16 @@
 package server
 
 import (
+	"context"
+
 	"chainsawman/file/cmd/rpc/internal/logic"
 	"chainsawman/file/cmd/rpc/internal/svc"
-	rpc2 "chainsawman/file/cmd/rpc/types/rpc"
-	"context"
+	"chainsawman/file/cmd/rpc/types/rpc/file"
 )
 
 type FileServer struct {
 	svcCtx *svc.ServiceContext
-	rpc2.UnimplementedFileServer
+	file.UnimplementedFileServer
 }
 
 func NewFileServer(svcCtx *svc.ServiceContext) *FileServer {
@@ -21,7 +22,12 @@ func NewFileServer(svcCtx *svc.ServiceContext) *FileServer {
 	}
 }
 
-func (s *FileServer) FetchFile(ctx context.Context, in *rpc2.IDReq) (*rpc2.FileReply, error) {
+func (s *FileServer) FetchFile(ctx context.Context, in *file.IDReq) (*file.FileReply, error) {
 	l := logic.NewFetchFileLogic(ctx, s.svcCtx)
 	return l.FetchFile(in)
+}
+
+func (s *FileServer) UploadFile(ctx context.Context, in *file.FileUploadReq) (*file.FileIDReply, error) {
+	l := logic.NewUploadFileLogic(ctx, s.svcCtx)
+	return l.UploadFile(in)
 }

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: src/main/protobuf/algo.proto
+// source: algo/src/main/protobuf/algo.proto
 
 package algo
 
@@ -27,9 +27,10 @@ type AlgoClient interface {
 	DropAlgo(ctx context.Context, in *DropAlgoReq, opts ...grpc.CallOption) (*AlgoReply, error)
 	Degree(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
 	Pagerank(ctx context.Context, in *PageRankReq, opts ...grpc.CallOption) (*RankReply, error)
-	Louvain(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*ClusterReply, error)
-	ShortestPath(ctx context.Context, in *ShortestPathReq, opts ...grpc.CallOption) (*ClusterReply, error)
-	AvgShortestPath(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*MetricsReply, error)
+	Voterank(ctx context.Context, in *VoteRankReq, opts ...grpc.CallOption) (*RankReply, error)
+	Betweenness(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
+	Closeness(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
+	Louvain(ctx context.Context, in *LouvainReq, opts ...grpc.CallOption) (*RankReply, error)
 	AvgClustering(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*MetricsReply, error)
 	Custom(ctx context.Context, in *CustomAlgoReq, opts ...grpc.CallOption) (*CustomAlgoReply, error)
 }
@@ -87,27 +88,36 @@ func (c *algoClient) Pagerank(ctx context.Context, in *PageRankReq, opts ...grpc
 	return out, nil
 }
 
-func (c *algoClient) Louvain(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*ClusterReply, error) {
-	out := new(ClusterReply)
+func (c *algoClient) Voterank(ctx context.Context, in *VoteRankReq, opts ...grpc.CallOption) (*RankReply, error) {
+	out := new(RankReply)
+	err := c.cc.Invoke(ctx, "/service.algo/voterank", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *algoClient) Betweenness(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error) {
+	out := new(RankReply)
+	err := c.cc.Invoke(ctx, "/service.algo/betweenness", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *algoClient) Closeness(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error) {
+	out := new(RankReply)
+	err := c.cc.Invoke(ctx, "/service.algo/closeness", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *algoClient) Louvain(ctx context.Context, in *LouvainReq, opts ...grpc.CallOption) (*RankReply, error) {
+	out := new(RankReply)
 	err := c.cc.Invoke(ctx, "/service.algo/louvain", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *algoClient) ShortestPath(ctx context.Context, in *ShortestPathReq, opts ...grpc.CallOption) (*ClusterReply, error) {
-	out := new(ClusterReply)
-	err := c.cc.Invoke(ctx, "/service.algo/shortestPath", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *algoClient) AvgShortestPath(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*MetricsReply, error) {
-	out := new(MetricsReply)
-	err := c.cc.Invoke(ctx, "/service.algo/avgShortestPath", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +151,10 @@ type AlgoServer interface {
 	DropAlgo(context.Context, *DropAlgoReq) (*AlgoReply, error)
 	Degree(context.Context, *BaseReq) (*RankReply, error)
 	Pagerank(context.Context, *PageRankReq) (*RankReply, error)
-	Louvain(context.Context, *BaseReq) (*ClusterReply, error)
-	ShortestPath(context.Context, *ShortestPathReq) (*ClusterReply, error)
-	AvgShortestPath(context.Context, *BaseReq) (*MetricsReply, error)
+	Voterank(context.Context, *VoteRankReq) (*RankReply, error)
+	Betweenness(context.Context, *BaseReq) (*RankReply, error)
+	Closeness(context.Context, *BaseReq) (*RankReply, error)
+	Louvain(context.Context, *LouvainReq) (*RankReply, error)
 	AvgClustering(context.Context, *BaseReq) (*MetricsReply, error)
 	Custom(context.Context, *CustomAlgoReq) (*CustomAlgoReply, error)
 	mustEmbedUnimplementedAlgoServer()
@@ -168,14 +179,17 @@ func (UnimplementedAlgoServer) Degree(context.Context, *BaseReq) (*RankReply, er
 func (UnimplementedAlgoServer) Pagerank(context.Context, *PageRankReq) (*RankReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pagerank not implemented")
 }
-func (UnimplementedAlgoServer) Louvain(context.Context, *BaseReq) (*ClusterReply, error) {
+func (UnimplementedAlgoServer) Voterank(context.Context, *VoteRankReq) (*RankReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Voterank not implemented")
+}
+func (UnimplementedAlgoServer) Betweenness(context.Context, *BaseReq) (*RankReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Betweenness not implemented")
+}
+func (UnimplementedAlgoServer) Closeness(context.Context, *BaseReq) (*RankReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Closeness not implemented")
+}
+func (UnimplementedAlgoServer) Louvain(context.Context, *LouvainReq) (*RankReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Louvain not implemented")
-}
-func (UnimplementedAlgoServer) ShortestPath(context.Context, *ShortestPathReq) (*ClusterReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ShortestPath not implemented")
-}
-func (UnimplementedAlgoServer) AvgShortestPath(context.Context, *BaseReq) (*MetricsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AvgShortestPath not implemented")
 }
 func (UnimplementedAlgoServer) AvgClustering(context.Context, *BaseReq) (*MetricsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvgClustering not implemented")
@@ -286,8 +300,62 @@ func _Algo_Pagerank_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Algo_Louvain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Algo_Voterank_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VoteRankReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlgoServer).Voterank(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.algo/voterank",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlgoServer).Voterank(ctx, req.(*VoteRankReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Algo_Betweenness_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BaseReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlgoServer).Betweenness(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.algo/betweenness",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlgoServer).Betweenness(ctx, req.(*BaseReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Algo_Closeness_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BaseReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlgoServer).Closeness(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.algo/closeness",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlgoServer).Closeness(ctx, req.(*BaseReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Algo_Louvain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LouvainReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -299,43 +367,7 @@ func _Algo_Louvain_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/service.algo/louvain",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlgoServer).Louvain(ctx, req.(*BaseReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Algo_ShortestPath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ShortestPathReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AlgoServer).ShortestPath(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/service.algo/shortestPath",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlgoServer).ShortestPath(ctx, req.(*ShortestPathReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Algo_AvgShortestPath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BaseReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AlgoServer).AvgShortestPath(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/service.algo/avgShortestPath",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlgoServer).AvgShortestPath(ctx, req.(*BaseReq))
+		return srv.(AlgoServer).Louvain(ctx, req.(*LouvainReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -404,16 +436,20 @@ var Algo_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Algo_Pagerank_Handler,
 		},
 		{
+			MethodName: "voterank",
+			Handler:    _Algo_Voterank_Handler,
+		},
+		{
+			MethodName: "betweenness",
+			Handler:    _Algo_Betweenness_Handler,
+		},
+		{
+			MethodName: "closeness",
+			Handler:    _Algo_Closeness_Handler,
+		},
+		{
 			MethodName: "louvain",
 			Handler:    _Algo_Louvain_Handler,
-		},
-		{
-			MethodName: "shortestPath",
-			Handler:    _Algo_ShortestPath_Handler,
-		},
-		{
-			MethodName: "avgShortestPath",
-			Handler:    _Algo_AvgShortestPath_Handler,
 		},
 		{
 			MethodName: "avgClustering",
@@ -425,5 +461,5 @@ var Algo_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "src/main/protobuf/algo.proto",
+	Metadata: "algo/src/main/protobuf/algo.proto",
 }

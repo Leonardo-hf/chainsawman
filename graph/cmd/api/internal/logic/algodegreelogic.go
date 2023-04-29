@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/util"
 	"chainsawman/graph/model"
 	"context"
@@ -35,7 +36,7 @@ func (l *AlgoDegreeLogic) AlgoDegree(req *types.AlgoDegreeRequest) (resp *types.
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
 	}
 	// 任务没提交过，创建任务
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, "GetGraph", req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, common.AlgoDegree, req)
 	if err != nil {
 		return nil, err
 	}

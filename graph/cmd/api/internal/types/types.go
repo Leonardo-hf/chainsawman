@@ -22,6 +22,21 @@ type Edge struct {
 	Target int64 `json:"target"`
 }
 
+type Param struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+type Task struct {
+	Idf        int64       `json:"idf"`
+	Desc       string      `json:"desc"`
+	CreateTime int64       `json:"createTime"`
+	UpdateTime int64       `json:"updateTime"`
+	Status     int64       `json:"status"`
+	Req        interface{} `json:"req"`
+	Res        interface{} `json:"res"`
+}
+
 type Rank struct {
 	NodeID int64   `json:"nodeId"`
 	Score  float64 `json:"score"`
@@ -33,6 +48,11 @@ type BaseReply struct {
 	TaskID     int64             `json:"taskId"`
 	TaskStatus int64             `json:"taskStatus"`
 	Extra      map[string]string `json:"extra"`
+}
+
+type SearchTasksReply struct {
+	Base  *BaseReply `json:"base"`
+	Tasks []*Task    `json:"tasks"`
 }
 
 type SearchAllGraphReply struct {
@@ -61,6 +81,16 @@ type SearchGraphDetailReply struct {
 type AlgoRankReply struct {
 	Base  *BaseReply `json:"base"`
 	Ranks []*Rank    `json:"ranks"`
+	File  string     `json:"file"`
+}
+
+type AlgoMetricReply struct {
+	Base  *BaseReply `json:"base"`
+	Score float64    `json:"score"`
+}
+
+type SearchTasksRequest struct {
+	GraphID int64 `form:"graphId"`
 }
 
 type SearchRequest struct {
@@ -90,7 +120,33 @@ type UploadRequest struct {
 	GraphID int64  `form:"graphId,optional"`
 }
 
+type AlgoRequest struct {
+	TaskID  int64 `form:"taskId"`
+	GraphID int64 `form:"graphId"`
+}
+
 type AlgoDegreeRequest struct {
 	TaskID  int64 `form:"taskId"`
 	GraphID int64 `form:"graphId"`
+}
+
+type AlgoPageRankRequest struct {
+	TaskID  int64   `form:"taskId"`
+	GraphID int64   `form:"graphId"`
+	Iter    int64   `form:"iter,default=3"`
+	Prob    float64 `form:"prob,default=0.85"`
+}
+
+type AlgoVoteRankRequest struct {
+	TaskID  int64 `form:"taskId"`
+	GraphID int64 `form:"graphId"`
+	Iter    int64 `form:"iter,default=100"`
+}
+
+type AlgoLouvainRequest struct {
+	TaskID       int64   `form:"taskId"`
+	GraphID      int64   `form:"graphId"`
+	MaxIter      int64   `form:"maxIter,default=10"`
+	InternalIter int64   `form:"internalIter,default=5"`
+	Tol          float64 `form:"tol,default=0.5"`
 }

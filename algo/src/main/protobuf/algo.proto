@@ -18,16 +18,6 @@ message Element{
   }
 }
 
-message PRConfig{
-  int64 iter = 1;
-  double prob = 2;
-}
-
-message SPConfig{
-  int64 src = 1;
-  int64 dst = 2;
-}
-
 message CreateAlgoReq{
   string name = 1;
   string desc = 2;
@@ -66,19 +56,35 @@ message Rank{
 
 message RankReply{
   repeated Rank ranks = 1;
-}
-
-message Cluster{
-  string name = 1;
-  repeated string nodes = 2;
-}
-
-message ClusterReply{
-  repeated Cluster clusters = 1;
+  string file = 2;
 }
 
 message MetricsReply{
   double score = 1;
+}
+
+message CustomAlgoReply{
+  string rets = 1;
+}
+
+message PRConfig{
+  int64 iter = 1;
+  double prob = 2;
+}
+
+message SPConfig{
+  int64 src = 1;
+  int64 dst = 2;
+}
+
+message VoteConfig{
+  int64 iter = 1;
+}
+
+message LouvainConfig{
+  int64 maxIter = 1;
+  int64 internalIter = 2;
+  double tol = 3;
 }
 
 message BaseReq{
@@ -90,19 +96,25 @@ message PageRankReq{
   PRConfig cfg = 2;
 }
 
-message ShortestPathReq{
+message VoteRankReq{
   BaseReq base = 1;
-  SPConfig cfg = 2;
+  VoteConfig cfg = 2;
 }
+
+message LouvainReq{
+  BaseReq base = 1;
+  LouvainConfig cfg = 2;
+}
+
+//message ShortestPathReq{
+//  BaseReq base = 1;
+//  SPConfig cfg = 2;
+//}
 
 message CustomAlgoReq{
   BaseReq base = 1;
   int64 algoID = 2;
   string params = 3;
-}
-
-message CustomAlgoReply{
-  string rets = 1;
 }
 
 service algo {
@@ -116,11 +128,15 @@ service algo {
 
   rpc pagerank(PageRankReq) returns(RankReply);
 
-  rpc louvain(BaseReq) returns(ClusterReply);
+  rpc voterank(VoteRankReq) returns(RankReply);
 
-  rpc shortestPath(ShortestPathReq) returns(ClusterReply);
+  rpc betweenness(BaseReq) returns(RankReply);
 
-  rpc avgShortestPath(BaseReq) returns(MetricsReply);
+  rpc closeness(BaseReq) returns(RankReply);
+
+  rpc louvain(LouvainReq) returns(RankReply);
+
+  //  rpc avgShortestPath(BaseReq) returns(MetricsReply);
 
   rpc avgClustering(BaseReq) returns(MetricsReply);
 

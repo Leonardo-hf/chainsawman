@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
 	"chainsawman/graph/cmd/api/internal/util"
@@ -50,7 +51,7 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 	}
 	// 任务没提交过，创建任务
 	req.GraphID = graph.ID
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, "Upload", req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, graph.ID, common.GraphCreate, req)
 	if err != nil {
 		return nil, err
 	}

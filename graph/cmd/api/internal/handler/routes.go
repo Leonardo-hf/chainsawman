@@ -42,6 +42,41 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/algo/degree",
 				Handler: algoDegreeHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/pr",
+				Handler: algoPageRankHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/vr",
+				Handler: algoVoteRankHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/betweenness",
+				Handler: algoBetweennessHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/closeness",
+				Handler: algoClosenessHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/avgCC",
+				Handler: algoAvgCCHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/louvain",
+				Handler: algoLouvainHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/task/getAll",
+				Handler: getGraphTasksHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/api/graph"),
 	)

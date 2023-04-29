@@ -4,7 +4,8 @@ import (
 	"chainsawman/file/cmd/rpc/internal/config"
 	"chainsawman/file/cmd/rpc/internal/server"
 	"chainsawman/file/cmd/rpc/internal/svc"
-	"chainsawman/file/cmd/rpc/types/rpc"
+	"chainsawman/file/cmd/rpc/types/rpc/file"
+
 	"flag"
 	"fmt"
 
@@ -25,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		rpc.RegisterFileServer(grpcServer, server.NewFileServer(ctx))
+		file.RegisterFileServer(grpcServer, server.NewFileServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

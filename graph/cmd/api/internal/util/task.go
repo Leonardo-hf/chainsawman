@@ -1,33 +1,37 @@
 package util
 
 import (
+	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/model"
+
 	"context"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/jsonx"
 )
 
-func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, taskName string, req interface{}) (int64, error) {
+func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64, taskIDf common.TaskIdf, req interface{}) (int64, error) {
 	params, err := jsonx.MarshalToString(req)
 	if err != nil {
 		return 0, err
 	}
 	task := &model.Task{
-		Params: params,
-		Name:   taskName,
+		Params:  params,
+		Idf:     int64(taskIDf),
+		Visible: common.Btoi(taskIDf.Visible()),
+		GraphID: graphID,
 	}
 	// 保存任务
-	err = svcCtx.MysqlClient.InsertTask(task)
+	err = svcCtx.MysqlClient.InsertTask(ctx, task)
 	if err != nil {
 		return 0, err
 	}
 	// 发布任务
 	err = svcCtx.RedisClient.ProduceTaskMsg(ctx, &model.KVTask{
 		Id:         task.ID,
-		Name:       task.Name,
 		Params:     task.Params,
-		Status:     model.KVTask_Status(task.Status),
+		Status:     model.KVTask_New,
 		CreateTime: task.CreateTime,
 		UpdateTime: task.UpdateTime,
 	})
@@ -47,7 +51,7 @@ func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, re
 		status = task.Status
 	} else if err == redis.Nil {
 		// redis里没有记录，查询mysql
-		oTask, err := svcCtx.MysqlClient.SearchTaskByID(taskID)
+		oTask, err := svcCtx.MysqlClient.GetTaskByID(ctx, taskID)
 		if err != nil {
 			return err
 		}
@@ -56,7 +60,6 @@ func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, re
 		// 更新redis
 		err = svcCtx.RedisClient.UpsertTask(ctx, &model.KVTask{
 			Id:         oTask.ID,
-			Name:       oTask.Name,
 			Params:     oTask.Params,
 			Status:     model.KVTask_Status(oTask.Status),
 			CreateTime: oTask.CreateTime,

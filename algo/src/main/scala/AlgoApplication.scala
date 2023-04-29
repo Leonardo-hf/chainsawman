@@ -5,6 +5,7 @@ import config.ClientConfig
 import server.GrpcServer
 
 object AlgoApplication {
+
   def main(args: Array[String]): Unit = {
     // important to enable HTTP/2 in ActorSystem's config
     val conf = ConfigFactory.parseString("akka.http.server.preview.enable-http2 = on")

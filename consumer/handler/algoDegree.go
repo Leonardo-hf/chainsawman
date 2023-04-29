@@ -35,6 +35,7 @@ func (h *AlgoDegree) Handle(params string, taskID int64) (string, error) {
 			TaskStatus: int64(model.KVTask_Finished),
 		},
 		Ranks: ranks,
+		File:  res.GetFile(),
 	}
 	return jsonx.MarshalToString(resp)
 }

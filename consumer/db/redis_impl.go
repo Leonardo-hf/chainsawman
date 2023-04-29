@@ -60,8 +60,8 @@ func (r *RedisClientImpl) ConsumeTaskMsg(ctx context.Context, consumer string, h
 	for _, msg := range result[0].Messages {
 		id, _ := strconv.ParseInt(msg.Values["id"].(string), 10, 64)
 		task := &model.KVTask{
-			Id:     id,
-			Name:   msg.Values["name"].(string),
+			Id: id,
+			//Name:   msg.Values["name"].(string),
 			Params: msg.Values["params"].(string),
 		}
 		if err = handle(ctx, task); err != nil {

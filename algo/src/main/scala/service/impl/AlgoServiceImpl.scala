@@ -2,12 +2,17 @@ package service.impl
 
 //#import
 
+import akka.actor.ActorSystem
 import akka.actor.typed.ActorSystem
+import akka.util.Timeout
 import config.ClientConfig
 import model.{AlgoPO, AlgoParamPO}
 import service._
+import util.CSVUtil
 
-import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, Future}
+import scala.language.postfixOps
 
 //#import
 
@@ -15,6 +20,10 @@ import scala.concurrent.Future
 //#service-stream
 class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   private implicit val sys: ActorSystem[_] = system
+
+  private val preview = 100
+
+  private val timeout = Timeout(10 seconds)
 
   //#service-request-reply
 
@@ -52,24 +61,45 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    Future.successful(RankReply(ranks = res.ranks.map(r => Rank(id = r.nodeID, score = r.score))))
-  }
+    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "degree", data = CSVUtil.df2CSV(res))), timeout.duration)
+    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))  }
 
   override def pagerank(in: PageRankReq): Future[RankReply] = {
     val (res, err) = ClientConfig.sparkClient.pagerank(in.base.get.graphID, in.cfg.get)
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    Future.successful(RankReply(ranks = res.ranks.map(r => Rank(id = r.nodeID, score = r.score))))
+    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "pagerank", data = CSVUtil.df2CSV(res))), timeout.duration)
+    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
   }
 
-  override def louvain(in: BaseReq): Future[ClusterReply] = ???
+  override def voterank(in: VoteRankReq): Future[RankReply] = ???
 
-  override def shortestPath(in: ShortestPathReq): Future[ClusterReply] = ???
+  override def betweenness(in: BaseReq): Future[RankReply] = {
+    val (res, err) = ClientConfig.sparkClient.betweenness(in.graphID)
+    if (err.nonEmpty) {
+      return Future.failed(err.get)
+    }
+    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "betweenness", data = CSVUtil.df2CSV(res))), timeout.duration)
+    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+  }
 
-  override def avgShortestPath(in: BaseReq): Future[MetricsReply] = ???
+  override def closeness(in: BaseReq): Future[RankReply] = {
+    val (res, err) = ClientConfig.sparkClient.closeness(in.graphID)
+    if (err.nonEmpty) {
+      return Future.failed(err.get)
+    }
+    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "closeness", data = CSVUtil.df2CSV(res))), timeout.duration)
+    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+  }
 
-  override def avgClustering(in: BaseReq): Future[MetricsReply] = ???
+  override def avgClustering(in: BaseReq): Future[MetricsReply] = {
+    val (res, err) = ClientConfig.sparkClient.clusteringCoefficient(in.graphID)
+    if (err.nonEmpty) {
+      return Future.failed(err.get)
+    }
+    Future.successful(MetricsReply.apply(score = res))
+  }
 
   override def custom(in: CustomAlgoReq): Future[CustomAlgoReply] = {
     // TODO: 需求太小众，不打算写了
@@ -78,7 +108,14 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     Future.successful(CustomAlgoReply())
   }
 
-
+  override def louvain(in: LouvainReq): Future[RankReply] = {
+    val (res, err) = ClientConfig.sparkClient.louvain(in.base.get.graphID, in.cfg.get)
+    if (err.nonEmpty) {
+      return Future.failed(err.get)
+    }
+    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "louvain", data = CSVUtil.df2CSV(res))), timeout.duration)
+    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+  }
 }
 //#service-stream
 //#service-request-reply

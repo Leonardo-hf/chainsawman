@@ -2,9 +2,19 @@ syntax = "proto3";
 
 package file;
 
-option go_package = "./rpc";
+option go_package = "./rpc/file";
 
 message IDReq{
+  string id = 1;
+}
+
+message FileUploadReq{
+  string name = 1;
+  bytes data = 2;
+  int64 expired = 3;
+}
+
+message FileIDReply{
   string id = 1;
 }
 
@@ -16,4 +26,5 @@ message FileReply{
 
 service file {
   rpc fetchFile(IDReq) returns(FileReply);
+  rpc uploadFile(FileUploadReq) returns(FileIDReply);
 }

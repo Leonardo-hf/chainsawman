@@ -5,11 +5,11 @@ import (
 	"context"
 )
 
-// MysqlClient TODO: 删掉用不上的接口
+// MysqlClient
 type MysqlClient interface {
-	InsertTask(task *model.Task) error
+	InsertTask(ctx context.Context, task *model.Task) error
 
-	SearchTaskByID(id int64) (*model.Task, error)
+	GetTaskByID(ctx context.Context, id int64) (*model.Task, error)
 
 	InsertGraph(ctx context.Context, graph *model.Graph) error
 
@@ -18,4 +18,6 @@ type MysqlClient interface {
 	GetGraphByID(ctx context.Context, id int64) (*model.Graph, error)
 
 	GetAllGraph(ctx context.Context) ([]*model.Graph, error)
+
+	GetTasksByGraph(ctx context.Context, graphID int64) ([]*model.Task, error)
 }

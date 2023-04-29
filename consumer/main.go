@@ -1,10 +1,11 @@
 package main
 
 import (
+	"chainsawman/common"
 	"chainsawman/consumer/config"
 	"chainsawman/consumer/handler"
 	"chainsawman/consumer/model"
-	"chainsawman/consumer/types/rpc/algo"
+	"github.com/google/uuid"
 
 	"context"
 	"flag"
@@ -14,15 +15,15 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-var handleTable map[string]handler.Handler
+var handleTable map[common.TaskIdf]handler.Handler
 
 func initHandleTable() {
-	handleTable = make(map[string]handler.Handler)
-	handleTable["GetGraph"] = &handler.GetGraph{}
-	handleTable["GetNeighbors"] = &handler.GetNeighbors{}
-	handleTable["Upload"] = &handler.Upload{}
-	handleTable["AlgoDegree"] = &handler.AlgoDegree{}
-	handleTable["AlgoPageRank"] = &handler.AlgoPageRank{}
+	handleTable = make(map[common.TaskIdf]handler.Handler)
+	handleTable[common.GraphGet] = &handler.GetGraph{}
+	handleTable[common.GraphNeighbors] = &handler.GetNeighbors{}
+	handleTable[common.GraphCreate] = &handler.Upload{}
+	handleTable[common.AlgoDegree] = &handler.AlgoDegree{}
+	handleTable[common.AlgoPagerank] = &handler.AlgoPageRank{}
 }
 
 func main() {
@@ -47,24 +48,24 @@ func main() {
 	//	},
 	//	Type: algo.Algo_Rank,
 	//})
-	res, err := config.AlgoRPC.QueryAlgo(context.Background(), &algo.Empty{})
-	fmt.Println(res)
-	if err != nil {
-		logx.Error(err)
-	}
-	//consumerID := uuid.New().String()
-	//ctx := context.Background()
-	//for true {
-	//	if err := config.RedisClient.ConsumeTaskMsg(ctx, consumerID, handle); err != nil {
-	//		logx.Errorf("[consumer] consumer fail, err: %v", err)
-	//	}
+	//res, err := config.AlgoRPC.QueryAlgo(context.Background(), &algo.Empty{})
+	//fmt.Println(res)
+	//if err != nil {
+	//	logx.Error(err)
 	//}
+	consumerID := uuid.New().String()
+	ctx := context.Background()
+	for true {
+		if err := config.RedisClient.ConsumeTaskMsg(ctx, consumerID, handle); err != nil {
+			logx.Errorf("[consumer] consumer fail, err: %v", err)
+		}
+	}
 }
 
 func handle(ctx context.Context, task *model.KVTask) error {
-	h, ok := handleTable[task.Name]
+	h, ok := handleTable[common.TaskIdf(task.Idf)]
 	if !ok {
-		return fmt.Errorf("no such method, err: name=%v", task.Name)
+		return fmt.Errorf("no such method, err: idf=%v", common.TaskIdf(task.Idf).Desc())
 	}
 	res, err := h.Handle(task.Params, task.Id)
 	if err != nil {

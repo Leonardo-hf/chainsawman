@@ -13,13 +13,13 @@ type AlgoPageRank struct {
 }
 
 func (h *AlgoPageRank) Handle(params string, taskID int64) (string, error) {
-	req := &types.AlgoDegreeRequest{}
+	req := &types.AlgoPageRankRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
 	}
 	ctx := context.Background()
-	// TODO: 从参数中获取cfg
-	res, err := config.AlgoRPC.Pagerank(ctx, &algo.PageRankReq{Base: &algo.BaseReq{GraphID: req.GraphID}, Cfg: &algo.PRConfig{Iter: 3, Prob: 0.85}})
+	res, err := config.AlgoRPC.Pagerank(ctx, &algo.PageRankReq{Base: &algo.BaseReq{GraphID: req.GraphID},
+		Cfg: &algo.PRConfig{Iter: req.Iter, Prob: req.Prob}})
 	if err != nil {
 		return "", err
 	}
@@ -36,6 +36,7 @@ func (h *AlgoPageRank) Handle(params string, taskID int64) (string, error) {
 			TaskStatus: int64(model.KVTask_Finished),
 		},
 		Ranks: ranks,
+		File:  res.GetFile(),
 	}
 	return jsonx.MarshalToString(resp)
 }

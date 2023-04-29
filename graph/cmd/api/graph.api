@@ -20,6 +20,21 @@ type (
 		Target int64 `json:"target"`
 	}
 
+	Param {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+
+	Task {
+		Idf        int64       `json:"idf"`
+		Desc       string      `json:"desc"`
+		CreateTime int64       `json:"createTime"`
+		UpdateTime int64       `json:"updateTime"`
+		Status     int64       `json:"status"`
+		Req        interface{} `json:"req"`
+		Res        interface{} `json:"res"`
+	}
+
 	Rank {
 		NodeID int64   `json:"nodeId"`
 		Score  float64 `json:"score"`
@@ -31,6 +46,11 @@ type (
 		TaskID     int64             `json:"taskId"`
 		TaskStatus int64             `json:"taskStatus"`
 		Extra      map[string]string `json:"extra"`
+	}
+
+	SearchTasksReply {
+		Base  *BaseReply `json:"base"`
+		Tasks []*Task    `json:"tasks"`
 	}
 
 	SearchAllGraphReply {
@@ -59,6 +79,16 @@ type (
 	AlgoRankReply {
 		Base  *BaseReply `json:"base"`
 		Ranks []*Rank    `json:"ranks"`
+		File  string     `json:"file"`
+	}
+
+	AlgoMetricReply {
+		Base  *BaseReply `json:"base"`
+		Score float64    `json:"score"`
+	}
+
+	SearchTasksRequest {
+		GraphID int64 `form:"graphId"`
 	}
 
 	SearchRequest {
@@ -90,9 +120,35 @@ type (
 		GraphID int64 `form:"graphId,optional"`
 	}
 
+	AlgoRequest {
+		TaskID  int64 `form:"taskId"`
+		GraphID int64 `form:"graphId"`
+	}
+
 	AlgoDegreeRequest {
 		TaskID  int64 `form:"taskId"`
 		GraphID int64 `form:"graphId"`
+	}
+
+	AlgoPageRankRequest {
+		TaskID  int64   `form:"taskId"`
+		GraphID int64   `form:"graphId"`
+		Iter    int64   `form:"iter,default=3"`
+		Prob    float64 `form:"prob,default=0.85"`
+	}
+
+	AlgoVoteRankRequest {
+		TaskID  int64 `form:"taskId"`
+		GraphID int64 `form:"graphId"`
+		Iter    int64 `form:"iter,default=100"`
+	}
+
+	AlgoLouvainRequest {
+		TaskID       int64   `form:"taskId"`
+		GraphID      int64   `form:"graphId"`
+		MaxIter      int64   `form:"maxIter,default=10"`
+		InternalIter int64   `form:"internalIter,default=5"`
+		Tol          float64 `form:"tol,default=0.5"`
 	}
 )
 
@@ -123,4 +179,32 @@ service graph {
 	@doc "度中心度算法"
 	@handler algoDegree
 	get /algo/degree (AlgoDegreeRequest) returns (AlgoRankReply)
+	
+	@doc "PageRank算法"
+	@handler algoPageRank
+	get /algo/pr (AlgoPageRankRequest) returns (AlgoRankReply)
+	
+	@doc "VoteRank算法"
+	@handler algoVoteRank
+	get /algo/vr (AlgoVoteRankRequest) returns (AlgoRankReply)
+	
+	@doc "Betweenness算法"
+	@handler algoBetweenness
+	get /algo/betweenness (AlgoRequest) returns (AlgoRankReply)
+	
+	@doc "Closeness算法"
+	@handler algoCloseness
+	get /algo/closeness (AlgoRequest) returns (AlgoRankReply)
+	
+	@doc "平均聚类系数"
+	@handler algoAvgCC
+	get /algo/avgCC (AlgoRequest) returns (AlgoMetricReply)
+	
+	@doc "Louvain聚类算法"
+	@handler algoLouvain
+	get /algo/louvain (AlgoLouvainRequest) returns (AlgoRankReply)
+	
+	@doc "获取图计算任务"
+	@handler getGraphTasks
+	get /task/getAll (SearchTasksRequest) returns (SearchTasksReply)
 }

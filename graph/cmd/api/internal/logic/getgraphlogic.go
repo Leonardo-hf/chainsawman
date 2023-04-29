@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
 	"chainsawman/graph/cmd/api/internal/util"
@@ -35,7 +36,7 @@ func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGr
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
 	}
 	// 任务没提交过，创建任务
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, "GetGraph", req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, common.GraphGet, req)
 	if err != nil {
 		return nil, err
 	}
