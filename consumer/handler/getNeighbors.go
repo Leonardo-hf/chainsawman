@@ -16,7 +16,7 @@ func (h *GetNeighbors) Handle(params string, taskID int64) (string, error) {
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
 	}
-	nodes, edges, err := config.NebulaClient.GetNeighbors(req.GraphID, req.Node, req.Min, req.Distance)
+	nodes, edges, err := config.NebulaClient.GetNeighbors(req.GraphID, req.NodeID, req.Min, req.Distance)
 	if err != nil {
 		return "", err
 	}

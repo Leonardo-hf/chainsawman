@@ -5,6 +5,7 @@ import (
 	"chainsawman/consumer/config"
 	"chainsawman/consumer/handler"
 	"chainsawman/consumer/model"
+	"chainsawman/consumer/types/rpc/algo"
 	"github.com/google/uuid"
 
 	"context"
@@ -53,6 +54,12 @@ func main() {
 	//if err != nil {
 	//	logx.Error(err)
 	//}
+	degree, err := config.AlgoRPC.AvgClustering(context.Background(), &algo.BaseReq{GraphID: 30})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(degree)
 	consumerID := uuid.New().String()
 	ctx := context.Background()
 	for true {

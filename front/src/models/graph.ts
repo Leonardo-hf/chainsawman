@@ -22,14 +22,14 @@ export default {
 
         * queryDetail({payload}, {call, put}) {
             const data: Promise<Graph.SearchGraphDetailReply> = yield call(getGraph, payload);
-            data['graph'] = payload.graph;
+            data['graphId'] = payload.graphId;
             yield put({type: 'getDetail', payload: data});
             return data.base.taskStatus
         },
 
         * queryNeibors({payload}, {call, put}){
             const data: Promise<Graph.SearchNodeRequest> = yield call(getNeighbors, payload);
-            data['graph'] = getTag(payload.graph, payload.node);
+            data['graphId'] = getTag(payload.graphId, payload.node);
             yield put({type: 'getDetail', payload: data});
             return data.base.taskStatus
         }
@@ -47,14 +47,14 @@ export default {
             for (let attr in state.details) {
                 details[attr] = state.details[attr]
             }
-            details[payload.graph] = {
+            details[payload.graphId] = {
                 taskId: payload.base.taskId,
                 status: payload.base.taskStatus,
                 nodes: payload.nodes,
                 edges: payload.edges,
             }
-            for (let i = 0; i < details[payload.graph].nodes.length; i++) {
-                details[payload.graph].nodes[i]['color'] = getRandomColor()
+            for (let i = 0; i < details[payload.graphId].nodes.length; i++) {
+                details[payload.graphId].nodes[i]['color'] = getRandomColor()
             }
             return {
                 ...state,

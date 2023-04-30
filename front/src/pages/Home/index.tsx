@@ -94,7 +94,7 @@ const columns: ProColumns<Graph.Graph>[] = [
                 color: 'grey'
             } : undefined
             return [
-                <a href={'/graph/' + record.name} style={disable}>
+                <a href={'/graph/' + record.id} style={disable}>
                     查看
                 </a>,
                 <a style={disable}>
@@ -162,7 +162,7 @@ const HomePage: React.FC = (props) => {
                     ref.current?.reload()
                 })
         }
-        return <Modal open={modalOpen} footer={null}>
+        return <Modal open={modalOpen} footer={null} onCancel={()=>setModalOpen(false)}>
             <ProCard style={{height: "fit-content"}}>
                 <Form onFinish={handleFinish}>
                     <FormItem

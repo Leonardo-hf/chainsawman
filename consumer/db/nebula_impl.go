@@ -224,7 +224,7 @@ func (n *NebulaClientImpl) DropGraph(graph int64) error {
 	return err
 }
 
-func (n *NebulaClientImpl) GetNeighbors(graph int64, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error) {
+func (n *NebulaClientImpl) GetNeighbors(graph int64, nodeID int64, min int64, distance int64) ([]*model.Node, []*model.Edge, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
@@ -232,7 +232,7 @@ func (n *NebulaClientImpl) GetNeighbors(graph int64, node string, min int64, dis
 	}
 	query := fmt.Sprintf("USE G%v;"+
 		"GET SUBGRAPH WITH PROP %v STEPS FROM \"%v\" WHERE v.snode.deg >= %v "+
-		"YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, min, node)
+		"YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, nodeID, min)
 	res, err := session.Execute(query)
 	if !res.IsSucceed() {
 		return nil, nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())

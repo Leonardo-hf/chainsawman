@@ -19,7 +19,7 @@ type NebulaClient interface {
 
 	GetEdges(graph int64) ([]*model.Edge, error)
 
-	GetNeighbors(graph int64, node string, min int64, distance int64) ([]*model.Node, []*model.Edge, error)
+	GetNeighbors(graph int64, nodeID int64, min int64, distance int64) ([]*model.Node, []*model.Edge, error)
 
 	DropGraph(graph int64) error
 }

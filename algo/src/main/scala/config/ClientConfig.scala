@@ -3,9 +3,10 @@ package config
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import dao.{MysqlClient, MysqlClientImpl, SparkClient, SparkClientImpl}
-import service.fileClient
+import service.{IDReq, fileClient}
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContextExecutor}
 
 
 object ClientConfig {

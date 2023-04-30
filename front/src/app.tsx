@@ -15,7 +15,7 @@ export function render(oldRender: () => void) {
             setInitGraphs(data.graphs)
             graphs = data.graphs
             data.graphs.forEach((graph) => routes.push({
-                path: '/graph/' + graph.name,
+                path: '/graph/' + graph.id,
                 element: <Graph graph={graph}/>,
                 name: graph.name,
             }))

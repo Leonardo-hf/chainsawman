@@ -9,7 +9,7 @@ object CSVUtil {
   def df2CSV(df: DataFrame): ByteString = {
     val content: StringBuilder = new StringBuilder
     content.append(df.columns.mkString(",")).append(sep)
-    df.rdd.foreach(r=>content.append(r.toSeq.mkString(",")).append(sep))
+    df.rdd.collect().foreach(r=>content.append(r.toSeq.mkString(",")).append(sep))
     ByteString.copyFromUtf8(content.toString())
   }
 

@@ -5,13 +5,20 @@ export default {
   'POST /api/graph/create': (req: Request, res: Response) => {
     res.status(200).send({
       base: {
-        status: 98,
-        msg: '关和热好构程品改方水研将族斯出权。',
-        taskId: 82,
-        taskStatus: 98,
+        status: 86,
+        msg: '信类参车县强数天极局真应土存过计。',
+        taskId: 63,
+        taskStatus: 1,
         extra: {},
       },
-      graph: { name: '郑平', desc: '十世非们公见活金厂都算公连它满员。', nodes: 60, edges: 93 },
+      graph: {
+        id: 96,
+        status: 96,
+        name: '傅桂英',
+        desc: '温动生则果照达总志林论组党写。',
+        nodes: 88,
+        edges: 86,
+      },
     });
   },
 };

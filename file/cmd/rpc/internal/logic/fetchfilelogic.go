@@ -2,7 +2,8 @@ package logic
 
 import (
 	"chainsawman/file/cmd/rpc/internal/svc"
-	"chainsawman/file/cmd/rpc/types/rpc"
+	"chainsawman/file/cmd/rpc/types/rpc/file"
+
 	"context"
 	"os"
 	p "path"
@@ -24,13 +25,13 @@ func NewFetchFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FetchFi
 	}
 }
 
-func (l *FetchFileLogic) FetchFile(in *rpc.IDReq) (*rpc.FileReply, error) {
+func (l *FetchFileLogic) FetchFile(in *file.IDReq) (*file.FileReply, error) {
 	name := p.Join(l.svcCtx.Config.Path, in.Id+".csv")
 	data, err := os.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	return &rpc.FileReply{
+	return &file.FileReply{
 		Name: in.Id,
 		Size: int64(len(data) >> 10),
 		Data: data,

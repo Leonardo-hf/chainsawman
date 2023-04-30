@@ -27,8 +27,8 @@ func main() {
 	server.AddRoute(
 		rest.Route{
 			Method:  http.MethodGet,
-			Path:    "/api/files/get/:1",
-			Handler: dirhandler("api/files/get", c.Path),
+			Path:    "/api/file/get/:1",
+			Handler: dirhandler("/api/file/get", c.Path),
 		})
 	handler.RegisterHandlers(server, ctx)
 

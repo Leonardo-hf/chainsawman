@@ -100,11 +100,11 @@ type SearchRequest struct {
 }
 
 type SearchNodeRequest struct {
-	TaskID   int64  `form:"taskId,optional"`
-	GraphID  int64  `form:"graphId"`
-	Node     string `form:"node"`
-	Distance int64  `form:"distance"`
-	Min      int64  `form:"min"`
+	TaskID   int64 `form:"taskId,optional"`
+	GraphID  int64 `form:"graphId"`
+	NodeID   int64 `form:"nodeId"`
+	Distance int64 `form:"distance"`
+	Min      int64 `form:"min"`
 }
 
 type DropRequest struct {

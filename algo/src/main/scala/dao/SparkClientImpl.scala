@@ -57,7 +57,7 @@ object SparkClientImpl extends SparkClient {
         StructField(AlgoConstants.SCORE_COL, DoubleType, nullable = true)
       ))
     (spark.sqlContext
-      .createDataFrame(graph.degrees.map(r => Row.apply(r._1, r._2)), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
+      .createDataFrame(graph.degrees.map(r => Row.apply(r._1, r._2.toDouble)), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
   }
 
   override def pagerank(graphID: Long, cfg: PRConfig): (DataFrame, Option[Exception]) = {
@@ -240,7 +240,7 @@ object SparkClientImpl extends SparkClient {
     }
 
     val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
-    val initBCgraph = createBetweenGraph(graph, k = 100)
+    val initBCgraph = createBetweenGraph(graph, k = 3)
     val vertexBCGraph = initBCgraph.mapVertices((id, attr) => {
       (id, betweennessCentralityForUnweightedGraph(id, attr))
     })
@@ -589,7 +589,7 @@ object SparkClientImpl extends SparkClient {
         val communities = G.vertices
           .flatMapValues(_.innerVertices)
           .map(value => {
-            Row(value._2, value._1)
+            Row(value._2, value._1.toDouble)
           })
         communities
       }

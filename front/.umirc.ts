@@ -29,7 +29,7 @@ export default defineConfig({
     openAPI: [{
         requestLibPath: "import { request } from '@umijs/max';",
         schemaPath: [__dirname, 'graph.json'].join('/'),
-        mock: true,
+        mock: false,
         namespace: 'Graph',
         projectName: 'graph'
     }, {

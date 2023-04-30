@@ -3,6 +3,7 @@ import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.pki.pem.{DERPrivateKeyLoader, PEMDecoder}
+import config.ClientConfig
 import service.impl.AlgoServiceImpl
 import service.{algo, algoHandler}
 

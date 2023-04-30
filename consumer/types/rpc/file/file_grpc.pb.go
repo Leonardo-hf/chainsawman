@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: file.proto
+// source: file/cmd/rpc/file.proto
 
 package file
 
@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileClient interface {
 	FetchFile(ctx context.Context, in *IDReq, opts ...grpc.CallOption) (*FileReply, error)
+	UploadFile(ctx context.Context, in *FileUploadReq, opts ...grpc.CallOption) (*FileIDReply, error)
 }
 
 type fileClient struct {
@@ -35,7 +36,16 @@ func NewFileClient(cc grpc.ClientConnInterface) FileClient {
 
 func (c *fileClient) FetchFile(ctx context.Context, in *IDReq, opts ...grpc.CallOption) (*FileReply, error) {
 	out := new(FileReply)
-	err := c.cc.Invoke(ctx, "/file.file/fetchFile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/service.file/fetchFile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fileClient) UploadFile(ctx context.Context, in *FileUploadReq, opts ...grpc.CallOption) (*FileIDReply, error) {
+	out := new(FileIDReply)
+	err := c.cc.Invoke(ctx, "/service.file/uploadFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,6 +57,7 @@ func (c *fileClient) FetchFile(ctx context.Context, in *IDReq, opts ...grpc.Call
 // for forward compatibility
 type FileServer interface {
 	FetchFile(context.Context, *IDReq) (*FileReply, error)
+	UploadFile(context.Context, *FileUploadReq) (*FileIDReply, error)
 	mustEmbedUnimplementedFileServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedFileServer struct {
 
 func (UnimplementedFileServer) FetchFile(context.Context, *IDReq) (*FileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchFile not implemented")
+}
+func (UnimplementedFileServer) UploadFile(context.Context, *FileUploadReq) (*FileIDReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
 }
 func (UnimplementedFileServer) mustEmbedUnimplementedFileServer() {}
 
@@ -80,10 +94,28 @@ func _File_FetchFile_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/file.file/fetchFile",
+		FullMethod: "/service.file/fetchFile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FileServer).FetchFile(ctx, req.(*IDReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _File_UploadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FileUploadReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileServer).UploadFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.file/uploadFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServer).UploadFile(ctx, req.(*FileUploadReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -92,14 +124,18 @@ func _File_FetchFile_Handler(srv interface{}, ctx context.Context, dec func(inte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var File_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "file.file",
+	ServiceName: "service.file",
 	HandlerType: (*FileServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "fetchFile",
 			Handler:    _File_FetchFile_Handler,
 		},
+		{
+			MethodName: "uploadFile",
+			Handler:    _File_UploadFile_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "file.proto",
+	Metadata: "file/cmd/rpc/file.proto",
 }

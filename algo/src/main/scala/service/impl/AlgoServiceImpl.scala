@@ -2,7 +2,6 @@ package service.impl
 
 //#import
 
-import akka.actor.ActorSystem
 import akka.actor.typed.ActorSystem
 import akka.util.Timeout
 import config.ClientConfig
@@ -62,10 +61,11 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
       return Future.failed(err.get)
     }
     val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "degree", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))  }
+    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+  }
 
   override def pagerank(in: PageRankReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.pagerank(in.base.get.graphID, in.cfg.get)
+    val (res, err) = ClientConfig.sparkClient.pagerank(in.base.get.graphID, in.cfg.getOrElse(PRConfig.apply(iter = 3, prob = 0.85)))
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
@@ -109,7 +109,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   }
 
   override def louvain(in: LouvainReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.louvain(in.base.get.graphID, in.cfg.get)
+    val (res, err) = ClientConfig.sparkClient.louvain(in.base.get.graphID, in.cfg.getOrElse(LouvainConfig.apply(maxIter = 10, internalIter = 5, tol = 0.5)))
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }

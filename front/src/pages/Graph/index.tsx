@@ -10,7 +10,7 @@ import {
     ShareAltOutlined,
 } from '@ant-design/icons';
 import Graphin, {Behaviors} from '@antv/graphin';
-import {Select, Row, Col, Card, Spin, Input, Button, InputNumber} from 'antd';
+import {Select, Row, Col, Card, Spin, Input, Button, InputNumber, message} from 'antd';
 import React, {SetStateAction} from "react";
 import {connect} from "@@/exports";
 import {Space, Typography} from 'antd';
@@ -28,6 +28,14 @@ const tabListNoTitle = [
     {
         key: 'sys',
         tab: '设置',
+    },
+    {
+        key: 'algo',
+        tab: '算法',
+    },
+    {
+        key: 'task',
+        tab: '任务',
     },
 ];
 
@@ -57,9 +65,9 @@ const defaultNameProps = {
 }
 
 @connect(mapStateToProps)
-class Graph extends React.Component<{ graph: { name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }, any> {
+class Graph extends React.Component<{ graph: { id: number, name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }, any> {
 
-    constructor(props: { graph: { name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }) {
+    constructor(props: { graph: { id: number, name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }) {
         super(props)
         const graphinRef = React.createRef();
         this.state = {
@@ -78,6 +86,7 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                 nameStatus: defaultNameProps.status,
                 // 绑定input
                 name: '',
+                id: 0,
                 min: 0,
                 distance: 0,
                 // 记录搜索成功后的input值
@@ -91,9 +100,9 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
     handleNodeClick = (e: { item: { get: (arg0: string) => string; }; }) => {
         // console.log(e.item)
         const id = e.item.get('id')
-        const target = this.state.query.ok ? getTag(this.props.graph.name, this.state.query.name) : this.props.graph.name
+        const target = this.state.query.ok ? getTag(this.props.graph.id, this.state.query.id) : this.props.graph.id
         // 图模式和节点模式需要查询不同的图
-        const node = this.props.details[target].nodes.find((n: { name: string; }) => n.name === id);
+        const node = this.props.details[target].nodes.find((n: { id: number; }) => n.id.toString() === id);
         this.setState({
             select: {
                 ok: true,
@@ -128,10 +137,12 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
     render() {
         // console.log('render')
         const {graph, details} = this.props
-        let {name} = graph
+        let {id, name} = graph
         const {tab, type, graphinRef, select, query} = this.state
-        const tag = getTag(name, query.name)
-        const loading = query.ok ? (details[tag] === undefined || details[tag].status === 0) : (details[name] === undefined || details[name].status === 0)
+        const tag = getTag(id, query.id)
+        // 判断图有没有加载好
+        const loading = (details[id] === undefined || details[id].status === 0) ||
+            (query.ok && (details[tag] === undefined || details[tag].status === 0))
         const nodes: { id: string, style: { keyshape: { size: number, fill: string }, label: { value: string } } }[] = []
         const edges: { source: string, target: string }[] = []
         const data = {
@@ -139,23 +150,18 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
             edges: edges,
         }
 
-        const handleChange = (value: SetStateAction<string>) => {
-            this.setState({
-                type: value
-            })
-        };
         const layout = layouts.find(item => item.type === type);
         // 图模式，如果graph state没有就发起查询
-        if (!query.ok && details[name] === undefined) {
+        if (!query.ok && details[id] === undefined) {
             const queryDetail = async () => {
                 let taskId = 0
-                if (this.props.details[name] !== undefined) {
-                    taskId = this.props.details[name].taskId
+                if (this.props.details[id] !== undefined) {
+                    taskId = this.props.details[id].taskId
                 }
                 this.props.dispatch({
                     type: 'graph/queryDetail',
                     payload: {
-                        graph: name,
+                        graphId: id,
                         taskId: taskId,
                         min: 0,
                     }
@@ -181,9 +187,9 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                 this.props.dispatch({
                     type: 'graph/queryNeibors',
                     payload: {
-                        graph: name,
+                        graphId: id,
                         taskId: taskId,
-                        node: query.name,
+                        node: query.id,
                         min: query.min,
                         distance: query.distance
                     }
@@ -201,9 +207,9 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
         }
 
         if (!loading) {
-            const target = query.ok ? tag : name
-            details[target].nodes.forEach((n: { name: string; deg: number; color: string; }) => nodes.push({
-                id: n.name,
+            const target = query.ok ? tag : id
+            details[target].nodes.forEach((n: { id: number, name: string; deg: number; color: string; }) => nodes.push({
+                id: n.id.toString(),
                 style: {
                     keyshape:
                         {
@@ -215,14 +221,14 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                     }
                 }
             }))
-            details[target].edges.forEach((e: { source: string; target: string; }) => edges.push({
-                source: e.source,
-                target: e.target,
+            details[target].edges.forEach((e: { source: number; target: number; }) => edges.push({
+                source: e.source.toString(),
+                target: e.target.toString(),
             }))
         }
 
         const getSearch = () => {
-            const resetGraph = (name: string) => {
+            const resetGraph = () => {
                 // console.log('search')
                 if (!query.name) {
                     this.setState({
@@ -234,9 +240,15 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                     })
                     return
                 }
+                const nodeID = details[id].nodes.find((node: { name: string; }) => node.name === query.name)?.id
+                if (nodeID === undefined) {
+                    message.error('图中没有该节点')
+                    return;
+                }
                 this.setState({
                     query: {
                         ...this.state.query,
+                        id: nodeID,
                         ok: true,
                         nameHint: defaultNameProps.hint,
                         nameStatus: defaultNameProps.status
@@ -247,6 +259,7 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
             return <Space direction="horizontal">
                 <Search addonBefore={<Text strong>{graph.name}</Text>} placeholder={query.nameHint}
                         status={query.nameStatus}
+                        disabled={loading}
                         onSearch={resetGraph}
                         onChange={(v) => {
                             this.state.query.name = v.target.value
@@ -259,40 +272,45 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
         }
 
         const getTabContent = () => {
-            if (tab == 'attr') {
-                return select.ok ?
-                    <Space direction="vertical">
-                        <Space><Text strong>节点：</Text><Text>{select.name}</Text></Space>
-                        <Space><Text strong>描述：</Text><Paragraph ellipsis={{
-                            rows: 3,
-                            expandable: true,
-                            symbol: 'more'
-                        }} style={{marginBottom: 0}}>{select.desc}</Paragraph></Space>
-                        <Space><Text strong>度数：</Text><Text>{select.deg}</Text></Space>
-                    </Space> :
-                    <Space direction="vertical">
-                        <Space><Text strong>图：</Text><Text>{name}</Text></Space>
-                        {
-                            query.ok && <Space direction="vertical">
-                                <Space><Text strong>子节点：</Text><Text>{query.name}</Text></Space>
-                                <Space><Text strong>距离：</Text><Text>{query.distance}</Text></Space>
-                                <Space><Text strong>最小度数：</Text><Text>{query.min}</Text></Space>
-                            </Space>
-                        }
-                        <Space><Text strong>描述：</Text><Paragraph ellipsis={{
-                            rows: 3,
-                            expandable: true,
-                            symbol: 'more'
-                        }} style={{marginBottom: 0}}>{graph.desc}</Paragraph></Space>
-                        <Space><Text strong>总节点数：</Text><Text>{graph.nodes}</Text></Space>
-                        <Space><Text strong>总边数：</Text><Text>{graph.edges}</Text></Space>
-                        <Space><Text strong>当前节点数：</Text><Text>{nodes.length}</Text></Space>
-                        <Space><Text strong>当前边数：</Text><Text>{edges.length}</Text></Space>
+            switch (tab) {
+                case 'attr':
+                    return select.ok ?
+                        <Space direction="vertical">
+                            <Space><Text strong>节点：</Text><Text>{select.name}</Text></Space>
+                            <Space><Text strong>描述：</Text><Paragraph ellipsis={{
+                                rows: 3,
+                                expandable: true,
+                                symbol: 'more'
+                            }} style={{marginBottom: 0}}>{select.desc}</Paragraph></Space>
+                            <Space><Text strong>度数：</Text><Text>{select.deg}</Text></Space>
+                        </Space> :
+                        <Space direction="vertical">
+                            <Space><Text strong>图：</Text><Text>{name}</Text></Space>
+                            {
+                                query.ok && <Space direction="vertical">
+                                    <Space><Text strong>子节点：</Text><Text>{query.name}</Text></Space>
+                                    <Space><Text strong>距离：</Text><Text>{query.distance}</Text></Space>
+                                    <Space><Text strong>最小度数：</Text><Text>{query.min}</Text></Space>
+                                </Space>
+                            }
+                            <Space><Text strong>描述：</Text><Paragraph ellipsis={{
+                                rows: 3,
+                                expandable: true,
+                                symbol: 'more'
+                            }} style={{marginBottom: 0}}>{graph.desc}</Paragraph></Space>
+                            <Space><Text strong>总节点数：</Text><Text>{graph.nodes}</Text></Space>
+                            <Space><Text strong>总边数：</Text><Text>{graph.edges}</Text></Space>
+                            <Space><Text strong>当前节点数：</Text><Text>{nodes.length}</Text></Space>
+                            <Space><Text strong>当前边数：</Text><Text>{edges.length}</Text></Space>
+                        </Space>
+                case 'sys':
+                    return <Space direction={"vertical"}>
+                        <Space><Text strong>来源：</Text><Text>文件导入</Text></Space>
                     </Space>
+                case 'algo':
+                case 'task':
+                //TODO: finish
             }
-            return <Space direction={"vertical"}>
-                <Space><Text strong>来源：</Text><Text>文件导入</Text></Space>
-            </Space>
         }
 
 
@@ -318,7 +336,12 @@ class Graph extends React.Component<{ graph: { name: string, desc: string, nodes
                                     }}>
                                         重置
                                     </Button>
-                                    <LayoutSelector options={layouts} value={type} onChange={handleChange}/>
+                                    <LayoutSelector options={layouts} value={type}
+                                                    onChange={(value: SetStateAction<string>) => {
+                                                        this.setState({
+                                                            type: value
+                                                        })
+                                                    }}/>
                                 </Space>
                             }
                         >

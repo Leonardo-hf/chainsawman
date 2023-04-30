@@ -36,7 +36,7 @@ func NewFileClient(cc grpc.ClientConnInterface) FileClient {
 
 func (c *fileClient) FetchFile(ctx context.Context, in *IDReq, opts ...grpc.CallOption) (*FileReply, error) {
 	out := new(FileReply)
-	err := c.cc.Invoke(ctx, "/file.file/fetchFile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/service.file/fetchFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *fileClient) FetchFile(ctx context.Context, in *IDReq, opts ...grpc.Call
 
 func (c *fileClient) UploadFile(ctx context.Context, in *FileUploadReq, opts ...grpc.CallOption) (*FileIDReply, error) {
 	out := new(FileIDReply)
-	err := c.cc.Invoke(ctx, "/file.file/uploadFile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/service.file/uploadFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func _File_FetchFile_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/file.file/fetchFile",
+		FullMethod: "/service.file/fetchFile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FileServer).FetchFile(ctx, req.(*IDReq))
@@ -112,7 +112,7 @@ func _File_UploadFile_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/file.file/uploadFile",
+		FullMethod: "/service.file/uploadFile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FileServer).UploadFile(ctx, req.(*FileUploadReq))
@@ -124,7 +124,7 @@ func _File_UploadFile_Handler(srv interface{}, ctx context.Context, dec func(int
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var File_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "file.file",
+	ServiceName: "service.file",
 	HandlerType: (*FileServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

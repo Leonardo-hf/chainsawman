@@ -1,14 +1,13 @@
 package logic
 
 import (
+	"chainsawman/file/cmd/rpc/types/rpc/file"
 	"context"
 	"os"
 	p "path"
 	"time"
 
 	"chainsawman/file/cmd/rpc/internal/svc"
-	"chainsawman/file/cmd/rpc/types/rpc"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -26,7 +25,7 @@ func NewUploadFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upload
 	}
 }
 
-func (l *UploadFileLogic) UploadFile(in *rpc.FileUploadReq) (*rpc.FileIDReply, error) {
+func (l *UploadFileLogic) UploadFile(in *file.FileUploadReq) (*file.FileIDReply, error) {
 	c := l.svcCtx.Config
 	id := l.svcCtx.IDGen.New()
 	name := in.Name + id
@@ -47,7 +46,7 @@ func (l *UploadFileLogic) UploadFile(in *rpc.FileUploadReq) (*rpc.FileIDReply, e
 			}
 		})
 	}
-	return &rpc.FileIDReply{
+	return &file.FileIDReply{
 		Id: name,
 	}, nil
 }

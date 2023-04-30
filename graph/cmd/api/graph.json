@@ -4,7 +4,7 @@
     "title": "",
     "version": ""
   },
-  "host": "127.0.0.1:8888",
+  "host": "127.0.0.1",
   "basePath": "/api/graph",
   "schemes": [
     "http",
@@ -17,6 +17,292 @@
     "application/json"
   ],
   "paths": {
+    "/api/graph/algo/avgCC": {
+      "get": {
+        "summary": "平均聚类系数",
+        "operationId": "algoAvgCC",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoMetricReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/betweenness": {
+      "get": {
+        "summary": "Betweenness算法",
+        "operationId": "algoBetweenness",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/closeness": {
+      "get": {
+        "summary": "Closeness算法",
+        "operationId": "algoCloseness",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/degree": {
+      "get": {
+        "summary": "度中心度算法",
+        "operationId": "algoDegree",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/louvain": {
+      "get": {
+        "summary": "Louvain聚类算法",
+        "operationId": "algoLouvain",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "maxIter",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "default": "10"
+          },
+          {
+            "name": "internalIter",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "default": "5"
+          },
+          {
+            "name": "tol",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double",
+            "default": "0.5"
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/pr": {
+      "get": {
+        "summary": "PageRank算法",
+        "operationId": "algoPageRank",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "iter",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "default": "3"
+          },
+          {
+            "name": "prob",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double",
+            "default": "0.85"
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/vr": {
+      "get": {
+        "summary": "VoteRank算法",
+        "operationId": "algoVoteRank",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "iter",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "default": "100"
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/create": {
       "post": {
         "summary": "上传图",
@@ -39,6 +325,7 @@
             }
           }
         ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -66,6 +353,7 @@
             }
           }
         ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -87,15 +375,16 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
           {
-            "name": "graph",
+            "name": "graphId",
             "in": "query",
             "required": true,
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           {
             "name": "min",
@@ -105,6 +394,7 @@
             "format": "int64"
           }
         ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -122,6 +412,7 @@
             }
           }
         },
+        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -143,21 +434,23 @@
           {
             "name": "taskId",
             "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
             "required": true,
             "type": "integer",
             "format": "int64"
           },
           {
-            "name": "graph",
+            "name": "nodeId",
             "in": "query",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "node",
-            "in": "query",
-            "required": true,
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           {
             "name": "distance",
@@ -174,6 +467,34 @@
             "format": "int64"
           }
         ],
+        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/task/getAll": {
+      "get": {
+        "summary": "获取图计算任务",
+        "operationId": "getGraphTasks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchTasksReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -181,6 +502,172 @@
     }
   },
   "definitions": {
+    "AlgoDegreeRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "AlgoDegreeRequest",
+      "required": [
+        "taskId",
+        "graphId"
+      ]
+    },
+    "AlgoLouvainRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxIter": {
+          "type": "integer",
+          "format": "int64",
+          "default": "10"
+        },
+        "internalIter": {
+          "type": "integer",
+          "format": "int64",
+          "default": "5"
+        },
+        "tol": {
+          "type": "number",
+          "format": "double",
+          "default": "0.5"
+        }
+      },
+      "title": "AlgoLouvainRequest",
+      "required": [
+        "taskId",
+        "graphId",
+        "maxIter",
+        "internalIter",
+        "tol"
+      ]
+    },
+    "AlgoMetricReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "score": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "AlgoMetricReply",
+      "required": [
+        "base",
+        "score"
+      ]
+    },
+    "AlgoPageRankRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "iter": {
+          "type": "integer",
+          "format": "int64",
+          "default": "3"
+        },
+        "prob": {
+          "type": "number",
+          "format": "double",
+          "default": "0.85"
+        }
+      },
+      "title": "AlgoPageRankRequest",
+      "required": [
+        "taskId",
+        "graphId",
+        "iter",
+        "prob"
+      ]
+    },
+    "AlgoRankReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "ranks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Rank"
+          }
+        },
+        "file": {
+          "type": "string"
+        }
+      },
+      "title": "AlgoRankReply",
+      "required": [
+        "base",
+        "ranks",
+        "file"
+      ]
+    },
+    "AlgoRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "AlgoRequest",
+      "required": [
+        "taskId",
+        "graphId"
+      ]
+    },
+    "AlgoVoteRankRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "iter": {
+          "type": "integer",
+          "format": "int64",
+          "default": "100"
+        }
+      },
+      "title": "AlgoVoteRankRequest",
+      "required": [
+        "taskId",
+        "graphId",
+        "iter"
+      ]
+    },
     "BaseReply": {
       "type": "object",
       "properties": {
@@ -215,23 +702,26 @@
     "DropRequest": {
       "type": "object",
       "properties": {
-        "graph": {
-          "type": "string"
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "DropRequest",
       "required": [
-        "graph"
+        "graphId"
       ]
     },
     "Edge": {
       "type": "object",
       "properties": {
         "source": {
-          "type": "string"
+          "type": "integer",
+          "format": "int64"
         },
         "target": {
-          "type": "string"
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "Edge",
@@ -243,6 +733,14 @@
     "Graph": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
         "name": {
           "type": "string"
         },
@@ -260,6 +758,8 @@
       },
       "title": "Graph",
       "required": [
+        "id",
+        "status",
         "name",
         "desc",
         "nodes",
@@ -269,6 +769,10 @@
     "Node": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
         "name": {
           "type": "string"
         },
@@ -282,9 +786,44 @@
       },
       "title": "Node",
       "required": [
+        "id",
         "name",
         "desc",
         "deg"
+      ]
+    },
+    "Param": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "title": "Param",
+      "required": [
+        "key",
+        "value"
+      ]
+    },
+    "Rank": {
+      "type": "object",
+      "properties": {
+        "nodeId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "score": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "Rank",
+      "required": [
+        "nodeId",
+        "score"
       ]
     },
     "SearchAllGraphReply": {
@@ -385,11 +924,13 @@
           "type": "integer",
           "format": "int64"
         },
-        "graph": {
-          "type": "string"
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
         },
-        "node": {
-          "type": "string"
+        "nodeId": {
+          "type": "integer",
+          "format": "int64"
         },
         "distance": {
           "type": "integer",
@@ -402,9 +943,8 @@
       },
       "title": "SearchNodeRequest",
       "required": [
-        "taskId",
-        "graph",
-        "node",
+        "graphId",
+        "nodeId",
         "distance",
         "min"
       ]
@@ -416,8 +956,9 @@
           "type": "integer",
           "format": "int64"
         },
-        "graph": {
-          "type": "string"
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
         },
         "min": {
           "type": "integer",
@@ -426,9 +967,80 @@
       },
       "title": "SearchRequest",
       "required": [
-        "taskId",
-        "graph",
+        "graphId",
         "min"
+      ]
+    },
+    "SearchTasksReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task"
+          }
+        }
+      },
+      "title": "SearchTasksReply",
+      "required": [
+        "base",
+        "tasks"
+      ]
+    },
+    "SearchTasksRequest": {
+      "type": "object",
+      "properties": {
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "SearchTasksRequest",
+      "required": [
+        "graphId"
+      ]
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "idf": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "updateTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "req": {
+          "type": "object"
+        },
+        "res": {
+          "type": "object"
+        }
+      },
+      "title": "Task",
+      "required": [
+        "idf",
+        "desc",
+        "createTime",
+        "updateTime",
+        "status",
+        "req",
+        "res"
       ]
     },
     "UploadRequest": {
@@ -441,16 +1053,22 @@
         "graph": {
           "type": "string"
         },
+        "desc": {
+          "type": "string"
+        },
         "nodeId": {
           "type": "string"
         },
         "edgeId": {
           "type": "string"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "UploadRequest",
       "required": [
-        "taskId",
         "graph",
         "nodeId",
         "edgeId"

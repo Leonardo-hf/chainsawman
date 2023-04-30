@@ -58,9 +58,11 @@ func main() {
 
 	fieldOpts := []gen.ModelOpt{autoUpdateTimeField, autoCreateTimeField}
 
-	allModel := g.GenerateAllTable(fieldOpts...)
+	graphModel := g.GenerateModel("graph", fieldOpts...)
+	taskModel := g.GenerateModel("task", fieldOpts...)
 
-	g.ApplyBasic(allModel...)
+	//allModel := g.GenerateAllTable(fieldOpts...)
+	g.ApplyBasic(graphModel, taskModel)
 
 	g.Execute()
 }
