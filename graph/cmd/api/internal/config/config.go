@@ -2,6 +2,7 @@ package config
 
 import (
 	"chainsawman/graph/db"
+	"chainsawman/graph/mq"
 	"github.com/zeromicro/go-zero/rest"
 )
 
@@ -11,4 +12,6 @@ type Config struct {
 	Nebula db.NebulaConfig
 	Redis  db.RedisConfig
 	Mysql  db.MysqlConfig
+
+	TaskMq mq.TaskMqConfig
 }

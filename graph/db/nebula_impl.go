@@ -36,6 +36,28 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 	}
 }
 
+func (n *NebulaClientImpl) CreateGraph(graph int64) error {
+	session, err := n.getSession()
+	defer func() { session.Release() }()
+	if err != nil {
+		return err
+	}
+	//_, _ = session.Execute("ADD HOSTS 127.0.0.1:9779;")
+	create := fmt.Sprintf(
+		"CREATE SPACE IF NOT EXISTS G%v (vid_type = FIXED_STRING(30));"+
+			"USE G%v;"+
+			"CREATE TAG IF NOT EXISTS snode(name string, intro string, deg int);"+
+			"CREATE TAG INDEX IF NOT EXISTS snode_tag_index on snode();"+
+			"CREATE EDGE IF NOT EXISTS sedge();"+
+			"CREATE EDGE INDEX IF NOT EXISTS sedge_tag_index on sedge();",
+		graph, graph)
+	res, err := session.Execute(create)
+	if !res.IsSucceed() {
+		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+	}
+	return err
+}
+
 func (n *NebulaClientImpl) DropGraph(graph int64) error {
 	session, err := n.getSession()
 	defer func() { session.Release() }()

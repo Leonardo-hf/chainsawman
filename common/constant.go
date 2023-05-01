@@ -1,7 +1,7 @@
 package common
 
 import (
-	"chainsawman/consumer/types"
+	"chainsawman/consumer/task/types"
 
 	"github.com/zeromicro/go-zero/core/jsonx"
 )
@@ -10,11 +10,11 @@ import (
 type TaskIdf int
 
 const (
-	GraphCreate = iota
+	GraphCreate TaskIdf = iota + 1
 	GraphGet
 	GraphNeighbors
 
-	AlgoDegree TaskIdf = iota + 2<<10
+	AlgoDegree = iota + 2<<10
 	AlgoPagerank
 	AlgoBetweenness
 	AlgoCloseness

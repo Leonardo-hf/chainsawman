@@ -77,6 +77,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/task/getAll",
 				Handler: getGraphTasksHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/createEmpty",
+				Handler: createEmptyGraphHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/api/graph"),
 	)

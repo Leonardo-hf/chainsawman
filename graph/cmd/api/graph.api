@@ -110,6 +110,11 @@ type (
 		GraphID int64 `form:"graphId"`
 	}
 
+	UploadEmptyRequest {
+		Graph string `form:"graph"`
+		Desc  string `form:"desc,optional"`
+	}
+
 	UploadRequest {
 		TaskID int64  `form:"taskId,optional"`
 		Graph  string `form:"graph"`
@@ -207,4 +212,8 @@ service graph {
 	@doc "获取图计算任务"
 	@handler getGraphTasks
 	get /task/getAll (SearchTasksRequest) returns (SearchTasksReply)
+	
+	@doc "创建空图"
+	@handler createEmptyGraph
+	post /createEmpty (UploadEmptyRequest) returns (SearchGraphReply)
 }

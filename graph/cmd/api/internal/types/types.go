@@ -111,6 +111,11 @@ type DropRequest struct {
 	GraphID int64 `form:"graphId"`
 }
 
+type UploadEmptyRequest struct {
+	Graph string `form:"graph"`
+	Desc  string `form:"desc,optional"`
+}
+
 type UploadRequest struct {
 	TaskID  int64  `form:"taskId,optional"`
 	Graph   string `form:"graph"`

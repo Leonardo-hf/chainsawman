@@ -22,10 +22,12 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
   * `cd algo`
   * `mvn clean compile dependency:properties exec:exec@server`
 * front, front-end, allow CRUD and inspect for graph
+  * `npm run install`
+  * `npm run dev`
 
 ### TODO LIST:
-* support for graph algorithm
 * multiple data source, connector
   * a default datasource for python requirements updated daily
-* hdfs or cloud rds for file service
-* register algo rpc on ETCD, or use kubernetes
+* hdfs, minio or cloud rds for file service
+* deploy by kubernetes
+* use openfass to deploy consumers
