@@ -14,6 +14,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
+// TODO: 很多问题没有解决
 func main() {
 	flag.Parse()
 	var configFile = flag.String("f", "consumer/connector/etc/consumer.yaml", "the config api")

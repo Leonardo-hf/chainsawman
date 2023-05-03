@@ -40,6 +40,21 @@ type (
 		Score  float64 `json:"score"`
 	}
 
+	Algo {
+		Id       int64      `json:"id"`
+		Name     string     `json:"name"`
+		Desc     string     `json:"desc"`
+		IsCustom bool       `json:"isCustom"`
+		Type     int64      `json:"type"`
+		Params   []*Element `json:"params"`
+	}
+
+	Element {
+		Key  string `json:"key"`
+		KeyDesc string `json:"keyDesc"`
+		Type int64  `json:"type"`
+	}
+
 	BaseReply {
 		Status     int64             `json:"status"`
 		Msg        string            `json:"msg"`
@@ -85,6 +100,11 @@ type (
 	AlgoMetricReply {
 		Base  *BaseReply `json:"base"`
 		Score float64    `json:"score"`
+	}
+
+	AlgoReply {
+		Base  *BaseReply `json:"base"`
+		Algos []*Algo    `json:"algos"`
 	}
 
 	SearchTasksRequest {
@@ -216,4 +236,8 @@ service graph {
 	@doc "创建空图"
 	@handler createEmptyGraph
 	post /createEmpty (UploadEmptyRequest) returns (SearchGraphReply)
+	
+	@doc "查询算法"
+	@handler algoGetAll
+	get /algo/getAll returns (AlgoReply);
 }

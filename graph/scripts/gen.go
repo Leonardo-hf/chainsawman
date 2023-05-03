@@ -1,23 +1,19 @@
 package main
 
 import (
-	"chainsawman/consumer/config"
-
 	"flag"
 	"fmt"
 
-	"github.com/zeromicro/go-zero/core/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
+const addr = "root:12345678@(localhost:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"
+
 func main() {
 	flag.Parse()
-	var configFile = flag.String("f", "graph/cmd/api/etc/graph.yaml", "the config api")
-	var c config.Config
-	_ = conf.Load(*configFile, &c)
-	db, err := gorm.Open(mysql.Open(c.Mysql.Addr))
+	db, err := gorm.Open(mysql.Open(addr))
 	if err != nil {
 		panic(fmt.Errorf("[db] cannot establish db connection, err: %v", err))
 	}
@@ -58,7 +54,7 @@ func main() {
 
 	fieldOpts := []gen.ModelOpt{autoUpdateTimeField, autoCreateTimeField}
 
-	graphModel := g.GenerateModel("graph", fieldOpts...)
+	graphModel := g.GenerateModel("graphs", fieldOpts...)
 	taskModel := g.GenerateModel("task", fieldOpts...)
 
 	//allModel := g.GenerateAllTable(fieldOpts...)

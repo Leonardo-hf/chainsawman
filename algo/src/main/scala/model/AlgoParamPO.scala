@@ -5,6 +5,7 @@ import scalikejdbc._
 case class AlgoParamPO(id: Long = 0L,
                        algoid: Long = 0L,
                        fieldname: String = "",
+                       fieldnote: String = "",
                        fieldtype: Int = 0
                       )
 
@@ -26,6 +27,7 @@ object AlgoParamPO extends SQLSyntaxSupport[AlgoParamPO] {
       rs.long(o.id),
       rs.long(o.algoid),
       rs.string(o.fieldname),
+      rs.string(o.fieldnote),
       rs.int(o.fieldtype)
     )
   }

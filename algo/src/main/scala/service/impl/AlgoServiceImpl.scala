@@ -20,7 +20,7 @@ import scala.language.postfixOps
 class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   private implicit val sys: ActorSystem[_] = system
 
-  private val preview = 100
+  private val preview = 10
 
   private val timeout = Timeout(10 seconds)
 
@@ -31,11 +31,11 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    val (_, pErr) = ClientConfig.mysqlClient.multiCreateAlgoParams(in.params.map(e => AlgoParamPO(algoid = algoID, fieldname = e.key, fieldtype = e.`type`.value)).seq)
+    val (_, pErr) = ClientConfig.mysqlClient.multiCreateAlgoParams(in.params.map(e => AlgoParamPO(algoid = algoID, fieldname = e.key, fieldnote = e.keyDesc, fieldtype = e.`type`.value)).seq)
     if (pErr.nonEmpty) {
       return Future.failed(pErr.get)
     }
-    Future.successful(AlgoReply(algos = List.apply(Algo(name = in.name, desc = in.desc, `type` = in.`type`, isCustom = true, params = in.params))))
+    Future.successful(AlgoReply(algos = List.apply(Algo(name = in.name, desc = in.desc, `type` = in.`type`, params = in.params))))
   }
 
   override def queryAlgo(in: Empty): Future[AlgoReply] = {
@@ -43,8 +43,8 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    Future.successful(AlgoReply(algos = res.map(a => Algo(name = a.name, desc = a.note.get, `type` = Algo.Type.fromValue(a.`type`), isCustom = a.iscustom,
-      params = a.params.map(p => Element.apply(key = p.fieldname, `type` = Element.Type.fromValue(p.fieldtype)))))))
+    Future.successful(AlgoReply(algos = res.map(a => Algo(name = a.name, desc = a.note.get, `type` = Algo.Type.fromValue(a.`type`),
+      params = a.params.map(p => Element.apply(key = p.fieldname, keyDesc = p.fieldnote, `type` = Element.Type.fromValue(p.fieldtype)))))))
   }
 
   override def dropAlgo(in: DropAlgoReq): Future[AlgoReply] = {

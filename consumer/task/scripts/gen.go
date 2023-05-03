@@ -1,30 +1,26 @@
 package main
 
 import (
-	"chainsawman/consumer/task/config"
-
 	"flag"
 	"fmt"
 
-	"github.com/zeromicro/go-zero/core/conf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
+const addr = "root:12345678@(localhost:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"
+
 func main() {
 	flag.Parse()
-	var configFile = flag.String("f", "consumer/etc/consumer.yaml", "the config api")
-	var c config.Config
-	conf.MustLoad(*configFile, &c)
-	db, err := gorm.Open(mysql.Open(c.Mysql.Addr))
+	db, err := gorm.Open(mysql.Open(addr))
 	if err != nil {
 		panic(fmt.Errorf("[db] cannot establish db connection, err: %v", err))
 	}
 
 	g := gen.NewGenerator(gen.Config{
-		OutPath:           "./consumer/db/query",
-		ModelPkgPath:      "./consumer/model",
+		OutPath:           "./consumer/task/db/query",
+		ModelPkgPath:      "./consumer/task/model",
 		Mode:              gen.WithDefaultQuery | gen.WithoutContext | gen.WithQueryInterface,
 		FieldNullable:     false,
 		FieldCoverable:    false,
@@ -58,9 +54,11 @@ func main() {
 
 	fieldOpts := []gen.ModelOpt{autoUpdateTimeField, autoCreateTimeField}
 
-	allModel := g.GenerateAllTable(fieldOpts...)
+	graphModel := g.GenerateModel("graphs", fieldOpts...)
+	taskModel := g.GenerateModel("task", fieldOpts...)
 
-	g.ApplyBasic(allModel...)
+	//allModel := g.GenerateAllTable(fieldOpts...)
+	g.ApplyBasic(graphModel, taskModel)
 
 	g.Execute()
 }

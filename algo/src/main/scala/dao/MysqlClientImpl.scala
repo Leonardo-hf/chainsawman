@@ -40,7 +40,6 @@ object MysqlClientImpl extends MysqlClient {
           insert.into(AlgoPO).namedValues(
             a.name -> algo.name,
             a.note -> algo.note,
-            a.iscustom -> true,
             a.`type` -> algo.`type`,
           )
         }.updateAndReturnGeneratedKey.apply()
@@ -48,25 +47,6 @@ object MysqlClientImpl extends MysqlClient {
       }
     } catch {
       case e: Exception => (0, Option.apply(e))
-    }
-  }
-
-  override def queryCustomAlgo(algoID: Long): (model.AlgoPO, Option[Exception]) = {
-    try {
-      DB autoCommit { implicit s =>
-        val a = AlgoPO.syntax("a")
-        val res: Option[AlgoPO] = withSQL {
-          select.
-            from(AlgoPO as a).
-            where.
-            eq(a.id, algoID).
-            and.
-            eq(a.iscustom, true)
-        }.map(AlgoPO(a)).first.apply()
-        (res.get, Option.empty)
-      }
-    } catch {
-      case e: Exception => (AlgoPO(), Option.apply(e))
     }
   }
 

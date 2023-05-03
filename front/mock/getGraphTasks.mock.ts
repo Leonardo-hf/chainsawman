@@ -1,162 +1,63 @@
 // @ts-ignore
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 
 export default {
-  'GET /api/graph/task/getAll': (req: Request, res: Response) => {
-    res.status(200).send({
-      base: {
-        status: 81,
-        msg: '并所记路织江器入身本等没标众求。',
-        taskId: 66,
-        taskStatus: 80,
-        extra: {},
-      },
-      tasks: [
-        {
-          idf: 92,
-          desc: '如志了响四则毛门到集置决究广造。',
-          createTime: 93,
-          updateTime: 72,
-          status: 85,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 92,
-          desc: '认先结高老别金加命问区非格向府学。',
-          createTime: 61,
-          updateTime: 71,
-          status: 64,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 87,
-          desc: '被青说安它级表片和定象对六即别化家。',
-          createTime: 92,
-          updateTime: 74,
-          status: 95,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 75,
-          desc: '产教近提五条情水力系务院压般去。',
-          createTime: 92,
-          updateTime: 78,
-          status: 91,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 67,
-          desc: '验党则增知增过加油且段因一百受干区果。',
-          createTime: 71,
-          updateTime: 96,
-          status: 96,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 77,
-          desc: '我多外其光要里专上达间始持边。',
-          createTime: 78,
-          updateTime: 64,
-          status: 98,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 85,
-          desc: '进应需水么严好级导律精又。',
-          createTime: 81,
-          updateTime: 61,
-          status: 92,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 90,
-          desc: '完已约正至西证质变已农共真在。',
-          createTime: 65,
-          updateTime: 87,
-          status: 94,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 69,
-          desc: '技革每广县如小无加向设共与保会了现。',
-          createTime: 85,
-          updateTime: 77,
-          status: 91,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 77,
-          desc: '广反进广关团置响际书划研展利。',
-          createTime: 64,
-          updateTime: 78,
-          status: 77,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 65,
-          desc: '气指革党养县南界素法日已引复且结。',
-          createTime: 65,
-          updateTime: 70,
-          status: 88,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 93,
-          desc: '眼什些角空和只边影油研始其家公比去关。',
-          createTime: 79,
-          updateTime: 78,
-          status: 89,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 84,
-          desc: '机论家论较例经制方会历矿生别。',
-          createTime: 84,
-          updateTime: 96,
-          status: 96,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 67,
-          desc: '强放造不便水转体方长西世易型发。',
-          createTime: 63,
-          updateTime: 82,
-          status: 65,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 78,
-          desc: '其社府须压身值引也位该使划四火社很。',
-          createTime: 76,
-          updateTime: 86,
-          status: 78,
-          req: {},
-          res: {},
-        },
-        {
-          idf: 75,
-          desc: '因铁法原低件题厂科选者需际见社况音。',
-          createTime: 95,
-          updateTime: 71,
-          status: 75,
-          req: {},
-          res: {},
-        },
-      ],
-    });
-  },
+    'GET /api/graph/task/getAll': (req: Request, res: Response) => {
+        res.status(200).send({
+            base: {
+                status: 81,
+                msg: '并所记路织江器入身本等没标众求。',
+                taskId: 66,
+                taskStatus: 80,
+                extra: {},
+            },
+            tasks: [
+                {
+                    idf: 0,
+                    desc: 'degree',
+                    createTime: 93,
+                    updateTime: 72,
+                    status: 1,
+                    req: {},
+                    res: {
+                        ranks: [
+                            {
+                                nodeID: 64,
+                                score: 93
+                            },
+                            {
+                                nodeID: 74,
+                                score: 91
+                            },
+                            {
+                                nodeID: 75,
+                                score: 88
+                            },
+                        ],
+                        file: 'betweenness108364e3-3282-4e2e-8704-6d0e203739c5.csv'
+                    },
+                },
+                {
+                    idf: 1,
+                    desc: 'average clustering coefficient',
+                    createTime: 61,
+                    updateTime: 71,
+                    status: 1,
+                    req: {},
+                    res: {
+                        score: 100
+                    },
+                },
+                {
+                    idf: 2,
+                    desc: 'louvain',
+                    createTime: 92,
+                    updateTime: 74,
+                    status: 0,
+                    req: {},
+                    res: {},
+                },
+            ],
+        });
+    },
 };

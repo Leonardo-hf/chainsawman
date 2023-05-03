@@ -8,7 +8,8 @@ message Empty{}
 
 message Element{
   string key = 1;
-  Type type = 2;
+  string keyDesc = 2;
+  Type type = 3;
   enum Type{
     INT64 = 0;
     DOUBLE = 1;
@@ -38,15 +39,14 @@ message Algo{
   int64 id = 1;
   string name = 2;
   string desc = 3;
-  bool isCustom = 4;
-  Type type = 5;
+  Type type = 4;
   enum Type{
     Rank = 0;
     Cluster = 1;
     Metrics = 2;
     Others = 3;
   }
-  repeated Element params = 6;
+  repeated Element params = 5;
 }
 
 message Rank{

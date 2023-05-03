@@ -82,6 +82,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/createEmpty",
 				Handler: createEmptyGraphHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/algo/getAll",
+				Handler: algoGetAllHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/api/graph"),
 	)

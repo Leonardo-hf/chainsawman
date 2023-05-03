@@ -42,6 +42,20 @@ type Rank struct {
 	Score  float64 `json:"score"`
 }
 
+type Algo struct {
+	Id       int64      `json:"id"`
+	Name     string     `json:"name"`
+	Desc     string     `json:"desc"`
+	IsCustom bool       `json:"isCustom"`
+	Type     int64      `json:"type"`
+	Params   []*Element `json:"params"`
+}
+
+type Element struct {
+	Key  string `json:"key"`
+	Type int64  `json:"type"`
+}
+
 type BaseReply struct {
 	Status     int64             `json:"status"`
 	Msg        string            `json:"msg"`
@@ -87,6 +101,11 @@ type AlgoRankReply struct {
 type AlgoMetricReply struct {
 	Base  *BaseReply `json:"base"`
 	Score float64    `json:"score"`
+}
+
+type AlgoReply struct {
+	Base  *BaseReply `json:"base"`
+	Algos []*Algo    `json:"algos"`
 }
 
 type SearchTasksRequest struct {

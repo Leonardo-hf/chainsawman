@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"chainsawman/consumer/model"
+	"chainsawman/consumer/task/model"
 )
 
 func newGraph(db *gorm.DB, opts ...gen.DOOption) graph {
@@ -27,12 +27,12 @@ func newGraph(db *gorm.DB, opts ...gen.DOOption) graph {
 
 	tableName := _graph.graphDo.TableName()
 	_graph.ALL = field.NewAsterisk(tableName)
+	_graph.ID = field.NewInt64(tableName, "id")
 	_graph.Name = field.NewString(tableName, "name")
-	_graph.Nodes = field.NewInt64(tableName, "nodes")
-	_graph.Edges = field.NewInt64(tableName, "edges")
 	_graph.Desc = field.NewString(tableName, "desc")
 	_graph.Status = field.NewInt64(tableName, "status")
-	_graph.ID = field.NewInt64(tableName, "id")
+	_graph.Nodes = field.NewInt64(tableName, "nodes")
+	_graph.Edges = field.NewInt64(tableName, "edges")
 
 	_graph.fillFieldMap()
 
@@ -43,12 +43,12 @@ type graph struct {
 	graphDo
 
 	ALL    field.Asterisk
+	ID     field.Int64
 	Name   field.String
-	Nodes  field.Int64
-	Edges  field.Int64
 	Desc   field.String
 	Status field.Int64
-	ID     field.Int64
+	Nodes  field.Int64
+	Edges  field.Int64
 
 	fieldMap map[string]field.Expr
 }
@@ -65,12 +65,12 @@ func (g graph) As(alias string) *graph {
 
 func (g *graph) updateTableName(table string) *graph {
 	g.ALL = field.NewAsterisk(table)
+	g.ID = field.NewInt64(table, "id")
 	g.Name = field.NewString(table, "name")
-	g.Nodes = field.NewInt64(table, "nodes")
-	g.Edges = field.NewInt64(table, "edges")
 	g.Desc = field.NewString(table, "desc")
 	g.Status = field.NewInt64(table, "status")
-	g.ID = field.NewInt64(table, "id")
+	g.Nodes = field.NewInt64(table, "nodes")
+	g.Edges = field.NewInt64(table, "edges")
 
 	g.fillFieldMap()
 
@@ -88,12 +88,12 @@ func (g *graph) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 
 func (g *graph) fillFieldMap() {
 	g.fieldMap = make(map[string]field.Expr, 6)
+	g.fieldMap["id"] = g.ID
 	g.fieldMap["name"] = g.Name
-	g.fieldMap["nodes"] = g.Nodes
-	g.fieldMap["edges"] = g.Edges
 	g.fieldMap["desc"] = g.Desc
 	g.fieldMap["status"] = g.Status
-	g.fieldMap["id"] = g.ID
+	g.fieldMap["nodes"] = g.Nodes
+	g.fieldMap["edges"] = g.Edges
 }
 
 func (g graph) clone(db *gorm.DB) graph {

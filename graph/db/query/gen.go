@@ -16,49 +16,39 @@ import (
 )
 
 var (
-	Q         = new(Query)
-	Algo      *algo
-	AlgoParam *algoParam
-	Graph     *graph
-	Task      *task
+	Q     = new(Query)
+	Graph *graph
+	Task  *task
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
-	Algo = &Q.Algo
-	AlgoParam = &Q.AlgoParam
 	Graph = &Q.Graph
 	Task = &Q.Task
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:        db,
-		Algo:      newAlgo(db, opts...),
-		AlgoParam: newAlgoParam(db, opts...),
-		Graph:     newGraph(db, opts...),
-		Task:      newTask(db, opts...),
+		db:    db,
+		Graph: newGraph(db, opts...),
+		Task:  newTask(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Algo      algo
-	AlgoParam algoParam
-	Graph     graph
-	Task      task
+	Graph graph
+	Task  task
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		Algo:      q.Algo.clone(db),
-		AlgoParam: q.AlgoParam.clone(db),
-		Graph:     q.Graph.clone(db),
-		Task:      q.Task.clone(db),
+		db:    db,
+		Graph: q.Graph.clone(db),
+		Task:  q.Task.clone(db),
 	}
 }
 
@@ -72,27 +62,21 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		Algo:      q.Algo.replaceDB(db),
-		AlgoParam: q.AlgoParam.replaceDB(db),
-		Graph:     q.Graph.replaceDB(db),
-		Task:      q.Task.replaceDB(db),
+		db:    db,
+		Graph: q.Graph.replaceDB(db),
+		Task:  q.Task.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Algo      IAlgoDo
-	AlgoParam IAlgoParamDo
-	Graph     IGraphDo
-	Task      ITaskDo
+	Graph IGraphDo
+	Task  ITaskDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Algo:      q.Algo.WithContext(ctx),
-		AlgoParam: q.AlgoParam.WithContext(ctx),
-		Graph:     q.Graph.WithContext(ctx),
-		Task:      q.Task.WithContext(ctx),
+		Graph: q.Graph.WithContext(ctx),
+		Task:  q.Task.WithContext(ctx),
 	}
 }
 

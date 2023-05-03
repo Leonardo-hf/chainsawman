@@ -45,7 +45,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -79,7 +78,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -113,7 +111,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -147,7 +144,23 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/getAll": {
+      "get": {
+        "summary": "查询算法",
+        "operationId": "algoGetAll",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoReply"
+            }
+          }
+        },
         "tags": [
           "graph"
         ]
@@ -205,7 +218,6 @@
             "default": "0.5"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -255,7 +267,6 @@
             "default": "0.85"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -297,7 +308,6 @@
             "default": "100"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -325,7 +335,33 @@
             }
           }
         ],
-        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/createEmpty": {
+      "post": {
+        "summary": "创建空图",
+        "operationId": "createEmptyGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchGraphReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UploadEmptyRequest"
+            }
+          }
+        ],
         "tags": [
           "graph"
         ]
@@ -353,7 +389,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -394,7 +429,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -412,7 +446,6 @@
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -467,7 +500,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -494,7 +526,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -502,6 +533,44 @@
     }
   },
   "definitions": {
+    "Algo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "isCustom": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Element"
+          }
+        }
+      },
+      "title": "Algo",
+      "required": [
+        "id",
+        "name",
+        "desc",
+        "isCustom",
+        "type",
+        "params"
+      ]
+    },
     "AlgoDegreeRequest": {
       "type": "object",
       "properties": {
@@ -626,6 +695,25 @@
         "file"
       ]
     },
+    "AlgoReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "algos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Algo"
+          }
+        }
+      },
+      "title": "AlgoReply",
+      "required": [
+        "base",
+        "algos"
+      ]
+    },
     "AlgoRequest": {
       "type": "object",
       "properties": {
@@ -728,6 +816,23 @@
       "required": [
         "source",
         "target"
+      ]
+    },
+    "Element": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Element",
+      "required": [
+        "key",
+        "type"
       ]
     },
     "Graph": {
@@ -1041,6 +1146,21 @@
         "status",
         "req",
         "res"
+      ]
+    },
+    "UploadEmptyRequest": {
+      "type": "object",
+      "properties": {
+        "graph": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        }
+      },
+      "title": "UploadEmptyRequest",
+      "required": [
+        "graph"
       ]
     },
     "UploadRequest": {

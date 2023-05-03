@@ -28,7 +28,7 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 		return 0, err
 	}
 	// 发布任务
-	err = svcCtx.RedisClient.ProduceTaskMsg(ctx, &model.KVTask{
+	err = svcCtx.TaskMq.ProduceTaskMsg(ctx, &model.KVTask{
 		Id:         task.ID,
 		Params:     task.Params,
 		Status:     model.KVTask_New,
