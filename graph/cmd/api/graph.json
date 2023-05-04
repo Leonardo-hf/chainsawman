@@ -4,7 +4,7 @@
     "title": "",
     "version": ""
   },
-  "host": "127.0.0.1",
+  "host": "127.0.0.1:8888",
   "basePath": "/api/graph",
   "schemes": [
     "http",
@@ -33,7 +33,7 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
@@ -66,7 +66,7 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
@@ -99,7 +99,7 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
@@ -132,7 +132,7 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
@@ -182,7 +182,7 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
@@ -239,7 +239,7 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
@@ -288,7 +288,7 @@
           {
             "name": "taskId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           },
@@ -505,6 +505,33 @@
         ]
       }
     },
+    "/api/graph/task/drop": {
+      "post": {
+        "summary": "删除任务",
+        "operationId": "dropTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DropTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/task/getAll": {
       "get": {
         "summary": "获取图计算任务",
@@ -585,7 +612,6 @@
       },
       "title": "AlgoDegreeRequest",
       "required": [
-        "taskId",
         "graphId"
       ]
     },
@@ -618,7 +644,6 @@
       },
       "title": "AlgoLouvainRequest",
       "required": [
-        "taskId",
         "graphId",
         "maxIter",
         "internalIter",
@@ -666,7 +691,6 @@
       },
       "title": "AlgoPageRankRequest",
       "required": [
-        "taskId",
         "graphId",
         "iter",
         "prob"
@@ -728,7 +752,6 @@
       },
       "title": "AlgoRequest",
       "required": [
-        "taskId",
         "graphId"
       ]
     },
@@ -751,7 +774,6 @@
       },
       "title": "AlgoVoteRankRequest",
       "required": [
-        "taskId",
         "graphId",
         "iter"
       ]
@@ -800,6 +822,16 @@
         "graphId"
       ]
     },
+    "DropTaskRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "DropTaskRequest"
+    },
     "Edge": {
       "type": "object",
       "properties": {
@@ -824,6 +856,9 @@
         "key": {
           "type": "string"
         },
+        "keyDesc": {
+          "type": "string"
+        },
         "type": {
           "type": "integer",
           "format": "int64"
@@ -832,6 +867,7 @@
       "title": "Element",
       "required": [
         "key",
+        "keyDesc",
         "type"
       ]
     },
@@ -1111,6 +1147,10 @@
     "Task": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
         "idf": {
           "type": "integer",
           "format": "int64"
@@ -1139,6 +1179,7 @@
       },
       "title": "Task",
       "required": [
+        "id",
         "idf",
         "desc",
         "createTime",

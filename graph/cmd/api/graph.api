@@ -26,6 +26,7 @@ type (
 	}
 
 	Task {
+		Id         int64       `json:"id"`
 		Idf        int64       `json:"idf"`
 		Desc       string      `json:"desc"`
 		CreateTime int64       `json:"createTime"`
@@ -50,9 +51,9 @@ type (
 	}
 
 	Element {
-		Key  string `json:"key"`
+		Key     string `json:"key"`
 		KeyDesc string `json:"keyDesc"`
-		Type int64  `json:"type"`
+		Type    int64  `json:"type"`
 	}
 
 	BaseReply {
@@ -127,53 +128,57 @@ type (
 	}
 
 	DropRequest {
-		GraphID int64 `form:"graphId"`
+		GraphID int64 `json:"graphId"`
 	}
 
 	UploadEmptyRequest {
-		Graph string `form:"graph"`
-		Desc  string `form:"desc,optional"`
+		Graph string `json:"graph"`
+		Desc  string `json:"desc,optional"`
 	}
 
 	UploadRequest {
-		TaskID int64  `form:"taskId,optional"`
-		Graph  string `form:"graph"`
-		Desc   string `form:"desc,optional"`
-		NodeID string `form:"nodeId"`
-		EdgeID string `form:"edgeId"`
+		TaskID int64  `json:"taskId,optional"`
+		Graph  string `json:"graph"`
+		Desc   string `json:"desc,optional"`
+		NodeID string `json:"nodeId"`
+		EdgeID string `json:"edgeId"`
 
-		GraphID int64 `form:"graphId,optional"`
+		GraphID int64 `json:"graphId,optional"`
 	}
 
 	AlgoRequest {
-		TaskID  int64 `form:"taskId"`
+		TaskID  int64 `form:"taskId,optional"`
 		GraphID int64 `form:"graphId"`
 	}
 
 	AlgoDegreeRequest {
-		TaskID  int64 `form:"taskId"`
+		TaskID  int64 `form:"taskId,optional"`
 		GraphID int64 `form:"graphId"`
 	}
 
 	AlgoPageRankRequest {
-		TaskID  int64   `form:"taskId"`
+		TaskID  int64   `form:"taskId,optional"`
 		GraphID int64   `form:"graphId"`
 		Iter    int64   `form:"iter,default=3"`
 		Prob    float64 `form:"prob,default=0.85"`
 	}
 
 	AlgoVoteRankRequest {
-		TaskID  int64 `form:"taskId"`
+		TaskID  int64 `form:"taskId,optional"`
 		GraphID int64 `form:"graphId"`
 		Iter    int64 `form:"iter,default=100"`
 	}
 
 	AlgoLouvainRequest {
-		TaskID       int64   `form:"taskId"`
+		TaskID       int64   `form:"taskId,optional"`
 		GraphID      int64   `form:"graphId"`
 		MaxIter      int64   `form:"maxIter,default=10"`
 		InternalIter int64   `form:"internalIter,default=5"`
 		Tol          float64 `form:"tol,default=0.5"`
+	}
+
+	DropTaskRequest {
+		TaskID int64 `json:"taskId,optional"`
 	}
 )
 
@@ -233,11 +238,16 @@ service graph {
 	@handler getGraphTasks
 	get /task/getAll (SearchTasksRequest) returns (SearchTasksReply)
 	
+	@doc "删除任务"
+	@handler dropTask
+	post /task/drop (DropTaskRequest) returns (BaseReply)
+	
 	@doc "创建空图"
 	@handler createEmptyGraph
 	post /createEmpty (UploadEmptyRequest) returns (SearchGraphReply)
 	
 	@doc "查询算法"
 	@handler algoGetAll
-	get /algo/getAll returns (AlgoReply);
+	get /algo/getAll returns (AlgoReply)
+	
 }

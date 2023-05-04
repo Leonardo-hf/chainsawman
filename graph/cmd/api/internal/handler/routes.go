@@ -79,6 +79,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/task/drop",
+				Handler: dropTaskHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/createEmpty",
 				Handler: createEmptyGraphHandler(serverCtx),
 			},

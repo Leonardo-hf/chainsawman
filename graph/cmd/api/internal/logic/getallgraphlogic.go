@@ -31,11 +31,12 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err e
 	resp = &types.SearchAllGraphReply{}
 	for _, graph := range graphs {
 		resp.Graphs = append(resp.Graphs, &types.Graph{
-			Id:    graph.ID,
-			Name:  graph.Name,
-			Desc:  graph.Desc,
-			Nodes: graph.Nodes,
-			Edges: graph.Edges,
+			Id:     graph.ID,
+			Name:   graph.Name,
+			Desc:   graph.Desc,
+			Nodes:  graph.Nodes,
+			Edges:  graph.Edges,
+			Status: int(graph.Status),
 		})
 	}
 	return resp, nil

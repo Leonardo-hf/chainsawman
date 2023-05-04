@@ -2,11 +2,9 @@ package mq
 
 import (
 	"chainsawman/graph/model"
-
 	"context"
-	"strconv"
-
 	"github.com/redis/go-redis/v9"
+	"strconv"
 )
 
 type TaskMqImpl struct {
@@ -26,6 +24,7 @@ func InitTaskMq(cfg *TaskMqConfig) TaskMq {
 		Addr: cfg.Addr,
 	})
 	ctx := context.Background()
+	_ = rdb.Del(ctx, cfg.Topic)
 	err := rdb.XGroupCreateMkStream(ctx, cfg.Topic, cfg.Group, "0").Err()
 	// TODO: 重复创建会报错，怎么避免？
 	if err != nil && err.Error() != "BUSYGROUP Consumer Group name already exists" {
@@ -38,7 +37,7 @@ func InitTaskMq(cfg *TaskMqConfig) TaskMq {
 	}
 }
 
-func (r *TaskMqImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) error {
+func (r *TaskMqImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) (string, error) {
 	cmd := r.rdb.XAdd(ctx, &redis.XAddArgs{
 		Stream: r.topic,
 		Values: map[string]interface{}{
@@ -46,11 +45,12 @@ func (r *TaskMqImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) err
 			"idf":    task.Idf,
 			"params": task.Params,
 		},
+		ID: strconv.FormatInt(task.Id, 10),
 	})
-	return cmd.Err()
+	return cmd.Result()
 }
 
-func (r *TaskMqImpl) DelTaskMsg(ctx context.Context, id int64) error {
-	cmd := r.rdb.XDel(ctx, r.topic, strconv.FormatInt(id, 10))
+func (r *TaskMqImpl) DelTaskMsg(ctx context.Context, id string) error {
+	cmd := r.rdb.XDel(ctx, r.topic, id)
 	return cmd.Err()
 }

@@ -28,13 +28,19 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 		return 0, err
 	}
 	// 发布任务
-	err = svcCtx.TaskMq.ProduceTaskMsg(ctx, &model.KVTask{
+	tid, err := svcCtx.TaskMq.ProduceTaskMsg(ctx, &model.KVTask{
 		Id:         task.ID,
 		Params:     task.Params,
 		Status:     model.KVTask_New,
 		CreateTime: task.CreateTime,
 		UpdateTime: task.UpdateTime,
+		Idf:        int64(taskIDf),
 	})
+	if err != nil {
+		return 0, err
+	}
+	// TODO: 更新任务TID，这样似乎不好
+	_, err = svcCtx.MysqlClient.UpdateTaskTIDByID(ctx, task.ID, tid)
 	if err != nil {
 		return 0, err
 	}

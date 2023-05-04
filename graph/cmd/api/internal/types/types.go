@@ -28,6 +28,7 @@ type Param struct {
 }
 
 type Task struct {
+	Id         int64       `json:"id"`
 	Idf        int64       `json:"idf"`
 	Desc       string      `json:"desc"`
 	CreateTime int64       `json:"createTime"`
@@ -52,8 +53,9 @@ type Algo struct {
 }
 
 type Element struct {
-	Key  string `json:"key"`
-	Type int64  `json:"type"`
+	Key     string `json:"key"`
+	KeyDesc string `json:"keyDesc"`
+	Type    int64  `json:"type"`
 }
 
 type BaseReply struct {
@@ -127,50 +129,54 @@ type SearchNodeRequest struct {
 }
 
 type DropRequest struct {
-	GraphID int64 `form:"graphId"`
+	GraphID int64 `json:"graphId"`
 }
 
 type UploadEmptyRequest struct {
-	Graph string `form:"graph"`
-	Desc  string `form:"desc,optional"`
+	Graph string `json:"graph"`
+	Desc  string `json:"desc,optional"`
 }
 
 type UploadRequest struct {
-	TaskID  int64  `form:"taskId,optional"`
-	Graph   string `form:"graph"`
-	Desc    string `form:"desc,optional"`
-	NodeID  string `form:"nodeId"`
-	EdgeID  string `form:"edgeId"`
-	GraphID int64  `form:"graphId,optional"`
+	TaskID  int64  `json:"taskId,optional"`
+	Graph   string `json:"graph"`
+	Desc    string `json:"desc,optional"`
+	NodeID  string `json:"nodeId"`
+	EdgeID  string `json:"edgeId"`
+	GraphID int64  `json:"graphId,optional"`
 }
 
 type AlgoRequest struct {
-	TaskID  int64 `form:"taskId"`
+	TaskID  int64 `form:"taskId,optional"`
 	GraphID int64 `form:"graphId"`
 }
 
 type AlgoDegreeRequest struct {
-	TaskID  int64 `form:"taskId"`
+	TaskID  int64 `form:"taskId,optional"`
 	GraphID int64 `form:"graphId"`
 }
 
 type AlgoPageRankRequest struct {
-	TaskID  int64   `form:"taskId"`
+	TaskID  int64   `form:"taskId,optional"`
 	GraphID int64   `form:"graphId"`
 	Iter    int64   `form:"iter,default=3"`
 	Prob    float64 `form:"prob,default=0.85"`
 }
 
 type AlgoVoteRankRequest struct {
-	TaskID  int64 `form:"taskId"`
+	TaskID  int64 `form:"taskId,optional"`
 	GraphID int64 `form:"graphId"`
 	Iter    int64 `form:"iter,default=100"`
 }
 
 type AlgoLouvainRequest struct {
-	TaskID       int64   `form:"taskId"`
+	TaskID       int64   `form:"taskId,optional"`
 	GraphID      int64   `form:"graphId"`
 	MaxIter      int64   `form:"maxIter,default=10"`
 	InternalIter int64   `form:"internalIter,default=5"`
 	Tol          float64 `form:"tol,default=0.5"`
+}
+
+type DropTaskRequest struct {
+	TaskID int64 `json:"taskId,optional"`
 }
