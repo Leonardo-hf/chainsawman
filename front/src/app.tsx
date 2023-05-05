@@ -4,14 +4,15 @@ import {useModel} from "@umijs/max";
 import Graph from "./pages/Graph"
 import { setInitGraphs } from "./models/global";
 import { getAllGraph } from "./services/graph/graph";
+import { Utils } from "@antv/graphin";
 
 let graphs: any
 
 
 export function render(oldRender: () => void) {
     getAllGraph().then(data => {
-        const routes: { name: string, path: string, element: JSX.Element }[] = []
-        if (data) {
+        const routes: { path: string; element: JSX.Element; name: string; }[] = []
+        if (data.graphs) {
             setInitGraphs(data.graphs)
             graphs = data.graphs
             data.graphs.forEach((graph) => routes.push({

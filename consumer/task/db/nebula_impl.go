@@ -1,9 +1,10 @@
 package db
 
 import (
+	"chainsawman/common"
 	"chainsawman/consumer/task/model"
-
 	"fmt"
+	"strconv"
 
 	nebula "github.com/vesoft-inc/nebula-go/v3"
 )
@@ -93,7 +94,6 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, nodes []*model.Node) (i
 			return i, err
 		}
 		if !res.IsSucceed() {
-			fmt.Println("nodes")
 			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 		}
 	}
@@ -132,7 +132,6 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edges []*model.Edge) (i
 			return i, err
 		}
 		if !res.IsSucceed() {
-			fmt.Println("edges")
 			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
 		}
 	}
@@ -159,20 +158,11 @@ func (n *NebulaClientImpl) GetNodes(graph int64, min int64) ([]*model.Node, erro
 	var nodes []*model.Node
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
-		id, _ := record.GetValueByColName("nid")
-		idInt, _ := id.AsInt()
-		name, _ := record.GetValueByColName("name")
-		nameStr, _ := name.AsString()
-		desc, _ := record.GetValueByColName("intro")
-		descStr, _ := desc.AsString()
-		deg, _ := record.GetValueByColName("deg")
-		degInt, _ := deg.AsInt()
-		fmt.Println(degInt)
 		nodes = append(nodes, &model.Node{
-			ID:   idInt,
-			Name: nameStr,
-			Desc: descStr,
-			Deg:  degInt,
+			ID:   common.ParseInt(record, "nid"),
+			Name: common.Parse(record, "name"),
+			Desc: common.Parse(record, "intro"),
+			Deg:  common.ParseInt(record, "deg"),
 		})
 	}
 	return nodes, nil
@@ -197,13 +187,9 @@ func (n *NebulaClientImpl) GetEdges(graph int64) ([]*model.Edge, error) {
 	var edges []*model.Edge
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
-		source, _ := record.GetValueByColName("src")
-		sourceInt, _ := source.AsInt()
-		target, _ := record.GetValueByColName("dst")
-		targetInt, _ := target.AsInt()
 		edges = append(edges, &model.Edge{
-			Source: sourceInt,
-			Target: targetInt,
+			Source: common.ParseInt(record, "src"),
+			Target: common.ParseInt(record, "dst"),
 		})
 	}
 	return edges, nil
@@ -231,7 +217,7 @@ func (n *NebulaClientImpl) GetNeighbors(graph int64, nodeID int64, min int64, di
 		return nil, nil, err
 	}
 	query := fmt.Sprintf("USE G%v;"+
-		"GET SUBGRAPH WITH PROP %v STEPS FROM \"%v\" WHERE v.snode.deg >= %v "+
+		"GET SUBGRAPH WITH PROP %v STEPS FROM \"%v\" WHERE $$.snode.deg >= %v "+
 		"YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, nodeID, min)
 	res, err := session.Execute(query)
 	if !res.IsSucceed() {
@@ -246,12 +232,13 @@ func (n *NebulaClientImpl) GetNeighbors(graph int64, nodeID int64, min int64, di
 		for _, snodeWrapper := range snodesList {
 			snode, _ := snodeWrapper.AsNode()
 			snodeProps, _ := snode.Properties("snode")
-			id, _ := snode.GetID().AsInt()
+			id, _ := snode.GetID().AsString()
+			idInt, _ := strconv.ParseInt(id, 10, 64)
 			name, _ := snodeProps["name"].AsString()
 			intro, _ := snodeProps["intro"].AsString()
 			deg, _ := snodeProps["deg"].AsInt()
 			crt := &model.Node{
-				ID:   id,
+				ID:   idInt,
 				Name: name,
 				Desc: intro,
 				Deg:  deg,
@@ -262,11 +249,13 @@ func (n *NebulaClientImpl) GetNeighbors(graph int64, nodeID int64, min int64, di
 		sedgesList, _ := sedges.AsList()
 		for _, sedgeWrapper := range sedgesList {
 			sedge, _ := sedgeWrapper.AsRelationship()
-			src, _ := sedge.GetSrcVertexID().AsInt()
-			dst, _ := sedge.GetDstVertexID().AsInt()
+			src, _ := sedge.GetSrcVertexID().AsString()
+			srcInt, _ := strconv.ParseInt(src, 10, 64)
+			dst, _ := sedge.GetDstVertexID().AsString()
+			dstInt, _ := strconv.ParseInt(dst, 10, 64)
 			crt := &model.Edge{
-				Source: src,
-				Target: dst,
+				Source: srcInt,
+				Target: dstInt,
 			}
 			edges = append(edges, crt)
 		}

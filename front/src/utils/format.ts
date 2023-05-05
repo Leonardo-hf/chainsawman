@@ -1,7 +1,7 @@
 export const getTag = (graph: number, node: number) => graph.toString() + '@' + node.toString()
 
 export const formatDate = (time: number) => {
-    const t = new Date(time);
+    const t = new Date(time * 1000);
     const tf = (i: number) => (i < 10 ? '0' : '') + i
     const year = t.getUTCFullYear()
     const thisYear = new Date().getUTCFullYear()

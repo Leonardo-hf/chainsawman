@@ -1,4 +1,3 @@
-
 import {getAllGraph, getGraph, getNeighbors} from "@/services/graph/graph";
 import {getTag} from "@/utils/format";
 
@@ -27,9 +26,9 @@ export default {
             return data.base.taskStatus
         },
 
-        * queryNeibors({payload}, {call, put}){
-            const data: Promise<Graph.SearchNodeRequest> = yield call(getNeighbors, payload);
-            data['graphId'] = getTag(payload.graphId, payload.node);
+        * queryNeibors({payload}, {call, put}) {
+            const data: Promise<Graph.SearchNodeReply> = yield call(getNeighbors, payload);
+            data['graphId'] = getTag(payload.graphId, payload.nodeId);
             yield put({type: 'getDetail', payload: data});
             return data.base.taskStatus
         }
@@ -40,6 +39,18 @@ export default {
             return {
                 ...state,
                 graphs: payload
+            }
+        },
+        resetGraph(state, {payload}) {
+            const details = {}
+            for (let attr in state.details) {
+                if (attr !== payload.graphID.toString()) {
+                    details[attr] = state.details[attr]
+                }
+            }
+            return {
+                ...state,
+                details
             }
         },
         getDetail(state, {payload}) {
@@ -53,7 +64,7 @@ export default {
                 nodes: payload.nodes,
                 edges: payload.edges,
             }
-            for (let i = 0; i < details[payload.graphId].nodes.length; i++) {
+            for (let i = 0; i < details[payload.graphId].nodes?.length; i++) {
                 details[payload.graphId].nodes[i]['color'] = getRandomColor()
             }
             return {

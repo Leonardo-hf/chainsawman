@@ -2,8 +2,8 @@ package mq
 
 import (
 	"chainsawman/consumer/task/model"
-
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"strconv"
 
 	"github.com/redis/go-redis/v9"
@@ -25,7 +25,7 @@ func InitTaskMq(cfg *TaskMqConfig) TaskMq {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: cfg.Addr,
 	})
-	rdb.XGroupCreate(context.Background(), cfg.Topic, cfg.Group, "0")
+	//rdb.XGroupCreate(context.Background(), cfg.Topic, cfg.Group, "0")
 	return &TaskMqImpl{
 		rdb:   rdb,
 		topic: cfg.Topic,
@@ -45,6 +45,7 @@ func (r *TaskMqImpl) ConsumeTaskMsg(ctx context.Context, consumer string, handle
 		return err
 	}
 	for _, msg := range result[0].Messages {
+		logx.Info(msg)
 		id, _ := strconv.ParseInt(msg.Values["id"].(string), 10, 64)
 		idf, _ := strconv.ParseInt(msg.Values["idf"].(string), 10, 64)
 		task := &model.KVTask{

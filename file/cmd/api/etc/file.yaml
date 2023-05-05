@@ -3,3 +3,4 @@ Host: 0.0.0.0
 Port: 8890
 Path: "./file/storage"
 Expired: 3600
+MaxByte: 8388608

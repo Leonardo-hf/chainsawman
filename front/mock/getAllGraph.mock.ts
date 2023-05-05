@@ -14,7 +14,7 @@ export default {
       graphs: [
         {
           id: 98,
-          status: 67,
+          status: 1,
           name: '崔丽',
           desc: '阶生收地素效意五步品老边美林。',
           nodes: 92,
@@ -22,7 +22,7 @@ export default {
         },
         {
           id: 72,
-          status: 67,
+          status: 1,
           name: '范霞',
           desc: '改装完维主维立观音选火场写处思。',
           nodes: 73,
