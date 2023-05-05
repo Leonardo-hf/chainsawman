@@ -35,14 +35,14 @@ func (h *GetGraph) Handle(params string, taskID int64) (string, error) {
 			Desc: node.Desc,
 			Deg:  node.Deg,
 		})
-		nodeSet.Add(node.Name)
+		nodeSet.Add(node.ID)
 	}
 	edges, err := config.NebulaClient.GetEdges(req.GraphID)
 	if err != nil {
 		return "", err
 	}
 	for _, edge := range edges {
-		if nodeSet.Contains(edge.Source) || nodeSet.Contains(edge.Target) {
+		if nodeSet.Contains(edge.Source) && nodeSet.Contains(edge.Target) {
 			resp.Edges = append(resp.Edges, &types.Edge{
 				Source: edge.Source,
 				Target: edge.Target,

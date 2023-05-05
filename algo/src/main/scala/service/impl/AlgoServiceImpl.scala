@@ -8,7 +8,7 @@ import config.ClientConfig
 import model.{AlgoPO, AlgoParamPO}
 import service._
 import util.CSVUtil
-
+import org.apache.spark.sql.{DataFrame}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
@@ -55,13 +55,17 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     Future.successful(AlgoReply())
   }
 
+  def getRank(df: DataFrame, file: String): RankReply = {
+    RankReply.apply(ranks = df.rdd.collect().reverse.slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = file)
+  }
+
   override def degree(in: BaseReq): Future[RankReply] = {
     val (res, err) = ClientConfig.sparkClient.degree(in.graphID)
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
     val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "degree", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+    Future.successful(getRank(res, r.id))
   }
 
   override def pagerank(in: PageRankReq): Future[RankReply] = {
@@ -70,7 +74,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
       return Future.failed(err.get)
     }
     val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "pagerank", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+    Future.successful(getRank(res, r.id))
   }
 
   override def voterank(in: VoteRankReq): Future[RankReply] = ???
@@ -81,7 +85,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
       return Future.failed(err.get)
     }
     val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "betweenness", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+    Future.successful(getRank(res, r.id))
   }
 
   override def closeness(in: BaseReq): Future[RankReply] = {
@@ -90,7 +94,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
       return Future.failed(err.get)
     }
     val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "closeness", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+    Future.successful(getRank(res, r.id))
   }
 
   override def avgClustering(in: BaseReq): Future[MetricsReply] = {

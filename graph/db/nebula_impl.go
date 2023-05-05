@@ -1,6 +1,7 @@
 package db
 
 import (
+	"chainsawman/common"
 	"chainsawman/graph/model"
 	"fmt"
 	"log"
@@ -95,20 +96,11 @@ func (n *NebulaClientImpl) GetAllNodes(graph int64) ([]*model.Node, error) {
 	var nodes []*model.Node
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
-		id, _ := record.GetValueByColName("nid")
-		idInt, _ := id.AsString()
-		name, _ := record.GetValueByColName("name")
-		nameStr, _ := name.AsString()
-		desc, _ := record.GetValueByColName("intro")
-		descStr, _ := desc.AsString()
-		deg, _ := record.GetValueByColName("deg")
-		degInt, _ := deg.AsInt()
-		fmt.Println(degInt)
 		nodes = append(nodes, &model.Node{
-			ID:   idInt,
-			Name: nameStr,
-			Desc: descStr,
-			Deg:  degInt,
+			ID:   common.ParseInt(record, "nid"),
+			Name: common.Parse(record, "name"),
+			Desc: common.Parse(record, "intro"),
+			Deg:  common.ParseInt(record, "deg"),
 		})
 	}
 	return nodes, nil

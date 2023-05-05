@@ -24,6 +24,11 @@ func initHandleTable() {
 	handleTable[common.GraphCreate] = &handler.Upload{}
 	handleTable[common.AlgoDegree] = &handler.AlgoDegree{}
 	handleTable[common.AlgoPagerank] = &handler.AlgoPageRank{}
+	handleTable[common.AlgoVoterank] = &handler.AlgoVoteRank{}
+	handleTable[common.AlgoCloseness] = &handler.AlgoCloseness{}
+	handleTable[common.AlgoBetweenness] = &handler.AlgoBetweenness{}
+	handleTable[common.AlgoAvgCC] = &handler.AlgoAvgCC{}
+	handleTable[common.AlgoLouvain] = &handler.AlgoLouvain{}
 }
 
 func main() {

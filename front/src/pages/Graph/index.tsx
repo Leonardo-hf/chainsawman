@@ -16,29 +16,15 @@ import {connect} from "@@/exports";
 import {Space, Typography} from 'antd';
 import {formatDate, formatNumber, getTag} from "@/utils/format";
 import {Algo, AlgoType, algos, getAlgoTypeDesc, AlgoTypeMap, ParamType} from './_algo';
-import {getGraphTasks} from "@/services/graph/graph";
+import {dropGraph, dropTask, getGraphTasks} from "@/services/graph/graph";
 import {getTaskTypeDesc, TaskType, TaskTypeMap} from "./_task";
 import MetricTable from "@/components/MetricTable";
 import RankTable from "@/components/RankTable";
+import {history} from 'umi';
 
 const {Text, Paragraph} = Typography;
 const {Hoverable} = Behaviors;
 const {Search} = Input
-
-const tabListNoTitle = [
-    {
-        key: 'attr',
-        tab: '属性',
-    },
-    {
-        key: 'algo',
-        tab: '算法',
-    },
-    {
-        key: 'task',
-        tab: '任务',
-    },
-];
 
 const iconMap = {
     'graphin-force': <ShareAltOutlined/>,
@@ -61,7 +47,7 @@ const mapStateToProps = (state: any) => {
 const defaultNameProps = {
     hint: '目标查询节点',
     status: undefined,
-    min: 2,
+    min: 0,
     distance: 1,
 }
 
@@ -73,13 +59,15 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
 
         this.state = {
             graph: {
-                min: 200,
+                min: 10,
+                kmin: 10
             },
             extKeysAlgo: [],
             extKeysTask: [],
             type: 'graphin-force',
             tab: 'attr',
             graphinRef: React.createRef(),
+            taskListRef: React.createRef(),
             select: {
                 ok: false,
                 name: '',
@@ -93,8 +81,8 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                 // 绑定input
                 name: '',
                 id: 0,
-                min: 0,
-                distance: 0,
+                min: defaultNameProps.min,
+                distance: defaultNameProps.distance,
                 // 记录搜索成功后的input值
                 kname: '',
                 kmin: defaultNameProps.min,
@@ -112,7 +100,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
         this.setState({
             select: {
                 ok: true,
-                name: id,
+                name: node.name,
                 desc: node.desc,
                 deg: node.deg,
             }
@@ -144,25 +132,40 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
         // console.log('render')
         const {graph, details} = this.props
         let {id, name} = graph
-        const {tab, type, graphinRef, select, query} = this.state
-        const min = this.state.graph.min
+        const {tab, type, graphinRef, taskListRef, select, query} = this.state
+        const {min, kmin} = this.state.graph
         const tag = getTag(id, query.id)
         // 判断图有没有加载好
-        const loading = (details[id] === undefined || details[id].status === 0) ||
-            (query.ok && (details[tag] === undefined || details[tag].status === 0))
+        const loading = !details[id] || !details[id].status ||
+            (query.ok && (!details[tag] || !details[tag].status))
         const nodes: { id: string, style: { keyshape: { size: number, fill: string }, label: { value: string } } }[] = []
         const edges: { source: string, target: string }[] = []
         const data = {
             nodes: nodes,
             edges: edges,
         }
+        const tabListNoTitle = [
+            {
+                key: 'attr',
+                tab: '属性',
+            },
+            {
+                key: 'algo',
+                tab: '算法',
+            },
+            {
+                key: 'task',
+                tab: '任务',
+                disabled: !details[id] || !details[id].status
+            },
+        ];
 
         const layout = layouts.find(item => item.type === type);
         // 图模式，如果graph state没有就发起查询
-        if (!query.ok && details[id] === undefined) {
+        if (!query.ok && !details[id]) {
             const queryDetail = async () => {
                 let taskId = 0
-                if (this.props.details[id] !== undefined) {
+                if (this.props.details[id]) {
                     taskId = this.props.details[id].taskId
                 }
                 this.props.dispatch({
@@ -182,25 +185,29 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                 // }
             }
             queryDetail()
-            const timer = setInterval(queryDetail, 3000)
+            const timer = setInterval(queryDetail, 5000)
         }
         // 节点模式
-        if (query.ok && details[tag] === undefined) {
+        if (query.ok && !details[tag]) {
             const queryNeibors = async () => {
                 let taskId = 0
-                if (this.props.details[tag] !== undefined) {
+                if (this.props.details[tag]) {
                     taskId = this.props.details[tag].taskId
                 }
+                console.log(query)
                 this.props.dispatch({
                     type: 'graph/queryNeibors',
                     payload: {
                         graphId: id,
                         taskId: taskId,
-                        node: query.id,
+                        nodeId: query.id,
                         min: query.min,
                         distance: query.distance
                     }
                 }).then((taskStatus: number) => {
+                    this.state.query.kmin = this.state.query.min
+                    this.state.query.kname = this.state.query.name
+                    this.state.query.kdistance = this.state.query.distance
                     if (taskStatus === 1) {
                         clearInterval(timer)
                     }
@@ -210,12 +217,12 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                 // }
             }
             queryNeibors()
-            const timer = setInterval(queryNeibors, 3000)
+            const timer = setInterval(queryNeibors, 5000)
         }
 
         if (!loading) {
             const target = query.ok ? tag : id
-            details[target].nodes.forEach((n: { id: number, name: string; deg: number; color: string; }) => nodes.push({
+            details[target].nodes?.forEach((n: { id: number, name: string; deg: number; color: string; }) => nodes.push({
                 id: n.id.toString(),
                 style: {
                     keyshape:
@@ -228,7 +235,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                     }
                 }
             }))
-            details[target].edges.forEach((e: { source: number; target: number; }) => edges.push({
+            details[target].edges?.forEach((e: { source: number; target: number; }) => edges.push({
                 source: e.source.toString(),
                 target: e.target.toString(),
             }))
@@ -335,20 +342,33 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                                           onChange={v => {
                                                               this.state.graph.min = v
                                                           }}/>
+                            },
+                            {
+                                title: '操作',
+                                description: <Button danger type="primary" onClick={() => {
+                                    dropGraph({
+                                        graphId: id
+                                    }).then(res => {
+                                        message.success('删除图`' + name + '`成功')
+                                        history.push('/')
+                                        // setTimeout(() => window.location.reload(), 1000)
+                                    })
+                                }
+                                }>删除图</Button>
                             }
                         ]
                         if (query.ok) {
                             dataSource.push({
                                 title: '子节点',
-                                description: query.name
+                                description: this.state.query.kname
                             })
                             dataSource.push({
                                 title: '最大距离',
-                                description: query.distance
+                                description: this.state.query.kdistance
                             })
                             dataSource.push({
                                 title: '最低度数',
-                                description: query.min
+                                description: this.state.query.kmin
                             })
                         }
                     }
@@ -368,7 +388,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                     const getAlgoContent = (algo: Algo) => {
                         const onFinish = (params: any) => {
                             algo.action({
-                                graphID: id,
+                                graphId: id,
                                 ...params
                             }).then(() => {
                                 message.success('算法已提交')
@@ -474,23 +494,27 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                         return <Tag color={s.color}>{s.text}</Tag>
                     }
                     const getTaskContent = (task: Graph.Task) => {
-                        const res = task.res
-                        if (res.score) {
-                            return <MetricTable score={res.score}/>
+                        const getTaskResult = (res: Record<string, any>) => {
+                            if (res?.score) {
+                                return <MetricTable score={res.score}/>
+                            }
+                            if (res?.ranks) {
+                                return <RankTable file={res.file} rows={
+                                    res.ranks.map((r: { nodeId: number; score: any; }) => {
+                                        return {
+                                            node: details[id].nodes.find((n: { id: number; }) => r.nodeId == n.id)?.name,
+                                            rank: r.score,
+                                        }
+                                    })}/>
+                            }
                         }
-                        if (res.ranks) {
-                            return <RankTable file={res.file} rows={
-                                res.ranks.map((r: { nodeID: number; score: any; }) => {
-                                    return {
-                                        node: details[id].nodes.find((n: { id: number; }) => r.nodeID == n.id)?.name,
-                                        rank: r.score,
-                                    }
-                                })}/>
-                        }
+                        return getTaskResult(task.res)
                     }
                     return <ProList<Graph.Task>
                         key="taskProList"
-                        rowKey="desc"
+                        itemLayout="vertical"
+                        actionRef={taskListRef}
+                        rowKey="id"
                         style={{
                             height: '80vh',
                             overflowY: 'scroll',
@@ -514,7 +538,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                 graphId: id
                             })
                             return {
-                                data: tasks.tasks.filter(t => !params.subTitle || t.status == params.subTitle),
+                                data: tasks.tasks.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
                                 success: true,
                                 total: tasks.tasks.length
                             }
@@ -534,13 +558,22 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                 valueType: 'select',
                                 valueEnum: TaskTypeMap,
                             },
-                            actions: {
+                            extra: {
                                 render: (_, row) => {
-                                    return <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
-                                },
+                                    return <Space direction={'vertical'}>
+                                        <Text type={'secondary'} >{formatDate(row.createTime)}</Text>
+                                        <a style={{float: 'right'}} onClick={() => {
+                                            dropTask({
+                                                taskId: row.id
+                                            }).then(() => {
+                                                taskListRef.current?.reload()
+                                            })
+                                        }}>{row.status ? '删除' : '终止'}</a>
+                                    </Space>
+                                        },
                                 search: false,
                             },
-                            description: {
+                            content: {
                                 search: false,
                                 render: (_, row) => getTaskContent(row)
                             },
@@ -548,101 +581,99 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                     />
             }
         }
-
-
-        return (
-
-            <PageContainer header={{
-                title: ''
-            }
-            } content={
-                <Row gutter={16} style={{height: '100%'}}>
-                    <Col span={18}>
-                        <Card
-                            title={getSearch()}
-                            style={{height: '100%'}}
-                            bodyStyle={{padding: '0 0 0 0'}}
-                            extra={
-                                <Space>
-                                    <Button type={'primary'} onClick={() => {
-                                        const {graph} = graphinRef.current
-                                        graph.emit('canvas:click')
-                                        this.setState({
-                                            query: {
-                                                ...this.state.query,
-                                                ok: false
+        return <PageContainer header={{
+            title: ''
+        }} content={
+            <Row gutter={16} style={{height: '100%'}}>
+                <Col span={18}>
+                    <Card
+                        title={getSearch()}
+                        style={{height: '100%'}}
+                        bodyStyle={{padding: '0 0 0 0'}}
+                        extra={
+                            <Space>
+                                <Button type={'primary'} onClick={() => {
+                                    const {graph} = graphinRef.current
+                                    graph.emit('canvas:click')
+                                    this.setState({
+                                        query: {
+                                            ...this.state.query,
+                                            ok: false
+                                        }
+                                    })
+                                    if (this.state.graph.kmin !== this.state.graph.min) {
+                                        this.state.graph.kmin = this.state.graph.min
+                                        this.props.dispatch({
+                                            type: 'graph/resetGraph',
+                                            payload: {
+                                                graphID: id
                                             }
                                         })
-                                    }}>
-                                        重置
-                                    </Button>
-                                    <LayoutSelector options={layouts} value={type}
-                                                    onChange={(value: SetStateAction<string>) => {
-                                                        this.setState({
-                                                            type: value
-                                                        })
-                                                    }}/>
-                                </Space>
-                            }
-                        >
-                            <Spin spinning={loading}>
-                                <Graphin data={data} layout={layout} fitView={true}
-                                         containerStyle={{height: '80vh'}}
-                                         ref={graphinRef}>
-                                    <Hoverable bindType="node"/>
-                                    <Hoverable bindType="edge"/>
-                                </Graphin>
-                            </Spin>
-                        </Card>
-                    </Col>
-                    <Col span={6} style={{height: '100%'}}>
-                        <Card
-                            activeTabKey={tab}
-                            style={{height: '100%'}}
-                            bodyStyle={{padding: 0}}
-                            tabList={tabListNoTitle}
-                            onTabChange={key => {
-                                this.setState({tab: key})
-                            }}>
-                            {getTabContent()}
-                        </Card>
-                    </Col>
-                </Row>
-            }
-            >
-            </PageContainer>
-        )
-            ;
+                                    }
+                                }}>
+                                    重置
+                                </Button>
+                                <LayoutSelector options={layouts} value={type}
+                                                onChange={(value: SetStateAction<string>) => {
+                                                    this.setState({
+                                                        type: value
+                                                    })
+                                                }}/>
+                            </Space>
+                        }
+                    >
+                        <Spin spinning={loading}>
+                            <Graphin data={data} layout={layout} fitView={true}
+                                     containerStyle={{height: '80vh'}}
+                                     ref={graphinRef}>
+                                <Hoverable bindType="node"/>
+                                <Hoverable bindType="edge"/>
+                            </Graphin>
+                        </Spin>
+                    </Card>
+                </Col>
+                <Col span={6} style={{height: '100%'}}>
+                    <Card
+                        activeTabKey={tab}
+                        style={{height: '100%'}}
+                        bodyStyle={{padding: 0}}
+                        tabList={tabListNoTitle}
+                        onTabChange={key => {
+                            this.setState({tab: key})
+                        }}>
+                        {getTabContent()}
+                    </Card>
+                </Col>
+            </Row>
+        }>
+        </PageContainer>
     }
 }
 
 export default Graph;
-
-const
-    SelectOption = Select.Option;
-const
-    LayoutSelector = (props: { value: any; onChange: any; options: any; }) => {
-        const {value, onChange, options} = props;
-        return (
-            <div
-                // style={{ position: 'absolute', top: 10, left: 10 }}
-            >
-                <Select style={{width: '120px'}} value={value} onChange={onChange}>
-                    {options.map((item: { type: any; }) => {
-                        const {type} = item;
-                        // @ts-ignore
-                        const iconComponent = iconMap[type] || <CustomerServiceFilled/>;
-                        return (
-                            <SelectOption key={type} value={type}>
-                                {iconComponent} &nbsp;
-                                {type}
-                            </SelectOption>
-                        );
-                    })}
-                </Select>
-            </div>
-        );
-    };
+const SelectOption = Select.Option;
+const LayoutSelector = (props: { value: any; onChange: any; options: any; }) => {
+    const {value, onChange, options} = props;
+    return (
+        <div
+            // style={{ position: 'absolute', top: 10, left: 10 }}
+        >
+            <Select style={{width: '120px'}} value={value} onChange={onChange}>
+                {options.map((item: { type: any; }) => {
+                    const {type} = item;
+                    // @ts-ignore
+                    const iconComponent = iconMap[type] || <CustomerServiceFilled/>;
+                    return (
+                        <SelectOption key={type} value={type}>
+                            {iconComponent} &nbsp;
+                            {type}
+                        </SelectOption>
+                    );
+                })}
+            </Select>
+        </div>
+    );
+};
 
 const
     layouts = [

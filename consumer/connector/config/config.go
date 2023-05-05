@@ -17,6 +17,6 @@ var (
 )
 
 func Init(c *Config) {
-	//NebulaClient = db.InitNebulaClient(&c.Nebula)
+	NebulaClient = db.InitNebulaClient(&c.Nebula)
 	ImportMq = mq.InitImportMq(&c.ImportMq)
 }

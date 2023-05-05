@@ -204,6 +204,18 @@ export async function getNeighbors(
   });
 }
 
+/** 删除任务 POST /api/graph/task/drop */
+export async function dropTask(body: Graph.DropTaskRequest, options?: { [key: string]: any }) {
+  return request<Graph.BaseReply>('/api/graph/task/drop', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 获取图计算任务 GET /api/graph/task/getAll */
 export async function getGraphTasks(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

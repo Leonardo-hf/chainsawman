@@ -6,14 +6,13 @@ import React, {useRef, useState} from 'react';
 import FormItem from "antd/es/form/FormItem";
 import ProCard from "@ant-design/pro-card";
 import {upload} from "@/services/file/file";
-import {createGraph, getAllGraph} from "@/services/graph/graph";
+import {createGraph, dropGraph, getAllGraph} from "@/services/graph/graph";
 import {
     CSSProperties
-} from "../../../../../../../../usr/local/src/GoLand-2022.3.1/plugins/javascript-impl/jsLanguageServicesImpl/external/react";
+} from "react";
 import {useModel} from '@umijs/max';
 
 const {Title} = Typography;
-
 const columns: ProColumns<Graph.Graph>[] = [
     {
         title: '名称',
@@ -97,14 +96,20 @@ const columns: ProColumns<Graph.Graph>[] = [
                 <a href={'/graph/' + record.id} style={disable}>
                     查看
                 </a>,
-                <a style={disable}>
+                <a style={disable} onClick={() => {
+                    dropGraph({
+                        graphId: record.id
+                    }).then(res => {
+                        message.success('删除图`' + record.name + '`成功')
+                        action?.reload()
+                    })
+                }}>
                     删除
                 </a>,
             ]
         },
     },
 ];
-
 
 const HomePage: React.FC = (props) => {
     const ref = useRef<ActionType>();
@@ -142,30 +147,26 @@ const HomePage: React.FC = (props) => {
                 return
             }
             nodeData.append('file', node[0].originFileObj)
-            //console.log(nodeData.get('node'))
             const edgeData = new FormData();
             edgeData.append('file', edge[0].originFileObj)
             let nodeId: string = '', edgeId: string = '';
-            await upload(
-                {
+
+            await upload({
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
-                    data: nodeData
-                }
-            ).then(res => {
+                    data: nodeData,
+                }).then(res => {
                 nodeId = res.id
-            }).catch(e => console.log(e))
-            await upload(
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                    data: edgeData
-                }
-            ).then(res => {
+            })
+            await upload({
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                data: edgeData,
+            }).then(res => {
                 edgeId = res.id
-            }).catch(e => console.log(e))
+            })
             createGraph({taskId: 0, nodeId: nodeId, edgeId: edgeId, graph: name, desc: desc})
                 .then((res) => {
                     setModalOpen(false)
@@ -176,27 +177,24 @@ const HomePage: React.FC = (props) => {
                     ref.current?.reload()
                 }).catch(e=>{console.log(e)})
         }
-        return <Modal open={modalOpen} footer={null} onCancel={()=>setModalOpen(false)}>
+        return <Modal open={modalOpen} footer={null} onCancel={() => setModalOpen(false)}>
             <ProCard style={{height: "fit-content"}}>
                 <Form onFinish={handleFinish}>
                     <FormItem
                         name='name'
-                        label={"图名称"}
-                    >
+                        label={"图名称"}>
                         <Input/>
                     </FormItem>
                     <FormItem
                         name='desc'
-                        label={"图描述"}
-                    >
+                        label={"图描述"}>
                         <Input/>
                     </FormItem>
                     <FormItem
                         name="node"
                         valuePropName="file"
                         getValueFromEvent={normFile}
-                        label="节点文件"
-                    >
+                        label="节点文件">
                         <Upload {...uploadProps}>
                             <Button icon={<UploadOutlined/>}>Click to Upload</Button>
                         </Upload>
@@ -205,13 +203,11 @@ const HomePage: React.FC = (props) => {
                         name="edge"
                         valuePropName="file"
                         getValueFromEvent={normFile}
-                        label="边文件"
-                    >
+                        label="边文件">
                         <Upload {...uploadProps}>
                             <Button icon={<UploadOutlined/>}>Click to Upload</Button>
                         </Upload>
                     </FormItem>
-
                     <FormItem wrapperCol={{span: 12, offset: 6}}>
                         <Button type="primary" htmlType="submit">
                             确认发布
@@ -226,6 +222,9 @@ const HomePage: React.FC = (props) => {
         let graphs: Graph.Graph[] = []
         await getAllGraph()
             .then(res => {
+                if (!res.graphs) {
+                    return graphs
+                }
                 graphs = res.graphs
                 setGraphs(graphs)
                 if (graphs.filter(a => a.status === 0).length) {
@@ -240,16 +239,12 @@ const HomePage: React.FC = (props) => {
     return (
         <PageContainer>
             {getModal()}
-            {/*<button onClick={test}></button>*/}
             <ProTable<Graph.Graph>
+                key='graphList'
                 columns={columns}
                 cardBordered
                 actionRef={ref}
                 request={async (params, sort, filter) => {
-                    // TODO: graphs是打开主页发起查询获得的，感觉这里有可能会查不到graphs
-                    // TODO: 根据status查询
-                    // 读以下global的图，如果有效直接返回
-                    // 如果无效（新增了），发起查询，看有没有正在创建的，有就个五秒
                     console.log('reload')
                     const keyword = params.name ? params.name : ''
                     const graphs = await checkGraphs()
@@ -257,17 +252,14 @@ const HomePage: React.FC = (props) => {
                     return {
                         data: fGraphs,
                         success: true,
-                        total: graphs.length
+                        total: fGraphs.length
                     }
                 }}
                 columnsState={{
                     persistenceKey: 'graphs_columns_state',
                     persistenceType: 'localStorage',
-                    // onChange(value) {
-                    //     console.log('value: ', value);
-                    // },
                 }}
-                rowKey={record => record.name}
+                rowKey={(record) => record.id}
                 search={{
                     labelWidth: 'auto',
                 }}
@@ -276,22 +268,9 @@ const HomePage: React.FC = (props) => {
                         listsHeight: 400,
                     },
                 }}
-                // form={{
-                //     // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-                //     syncToUrl: (values, type) => {
-                //         if (type === 'get') {
-                //             return {
-                //                 ...values,
-                //                 created_at: [values.startTime, values.endTime],
-                //             };
-                //         }
-                //         return values;
-                //     },
-                // }}
                 pagination={{
                     position: ['bottomCenter', 'bottomRight'],
                     pageSize: 10,
-                    // onChange: (page) => console.log(page),
                 }}
                 dateFormatter="string"
                 headerTitle={<Title level={4} style={{margin: '0 0 0 0'}}>图谱列表</Title>}
@@ -302,8 +281,7 @@ const HomePage: React.FC = (props) => {
                         onClick={() => {
                             setModalOpen(true)
                         }}
-                        type="primary"
-                    >
+                        type="primary">
                         新建
                     </Button>,
                     <Dropdown

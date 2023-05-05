@@ -33,6 +33,7 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	_task.Result = field.NewString(tableName, "result")
 	_task.GraphID = field.NewInt64(tableName, "graphID")
 	_task.Visible = field.NewInt64(tableName, "visible")
+	_task.Tid = field.NewString(tableName, "tid")
 	_task.Idf = field.NewInt64(tableName, "idf")
 	_task.CreateTime = field.NewInt64(tableName, "create_time")
 	_task.UpdateTime = field.NewInt64(tableName, "update_time")
@@ -52,6 +53,7 @@ type task struct {
 	Result     field.String
 	GraphID    field.Int64
 	Visible    field.Int64
+	Tid        field.String
 	Idf        field.Int64
 	CreateTime field.Int64
 	UpdateTime field.Int64
@@ -77,6 +79,7 @@ func (t *task) updateTableName(table string) *task {
 	t.Result = field.NewString(table, "result")
 	t.GraphID = field.NewInt64(table, "graphID")
 	t.Visible = field.NewInt64(table, "visible")
+	t.Tid = field.NewString(table, "tid")
 	t.Idf = field.NewInt64(table, "idf")
 	t.CreateTime = field.NewInt64(table, "create_time")
 	t.UpdateTime = field.NewInt64(table, "update_time")
@@ -96,13 +99,14 @@ func (t *task) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *task) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 9)
+	t.fieldMap = make(map[string]field.Expr, 10)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["params"] = t.Params
 	t.fieldMap["status"] = t.Status
 	t.fieldMap["result"] = t.Result
 	t.fieldMap["graphID"] = t.GraphID
 	t.fieldMap["visible"] = t.Visible
+	t.fieldMap["tid"] = t.Tid
 	t.fieldMap["idf"] = t.Idf
 	t.fieldMap["create_time"] = t.CreateTime
 	t.fieldMap["update_time"] = t.UpdateTime

@@ -16,10 +16,14 @@ const (
 )
 
 type Msg struct {
-	Opt     OptFlag
-	Entity  EntityFlag
-	GraphID int64
-	Body    string
+	Opt    OptFlag
+	Entity EntityFlag
+	Body   string
+}
+
+type UpdateBody struct {
+	GraphId int64
+	Edges   map[int64][]int64
 }
 
 type EdgeBody struct {

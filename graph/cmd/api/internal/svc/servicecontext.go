@@ -5,6 +5,7 @@ import (
 	"chainsawman/graph/cmd/api/internal/types/rpc/algo"
 	"chainsawman/graph/db"
 	"chainsawman/graph/mq"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
@@ -25,6 +26,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RedisClient:  db.InitRedisClient(&c.Redis),
 		MysqlClient:  db.InitMysqlClient(&c.Mysql),
 		TaskMq:       mq.InitTaskMq(&c.TaskMq),
-		AlgoRPC:      nil, /*algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())*/
+		AlgoRPC:      algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
 	}
 }

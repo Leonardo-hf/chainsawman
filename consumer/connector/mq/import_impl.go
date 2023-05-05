@@ -47,14 +47,12 @@ func (r *ImportMqImpl) ConsumeImportMsg(ctx context.Context, consumer string, ha
 	}
 	for _, mi := range result[0].Messages {
 		fmt.Println(mi)
-		opt, _ := strconv.Atoi(mi.Values["optFlag"].(string))
-		entity, _ := strconv.Atoi(mi.Values["entityFlag"].(string))
-		graphID, _ := strconv.ParseInt(mi.Values["graphID"].(string), 10, 64)
+		opt, _ := strconv.Atoi(mi.Values["Opt"].(string))
+		entity, _ := strconv.Atoi(mi.Values["Entity"].(string))
 		m := &msg.Msg{
-			Opt:     msg.OptFlag(opt),
-			Entity:  msg.EntityFlag(entity),
-			GraphID: graphID,
-			Body:    mi.Values["body"].(string),
+			Opt:    msg.OptFlag(opt),
+			Entity: msg.EntityFlag(entity),
+			Body:   mi.Values["body"].(string),
 		}
 		if err = handle(ctx, m); err != nil {
 			return err

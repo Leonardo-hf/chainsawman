@@ -3,6 +3,7 @@ package db
 import (
 	"chainsawman/consumer/connector/msg"
 	"fmt"
+	"strconv"
 
 	nebula "github.com/vesoft-inc/nebula-go/v3"
 )
@@ -18,6 +19,34 @@ type NebulaConfig struct {
 	Port     int
 	Username string
 	Passwd   string
+}
+
+func (n *NebulaClientImpl) GetOutNeighbors(graph int64, nodeID int64) ([]int64, error) {
+	session, err := n.getSession()
+	defer func() { session.Release() }()
+	if err != nil {
+		return nil, err
+	}
+	query := fmt.Sprintf("USE G%v;"+
+		"GET SUBGRAPH WITH PROP 1 STEPS FROM \"%v\" OUT sedge "+
+		"YIELD VERTICES AS nodes;", graph, nodeID)
+	res, err := session.Execute(query)
+	if !res.IsSucceed() {
+		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+	}
+	nodes := make([]int64, 0)
+	for i := 0; i < res.GetRowSize(); i++ {
+		record, _ := res.GetRowValuesByIndex(i)
+		snodes, _ := record.GetValueByColName("nodes")
+		snodesList, _ := snodes.AsList()
+		for _, snodeWrapper := range snodesList {
+			snode, _ := snodeWrapper.AsNode()
+			id, _ := snode.GetID().AsString()
+			idInt, _ := strconv.ParseInt(id, 10, 64)
+			nodes = append(nodes, idInt)
+		}
+	}
+	return nodes, nil
 }
 
 func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
@@ -119,7 +148,7 @@ func (n *NebulaClientImpl) InsertEdge(graphID int64, edge *msg.EdgeBody) (int, e
 		return 0, err
 	}
 	insert := fmt.Sprintf("USE G%v;"+
-		"INSERT EDGE sedge() VALUES \"%v\"->\"%v\";", graphID, edge.Source, edge.Target)
+		"INSERT EDGE sedge() VALUES \"%v\"->\"%v\":();", graphID, edge.Source, edge.Target)
 	res, err := session.Execute(insert)
 	if err != nil {
 		return 0, err

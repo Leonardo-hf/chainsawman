@@ -31,23 +31,69 @@ func main() {
 }
 
 func handle(ctx context.Context, m *msg.Msg) error {
-	switch m.Entity {
-	case msg.Node:
-		node := &msg.NodeBody{}
-		err := jsonx.UnmarshalFromString(m.Body, node)
-		if err != nil {
-			return err
-		}
-		return handleNode(ctx, node, m.GraphID, m.Opt)
-	case msg.Edge:
-		node := &msg.EdgeBody{}
-		err := jsonx.UnmarshalFromString(m.Body, node)
-		if err != nil {
-			return err
-		}
-		return handleEdge(ctx, node, m.GraphID, m.Opt)
+	update := &msg.UpdateBody{}
+	err := jsonx.UnmarshalFromString(m.Body, update)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("[connector] wrong entity flag, value = %v", m.Entity)
+	return handleUpdate(ctx, update)
+	//switch m.Entity {
+	//case msg.Node:
+	//	node := &msg.NodeBody{}
+	//	err := jsonx.UnmarshalFromString(m.Body, node)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return handleNode(ctx, node, m.GraphID, m.Opt)
+	//case msg.Edge:
+	//	node := &msg.EdgeBody{}
+	//	err := jsonx.UnmarshalFromString(m.Body, node)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return handleEdge(ctx, node, m.GraphID, m.Opt)
+	//}
+	//return fmt.Errorf("[connector] wrong entity flag, value = %v", m.Entity)
+}
+
+func handleUpdate(_ context.Context, update *msg.UpdateBody) error {
+	graphId := update.GraphId
+	edges := update.Edges
+	for i, newEdge := range edges {
+		oldEdge, err := config.NebulaClient.GetOutNeighbors(graphId, i)
+		if err != nil {
+			return err
+		}
+		flags := make([]bool, len(newEdge))
+		for _, old := range oldEdge {
+			if id := ifIn(old, newEdge); id == -1 {
+				_, err = config.NebulaClient.DeleteEdge(graphId, &msg.EdgeBody{Source: i, Target: old})
+				if err != nil {
+					return err
+				}
+			} else {
+				flags[id] = true
+			}
+		}
+		for index, f := range flags {
+			if !f {
+				_, err = config.NebulaClient.InsertEdge(graphId, &msg.EdgeBody{Source: i, Target: newEdge[index]})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func ifIn(old int64, newEDge []int64) int64 {
+	for i := range newEDge {
+		if old == newEDge[i] {
+			return int64(i)
+		}
+	}
+	return -1
 }
 
 func handleEdge(_ context.Context, edge *msg.EdgeBody, graphID int64, opt msg.OptFlag) error {

@@ -4,36 +4,37 @@ declare namespace Graph {
     name: string;
     desc: string;
     isCustom: boolean;
+    type: number;
     params: Element[];
   };
 
   type algoAvgCCParams = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
   };
 
   type algoBetweennessParams = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
   };
 
   type algoClosenessParams = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
   };
 
   type algoDegreeParams = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
   };
 
   type AlgoDegreeRequest = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
   };
 
   type algoLouvainParams = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
     maxIter?: number;
     internalIter?: number;
@@ -41,7 +42,7 @@ declare namespace Graph {
   };
 
   type AlgoLouvainRequest = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
     maxIter: number;
     internalIter: number;
@@ -54,14 +55,14 @@ declare namespace Graph {
   };
 
   type algoPageRankParams = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
     iter?: number;
     prob?: number;
   };
 
   type AlgoPageRankRequest = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
     iter: number;
     prob: number;
@@ -79,18 +80,18 @@ declare namespace Graph {
   };
 
   type AlgoRequest = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
   };
 
   type algoVoteRankParams = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
     iter?: number;
   };
 
   type AlgoVoteRankRequest = {
-    taskId: number;
+    taskId?: number;
     graphId: number;
     iter: number;
   };
@@ -107,6 +108,10 @@ declare namespace Graph {
     graphId: number;
   };
 
+  type DropTaskRequest = {
+    taskId?: number;
+  };
+
   type Edge = {
     source: number;
     target: number;
@@ -114,6 +119,7 @@ declare namespace Graph {
 
   type Element = {
     key: string;
+    keyDesc: string;
     type: number;
   };
 
@@ -208,6 +214,7 @@ declare namespace Graph {
   };
 
   type Task = {
+    id: number;
     idf: number;
     desc: string;
     createTime: number;
