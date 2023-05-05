@@ -36,7 +36,7 @@ func (l *AlgoVoteRankLogic) AlgoVoteRank(req *types.AlgoVoteRankRequest) (resp *
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
 	}
 	// 任务没提交过，创建任务
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, common.AlgoPagerank, req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, common.AlgoVoterank, req)
 	if err != nil {
 		return nil, err
 	}

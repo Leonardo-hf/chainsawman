@@ -36,7 +36,7 @@ func (l *AlgoBetweennessLogic) AlgoBetweenness(req *types.AlgoRequest) (resp *ty
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
 	}
 	// 任务没提交过，创建任务
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, common.AlgoDegree, req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, common.AlgoBetweenness, req)
 	if err != nil {
 		return nil, err
 	}

@@ -183,13 +183,13 @@ const HomePage: React.FC = (props) => {
                         name='name'
                         label={"图名称"}
                     >
-                        <Input></Input>
+                        <Input/>
                     </FormItem>
                     <FormItem
                         name='desc'
                         label={"图描述"}
                     >
-                        <Input></Input>
+                        <Input/>
                     </FormItem>
                     <FormItem
                         name="node"

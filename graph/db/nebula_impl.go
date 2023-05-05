@@ -96,7 +96,7 @@ func (n *NebulaClientImpl) GetAllNodes(graph int64) ([]*model.Node, error) {
 	for i := 0; i < res.GetRowSize(); i++ {
 		record, _ := res.GetRowValuesByIndex(i)
 		id, _ := record.GetValueByColName("nid")
-		idInt, _ := id.AsInt()
+		idInt, _ := id.AsString()
 		name, _ := record.GetValueByColName("name")
 		nameStr, _ := name.AsString()
 		desc, _ := record.GetValueByColName("intro")

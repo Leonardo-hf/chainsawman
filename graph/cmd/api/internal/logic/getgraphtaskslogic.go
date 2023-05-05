@@ -30,9 +30,12 @@ func (l *GetGraphTasksLogic) GetGraphTasks(req *types.SearchTasksRequest) (resp 
 		return nil, err
 	}
 	resp = &types.SearchTasksReply{}
-	for _, task := range tasks {
+	// reverse
+	for i := range tasks {
+		task := tasks[len(tasks)-1-i]
 		idf := common.TaskIdf(task.Idf)
 		resp.Tasks = append(resp.Tasks, &types.Task{
+			Id:         task.ID,
 			Idf:        task.Idf,
 			Desc:       idf.Desc(),
 			CreateTime: task.CreateTime,

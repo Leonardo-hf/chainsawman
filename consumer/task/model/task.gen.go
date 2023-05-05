@@ -10,11 +10,13 @@ const TableNameTask = "task"
 type Task struct {
 	ID         int64  `gorm:"column:id;type:int;primaryKey;autoIncrement:true" json:"id"`
 	Params     string `gorm:"column:params;type:varchar(1024)" json:"params"`
-	UpdateTime int64  `gorm:"column:update_time;type:int unsigned;autoUpdateTime" json:"update_time"`
-	Name       string `gorm:"column:name;type:varchar(255);not null" json:"name"`
 	Status     int64  `gorm:"column:status;type:int;not null" json:"status"`
 	Result     string `gorm:"column:result;type:text" json:"result"`
+	GraphID    int64  `gorm:"column:graphID;type:int;not null" json:"graphID"`
+	Visible    int64  `gorm:"column:visible;type:tinyint(1)" json:"visible"`
+	Idf        int64  `gorm:"column:idf;type:int;not null" json:"idf"`
 	CreateTime int64  `gorm:"column:create_time;type:int unsigned;autoCreateTime" json:"create_time"`
+	UpdateTime int64  `gorm:"column:update_time;type:int unsigned;autoUpdateTime" json:"update_time"`
 }
 
 // TableName Task's table name

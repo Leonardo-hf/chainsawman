@@ -4,6 +4,7 @@ import (
 	"chainsawman/graph/db"
 	"chainsawman/graph/mq"
 	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
@@ -14,4 +15,6 @@ type Config struct {
 	Mysql  db.MysqlConfig
 
 	TaskMq mq.TaskMqConfig
+
+	AlgoRPC zrpc.RpcClientConf
 }

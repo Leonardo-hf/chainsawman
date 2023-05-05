@@ -29,11 +29,13 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	_task.ALL = field.NewAsterisk(tableName)
 	_task.ID = field.NewInt64(tableName, "id")
 	_task.Params = field.NewString(tableName, "params")
-	_task.UpdateTime = field.NewInt64(tableName, "update_time")
-	_task.Name = field.NewString(tableName, "name")
 	_task.Status = field.NewInt64(tableName, "status")
 	_task.Result = field.NewString(tableName, "result")
+	_task.GraphID = field.NewInt64(tableName, "graphID")
+	_task.Visible = field.NewInt64(tableName, "visible")
+	_task.Idf = field.NewInt64(tableName, "idf")
 	_task.CreateTime = field.NewInt64(tableName, "create_time")
+	_task.UpdateTime = field.NewInt64(tableName, "update_time")
 
 	_task.fillFieldMap()
 
@@ -46,11 +48,13 @@ type task struct {
 	ALL        field.Asterisk
 	ID         field.Int64
 	Params     field.String
-	UpdateTime field.Int64
-	Name       field.String
 	Status     field.Int64
 	Result     field.String
+	GraphID    field.Int64
+	Visible    field.Int64
+	Idf        field.Int64
 	CreateTime field.Int64
+	UpdateTime field.Int64
 
 	fieldMap map[string]field.Expr
 }
@@ -69,11 +73,13 @@ func (t *task) updateTableName(table string) *task {
 	t.ALL = field.NewAsterisk(table)
 	t.ID = field.NewInt64(table, "id")
 	t.Params = field.NewString(table, "params")
-	t.UpdateTime = field.NewInt64(table, "update_time")
-	t.Name = field.NewString(table, "name")
 	t.Status = field.NewInt64(table, "status")
 	t.Result = field.NewString(table, "result")
+	t.GraphID = field.NewInt64(table, "graphID")
+	t.Visible = field.NewInt64(table, "visible")
+	t.Idf = field.NewInt64(table, "idf")
 	t.CreateTime = field.NewInt64(table, "create_time")
+	t.UpdateTime = field.NewInt64(table, "update_time")
 
 	t.fillFieldMap()
 
@@ -90,14 +96,16 @@ func (t *task) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *task) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 7)
+	t.fieldMap = make(map[string]field.Expr, 9)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["params"] = t.Params
-	t.fieldMap["update_time"] = t.UpdateTime
-	t.fieldMap["name"] = t.Name
 	t.fieldMap["status"] = t.Status
 	t.fieldMap["result"] = t.Result
+	t.fieldMap["graphID"] = t.GraphID
+	t.fieldMap["visible"] = t.Visible
+	t.fieldMap["idf"] = t.Idf
 	t.fieldMap["create_time"] = t.CreateTime
+	t.fieldMap["update_time"] = t.UpdateTime
 }
 
 func (t task) clone(db *gorm.DB) task {

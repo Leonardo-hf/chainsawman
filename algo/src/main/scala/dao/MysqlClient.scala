@@ -5,8 +5,6 @@ trait MysqlClient {
 
   def multiCreateAlgoParams(param: Seq[model.AlgoParamPO]): (Int, Option[Exception])
 
-  def queryCustomAlgo(algoID: Long): (model.AlgoPO, Option[Exception])
-
   def queryAlgo(): (List[model.AlgoPOWithParams], Option[Exception])
 
   def dropAlgo(name: String): (Int, Option[Exception])

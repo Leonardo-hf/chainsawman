@@ -28,6 +28,7 @@ type Param struct {
 }
 
 type Task struct {
+	Id         int64       `json:"id"`
 	Idf        int64       `json:"idf"`
 	Desc       string      `json:"desc"`
 	CreateTime int64       `json:"createTime"`
@@ -40,6 +41,21 @@ type Task struct {
 type Rank struct {
 	NodeID int64   `json:"nodeId"`
 	Score  float64 `json:"score"`
+}
+
+type Algo struct {
+	Id       int64      `json:"id"`
+	Name     string     `json:"name"`
+	Desc     string     `json:"desc"`
+	IsCustom bool       `json:"isCustom"`
+	Type     int64      `json:"type"`
+	Params   []*Element `json:"params"`
+}
+
+type Element struct {
+	Key     string `json:"key"`
+	KeyDesc string `json:"keyDesc"`
+	Type    int64  `json:"type"`
 }
 
 type BaseReply struct {
@@ -89,6 +105,11 @@ type AlgoMetricReply struct {
 	Score float64    `json:"score"`
 }
 
+type AlgoReply struct {
+	Base  *BaseReply `json:"base"`
+	Algos []*Algo    `json:"algos"`
+}
+
 type SearchTasksRequest struct {
 	GraphID int64 `form:"graphId"`
 }
@@ -108,53 +129,56 @@ type SearchNodeRequest struct {
 }
 
 type DropRequest struct {
-	GraphID int64 `form:"graphId"`
+	GraphID int64 `json:"graphId"`
 }
 
 type UploadEmptyRequest struct {
-	Graph string `form:"graph"`
-	Desc  string `form:"desc,optional"`
+	Graph string `json:"graph"`
+	Desc  string `json:"desc,optional"`
 }
 
 type UploadRequest struct {
+
 	TaskID  int64  `form:"taskId,optional"`
 	Graph   string `json:"graph"`
 	Desc    string `jso:"desc,optional"`
 	NodeID  string `json:"nodeId"`
 	EdgeID  string `json:"edgeId"`
 	GraphID int64  `form:"graphId,optional"`
+
 }
 
 type AlgoRequest struct {
-	TaskID  int64 `form:"taskId"`
+	TaskID  int64 `form:"taskId,optional"`
 	GraphID int64 `form:"graphId"`
 }
 
 type AlgoDegreeRequest struct {
-	TaskID  int64 `form:"taskId"`
+	TaskID  int64 `form:"taskId,optional"`
 	GraphID int64 `form:"graphId"`
 }
 
 type AlgoPageRankRequest struct {
-	TaskID  int64   `form:"taskId"`
+	TaskID  int64   `form:"taskId,optional"`
 	GraphID int64   `form:"graphId"`
 	Iter    int64   `form:"iter,default=3"`
 	Prob    float64 `form:"prob,default=0.85"`
 }
 
 type AlgoVoteRankRequest struct {
-	TaskID  int64 `form:"taskId"`
+	TaskID  int64 `form:"taskId,optional"`
 	GraphID int64 `form:"graphId"`
 	Iter    int64 `form:"iter,default=100"`
 }
 
 type AlgoLouvainRequest struct {
-	TaskID       int64   `form:"taskId"`
+	TaskID       int64   `form:"taskId,optional"`
 	GraphID      int64   `form:"graphId"`
 	MaxIter      int64   `form:"maxIter,default=10"`
 	InternalIter int64   `form:"internalIter,default=5"`
 	Tol          float64 `form:"tol,default=0.5"`
 }
+
 
 type GetGraphInfoBody struct {
 	Name string `form:"name"`
@@ -172,4 +196,8 @@ type NodesInfo struct {
 
 type GetNodeReduceRequest struct {
 	Id int64 `form:"id"`
+}
+type DropTaskRequest struct {
+	TaskID int64 `json:"taskId,optional"`
+
 }

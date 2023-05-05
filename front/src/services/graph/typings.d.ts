@@ -1,4 +1,12 @@
 declare namespace Graph {
+  type Algo = {
+    id: number;
+    name: string;
+    desc: string;
+    isCustom: boolean;
+    params: Element[];
+  };
+
   type algoAvgCCParams = {
     taskId: number;
     graphId: number;
@@ -65,6 +73,11 @@ declare namespace Graph {
     file: string;
   };
 
+  type AlgoReply = {
+    base: BaseReply;
+    algos: Algo[];
+  };
+
   type AlgoRequest = {
     taskId: number;
     graphId: number;
@@ -97,6 +110,11 @@ declare namespace Graph {
   type Edge = {
     source: number;
     target: number;
+  };
+
+  type Element = {
+    key: string;
+    type: number;
   };
 
   type getGraphParams = {
@@ -197,6 +215,11 @@ declare namespace Graph {
     status: number;
     req: Record<string, any>;
     res: Record<string, any>;
+  };
+
+  type UploadEmptyRequest = {
+    graph: string;
+    desc?: string;
   };
 
   type UploadRequest = {

@@ -2,6 +2,7 @@ package svc
 
 import (
 	"chainsawman/graph/cmd/api/internal/config"
+	"chainsawman/graph/cmd/api/internal/types/rpc/algo"
 	"chainsawman/graph/db"
 	"chainsawman/graph/mq"
 )
@@ -13,7 +14,8 @@ type ServiceContext struct {
 	RedisClient  db.RedisClient
 	MysqlClient  db.MysqlClient
 
-	TaskMq mq.TaskMq
+	TaskMq  mq.TaskMq
+	AlgoRPC algo.AlgoClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -23,5 +25,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RedisClient:  db.InitRedisClient(&c.Redis),
 		MysqlClient:  db.InitMysqlClient(&c.Mysql),
 		TaskMq:       mq.InitTaskMq(&c.TaskMq),
+		AlgoRPC:      nil, /*algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())*/
 	}
 }

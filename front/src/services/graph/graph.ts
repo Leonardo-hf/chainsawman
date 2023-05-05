@@ -62,6 +62,14 @@ export async function algoDegree(
   });
 }
 
+/** 查询算法 GET /api/graph/algo/getAll */
+export async function algoGetAll(options?: { [key: string]: any }) {
+  return request<Graph.AlgoReply>('/api/graph/algo/getAll', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 /** Louvain聚类算法 GET /api/graph/algo/louvain */
 export async function algoLouvain(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -122,6 +130,21 @@ export async function algoVoteRank(
 /** 上传图 POST /api/graph/create */
 export async function createGraph(body: Graph.UploadRequest, options?: { [key: string]: any }) {
   return request<Graph.SearchGraphReply>('/api/graph/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 创建空图 POST /api/graph/createEmpty */
+export async function createEmptyGraph(
+  body: Graph.UploadEmptyRequest,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.SearchGraphReply>('/api/graph/createEmpty', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

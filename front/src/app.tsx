@@ -17,7 +17,7 @@ export function render(oldRender: () => void) {
             if (graphs!=null){
                 data.graphs.forEach((graph) => routes.push({
                     path: '/graph/' + graph.id,
-                    element: <Graph graph={graph}/>,
+                    element: <Graph graph={graph} key={graph.id}/>,
                     name: graph.name,
                 }))
             }
@@ -68,7 +68,7 @@ export const request: RequestConfig = {
 
 export const layout = () => {
     return {
-        logo: 'https://i.328888.xyz/2023/03/22/YMzqZ.png',
+        logo: require('@/assets/title.png'),
         menu: {
             locale: false,
             // request: () => {
