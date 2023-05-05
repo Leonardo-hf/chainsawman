@@ -58,6 +58,11 @@ func (c *MysqlClientImpl) GetGraphByID(ctx context.Context, id int64) (*model.Gr
 	return g.WithContext(ctx).Where(g.ID.Eq(id)).First()
 }
 
+func (c *MysqlClientImpl) GetGraphByName(ctx context.Context, name string) (*model.Graph, error) {
+	g := query.Graph
+	return g.WithContext(ctx).Where(g.Name.Eq(name)).First()
+}
+
 func (c *MysqlClientImpl) GetAllGraph(ctx context.Context) ([]*model.Graph, error) {
 	g := query.Graph
 	return g.WithContext(ctx).Find()

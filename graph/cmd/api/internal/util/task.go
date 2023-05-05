@@ -4,6 +4,7 @@ import (
 	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/model"
+	"fmt"
 
 	"context"
 
@@ -16,6 +17,7 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 	if err != nil {
 		return 0, err
 	}
+	fmt.Println(taskIDf)
 	task := &model.Task{
 		Params:  params,
 		Idf:     int64(taskIDf),
@@ -28,8 +30,9 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 		return 0, err
 	}
 	// 发布任务
-	err = svcCtx.RedisClient.ProduceTaskMsg(ctx, &model.KVTask{
+	err = svcCtx.TaskMq.ProduceTaskMsg(ctx, &model.KVTask{
 		Id:         task.ID,
+		Idf:        task.Idf,
 		Params:     task.Params,
 		Status:     model.KVTask_New,
 		CreateTime: task.CreateTime,

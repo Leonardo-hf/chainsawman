@@ -14,11 +14,13 @@ export function render(oldRender: () => void) {
         if (data) {
             setInitGraphs(data.graphs)
             graphs = data.graphs
-            data.graphs.forEach((graph) => routes.push({
-                path: '/graph/' + graph.id,
-                element: <Graph graph={graph}/>,
-                name: graph.name,
-            }))
+            if (graphs!=null){
+                data.graphs.forEach((graph) => routes.push({
+                    path: '/graph/' + graph.id,
+                    element: <Graph graph={graph}/>,
+                    name: graph.name,
+                }))
+            }
         }
         graphs = routes
         oldRender()
@@ -31,6 +33,8 @@ export function patchClientRoutes({routes}) {
     let menu = routes[0].children[2]
     // menu["routes"] = []
     menu["children"] = []
+    if (graphs==null)
+        return
     graphs.forEach(graph => {
         // menu.routes.push(graph)
         menu.children.push(graph)

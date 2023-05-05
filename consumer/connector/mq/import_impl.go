@@ -2,6 +2,7 @@ package mq
 
 import (
 	"chainsawman/consumer/connector/msg"
+	"fmt"
 
 	"context"
 	"strconv"
@@ -45,6 +46,7 @@ func (r *ImportMqImpl) ConsumeImportMsg(ctx context.Context, consumer string, ha
 		return err
 	}
 	for _, mi := range result[0].Messages {
+		fmt.Println(mi)
 		opt, _ := strconv.Atoi(mi.Values["optFlag"].(string))
 		entity, _ := strconv.Atoi(mi.Values["entityFlag"].(string))
 		graphID, _ := strconv.ParseInt(mi.Values["graphID"].(string), 10, 64)

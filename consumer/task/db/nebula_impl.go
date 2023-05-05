@@ -30,6 +30,8 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 		msg := fmt.Sprintf("Fail to initialize the connection pool, host: %s, port: %d, %s", cfg.Addr, cfg.Port, err.Error())
 		panic(msg)
 	}
+	sesson, _ := pool.GetSession(cfg.Username, cfg.Passwd)
+	sesson.Execute("ADD HOSTS 127.0.0.1:9559")
 	return &NebulaClientImpl{
 		Pool:     pool,
 		Username: cfg.Username,

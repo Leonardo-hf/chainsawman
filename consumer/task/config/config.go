@@ -35,11 +35,12 @@ var TaskMq mq.TaskMq
 
 func Init(c *Config) {
 	NebulaClient = db.InitNebulaClient(&c.Nebula)
+
 	MysqlClient = db.InitMysqlClient(&c.Mysql)
 	RedisClient = db.InitRedisClient(&c.Redis)
 
 	FileRPC = file.NewFileClient(zrpc.MustNewClient(c.FileRPC).Conn())
-	AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
+	//AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
 
 	TaskMq = mq.InitTaskMq(&c.TaskMq)
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"chainsawman/consumer/config"
+	"chainsawman/consumer/task/config"
 
 	"flag"
 	"fmt"

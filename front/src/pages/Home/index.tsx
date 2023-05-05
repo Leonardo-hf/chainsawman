@@ -146,10 +146,24 @@ const HomePage: React.FC = (props) => {
             const edgeData = new FormData();
             edgeData.append('file', edge[0].originFileObj)
             let nodeId: string = '', edgeId: string = '';
-            await upload(nodeData).then(res => {
+            await upload(
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    data: nodeData
+                }
+            ).then(res => {
                 nodeId = res.id
             }).catch(e => console.log(e))
-            await upload(edgeData).then(res => {
+            await upload(
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    data: edgeData
+                }
+            ).then(res => {
                 edgeId = res.id
             }).catch(e => console.log(e))
             createGraph({taskId: 0, nodeId: nodeId, edgeId: edgeId, graph: name, desc: desc})
@@ -160,7 +174,7 @@ const HomePage: React.FC = (props) => {
                     // haha.push({id: res.graph.id, name: name, desc: desc, nodes: 0, edges: 0, status: 0})
                     // setGraphs(haha)
                     ref.current?.reload()
-                })
+                }).catch(e=>{console.log(e)})
         }
         return <Modal open={modalOpen} footer={null} onCancel={()=>setModalOpen(false)}>
             <ProCard style={{height: "fit-content"}}>

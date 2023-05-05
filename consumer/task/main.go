@@ -43,6 +43,7 @@ func main() {
 }
 
 func handle(ctx context.Context, task *model.KVTask) error {
+	fmt.Println(common.TaskIdf(task.Idf))
 	h, ok := handleTable[common.TaskIdf(task.Idf)]
 	if !ok {
 		return fmt.Errorf("no such method, err: idf=%v", common.TaskIdf(task.Idf).Desc())

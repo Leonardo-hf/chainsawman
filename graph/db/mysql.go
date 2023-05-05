@@ -17,6 +17,8 @@ type MysqlClient interface {
 
 	GetGraphByID(ctx context.Context, id int64) (*model.Graph, error)
 
+	GetGraphByName(ctx context.Context, name string) (*model.Graph, error)
+
 	GetAllGraph(ctx context.Context) ([]*model.Graph, error)
 
 	GetTasksByGraph(ctx context.Context, graphID int64) ([]*model.Task, error)

@@ -6,6 +6,7 @@ import (
 	"chainsawman/graph/cmd/api/internal/types"
 	"chainsawman/graph/cmd/api/internal/util"
 	"chainsawman/graph/model"
+	"fmt"
 
 	"context"
 
@@ -46,6 +47,7 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 		Desc: req.Desc,
 	}
 	err = l.svcCtx.MysqlClient.InsertGraph(l.ctx, graph)
+	fmt.Print(err)
 	if err != nil {
 		return nil, err
 	}

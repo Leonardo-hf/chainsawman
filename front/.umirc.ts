@@ -13,13 +13,18 @@ export default defineConfig({
     },
 
     proxy: {
-        '/api': {
+        '/api/graph': {
             'target': 'http://127.0.0.1:8888/',
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },
+        '/api/file': {
+            'target': 'http://127.0.0.1:8890/',
+            'changeOrigin': true,
+            // 'pathRewrite': {'^/api': ''},
+        },
     },
-    // mock: false,
+    mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',

@@ -117,10 +117,10 @@ type (
 
 	UploadRequest {
 		TaskID int64  `form:"taskId,optional"`
-		Graph  string `form:"graph"`
-		Desc   string `form:"desc,optional"`
-		NodeID string `form:"nodeId"`
-		EdgeID string `form:"edgeId"`
+		Graph  string `json:"graph"`
+		Desc   string `jso:"desc,optional"`
+		NodeID string `json:"nodeId"`
+		EdgeID string `json:"edgeId"`
 
 		GraphID int64 `form:"graphId,optional"`
 	}
@@ -154,6 +154,24 @@ type (
 		MaxIter      int64   `form:"maxIter,default=10"`
 		InternalIter int64   `form:"internalIter,default=5"`
 		Tol          float64 `form:"tol,default=0.5"`
+	}
+
+	GetGraphInfoBody {
+		Name string `form:"name"`
+		Id   int64  `form:"id"`
+	}
+
+	NodeReduce {
+		Name string `json:"name"`
+		Id   int64  `form:"id"`
+	}
+
+	NodesInfo {
+		Nodes []NodeReduce `form:"nodes"`
+	}
+
+	GetNodeReduceRequest {
+		Id int64 `form:"id"`
 	}
 )
 
@@ -216,4 +234,12 @@ service graph {
 	@doc "创建空图"
 	@handler createEmptyGraph
 	post /createEmpty (UploadEmptyRequest) returns (SearchGraphReply)
+	
+	@doc "由图名称获得图id"
+	@handler getGraphInfo
+	post /getGraphInfo (GetGraphInfoBody) returns (GetGraphInfoBody)
+	
+	@doc "获得节点id信息"
+	@handler getNodesInfo
+	post /getNodesInfo (GetNodeReduceRequest) returns (NodesInfo)
 }
