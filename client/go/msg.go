@@ -1,4 +1,4 @@
-package client
+package _go
 
 type OptFlag int
 

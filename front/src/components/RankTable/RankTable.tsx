@@ -32,7 +32,7 @@ const RankTable: React.FC<Props> = (props) => {
         search={false}
         options={false}
         toolBarRender={() => [
-            <a key="out" href={'/api/file/get/' + file + '.csv'}>导出数据</a>
+            <a key="out" href={'/api/file/fetch/' + file}>导出数据</a>
         ]}
         pagination={false}
     />

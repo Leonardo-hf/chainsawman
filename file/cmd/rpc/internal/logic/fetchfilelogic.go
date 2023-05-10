@@ -3,11 +3,9 @@ package logic
 import (
 	"chainsawman/file/cmd/rpc/internal/svc"
 	"chainsawman/file/cmd/rpc/types/rpc/file"
+	"io"
 
 	"context"
-	"os"
-	p "path"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -26,14 +24,17 @@ func NewFetchFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FetchFi
 }
 
 func (l *FetchFileLogic) FetchFile(in *file.IDReq) (*file.FileReply, error) {
-	name := p.Join(l.svcCtx.Config.Path, in.Id+".csv")
-	data, err := os.ReadFile(name)
+	r, err := l.svcCtx.OSSClient.FetchAlgo(l.ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
 	return &file.FileReply{
 		Name: in.Id,
-		Size: int64(len(data) >> 10),
-		Data: data,
+		Size: int64(len(bytes)),
+		Data: bytes,
 	}, nil
 }

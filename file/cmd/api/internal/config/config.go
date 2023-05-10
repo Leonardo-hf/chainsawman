@@ -1,11 +1,11 @@
 package config
 
 import (
+	"chainsawman/file/db"
 	"github.com/zeromicro/go-zero/rest"
 )
 
 type Config struct {
 	rest.RestConf
-	Path    string
-	Expired int
+	Minio db.MinioConfig
 }

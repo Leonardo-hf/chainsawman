@@ -1,13 +1,9 @@
 package logic
 
 import (
+	"chainsawman/file/cmd/rpc/internal/svc"
 	"chainsawman/file/cmd/rpc/types/rpc/file"
 	"context"
-	"os"
-	p "path"
-	"time"
-
-	"chainsawman/file/cmd/rpc/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -26,27 +22,12 @@ func NewUploadFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upload
 }
 
 func (l *UploadFileLogic) UploadFile(in *file.FileUploadReq) (*file.FileIDReply, error) {
-	c := l.svcCtx.Config
 	id := l.svcCtx.IDGen.New()
-	name := in.Name + id
-	path := p.Join(c.Path, name+".csv")
-	target, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	err := l.svcCtx.OSSClient.UploadAlgo(l.ctx, in.Name, in.Data)
 	if err != nil {
 		return nil, err
-	}
-	_, err = target.Write(in.Data)
-	if err != nil {
-		return nil, err
-	}
-	if in.Expired > 0 {
-		// 延迟删除文件
-		time.AfterFunc(time.Duration(in.Expired)*time.Second, func() {
-			if err = os.Remove(path); err != nil {
-				logx.Errorf("[file] remove fail, err: %v, id: %v", err, name)
-			}
-		})
 	}
 	return &file.FileIDReply{
-		Id: name,
+		Id: id,
 	}, nil
 }

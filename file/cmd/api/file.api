@@ -3,6 +3,10 @@ type UploadReply {
 	Size int64  `json:"size"`
 }
 
+type FetchReq {
+	ID string `path:"id"`
+}
+
 @server(
 	prefix: /api/file
 )
@@ -10,4 +14,8 @@ service file {
 	@doc "上传文件"
 	@handler upload
 	post /upload returns (UploadReply)
+	
+	@doc "下载文件"
+	@handler fetch
+	get /fetch/:id (FetchReq)
 }

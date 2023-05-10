@@ -3,8 +3,8 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 #### ONLY SUPPORT LOCAL DEPLOY CURRENTLY !!
 
 ### pre-prep
-* [nebula](https://www.nebula-graph.com.cn/database), mysql, redis
-* npm, maven, goctl, protobuf, etcd
+* [nebula](https://www.nebula-graph.com.cn/database), mysql, redis, minio
+* npm, maven, goctl, protobuf
 * spark
 
 
@@ -12,9 +12,9 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 * graph api, resolve requests from front-end
   * `run graph/scripts/graph.sql`
   * `go run graph/cmd/api/graph.go`
-* file api, allow front-end to upload files
+* file api, allow front-end to upload/fetch files
   * `run file/cmd/api/file.go`
-* file rpc, allow back-end to fetch files
+* file rpc, allow back-end to upload/fetch files
   * `run file/cmd/rpc/file/go`
 * consumer, exec requests which cost time
   * `run consumer/main.go`
@@ -28,6 +28,6 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 ### TODO LIST:
 * multiple data source, connector
   * a default datasource for python requirements updated daily
-* hdfs, minio or cloud rds for file service
 * deploy by kubernetes
 * use openfass to deploy consumers
+* data interface to format

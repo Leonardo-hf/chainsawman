@@ -4,13 +4,8 @@ import (
 	"chainsawman/file/cmd/api/internal/svc"
 	"chainsawman/file/cmd/api/internal/types"
 	"context"
-	"io"
-	"net/http"
-	"os"
-	p "path"
-	"time"
-
 	"github.com/zeromicro/go-zero/core/logx"
+	"net/http"
 )
 
 const maxFileSize = 1 << 31
@@ -30,25 +25,16 @@ func NewUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadLogi
 }
 
 func (l *UploadLogic) Upload(r *http.Request) (resp *types.UploadReply, err error) {
-	c := l.svcCtx.Config
 	_ = r.ParseMultipartForm(maxFileSize)
 	file, header, err := r.FormFile("file")
 	if err != nil {
 		return nil, err
 	}
 	id := l.svcCtx.IDGen.New()
-	path := p.Join(c.Path, id+".csv")
-	target, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, os.ModePerm)
-	_, err = io.Copy(target, file)
+	err = l.svcCtx.OSSClient.UploadSource(l.ctx, id, file, header.Size)
 	if err != nil {
 		return nil, err
 	}
-	// 延迟删除文件
-	time.AfterFunc(time.Duration(c.Expired)*time.Second, func() {
-		if err = os.Remove(path); err != nil {
-			logx.Errorf("[file] remove fail, err: %v, id: %v", err, id)
-		}
-	})
 	return &types.UploadReply{
 		ID:   id,
 		Size: header.Size,

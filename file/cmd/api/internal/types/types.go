@@ -5,3 +5,7 @@ type UploadReply struct {
 	ID   string `json:"id"`
 	Size int64  `json:"size"`
 }
+
+type FetchReq struct {
+	ID string `path:"id"`
+}

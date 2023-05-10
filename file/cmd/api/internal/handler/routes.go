@@ -2,8 +2,9 @@
 package handler
 
 import (
-	"chainsawman/file/cmd/api/internal/svc"
 	"net/http"
+
+	"chainsawman/file/cmd/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )
@@ -15,6 +16,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/upload",
 				Handler: uploadHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/fetch/:id",
+				Handler: fetchHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/file"),

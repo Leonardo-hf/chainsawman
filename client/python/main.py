@@ -21,31 +21,11 @@ headers = {
 }
 
 if __name__ == '__main__':
-    # d = feedparser.parse('https://pypi.org/rss/updates.xml')
-    # requirements_analyze.get_packages_v2.setRoot('./pypi')
-    # for e in d.entries:
-    #     temp = e.title.split(' ')
-    #     name = temp[0]
-    #     ver = temp[1]
-    #     url = e.link
-    #     desc = e.summary
-    #     requirements_analyze.get_packages_v2.extract_package(name)
-    # requirements_analyze.parse_v2.parse()
-    #
     dependency = {}
-    # with open('files/f_requirements_pypi.csv', 'r') as f:
-    #     for line in f:
-    #         temp = line.split(',')
-    #         package = temp[0]
-    #         dependence = temp[1][0:-1]
-    #         if package not in dependency:
-    #             dependency[package] = set()
-    #         dependency[package].add(dependence)
     dependency['b'] = set()
     dependency['b'].add('c')
     dependency['b'].add('e')
     id = requests.post('http://127.0.0.1:8888/api/graph/getGraphInfo', params={'name': 'test', 'id': 0}).json()['Id']
-    #temp=requests.post('http://127.0.0.1:8888/api/graph/getNodesInfo',params={'id':id}).json()["Nodes"]
 
     temp = [{'name': 'e', 'Id': 5}, {'name': 'c', 'Id': 3}, {'name': 'd', 'Id': 4}, {'name': 'b', 'Id': 2},
             {'name': 'a', 'Id': 1}]

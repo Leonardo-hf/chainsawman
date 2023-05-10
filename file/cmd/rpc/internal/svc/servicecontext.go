@@ -2,18 +2,21 @@ package svc
 
 import (
 	"chainsawman/file/cmd/rpc/internal/config"
+	"chainsawman/file/db"
 	"github.com/google/uuid"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	IDGen  IDGenerator
+	Config    config.Config
+	IDGen     IDGenerator
+	OSSClient db.OSSClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config: c,
-		IDGen:  &IDGeneratorImpl{},
+		Config:    c,
+		IDGen:     &IDGeneratorImpl{},
+		OSSClient: db.InitMinioClient(&c.Minio),
 	}
 }
 

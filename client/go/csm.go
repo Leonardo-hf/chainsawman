@@ -1,4 +1,4 @@
-package client
+package _go
 
 import (
 	"context"
