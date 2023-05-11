@@ -1,7 +1,7 @@
 package db
 
 import (
-	"chainsawman/consumer/connector/msg"
+	"chainsawman/consumer/connector/model"
 	"fmt"
 	"strconv"
 
@@ -64,26 +64,28 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 	}
 }
 
-func (n *NebulaClientImpl) InsertNode(graphID int64, node *msg.NodeBody) (int, error) {
+func (n *NebulaClientImpl) MultiInsertNodes(graph int64, nodes []*model.NebulaNode) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
-	insert := fmt.Sprintf("USE G%v;"+
-		"INSERT VERTEX snode(name, intro, deg) VALUES \"%v\":(\"%v\", \"%v\", %v);",
-		graphID, node.ID, node.Name, node.Desc, 0)
-	res, err := session.Execute(insert)
-	if err != nil {
-		return 0, err
+	for i, node := range nodes {
+		insert := fmt.Sprintf("USE G%v;"+
+			"INSERT VERTEX snode(name, intro, deg) VALUES \"%v\":(\"%v\", \"%v\", %v);",
+			graph, node.ID, node.Name, node.Desc, node.Deg)
+		res, err := session.Execute(insert)
+		if err != nil {
+			return i, err
+		}
+		if !res.IsSucceed() {
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		}
 	}
-	if !res.IsSucceed() {
-		return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
-	}
-	return res.GetColSize(), nil
+	return len(nodes), nil
 }
 
-func (n *NebulaClientImpl) UpdateNode(graphID int64, node *msg.NodeBody) (int, error) {
+func (n *NebulaClientImpl) UpdateNode(graphID int64, node *model.NebulaNode) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
@@ -141,7 +143,7 @@ func (n *NebulaClientImpl) DeleteNode(graphID int64, nodeID int64) (int, error) 
 	return res.GetColSize(), nil
 }
 
-func (n *NebulaClientImpl) InsertEdge(graphID int64, edge *msg.EdgeBody) (int, error) {
+func (n *NebulaClientImpl) InsertEdge(graphID int64, edge *model.NebulaEdge) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
@@ -167,7 +169,7 @@ func (n *NebulaClientImpl) InsertEdge(graphID int64, edge *msg.EdgeBody) (int, e
 	return res.GetColSize(), nil
 }
 
-func (n *NebulaClientImpl) DeleteEdge(graphID int64, edge *msg.EdgeBody) (int, error) {
+func (n *NebulaClientImpl) DeleteEdge(graphID int64, edge *model.NebulaEdge) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {

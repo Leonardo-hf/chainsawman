@@ -88,7 +88,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: createEmptyGraphHandler(serverCtx),
 			},
 			{
-
 				Method:  http.MethodPost,
 				Path:    "/getGraphInfo",
 				Handler: getGraphInfoHandler(serverCtx),
@@ -102,7 +101,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/algo/getAll",
 				Handler: algoGetAllHandler(serverCtx),
-
 			},
 		},
 		rest.WithPrefix("/api/graph"),

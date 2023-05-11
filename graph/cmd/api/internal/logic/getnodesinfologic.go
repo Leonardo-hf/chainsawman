@@ -24,7 +24,6 @@ func NewGetNodesInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetN
 }
 
 func (l *GetNodesInfoLogic) GetNodesInfo(req *types.GetNodeReduceRequest) (resp *types.NodesInfo, err error) {
-	// todo: add your logic here and delete this line
 	nodeList, err := l.svcCtx.NebulaClient.GetAllNodes(req.Id)
 	if err != nil {
 		return nil, err

@@ -137,7 +137,6 @@ type (
 	}
 
 	UploadRequest {
-
 		TaskID int64  `json:"taskId,optional"`
 		Graph  string `json:"graph"`
 		Desc   string `json:"desc,optional"`
@@ -179,10 +178,13 @@ type (
 		Tol          float64 `form:"tol,default=0.5"`
 	}
 
-
-	GetGraphInfoBody {
+	GetGraphInfoRequest {
 		Name string `form:"name"`
-		Id   int64  `form:"id"`
+	}
+
+	GetGraphInfoReply {
+		Name    string `json:"name"`
+		GraphId int64  `json:"graphId"`
 	}
 
 	NodeReduce {
@@ -266,18 +268,15 @@ service graph {
 	@handler createEmptyGraph
 	post /createEmpty (UploadEmptyRequest) returns (SearchGraphReply)
 	
-
 	@doc "由图名称获得图id"
 	@handler getGraphInfo
-	post /getGraphInfo (GetGraphInfoBody) returns (GetGraphInfoBody)
+	post /getGraphInfo (GetGraphInfoRequest) returns (GetGraphInfoReply)
 	
 	@doc "获得节点id信息"
 	@handler getNodesInfo
 	post /getNodesInfo (GetNodeReduceRequest) returns (NodesInfo)
-
+	
 	@doc "查询算法"
 	@handler algoGetAll
 	get /algo/getAll returns (AlgoReply)
-	
-
 }

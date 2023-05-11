@@ -1,6 +1,7 @@
 package mq
 
 import (
+	"chainsawman/consumer/connector/model"
 	"chainsawman/consumer/connector/msg"
 	"fmt"
 
@@ -35,7 +36,7 @@ func InitImportMq(cfg *ImportMqConfig) ImportMq {
 }
 
 // ConsumeImportMsg TODO: 消费失败了消息会丢失，应该解决
-func (r *ImportMqImpl) ConsumeImportMsg(ctx context.Context, consumer string, handle func(ctx context.Context, m *msg.Msg) error) error {
+func (r *ImportMqImpl) ConsumeImportMsg(ctx context.Context, consumer string, handle func(ctx context.Context, m *model.Msg) error) error {
 	result, err := r.rdb.XReadGroup(ctx, &redis.XReadGroupArgs{
 		Group:    r.group,
 		Streams:  []string{r.topic, ">"},
@@ -49,7 +50,7 @@ func (r *ImportMqImpl) ConsumeImportMsg(ctx context.Context, consumer string, ha
 		fmt.Println(mi)
 		opt, _ := strconv.Atoi(mi.Values["Opt"].(string))
 		entity, _ := strconv.Atoi(mi.Values["Entity"].(string))
-		m := &msg.Msg{
+		m := &model.Msg{
 			Opt:    msg.OptFlag(opt),
 			Entity: msg.EntityFlag(entity),
 			Body:   mi.Values["body"].(string),

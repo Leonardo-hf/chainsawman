@@ -45,68 +45,39 @@ func (c *CSMClient) InitGraphWithDesc(_ context.Context, name string, desc strin
 	return graph, nil
 }
 
-func (c *CSMClient) CreateNode(ctx context.Context, graphID int64, node NodeBody) error {
-	body, err := jsonx.MarshalToString(node)
+func (c *CSMClient) Creates(ctx context.Context, graphID int64, nodes NodesBody) error {
+	body, err := jsonx.MarshalToString(nodes)
 	if err != nil {
 		return err
 	}
 	return c.send(ctx, map[string]interface{}{
-		"optFlag":    Node,
-		"entityFlag": Create,
-		"graphID":    graphID,
-		"body":       body,
+		"opt":     Creates,
+		"graphID": graphID,
+		"body":    body,
 	})
 }
 
-func (c *CSMClient) UpdateNode(ctx context.Context, graphID int64, node NodeBody) error {
-	body, err := jsonx.MarshalToString(node)
+func (c *CSMClient) Updates(ctx context.Context, graphID int64, edges EdgesBody) error {
+	body, err := jsonx.MarshalToString(edges)
 	if err != nil {
 		return err
 	}
 	return c.send(ctx, map[string]interface{}{
-		"optFlag":    Node,
-		"entityFlag": Update,
-		"graphID":    graphID,
-		"body":       body,
+		"opt":     Updates,
+		"graphID": graphID,
+		"body":    body,
 	})
 }
 
-func (c *CSMClient) DeleteNode(ctx context.Context, graphID int64, nodeID int64) error {
-	body, err := jsonx.MarshalToString(&NodeBody{ID: nodeID})
+func (c *CSMClient) Deletes(ctx context.Context, graphID int64, nodes NodesBody) error {
+	body, err := jsonx.MarshalToString(nodes)
 	if err != nil {
 		return err
 	}
 	return c.send(ctx, map[string]interface{}{
-		"optFlag":    Delete,
-		"entityFlag": Create,
-		"graphID":    graphID,
-		"body":       body,
-	})
-}
-
-func (c *CSMClient) CreateEdge(ctx context.Context, graphID int64, edge EdgeBody) error {
-	body, err := jsonx.MarshalToString(edge)
-	if err != nil {
-		return err
-	}
-	return c.send(ctx, map[string]interface{}{
-		"optFlag":    Edge,
-		"entityFlag": Create,
-		"graphID":    graphID,
-		"body":       body,
-	})
-}
-
-func (c *CSMClient) DeleteEdge(ctx context.Context, graphID int64, edge EdgeBody) error {
-	body, err := jsonx.MarshalToString(edge)
-	if err != nil {
-		return err
-	}
-	return c.send(ctx, map[string]interface{}{
-		"optFlag":    Edge,
-		"entityFlag": Delete,
-		"graphID":    graphID,
-		"body":       body,
+		"opt":     Deletes,
+		"graphID": graphID,
+		"body":    body,
 	})
 }
 

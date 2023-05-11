@@ -138,14 +138,12 @@ type UploadEmptyRequest struct {
 }
 
 type UploadRequest struct {
-
-	TaskID  int64  `form:"taskId,optional"`
+	TaskID  int64  `json:"taskId,optional"`
 	Graph   string `json:"graph"`
-	Desc    string `jso:"desc,optional"`
+	Desc    string `json:"desc,optional"`
 	NodeID  string `json:"nodeId"`
 	EdgeID  string `json:"edgeId"`
-	GraphID int64  `form:"graphId,optional"`
-
+	GraphID int64  `json:"graphId,optional"`
 }
 
 type AlgoRequest struct {
@@ -179,10 +177,13 @@ type AlgoLouvainRequest struct {
 	Tol          float64 `form:"tol,default=0.5"`
 }
 
-
-type GetGraphInfoBody struct {
+type GetGraphInfoRequest struct {
 	Name string `form:"name"`
-	Id   int64  `form:"id"`
+}
+
+type GetGraphInfoReply struct {
+	Name    string `json:"name"`
+	GraphId int64  `json:"graphId"`
 }
 
 type NodeReduce struct {
@@ -197,7 +198,7 @@ type NodesInfo struct {
 type GetNodeReduceRequest struct {
 	Id int64 `form:"id"`
 }
+
 type DropTaskRequest struct {
 	TaskID int64 `json:"taskId,optional"`
-
 }

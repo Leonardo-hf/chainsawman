@@ -2,12 +2,10 @@ package main
 
 import (
 	"chainsawman/consumer/connector/config"
-	"chainsawman/consumer/connector/msg"
-
+	"chainsawman/consumer/connector/model"
 	"context"
 	"flag"
 	"fmt"
-
 	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/jsonx"
@@ -30,58 +28,86 @@ func main() {
 	}
 }
 
-func handle(ctx context.Context, m *msg.Msg) error {
-	update := &msg.UpdateBody{}
+func handle(ctx context.Context, m *model.Msg) error {
+	switch m.Opt {
+	case model.Creates:
+		return handleCreate(ctx, m)
+	case model.Updates:
+		return handleUpdate(ctx, m)
+	case model.Deletes:
+		return handleDelete(ctx, m)
+	}
+	return fmt.Errorf("[connector] wrong OPT flag, value = %v", m.Opt)
+}
+
+// TODO: 度数问题
+func handleUpdate(_ context.Context, m *model.Msg) error {
+	graphId := m.GraphID
+	update := &model.EdgesBody{}
 	err := jsonx.UnmarshalFromString(m.Body, update)
 	if err != nil {
 		return err
 	}
-	return handleUpdate(ctx, update)
-	//switch m.Entity {
-	//case msg.Node:
-	//	node := &msg.NodeBody{}
-	//	err := jsonx.UnmarshalFromString(m.Body, node)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	return handleNode(ctx, node, m.GraphID, m.Opt)
-	//case msg.Edge:
-	//	node := &msg.EdgeBody{}
-	//	err := jsonx.UnmarshalFromString(m.Body, node)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	return handleEdge(ctx, node, m.GraphID, m.Opt)
-	//}
-	//return fmt.Errorf("[connector] wrong entity flag, value = %v", m.Entity)
-}
-
-func handleUpdate(_ context.Context, update *msg.UpdateBody) error {
-	graphId := update.GraphId
 	edges := update.Edges
-	for i, newEdge := range edges {
-		oldEdge, err := config.NebulaClient.GetOutNeighbors(graphId, i)
+	for _, edge := range edges {
+		source, newEdges := edge.Source, edge.Target
+		oldEdges, err := config.NebulaClient.GetOutNeighbors(graphId, source)
 		if err != nil {
 			return err
 		}
-		flags := make([]bool, len(newEdge))
-		for _, old := range oldEdge {
-			if id := ifIn(old, newEdge); id == -1 {
-				_, err = config.NebulaClient.DeleteEdge(graphId, &msg.EdgeBody{Source: i, Target: old})
+		for _, target := range oldEdges {
+			if id := ifIn(target, newEdges); id == -1 {
+				_, err = config.NebulaClient.DeleteEdge(graphId, &model.NebulaEdge{Source: source, Target: target})
 				if err != nil {
 					return err
 				}
 			} else {
-				flags[id] = true
-			}
-		}
-		for index, f := range flags {
-			if !f {
-				_, err = config.NebulaClient.InsertEdge(graphId, &msg.EdgeBody{Source: i, Target: newEdge[index]})
+				_, err = config.NebulaClient.InsertEdge(graphId, &model.NebulaEdge{Source: source, Target: target})
 				if err != nil {
 					return err
 				}
 			}
+		}
+	}
+	return nil
+}
+
+func handleCreate(_ context.Context, m *model.Msg) error {
+	graphId := m.GraphID
+	create := &model.NodesBody{}
+	err := jsonx.UnmarshalFromString(m.Body, create)
+	if err != nil {
+		return err
+	}
+	nodes := create.Nodes
+	nebulaNodes := make([]*model.NebulaNode, len(nodes))
+	for _, n := range nodes {
+		nebulaNodes = append(nebulaNodes, &model.NebulaNode{
+			ID:   n.NodeID,
+			Name: n.Name,
+			Desc: n.Desc,
+			Deg:  0,
+		})
+	}
+	_, err = config.NebulaClient.MultiInsertNodes(graphId, nebulaNodes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO: 删除边与度数问题
+func handleDelete(_ context.Context, m *model.Msg) error {
+	graphId := m.GraphID
+	de := &model.NodesBody{}
+	err := jsonx.UnmarshalFromString(m.Body, de)
+	if err != nil {
+		return err
+	}
+	for _, n := range de.Nodes {
+		_, err := config.NebulaClient.DeleteNode(graphId, n.NodeID)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -94,41 +120,4 @@ func ifIn(old int64, newEDge []int64) int64 {
 		}
 	}
 	return -1
-}
-
-func handleEdge(_ context.Context, edge *msg.EdgeBody, graphID int64, opt msg.OptFlag) error {
-	switch opt {
-	case msg.Create:
-		_, err := config.NebulaClient.InsertEdge(graphID, edge)
-		if err != nil {
-			return err
-		}
-	case msg.Delete:
-		_, err := config.NebulaClient.DeleteEdge(graphID, edge)
-		if err != nil {
-			return err
-		}
-	}
-	return fmt.Errorf("[connector] wrong opt flag, value = %v", opt)
-}
-
-func handleNode(_ context.Context, node *msg.NodeBody, graphID int64, opt msg.OptFlag) error {
-	switch opt {
-	case msg.Create:
-		_, err := config.NebulaClient.InsertNode(graphID, node)
-		if err != nil {
-			return err
-		}
-	case msg.Update:
-		_, err := config.NebulaClient.UpdateNode(graphID, node)
-		if err != nil {
-			return err
-		}
-	case msg.Delete:
-		_, err := config.NebulaClient.DeleteNode(graphID, node.ID)
-		if err != nil {
-			return err
-		}
-	}
-	return fmt.Errorf("[connector] wrong opt flag, value = %v", opt)
 }
