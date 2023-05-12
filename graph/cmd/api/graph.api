@@ -26,14 +26,13 @@ type (
 	}
 
 	Task {
-		Id         int64       `json:"id"`
-		Idf        int64       `json:"idf"`
-		Desc       string      `json:"desc"`
-		CreateTime int64       `json:"createTime"`
-		UpdateTime int64       `json:"updateTime"`
-		Status     int64       `json:"status"`
-		Req        interface{} `json:"req"`
-		Res        interface{} `json:"res"`
+		Id         int64  `json:"id"`
+		Idf        string `json:"idf"`
+		CreateTime int64  `json:"createTime"`
+		UpdateTime int64  `json:"updateTime"`
+		Status     int64  `json:"status"`
+		Req        string `json:"req"`
+		Res        string `json:"res"`
 	}
 
 	Rank {

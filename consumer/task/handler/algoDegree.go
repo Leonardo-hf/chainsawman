@@ -12,7 +12,8 @@ import (
 type AlgoDegree struct {
 }
 
-func (h *AlgoDegree) Handle(params string, taskID int64) (string, error) {
+func (h *AlgoDegree) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.AlgoDegreeRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err

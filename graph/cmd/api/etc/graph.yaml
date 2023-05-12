@@ -16,7 +16,11 @@ Redis:
   Expired: 3600
 Mysql:
   Addr: "root:12345678@(localhost:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"
+
+TaskMqEd: "task_ed2"
 TaskMq:
   Addr: "localhost:6379"
   Topic: "task"
   Group: "task_consumers"
+TaskMqV2:
+  Addr: "localhost:6379"

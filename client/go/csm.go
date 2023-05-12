@@ -51,9 +51,9 @@ func (c *CSMClient) Creates(ctx context.Context, graphID int64, nodes NodesBody)
 		return err
 	}
 	return c.send(ctx, map[string]interface{}{
-		"opt":     Creates,
-		"graphID": graphID,
-		"body":    body,
+		"opt":      Creates,
+		"graph_id": graphID,
+		"body":     body,
 	})
 }
 
@@ -63,9 +63,9 @@ func (c *CSMClient) Updates(ctx context.Context, graphID int64, edges EdgesBody)
 		return err
 	}
 	return c.send(ctx, map[string]interface{}{
-		"opt":     Updates,
-		"graphID": graphID,
-		"body":    body,
+		"opt":      Updates,
+		"graph_id": graphID,
+		"body":     body,
 	})
 }
 
@@ -75,9 +75,33 @@ func (c *CSMClient) Deletes(ctx context.Context, graphID int64, nodes NodesBody)
 		return err
 	}
 	return c.send(ctx, map[string]interface{}{
-		"opt":     Deletes,
-		"graphID": graphID,
-		"body":    body,
+		"opt":      Deletes,
+		"graph_id": graphID,
+		"body":     body,
+	})
+}
+
+func (c *CSMClient) InsertEdges(ctx context.Context, graphID int64, nodes SplitEdgesBody) error {
+	body, err := jsonx.MarshalToString(nodes)
+	if err != nil {
+		return err
+	}
+	return c.send(ctx, map[string]interface{}{
+		"opt":      InsertEdges,
+		"graph_id": graphID,
+		"body":     body,
+	})
+}
+
+func (c *CSMClient) DeleteEdges(ctx context.Context, graphID int64, nodes SplitEdgesBody) error {
+	body, err := jsonx.MarshalToString(nodes)
+	if err != nil {
+		return err
+	}
+	return c.send(ctx, map[string]interface{}{
+		"opt":      DeleteEdges,
+		"graph_id": graphID,
+		"body":     body,
 	})
 }
 

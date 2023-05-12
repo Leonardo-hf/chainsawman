@@ -4,7 +4,7 @@
     "title": "",
     "version": ""
   },
-  "host": "127.0.0.1:8888",
+  "host": "127.0.0.1",
   "basePath": "/api/graph",
   "schemes": [
     "http",
@@ -451,6 +451,60 @@
         ]
       }
     },
+    "/api/graph/getGraphInfo": {
+      "post": {
+        "summary": "由图名称获得图id",
+        "operationId": "getGraphInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetGraphInfoReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GetGraphInfoRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/getNodesInfo": {
+      "post": {
+        "summary": "获得节点id信息",
+        "operationId": "getNodesInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/NodesInfo"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GetNodeReduceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/node/get": {
       "get": {
         "summary": "获取节点信息及邻居节点",
@@ -871,6 +925,48 @@
         "type"
       ]
     },
+    "GetGraphInfoReply": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "GetGraphInfoReply",
+      "required": [
+        "name",
+        "graphId"
+      ]
+    },
+    "GetGraphInfoRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "title": "GetGraphInfoRequest",
+      "required": [
+        "name"
+      ]
+    },
+    "GetNodeReduceRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "GetNodeReduceRequest",
+      "required": [
+        "id"
+      ]
+    },
     "Graph": {
       "type": "object",
       "properties": {
@@ -931,6 +1027,38 @@
         "name",
         "desc",
         "deg"
+      ]
+    },
+    "NodeReduce": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "NodeReduce",
+      "required": [
+        "name",
+        "id"
+      ]
+    },
+    "NodesInfo": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeReduce"
+          }
+        }
+      },
+      "title": "NodesInfo",
+      "required": [
+        "nodes"
       ]
     },
     "Param": {
@@ -1152,10 +1280,6 @@
           "format": "int64"
         },
         "idf": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "desc": {
           "type": "string"
         },
         "createTime": {
@@ -1171,17 +1295,16 @@
           "format": "int64"
         },
         "req": {
-          "type": "object"
+          "type": "string"
         },
         "res": {
-          "type": "object"
+          "type": "string"
         }
       },
       "title": "Task",
       "required": [
         "id",
         "idf",
-        "desc",
         "createTime",
         "updateTime",
         "status",

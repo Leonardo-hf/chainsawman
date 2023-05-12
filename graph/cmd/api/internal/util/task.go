@@ -12,7 +12,7 @@ import (
 	"github.com/zeromicro/go-zero/core/jsonx"
 )
 
-func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64, taskIDf common.TaskIdf, req interface{}) (int64, error) {
+func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64, taskIDf string, req interface{}) (int64, error) {
 	params, err := jsonx.MarshalToString(req)
 	if err != nil {
 		return 0, err
@@ -20,8 +20,7 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 	fmt.Println(taskIDf)
 	task := &model.Task{
 		Params:  params,
-		Idf:     int64(taskIDf),
-		Visible: common.Btoi(taskIDf.Visible()),
+		Idf:     taskIDf,
 		GraphID: graphID,
 	}
 	// 保存任务
@@ -32,13 +31,12 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 	// 发布任务
 
 	tid, err := svcCtx.TaskMq.ProduceTaskMsg(ctx, &model.KVTask{
-
 		Id:         task.ID,
 		Params:     task.Params,
 		Status:     model.KVTask_New,
 		CreateTime: task.CreateTime,
 		UpdateTime: task.UpdateTime,
-		Idf:        int64(taskIDf),
+		Idf:        taskIDf,
 	})
 	if err != nil {
 		return 0, err
@@ -51,7 +49,7 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 	return task.ID, nil
 }
 
-func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, resp interface{}) error {
+func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, idf string, resp interface{}) error {
 	result := ""
 	status := model.KVTask_New
 	task, err := svcCtx.RedisClient.GetTaskById(ctx, taskID)
@@ -60,6 +58,10 @@ func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID int64, re
 		result = task.Result
 		status = task.Status
 	} else if err == redis.Nil {
+		// 如果没有持久化则直接返回
+		if !common.TaskIdf(idf).Persistent {
+			return nil
+		}
 		// redis里没有记录，查询mysql
 		oTask, err := svcCtx.MysqlClient.GetTaskByID(ctx, taskID)
 		if err != nil {

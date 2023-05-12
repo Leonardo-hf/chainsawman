@@ -11,7 +11,8 @@ import (
 type GetNeighbors struct {
 }
 
-func (h *GetNeighbors) Handle(params string, taskID int64) (string, error) {
+func (h *GetNeighbors) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.SearchNodeRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err

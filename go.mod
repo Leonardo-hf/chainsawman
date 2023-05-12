@@ -5,13 +5,13 @@ go 1.20
 require (
 	github.com/deckarep/golang-set v1.8.0
 	github.com/extrame/xls v0.0.1
-	github.com/golang/protobuf v1.5.2
-	github.com/redis/go-redis/v9 v9.0.3
+	github.com/golang/protobuf v1.5.3
+	github.com/redis/go-redis/v9 v9.0.4
 	github.com/tealeg/xlsx v1.0.5
 	github.com/vesoft-inc/nebula-go/v3 v3.4.0
 	github.com/zeromicro/go-zero v1.4.4
 	google.golang.org/grpc v1.50.1
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/gen v0.3.21
 	gorm.io/gorm v1.24.6
@@ -29,6 +29,7 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
+	github.com/hibiken/asynq v0.24.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.16.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
@@ -37,8 +38,10 @@ require (
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/spf13/cast v1.5.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.5 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.5 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.5 // indirect
@@ -49,7 +52,7 @@ require (
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.3.0 // indirect

@@ -3,6 +3,7 @@ package db
 import (
 	"chainsawman/consumer/connector/model"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"strconv"
 
 	nebula "github.com/vesoft-inc/nebula-go/v3"
@@ -57,6 +58,7 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 	if err != nil {
 		panic(fmt.Sprintf("Fail to initialize the connection pool, host: %s, port: %d, %s", cfg.Addr, cfg.Port, err.Error()))
 	}
+	logx.Info("[Connector] nebula init.")
 	return &NebulaClientImpl{
 		Pool:     pool,
 		Username: cfg.Username,
@@ -104,7 +106,7 @@ func (n *NebulaClientImpl) UpdateNode(graphID int64, node *model.NebulaNode) (in
 	return res.GetColSize(), nil
 }
 
-func (n *NebulaClientImpl) addDeg(graphID int64, nodeID int64) (int, error) {
+func (n *NebulaClientImpl) AddDeg(graphID int64, nodeID int64) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
@@ -144,29 +146,27 @@ func (n *NebulaClientImpl) DeleteNode(graphID int64, nodeID int64) (int, error) 
 }
 
 func (n *NebulaClientImpl) InsertEdge(graphID int64, edge *model.NebulaEdge) (int, error) {
+	return n.MultiInsertEdges(graphID, []*model.NebulaEdge{edge})
+}
+
+func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edges []*model.NebulaEdge) (int, error) {
 	session, err := n.getSession()
 	defer func() { session.Release() }()
 	if err != nil {
 		return 0, err
 	}
-	insert := fmt.Sprintf("USE G%v;"+
-		"INSERT EDGE sedge() VALUES \"%v\"->\"%v\":();", graphID, edge.Source, edge.Target)
-	res, err := session.Execute(insert)
-	if err != nil {
-		return 0, err
+	for i, edge := range edges {
+		insert := fmt.Sprintf("USE G%v;"+
+			"INSERT EDGE sedge() VALUES \"%v\"->\"%v\":();", graph, edge.Source, edge.Target)
+		res, err := session.Execute(insert)
+		if err != nil {
+			return i, err
+		}
+		if !res.IsSucceed() {
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		}
 	}
-	if !res.IsSucceed() {
-		return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
-	}
-	_, err = n.addDeg(graphID, edge.Source)
-	if err != nil {
-		return 0, err
-	}
-	_, err = n.addDeg(graphID, edge.Target)
-	if err != nil {
-		return 0, err
-	}
-	return res.GetColSize(), nil
+	return len(edges), nil
 }
 
 func (n *NebulaClientImpl) DeleteEdge(graphID int64, edge *model.NebulaEdge) (int, error) {

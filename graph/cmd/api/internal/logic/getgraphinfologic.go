@@ -24,7 +24,6 @@ func NewGetGraphInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetG
 }
 
 func (l *GetGraphInfoLogic) GetGraphInfo(req *types.GetGraphInfoRequest) (resp *types.GetGraphInfoReply, err error) {
-	// todo: add your logic here and delete this line
 	name := req.Name
 	graph, err := l.svcCtx.MysqlClient.GetGraphByName(l.ctx, name)
 	if err != nil {

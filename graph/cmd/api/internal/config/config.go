@@ -4,7 +4,6 @@ import (
 	"chainsawman/graph/db"
 	"chainsawman/graph/mq"
 	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
@@ -14,7 +13,9 @@ type Config struct {
 	Redis  db.RedisConfig
 	Mysql  db.MysqlConfig
 
-	TaskMq mq.TaskMqConfig
+	TaskMqEd string
+	TaskMq   mq.TaskMqConfig
+	TaskMqV2 mq.AsynqConfig
 
-	AlgoRPC zrpc.RpcClientConf
+	//AlgoRPC zrpc.RpcClientConf
 }

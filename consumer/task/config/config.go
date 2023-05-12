@@ -1,6 +1,7 @@
 package config
 
 import (
+	"chainsawman/common"
 	"chainsawman/consumer/task/db"
 	"chainsawman/consumer/task/mq"
 	"chainsawman/consumer/task/types/rpc/algo"
@@ -14,7 +15,10 @@ type Config struct {
 	Redis  db.RedisConfig
 	Mysql  db.MysqlConfig
 
-	TaskMq mq.TaskMqConfig
+	TaskMq   mq.TaskMqConfig
+	TaskMqV2 mq.AsynqConfig
+
+	TaskMqEd string
 
 	FileRPC zrpc.RpcClientConf
 	AlgoRPC zrpc.RpcClientConf
@@ -42,5 +46,7 @@ func Init(c *Config) {
 	FileRPC = file.NewFileClient(zrpc.MustNewClient(c.FileRPC).Conn())
 	AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
 
-	TaskMq = mq.InitTaskMq(&c.TaskMq)
+	if c.TaskMqEd == common.TaskMqEd {
+		TaskMq = mq.InitTaskMq(&c.TaskMq)
+	}
 }

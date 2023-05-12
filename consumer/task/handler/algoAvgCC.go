@@ -12,7 +12,8 @@ import (
 type AlgoAvgCC struct {
 }
 
-func (h *AlgoAvgCC) Handle(params string, taskID int64) (string, error) {
+func (h *AlgoAvgCC) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.AlgoRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err

@@ -1,23 +1,38 @@
 import {PageContainer, ProList} from "@ant-design/pro-components";
 import {
-    TrademarkCircleFilled,
-    ChromeFilled,
-    BranchesOutlined,
     ApartmentOutlined,
     AppstoreFilled,
+    BranchesOutlined,
+    ChromeFilled,
     CopyrightCircleFilled,
     CustomerServiceFilled,
     ShareAltOutlined,
+    TrademarkCircleFilled,
 } from '@ant-design/icons';
 import Graphin, {Behaviors} from '@antv/graphin';
-import {Select, Row, Col, Card, Spin, Input, Button, InputNumber, message, Tag, Form, Divider, Tooltip} from 'antd';
+import {
+    Button,
+    Card,
+    Col,
+    Divider,
+    Form,
+    Input,
+    InputNumber,
+    message,
+    Row,
+    Select,
+    Space,
+    Spin,
+    Tag,
+    Tooltip,
+    Typography
+} from 'antd';
 import React, {SetStateAction} from "react";
 import {connect} from "@@/exports";
-import {Space, Typography} from 'antd';
 import {formatDate, formatNumber, getTag} from "@/utils/format";
-import {Algo, AlgoType, algos, getAlgoTypeDesc, AlgoTypeMap, ParamType} from './_algo';
+import {Algo, algos, AlgoType, AlgoTypeMap, getAlgoTypeDesc, ParamType} from './_algo';
 import {dropGraph, dropTask, getGraphTasks} from "@/services/graph/graph";
-import {getTaskTypeDesc, TaskType, TaskTypeMap} from "./_task";
+import {getTaskTypeDesc, TaskTypeMap} from "./_task";
 import MetricTable from "@/components/MetricTable";
 import RankTable from "@/components/RankTable";
 import {history} from 'umi';
@@ -337,7 +352,8 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                 description: '文件导入'
                             },
                             {
-                                title: <Tooltip title={'大图仅展示高于`最低度数`的节点'}><span>图最低度数</span></Tooltip>,
+                                title: <Tooltip
+                                    title={'大图仅展示高于`最低度数`的节点'}><span>图最低度数</span></Tooltip>,
                                 description: <InputNumber defaultValue={min} formatter={formatNumber} min={0}
                                                           onChange={v => {
                                                               this.state.graph.min = v
@@ -494,7 +510,8 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                         return <Tag color={s.color}>{s.text}</Tag>
                     }
                     const getTaskContent = (task: Graph.Task) => {
-                        const getTaskResult = (res: Record<string, any>) => {
+                        const getTaskResult = (sres: string) => {
+                            const res: Object = JSON.parse(sres)
                             if (res?.score) {
                                 return <MetricTable score={res.score}/>
                             }
@@ -561,7 +578,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                             extra: {
                                 render: (_, row) => {
                                     return <Space direction={'vertical'}>
-                                        <Text type={'secondary'} >{formatDate(row.createTime)}</Text>
+                                        <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
                                         <a style={{float: 'right'}} onClick={() => {
                                             dropTask({
                                                 taskId: row.id
@@ -570,7 +587,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                             })
                                         }}>{row.status ? '删除' : '终止'}</a>
                                     </Space>
-                                        },
+                                },
                                 search: false,
                             },
                             content: {

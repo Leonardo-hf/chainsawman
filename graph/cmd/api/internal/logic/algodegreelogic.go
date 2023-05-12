@@ -31,12 +31,13 @@ func (l *AlgoDegreeLogic) AlgoDegree(req *types.AlgoDegreeRequest) (resp *types.
 		TaskID:     req.TaskID,
 		TaskStatus: int64(model.KVTask_New),
 	}}
+	idf := common.AlgoDegree
 	if req.TaskID != 0 {
 		// 任务已经提交过
-		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
+		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp)
 	}
 	// 任务没提交过，创建任务
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, common.AlgoDegree, req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, idf, req)
 	if err != nil {
 		return nil, err
 	}

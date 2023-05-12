@@ -2,11 +2,12 @@ import os.path
 import tarfile
 import time
 import zipfile
-from multiprocessing import Queue, Process
+from shutil import rmtree
 
 import requests
-import tqdm
 from lxml import etree
+
+from example.connector.pypi.requirements_detector import detect
 
 office_url = 'https://pypi.org/simple'
 tsinghua_url = 'https://pypi.tuna.tsinghua.edu.cn/simple'
@@ -17,13 +18,6 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 '
                   'Safari/537.36',
 }
-
-root = '../../pypi'
-
-
-def setRoot(path):
-    global root
-    root = path
 
 
 def spider(url):
@@ -51,17 +45,14 @@ def download(url, path, chunk_s=1024):
 
 
 def get_packages_list():
-    p = 'files/packages.txt'
-    if os.path.exists(p):
-        with open(p, 'r') as f:
-            return list(map(lambda x: x.strip(), f.readlines()))
     html = spider(base_url).text
     content = etree.HTML(html)
-    packages = content.xpath('/html/body/a/text()')
-    with open(p, "w") as f:
-        for i in tqdm.tqdm(range(len(packages)), total=len(packages), desc="获得包列表进度"):
-            f.write(str(packages[i]) + "\n")
+    packages = list(map(lambda p: pformat(p), content.xpath('/html/body/a/text()')))
     return packages
+
+
+def pformat(p: str):
+    return p.replace('_', '-').lower()
 
 
 def _extract_tar_files(package_file, path):
@@ -108,45 +99,51 @@ def _extract_zip_files(package_file, path):
         print('extract error on {} : {}'.format(package_file, str(e)))
 
 
+def get_desc(name):
+    url = 'https://pypi.org/project/{}'.format(name)
+    content = etree.HTML(spider(url).text)
+    desc = content.xpath('//p[@class=\'package-description__summary\']/text()')
+    if len(desc) == 0:
+        return desc[0]
+    return ''
+
+
 def extract_package(name):
-    outdir = '{}/{}'.format(root, name)
-    if os.path.exists(outdir):
+    out_file = '/tmp/{}'.format(name)
+    out_dir = '/tmp/dir_{}'.format(name)
+    file_url = ''
+    # 获得file_url
+    url = 'https://pypi.org/project/{}'.format(name)
+    content = etree.HTML(spider(url).text)
+    edition = content.xpath('//h1/text()')
+    if len(edition) == 0:
         return
-    url = 'https://pypi.org/project/{}/#files'.format(name)
-    html = spider(url).text
-    content = etree.HTML(html)
-    file_url = content.xpath('//*[@id="files"]/div[1]/div[2]/a[1]/@href')
-    if len(file_url) == 0:
+    edition = pformat(''.join(edition[0].strip().split(' ')[1:]))
+    repo = etree.HTML(spider('{}/{}'.format(base_url, name)).text)
+    poss_file_url = repo.xpath('/html/body/a')
+    for a in poss_file_url:
+        desc = pformat(str(a.text))
+        if edition in desc and (is_zip(desc) or is_tar(desc)):
+            file_url = a.attrib.get('href')
+            file_url = file_url[0:file_url.rfind('#')]
+            break
+    # 下载源代码文件
+    if file_url != '':
         return
-    file_url = file_url[0]
-    tmp_path = '/tmp/{}'.format(file_url[str(file_url).rfind('/') + 1:])
-
-    if not is_tar(file_url) and not is_zip(file_url):
-        edition = content.xpath('//h1/text()')
-        if len(edition) == 0:
-            print('fail: ' + name)
-            return
-        edition = ''.join(edition[0].strip().split(' ')[1:]).replace('_', '-')
-        repo = etree.HTML(spider('{}/{}'.format(base_url, name)).text)
-        poss_file_url = repo.xpath('/html/body/a')
-        for a in poss_file_url:
-            desc = str(a.text).replace('_', '-')
-            if edition in desc and (is_zip(desc) or is_tar(desc)):
-                file_url = a.attrib.get('href')
-                file_url = file_url[0:file_url.rfind('#')]
-                print('get: ' + name + ', ' + file_url)
-                break
-
     if is_tar(file_url):
-        download(file_url, tmp_path)
-        _extract_tar_files(tmp_path, path=outdir)
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
+        download(file_url, out_file)
+        _extract_tar_files(out_file, path=out_dir)
     elif is_zip(file_url):
-        download(file_url, tmp_path)
-        _extract_zip_files(tmp_path, path=outdir)
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
+        download(file_url, out_file)
+        _extract_zip_files(out_file, path=out_dir)
+    # 解析文件
+    requirements = parse(out_dir)
+    # 删除文件
+    if os.path.exists(out_file):
+        os.remove(out_file)
+    if os.path.exists(out_dir):
+        rmtree(out_dir)
+    return requirements
 
 
 def is_zip(s):
@@ -164,28 +161,10 @@ def ensure_dir(dirs):
     return True
 
 
-def get(q):
-    while not q.empty():
-        name = q.get()
-        x = q.qsize()
-        if x % 1000 == 0:
-            print(x)
-        extract_package(name)
-
-
-if __name__ == '__main__':
-    ensure_dir('files')
-    packages = get_packages_list()
-    s = Queue()
-    for p in packages:
-        if os.path.exists('{}/{}'.format(root, p)):
-            continue
-        s.put(p)
-    # for i in tqdm.tqdm(range(len(packages)), total=len(packages), desc="下载包进度"):
-    #     extract_package(packages[i])
-    pl = []
-    num = os.cpu_count() * 2
-    for i in range(0, num):
-        p = Process(target=get, args=(s,))
-        p.start()
-        pl.append(p)
+def parse(p):
+    try:
+        requirements = detect.find_requirements(p)
+        requirements = set(filter(lambda r: 'unknown' not in r, map(lambda r: pformat(r), requirements)))
+        return requirements
+    except:
+        return {}

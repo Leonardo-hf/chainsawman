@@ -28,13 +28,12 @@ func newTask(db *gorm.DB, opts ...gen.DOOption) task {
 	tableName := _task.taskDo.TableName()
 	_task.ALL = field.NewAsterisk(tableName)
 	_task.ID = field.NewInt64(tableName, "id")
-	_task.Params = field.NewString(tableName, "params")
 	_task.Status = field.NewInt64(tableName, "status")
+	_task.Params = field.NewString(tableName, "params")
 	_task.Result = field.NewString(tableName, "result")
 	_task.GraphID = field.NewInt64(tableName, "graphID")
-	_task.Visible = field.NewInt64(tableName, "visible")
 	_task.Tid = field.NewString(tableName, "tid")
-	_task.Idf = field.NewInt64(tableName, "idf")
+	_task.Idf = field.NewString(tableName, "idf")
 	_task.CreateTime = field.NewInt64(tableName, "create_time")
 	_task.UpdateTime = field.NewInt64(tableName, "update_time")
 
@@ -48,13 +47,12 @@ type task struct {
 
 	ALL        field.Asterisk
 	ID         field.Int64
-	Params     field.String
 	Status     field.Int64
+	Params     field.String
 	Result     field.String
 	GraphID    field.Int64
-	Visible    field.Int64
 	Tid        field.String
-	Idf        field.Int64
+	Idf        field.String
 	CreateTime field.Int64
 	UpdateTime field.Int64
 
@@ -74,13 +72,12 @@ func (t task) As(alias string) *task {
 func (t *task) updateTableName(table string) *task {
 	t.ALL = field.NewAsterisk(table)
 	t.ID = field.NewInt64(table, "id")
-	t.Params = field.NewString(table, "params")
 	t.Status = field.NewInt64(table, "status")
+	t.Params = field.NewString(table, "params")
 	t.Result = field.NewString(table, "result")
 	t.GraphID = field.NewInt64(table, "graphID")
-	t.Visible = field.NewInt64(table, "visible")
 	t.Tid = field.NewString(table, "tid")
-	t.Idf = field.NewInt64(table, "idf")
+	t.Idf = field.NewString(table, "idf")
 	t.CreateTime = field.NewInt64(table, "create_time")
 	t.UpdateTime = field.NewInt64(table, "update_time")
 
@@ -99,13 +96,12 @@ func (t *task) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *task) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 10)
+	t.fieldMap = make(map[string]field.Expr, 9)
 	t.fieldMap["id"] = t.ID
-	t.fieldMap["params"] = t.Params
 	t.fieldMap["status"] = t.Status
+	t.fieldMap["params"] = t.Params
 	t.fieldMap["result"] = t.Result
 	t.fieldMap["graphID"] = t.GraphID
-	t.fieldMap["visible"] = t.Visible
 	t.fieldMap["tid"] = t.Tid
 	t.fieldMap["idf"] = t.Idf
 	t.fieldMap["create_time"] = t.CreateTime

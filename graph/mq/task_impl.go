@@ -50,7 +50,7 @@ func (r *TaskMqImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) (st
 	return cmd.Result()
 }
 
-func (r *TaskMqImpl) DelTaskMsg(ctx context.Context, id string) error {
-	cmd := r.rdb.XDel(ctx, r.topic, id)
+func (r *TaskMqImpl) DelTaskMsg(ctx context.Context, task *model.KVTask) error {
+	cmd := r.rdb.XDel(ctx, r.topic, task.Tid)
 	return cmd.Err()
 }

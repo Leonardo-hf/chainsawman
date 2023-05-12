@@ -35,9 +35,10 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 		},
 		Graph: &types.Graph{},
 	}
+	idf := common.GraphCreate
 	if req.TaskID != 0 {
 		// 任务已经提交过
-		if err = util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp); err != nil {
+		if err = util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp); err != nil {
 			return nil, err
 		}
 		return resp, nil
@@ -53,7 +54,7 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 	}
 	// 任务没提交过，创建任务
 	req.GraphID = graph.ID
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, graph.ID, common.GraphCreate, req)
+	taskID, err := util.PublishTask(l.ctx, l.svcCtx, graph.ID, idf, req)
 	if err != nil {
 		return nil, err
 	}

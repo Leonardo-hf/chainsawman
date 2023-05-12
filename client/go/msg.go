@@ -6,6 +6,8 @@ const (
 	Updates Opt = iota + 1
 	Creates
 	Deletes
+	InsertEdges
+	DeleteEdges
 )
 
 type Msg struct {
@@ -22,6 +24,10 @@ type Node struct {
 	NodeID int64  `json:"node_id"`
 	Name   string `json:"name"`
 	Desc   string `json:"desc"`
+}
+
+type SplitEdgesBody struct {
+	Edges [][2]int64 `json:"edges"`
 }
 
 type EdgesBody struct {

@@ -5,15 +5,14 @@ option go_package = "graph/model";
 //TODO: 这种文件最好放到一个单独的github仓库统一管理
 message KVTask {
   int64 id = 1;
-//  string name = 2;
+  Status status = 2;
   string params = 3;
-  Status status = 4;
-  int64 createTime = 5;
-  int64 updateTime = 6;
-  string result = 7;
-  int64 graphID = 8;
-  bool visible = 9;
-  int64 idf = 10;
+  string result = 4;
+  int64 graphID = 5;
+  string idf = 6;
+  int64 createTime = 7;
+  int64 updateTime = 8;
+  string Tid = 9;
 
   enum Status{
     New = 0;

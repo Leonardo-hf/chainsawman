@@ -123,6 +123,15 @@ declare namespace Graph {
     type: number;
   };
 
+  type GetGraphInfoReply = {
+    name: string;
+    graphId: number;
+  };
+
+  type GetGraphInfoRequest = {
+    name: string;
+  };
+
   type getGraphParams = {
     taskId?: number;
     graphId: number;
@@ -141,6 +150,10 @@ declare namespace Graph {
     min: number;
   };
 
+  type GetNodeReduceRequest = {
+    id: number;
+  };
+
   type Graph = {
     id: number;
     status: number;
@@ -155,6 +168,15 @@ declare namespace Graph {
     name: string;
     desc: string;
     deg: number;
+  };
+
+  type NodeReduce = {
+    name: string;
+    id: number;
+  };
+
+  type NodesInfo = {
+    nodes: NodeReduce[];
   };
 
   type Param = {
@@ -215,13 +237,12 @@ declare namespace Graph {
 
   type Task = {
     id: number;
-    idf: number;
-    desc: string;
+    idf: string;
     createTime: number;
     updateTime: number;
     status: number;
-    req: Record<string, any>;
-    res: Record<string, any>;
+    req: string;
+    res: string;
   };
 
   type UploadEmptyRequest = {

@@ -1,5 +1,7 @@
 package handler
 
+import "chainsawman/consumer/task/model"
+
 type Handler interface {
-	Handle(params string, taskID int64) (string, error)
+	Handle(task *model.KVTask) (string, error)
 }

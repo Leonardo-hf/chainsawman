@@ -189,6 +189,36 @@ export async function getAllGraph(options?: { [key: string]: any }) {
   });
 }
 
+/** 由图名称获得图id POST /api/graph/getGraphInfo */
+export async function getGraphInfo(
+  body: Graph.GetGraphInfoRequest,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GetGraphInfoReply>('/api/graph/getGraphInfo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 获得节点id信息 POST /api/graph/getNodesInfo */
+export async function getNodesInfo(
+  body: Graph.GetNodeReduceRequest,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.NodesInfo>('/api/graph/getNodesInfo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 获取节点信息及邻居节点 GET /api/graph/node/get */
 export async function getNeighbors(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

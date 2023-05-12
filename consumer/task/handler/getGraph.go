@@ -12,7 +12,8 @@ import (
 type GetGraph struct {
 }
 
-func (h *GetGraph) Handle(params string, taskID int64) (string, error) {
+func (h *GetGraph) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.SearchRequest{}
 	resp := &types.SearchGraphDetailReply{
 		Base: &types.BaseReply{

@@ -66,6 +66,11 @@ class NodesBody(Body):
         self.nodes = nodes
 
 
+class SplitEdgesBody(Body):
+    def __init__(self, edges: List[List[int]]):
+        self.edges = edges
+
+
 class Message:
     def __init__(self, graph_id, opt, body):
         self.opt = opt
@@ -83,21 +88,35 @@ class Opt(Enum):
 
 
 class CSMClient:
-    def __init__(self, import_mq=ImportMqClient(), graph_api=GraphAPI(), stream='import', group='import_consumers'):
+    def __init__(self, import_mq=ImportMqClient(), graph_api=GraphAPI(), stream='import', group='import_consumers',
+                 batch=100):
         import_mq.create_group(stream, group)
         self.im = import_mq
         self.graph = graph_api
         self.stream = stream
         self.group = group
+        self.batch = batch
 
     def updates(self, graph: int, edges: List[EdgesBody.Edge]):
-        self.im.send(self.stream, Message(graph_id=graph, opt=Opt.updates, body=EdgesBody(edges=edges)))
+        for i in range(len(edges), self.batch):
+            self.im.send(self.stream, Message(graph_id=graph, opt=Opt.updates,
+                                              body=EdgesBody(edges=edges[i:min(len(edges), self.batch + i)])))
 
     def creates(self, graph: int, nodes: List[NodesBody.Node]):
-        self.im.send(self.stream, Message(graph_id=graph, opt=Opt.creates, body=NodesBody(nodes=nodes)))
+        for i in range(len(nodes), self.batch):
+            self.im.send(self.stream, Message(graph_id=graph, opt=Opt.creates,
+                                              body=NodesBody(nodes=nodes[i:min(len(nodes), self.batch + i)])))
 
     def deletes(self, graph: int, nodes: List[NodesBody.Node]):
         self.im.send(self.stream, Message(graph_id=graph, opt=Opt.deletes, body=NodesBody(nodes=nodes)))
+
+    def insert_edges(self, graph: int, edges: List[List[int]]):
+        for i in range(len(edges), self.batch):
+            self.im.send(self.stream, Message(graph_id=graph, opt=Opt.deletes,
+                                              body=SplitEdgesBody(edges=edges[i:min(len(edges), self.batch + i)])))
+
+    def delete_edges(self, graph: int, edges: List[List[int]]):
+        self.im.send(self.stream, Message(graph_id=graph, opt=Opt.deletes, body=SplitEdgesBody(edges=edges)))
 
     def init_graph(self, name: str):
         return self.init_graph_with_desc(name, '')

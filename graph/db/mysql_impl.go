@@ -28,7 +28,7 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 func (c *MysqlClientImpl) InsertTask(ctx context.Context, task *model.Task) error {
 	t := query.Task
 	task.Status = 0
-	return t.WithContext(ctx).Select(t.Idf, t.Params, t.Visible, t.GraphID).Create(task)
+	return t.WithContext(ctx).Select(t.Idf, t.Params, t.GraphID).Create(task)
 }
 
 func (c *MysqlClientImpl) UpdateTaskTIDByID(ctx context.Context, id int64, tid string) (int64, error) {
@@ -41,7 +41,7 @@ func (c *MysqlClientImpl) UpdateTaskTIDByID(ctx context.Context, id int64, tid s
 
 func (c *MysqlClientImpl) GetTasksByGraph(ctx context.Context, graphID int64) ([]*model.Task, error) {
 	t := query.Task
-	return t.WithContext(ctx).Where(t.GraphID.Eq(graphID), t.Visible.Eq(1)).Find()
+	return t.WithContext(ctx).Where(t.GraphID.Eq(graphID)).Find()
 }
 
 func (c *MysqlClientImpl) GetTaskByID(ctx context.Context, id int64) (*model.Task, error) {

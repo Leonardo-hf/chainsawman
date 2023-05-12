@@ -12,7 +12,8 @@ import (
 type AlgoLouvain struct {
 }
 
-func (h *AlgoLouvain) Handle(params string, taskID int64) (string, error) {
+func (h *AlgoLouvain) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.AlgoLouvainRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err

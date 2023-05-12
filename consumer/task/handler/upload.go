@@ -16,7 +16,8 @@ import (
 type Upload struct {
 }
 
-func (h *Upload) Handle(params string, taskID int64) (string, error) {
+func (h *Upload) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.UploadRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err

@@ -12,7 +12,8 @@ import (
 type AlgoBetweenness struct {
 }
 
-func (h *AlgoBetweenness) Handle(params string, taskID int64) (string, error) {
+func (h *AlgoBetweenness) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.AlgoRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err

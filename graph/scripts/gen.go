@@ -1,11 +1,6 @@
 package main
 
 import (
-<<<<<<< HEAD
-	"chainsawman/consumer/task/config"
-
-=======
->>>>>>> e95728320379fcf46ec610e81734b51e2daf3db5
 	"flag"
 	"fmt"
 

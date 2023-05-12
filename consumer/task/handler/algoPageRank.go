@@ -12,7 +12,8 @@ import (
 type AlgoPageRank struct {
 }
 
-func (h *AlgoPageRank) Handle(params string, taskID int64) (string, error) {
+func (h *AlgoPageRank) Handle(task *model.KVTask) (string, error) {
+	params, taskID := task.Params, task.Id
 	req := &types.AlgoPageRankRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
