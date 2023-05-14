@@ -1,10 +1,9 @@
+import json
 from enum import Enum
+from typing import List
 
 import redis
-import json
-
 import requests
-from typing import List, Tuple
 
 
 class ImportMqClient:
@@ -20,7 +19,7 @@ class ImportMqClient:
         self.rdc.xgroup_create(stream, group, id=0, mkstream=True)
 
     def send(self, stream, values):
-        self.rdc.xadd(stream, values)
+        self.rdc.xadd(stream, values.to_dict())
 
 
 class GraphAPI:
@@ -75,7 +74,7 @@ class Message:
     def __init__(self, graph_id, opt, body):
         self.opt = opt
         self.graph_id = graph_id
-        self.body = body
+        self.body = body.to_json()
 
     def to_dict(self):
         return self.__dict__
@@ -85,6 +84,23 @@ class Opt(Enum):
     updates = 1
     creates = 2
     deletes = 3
+    insertEdges = 4
+    deleteEdges = 5
+
+
+class Type(Enum):
+    edges = 1
+    nodes = 2
+    splitEdges = 3
+
+
+def body_factory(type_: Type, lists):
+    if type_ == Type.edges:
+        return EdgesBody(lists)
+    elif type_ == Type.nodes:
+        return NodesBody(lists)
+    elif type_ == Type.splitEdges:
+        return SplitEdgesBody(lists)
 
 
 class CSMClient:
@@ -97,26 +113,25 @@ class CSMClient:
         self.group = group
         self.batch = batch
 
+    def send_in_array(self, graph_id, opt, array, type_):
+        for i in range(0, len(array), self.batch):
+            self.im.send(self.stream, Message(graph_id=graph_id, opt=opt,
+                                              body=body_factory(type_, array[i:min(len(array), self.batch + i)])))
+
     def updates(self, graph: int, edges: List[EdgesBody.Edge]):
-        for i in range(len(edges), self.batch):
-            self.im.send(self.stream, Message(graph_id=graph, opt=Opt.updates,
-                                              body=EdgesBody(edges=edges[i:min(len(edges), self.batch + i)])))
+        self.send_in_array(graph_id=graph, opt=Opt.updates, array=edges, type_=Type.edges)
 
     def creates(self, graph: int, nodes: List[NodesBody.Node]):
-        for i in range(len(nodes), self.batch):
-            self.im.send(self.stream, Message(graph_id=graph, opt=Opt.creates,
-                                              body=NodesBody(nodes=nodes[i:min(len(nodes), self.batch + i)])))
+        self.send_in_array(graph_id=graph, opt=Opt.creates, array=nodes, type_=Type.nodes)
 
     def deletes(self, graph: int, nodes: List[NodesBody.Node]):
         self.im.send(self.stream, Message(graph_id=graph, opt=Opt.deletes, body=NodesBody(nodes=nodes)))
 
     def insert_edges(self, graph: int, edges: List[List[int]]):
-        for i in range(len(edges), self.batch):
-            self.im.send(self.stream, Message(graph_id=graph, opt=Opt.deletes,
-                                              body=SplitEdgesBody(edges=edges[i:min(len(edges), self.batch + i)])))
+        self.send_in_array(graph_id=graph, opt=Opt.insertEdges, array=edges, type_=Type.splitEdges)
 
     def delete_edges(self, graph: int, edges: List[List[int]]):
-        self.im.send(self.stream, Message(graph_id=graph, opt=Opt.deletes, body=SplitEdgesBody(edges=edges)))
+        self.send_in_array(graph_id=graph, opt=Opt.deleteEdges, array=edges, type_=Type.splitEdges)
 
     def init_graph(self, name: str):
         return self.init_graph_with_desc(name, '')

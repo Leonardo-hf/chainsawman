@@ -3,8 +3,7 @@ package mq
 import (
 	"chainsawman/graph/model"
 	"context"
-	"github.com/redis/go-redis/v9"
-	"strconv"
+	"github.com/go-redis/redis/v8"
 )
 
 type TaskMqImpl struct {
@@ -45,7 +44,6 @@ func (r *TaskMqImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) (st
 			"idf":    task.Idf,
 			"params": task.Params,
 		},
-		ID: strconv.FormatInt(task.Id, 10),
 	})
 	return cmd.Result()
 }
