@@ -179,7 +179,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
         // 图模式，如果graph state没有就发起查询
         if (!query.ok && !details[id]) {
             const queryDetail = async () => {
-                let taskId = 0
+                let taskId = ""
                 if (this.props.details[id]) {
                     taskId = this.props.details[id].taskId
                 }
@@ -205,7 +205,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
         // 节点模式
         if (query.ok && !details[tag]) {
             const queryNeibors = async () => {
-                let taskId = 0
+                let taskId = ""
                 if (this.props.details[tag]) {
                     taskId = this.props.details[tag].taskId
                 }
@@ -511,18 +511,22 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                     }
                     const getTaskContent = (task: Graph.Task) => {
                         const getTaskResult = (sres: string) => {
-                            const res: Object = JSON.parse(sres)
-                            if (res?.score) {
-                                return <MetricTable score={res.score}/>
-                            }
-                            if (res?.ranks) {
-                                return <RankTable file={res.file} rows={
-                                    res.ranks.map((r: { nodeId: number; score: any; }) => {
-                                        return {
-                                            node: details[id].nodes.find((n: { id: number; }) => r.nodeId == n.id)?.name,
-                                            rank: r.score,
-                                        }
-                                    })}/>
+                            try {
+                                const res = JSON.parse(sres)
+                                if (res?.score) {
+                                    return <MetricTable score={res.score}/>
+                                }
+                                if (res?.ranks) {
+                                    return <RankTable file={res.file} rows={
+                                        res.ranks.map((r: { nodeId: number; score: any; }) => {
+                                            return {
+                                                node: details[id].nodes.find((n: { id: number; }) => r.nodeId == n.id)?.name,
+                                                rank: r.score,
+                                            }
+                                        })}/>
+                                }
+                            } catch (e) {
+                                return
                             }
                         }
                         return getTaskResult(task.res)
@@ -555,7 +559,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                 graphId: id
                             })
                             return {
-                                data: tasks.tasks.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
+                                data: tasks.tasks?.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
                                 success: true,
                                 total: tasks.tasks.length
                             }
@@ -580,6 +584,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                     return <Space direction={'vertical'}>
                                         <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
                                         <a style={{float: 'right'}} onClick={() => {
+                                            console.log(row.id)
                                             dropTask({
                                                 taskId: row.id
                                             }).then(() => {

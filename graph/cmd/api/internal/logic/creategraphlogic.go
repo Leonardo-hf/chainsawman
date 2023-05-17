@@ -36,7 +36,7 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 		Graph: &types.Graph{},
 	}
 	idf := common.GraphCreate
-	if req.TaskID != 0 {
+	if req.TaskID != "" {
 		// 任务已经提交过
 		if err = util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp); err != nil {
 			return nil, err

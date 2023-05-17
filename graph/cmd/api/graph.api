@@ -26,7 +26,7 @@ type (
 	}
 
 	Task {
-		Id         int64  `json:"id"`
+		Id         string `json:"id"`
 		Idf        string `json:"idf"`
 		CreateTime int64  `json:"createTime"`
 		UpdateTime int64  `json:"updateTime"`
@@ -58,7 +58,7 @@ type (
 	BaseReply {
 		Status     int64             `json:"status"`
 		Msg        string            `json:"msg"`
-		TaskID     int64             `json:"taskId"`
+		TaskID     string            `json:"taskId"`
 		TaskStatus int64             `json:"taskStatus"`
 		Extra      map[string]string `json:"extra"`
 	}
@@ -112,13 +112,13 @@ type (
 	}
 
 	SearchRequest {
-		TaskID  int64 `form:"taskId,optional"`
-		GraphID int64 `form:"graphId"`
-		Min     int64 `form:"min"`
+		TaskID  string `form:"taskId,optional"`
+		GraphID int64  `form:"graphId"`
+		Min     int64  `form:"min"`
 	}
 
 	SearchNodeRequest {
-		TaskID int64 `form:"taskId,optional"`
+		TaskID string `form:"taskId,optional"`
 
 		GraphID  int64 `form:"graphId"`
 		NodeID   int64 `form:"nodeId"`
@@ -136,7 +136,7 @@ type (
 	}
 
 	UploadRequest {
-		TaskID int64  `json:"taskId,optional"`
+		TaskID string `json:"taskId,optional"`
 		Graph  string `json:"graph"`
 		Desc   string `json:"desc,optional"`
 
@@ -147,30 +147,30 @@ type (
 	}
 
 	AlgoRequest {
-		TaskID  int64 `form:"taskId,optional"`
-		GraphID int64 `form:"graphId"`
+		TaskID  string `form:"taskId,optional"`
+		GraphID int64  `form:"graphId"`
 	}
 
 	AlgoDegreeRequest {
-		TaskID  int64 `form:"taskId,optional"`
-		GraphID int64 `form:"graphId"`
+		TaskID  string `form:"taskId,optional"`
+		GraphID int64  `form:"graphId"`
 	}
 
 	AlgoPageRankRequest {
-		TaskID  int64   `form:"taskId,optional"`
+		TaskID  string  `form:"taskId,optional"`
 		GraphID int64   `form:"graphId"`
 		Iter    int64   `form:"iter,default=3"`
 		Prob    float64 `form:"prob,default=0.85"`
 	}
 
 	AlgoVoteRankRequest {
-		TaskID  int64 `form:"taskId,optional"`
-		GraphID int64 `form:"graphId"`
-		Iter    int64 `form:"iter,default=100"`
+		TaskID  string `form:"taskId,optional"`
+		GraphID int64  `form:"graphId"`
+		Iter    int64  `form:"iter,default=100"`
 	}
 
 	AlgoLouvainRequest {
-		TaskID       int64   `form:"taskId,optional"`
+		TaskID       string  `form:"taskId,optional"`
 		GraphID      int64   `form:"graphId"`
 		MaxIter      int64   `form:"maxIter,default=10"`
 		InternalIter int64   `form:"internalIter,default=5"`
@@ -199,7 +199,7 @@ type (
 		Id int64 `form:"id"`
 	}
 	DropTaskRequest {
-		TaskID int64 `json:"taskId,optional"`
+		TaskID string `json:"taskId,optional"`
 	}
 )
 

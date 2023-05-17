@@ -32,7 +32,7 @@ func (l *AlgoDegreeLogic) AlgoDegree(req *types.AlgoDegreeRequest) (resp *types.
 		TaskStatus: int64(model.KVTask_New),
 	}}
 	idf := common.AlgoDegree
-	if req.TaskID != 0 {
+	if req.TaskID != "" {
 		// 任务已经提交过
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp)
 	}

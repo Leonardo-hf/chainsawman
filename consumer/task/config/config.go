@@ -50,3 +50,7 @@ func Init(c *Config) {
 		TaskMq = mq.InitTaskMq(&c.TaskMq)
 	}
 }
+
+func (c *Config) IsTaskV2Enabled() bool {
+	return c.TaskMqEd == common.TaskMqEd2
+}

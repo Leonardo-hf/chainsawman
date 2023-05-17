@@ -5,7 +5,6 @@ import (
 	"context"
 	"github.com/golang/protobuf/proto"
 	"github.com/redis/go-redis/v9"
-	"strconv"
 	"time"
 )
 
@@ -29,8 +28,8 @@ func InitRedisClient(cfg *RedisConfig) RedisClient {
 	}
 }
 
-func (r *RedisClientImpl) GetTaskById(ctx context.Context, id int64) (*model.KVTask, error) {
-	cmd := r.rdb.Get(ctx, strconv.FormatInt(id, 10))
+func (r *RedisClientImpl) GetTaskById(ctx context.Context, id string) (*model.KVTask, error) {
+	cmd := r.rdb.Get(ctx, id)
 	if cmd.Err() != nil {
 		return nil, cmd.Err()
 	}
@@ -51,12 +50,12 @@ func (r *RedisClientImpl) UpsertTask(ctx context.Context, task *model.KVTask) er
 	if err != nil {
 		return err
 	}
-	cmd := r.rdb.Set(ctx, strconv.FormatInt(task.Id, 10), string(v), r.expiration)
+	cmd := r.rdb.Set(ctx, task.Id, string(v), r.expiration)
 	return cmd.Err()
 }
 
-func (r *RedisClientImpl) DropTask(ctx context.Context, id int64) (int64, error) {
-	cmd := r.rdb.Del(ctx, strconv.FormatInt(id, 10))
+func (r *RedisClientImpl) DropTask(ctx context.Context, id string) (int64, error) {
+	cmd := r.rdb.Del(ctx, id)
 	if cmd.Err() != nil {
 		return 0, cmd.Err()
 	}

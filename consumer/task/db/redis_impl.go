@@ -7,7 +7,6 @@ import (
 	"context"
 	"github.com/golang/protobuf/proto"
 	"github.com/redis/go-redis/v9"
-	"strconv"
 )
 
 type RedisClientImpl struct {
@@ -35,6 +34,6 @@ func (r *RedisClientImpl) UpsertTask(ctx context.Context, task *model.KVTask) er
 	if err != nil {
 		return err
 	}
-	cmd := r.rdb.Set(ctx, strconv.FormatInt(task.Id, 10), v, r.expiration)
+	cmd := r.rdb.Set(ctx, task.Id, v, r.expiration)
 	return cmd.Err()
 }

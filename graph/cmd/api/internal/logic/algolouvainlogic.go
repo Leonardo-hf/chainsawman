@@ -32,7 +32,7 @@ func (l *AlgoLouvainLogic) AlgoLouvain(req *types.AlgoLouvainRequest) (resp *typ
 		TaskStatus: int64(model.KVTask_New),
 	}}
 	idf := common.AlgoLouvain
-	if req.TaskID != 0 {
+	if req.TaskID != "" {
 		// 任务已经提交过
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp)
 	}

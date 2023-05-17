@@ -46,11 +46,12 @@ func (r *TaskMqImpl) ConsumeTaskMsg(ctx context.Context, consumer string, handle
 	}
 	for _, msg := range result[0].Messages {
 		logx.Info(msg)
-		id, _ := strconv.ParseInt(msg.Values["id"].(string), 10, 64)
+		createTime, _ := strconv.ParseInt(msg.Values["create_time"].(string), 10, 64)
 		task := &model.KVTask{
-			Id:     id,
-			Idf:    msg.Values["idf"].(string),
-			Params: msg.Values["params"].(string),
+			Id:         msg.Values["id"].(string),
+			Idf:        msg.Values["idf"].(string),
+			Params:     msg.Values["params"].(string),
+			CreateTime: createTime,
 		}
 		if err = handle(ctx, task); err != nil {
 			return err

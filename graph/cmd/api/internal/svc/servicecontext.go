@@ -1,7 +1,6 @@
 package svc
 
 import (
-	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/config"
 	"chainsawman/graph/cmd/api/internal/types/rpc/algo"
 	"chainsawman/graph/db"
@@ -27,10 +26,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		MysqlClient:  db.InitMysqlClient(&c.Mysql),
 		//AlgoRPC: algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn()),
 	}
-	if c.TaskMqEd == common.TaskMqEd {
-		svc.TaskMq = mq.InitTaskMq(&c.TaskMq)
-	} else {
+	if c.IsTaskV2Enabled() {
 		svc.TaskMq = mq.InitTaskMqV2(&c.TaskMqV2)
+	} else {
+		svc.TaskMq = mq.InitTaskMq(&c.TaskMq)
 	}
 	return svc
 }

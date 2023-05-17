@@ -32,7 +32,7 @@ func (l *AlgoPageRankLogic) AlgoPageRank(req *types.AlgoPageRankRequest) (resp *
 		TaskStatus: int64(model.KVTask_New),
 	}}
 	idf := common.AlgoPagerank
-	if req.TaskID != 0 {
+	if req.TaskID != "" {
 		// 任务已经提交过
 		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp)
 	}

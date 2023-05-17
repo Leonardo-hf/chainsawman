@@ -9,32 +9,32 @@ declare namespace Graph {
   };
 
   type algoAvgCCParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
   };
 
   type algoBetweennessParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
   };
 
   type algoClosenessParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
   };
 
   type algoDegreeParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
   };
 
   type AlgoDegreeRequest = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
   };
 
   type algoLouvainParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     maxIter?: number;
     internalIter?: number;
@@ -42,7 +42,7 @@ declare namespace Graph {
   };
 
   type AlgoLouvainRequest = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     maxIter: number;
     internalIter: number;
@@ -55,14 +55,14 @@ declare namespace Graph {
   };
 
   type algoPageRankParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     iter?: number;
     prob?: number;
   };
 
   type AlgoPageRankRequest = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     iter: number;
     prob: number;
@@ -80,18 +80,18 @@ declare namespace Graph {
   };
 
   type AlgoRequest = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
   };
 
   type algoVoteRankParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     iter?: number;
   };
 
   type AlgoVoteRankRequest = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     iter: number;
   };
@@ -99,7 +99,7 @@ declare namespace Graph {
   type BaseReply = {
     status: number;
     msg: string;
-    taskId: number;
+    taskId: string;
     taskStatus: number;
     extra: Record<string, any>;
   };
@@ -109,7 +109,7 @@ declare namespace Graph {
   };
 
   type DropTaskRequest = {
-    taskId?: number;
+    taskId?: string;
   };
 
   type Edge = {
@@ -133,7 +133,7 @@ declare namespace Graph {
   };
 
   type getGraphParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     min: number;
   };
@@ -143,7 +143,7 @@ declare namespace Graph {
   };
 
   type getNeighborsParams = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     nodeId: number;
     distance: number;
@@ -213,7 +213,7 @@ declare namespace Graph {
   };
 
   type SearchNodeRequest = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     nodeId: number;
     distance: number;
@@ -221,7 +221,7 @@ declare namespace Graph {
   };
 
   type SearchRequest = {
-    taskId?: number;
+    taskId?: string;
     graphId: number;
     min: number;
   };
@@ -236,7 +236,7 @@ declare namespace Graph {
   };
 
   type Task = {
-    id: number;
+    id: string;
     idf: string;
     createTime: number;
     updateTime: number;
@@ -251,7 +251,7 @@ declare namespace Graph {
   };
 
   type UploadRequest = {
-    taskId?: number;
+    taskId?: string;
     graph: string;
     desc?: string;
     nodeId: string;

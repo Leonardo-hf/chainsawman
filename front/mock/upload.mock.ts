@@ -3,6 +3,6 @@ import { Request, Response } from 'express';
 
 export default {
   'POST /api/file/upload': (req: Request, res: Response) => {
-    res.status(200).send({ id: 'aBb86386-c5bb-E8E7-02b7-1CFBBa1170e4', size: 89 });
+    res.status(200).send({ id: 'B43ec793-D77e-b0d1-d2C0-49BF6fe86c9f', size: 76 });
   },
 };

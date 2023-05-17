@@ -40,9 +40,10 @@ func (r *TaskMqImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) (st
 	cmd := r.rdb.XAdd(ctx, &redis.XAddArgs{
 		Stream: r.topic,
 		Values: map[string]interface{}{
-			"id":     task.Id,
-			"idf":    task.Idf,
-			"params": task.Params,
+			"id":          task.Id,
+			"idf":         task.Idf,
+			"params":      task.Params,
+			"create_time": task.CreateTime,
 		},
 	})
 	return cmd.Result()

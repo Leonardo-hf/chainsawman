@@ -5,6 +5,8 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/handler"
 	"chainsawman/consumer/task/model"
+	"strconv"
+	"time"
 
 	"context"
 	"flag"
@@ -40,7 +42,7 @@ func main() {
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	config.Init(&c)
 	initHandleTable()
-	if c.TaskMqEd == common.TaskMqEd2 {
+	if c.IsTaskV2Enabled() {
 		srv := asynq.NewServer(
 			asynq.RedisClientOpt{Addr: c.TaskMq.Addr},
 			asynq.Config{
@@ -76,14 +78,17 @@ func handle(ctx context.Context, task *model.KVTask, h handler.Handler) error {
 	if err != nil {
 		return err
 	}
+	logx.Infof("[Task] finish task, idf=%v", task.Idf)
 	task.Result = res
 	task.Status = model.KVTask_Finished
+	task.UpdateTime = time.Now().UTC().Unix()
 	if err = config.RedisClient.UpsertTask(ctx, task); err != nil {
 		return err
 	}
 	if common.TaskIdf(task.Idf).Persistent {
+		taskIDInt, _ := strconv.ParseInt(task.Id, 10, 64)
 		_, err = config.MysqlClient.UpdateTaskByID(&model.Task{
-			ID:     task.Id,
+			ID:     taskIDInt,
 			Status: int64(task.Status),
 			Result: res,
 		})

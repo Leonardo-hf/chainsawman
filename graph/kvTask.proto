@@ -4,7 +4,7 @@ option go_package = "graph/model";
 
 //TODO: 这种文件最好放到一个单独的github仓库统一管理
 message KVTask {
-  int64 id = 1;
+  string id = 1;
   Status status = 2;
   string params = 3;
   string result = 4;

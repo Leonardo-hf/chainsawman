@@ -12,6 +12,7 @@ import (
 type CSMClient struct {
 	rdb     *redis.Client
 	service string
+	batch   int
 }
 
 type Graph struct {
@@ -45,28 +46,43 @@ func (c *CSMClient) InitGraphWithDesc(_ context.Context, name string, desc strin
 	return graph, nil
 }
 
-func (c *CSMClient) Creates(ctx context.Context, graphID int64, nodes NodesBody) error {
-	body, err := jsonx.MarshalToString(nodes)
-	if err != nil {
-		return err
+func min(a, b int) int {
+	if a < b {
+		return a
 	}
-	return c.send(ctx, map[string]interface{}{
-		"opt":      Creates,
-		"graph_id": graphID,
-		"body":     body,
-	})
+	return b
+}
+
+func (c *CSMClient) Creates(ctx context.Context, graphID int64, nodes NodesBody) error {
+	for i := 0; i < len(nodes.Nodes); i += c.batch {
+		msg := NodesBody{Nodes: nodes.Nodes[i:min(len(nodes.Nodes), i+c.batch)]}
+		body, _ := jsonx.MarshalToString(msg)
+		err := c.send(ctx, map[string]interface{}{
+			"opt":      Creates,
+			"graph_id": graphID,
+			"body":     body,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c *CSMClient) Updates(ctx context.Context, graphID int64, edges EdgesBody) error {
-	body, err := jsonx.MarshalToString(edges)
-	if err != nil {
-		return err
+	for i := 0; i < len(edges.Edges); i += c.batch {
+		msg := EdgesBody{Edges: edges.Edges[i:min(len(edges.Edges), i+c.batch)]}
+		body, _ := jsonx.MarshalToString(msg)
+		err := c.send(ctx, map[string]interface{}{
+			"opt":      Updates,
+			"graph_id": graphID,
+			"body":     body,
+		})
+		if err != nil {
+			return err
+		}
 	}
-	return c.send(ctx, map[string]interface{}{
-		"opt":      Updates,
-		"graph_id": graphID,
-		"body":     body,
-	})
+	return nil
 }
 
 func (c *CSMClient) Deletes(ctx context.Context, graphID int64, nodes NodesBody) error {
@@ -81,20 +97,24 @@ func (c *CSMClient) Deletes(ctx context.Context, graphID int64, nodes NodesBody)
 	})
 }
 
-func (c *CSMClient) InsertEdges(ctx context.Context, graphID int64, nodes SplitEdgesBody) error {
-	body, err := jsonx.MarshalToString(nodes)
-	if err != nil {
-		return err
+func (c *CSMClient) InsertEdges(ctx context.Context, graphID int64, edges SplitEdgesBody) error {
+	for i := 0; i < len(edges.Edges); i += c.batch {
+		msg := SplitEdgesBody{Edges: edges.Edges[i:min(len(edges.Edges), i+c.batch)]}
+		body, _ := jsonx.MarshalToString(msg)
+		err := c.send(ctx, map[string]interface{}{
+			"opt":      InsertEdges,
+			"graph_id": graphID,
+			"body":     body,
+		})
+		if err != nil {
+			return err
+		}
 	}
-	return c.send(ctx, map[string]interface{}{
-		"opt":      InsertEdges,
-		"graph_id": graphID,
-		"body":     body,
-	})
+	return nil
 }
 
-func (c *CSMClient) DeleteEdges(ctx context.Context, graphID int64, nodes SplitEdgesBody) error {
-	body, err := jsonx.MarshalToString(nodes)
+func (c *CSMClient) DeleteEdges(ctx context.Context, graphID int64, edges SplitEdgesBody) error {
+	body, err := jsonx.MarshalToString(edges)
 	if err != nil {
 		return err
 	}
@@ -116,6 +136,7 @@ func (c *CSMClient) send(ctx context.Context, values map[string]interface{}) err
 type CSMBuilder struct {
 	mq      string
 	service string
+	batch   int
 }
 
 func (b *CSMBuilder) Mq(addr string) *CSMBuilder {
@@ -125,6 +146,11 @@ func (b *CSMBuilder) Mq(addr string) *CSMBuilder {
 
 func (b *CSMBuilder) Service(addr string) *CSMBuilder {
 	b.service = addr
+	return b
+}
+
+func (b *CSMBuilder) Batch(batch int) *CSMBuilder {
+	b.batch = batch
 	return b
 }
 
@@ -141,6 +167,7 @@ func (b *CSMBuilder) Build() *CSMClient {
 	return &CSMClient{
 		rdb:     rdb,
 		service: b.service,
+		batch:   b.batch,
 	}
 }
 

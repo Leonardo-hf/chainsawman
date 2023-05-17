@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"strconv"
 
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
@@ -28,12 +29,14 @@ func (l *GetGraphTasksLogic) GetGraphTasks(req *types.SearchTasksRequest) (resp 
 	if err != nil {
 		return nil, err
 	}
-	resp = &types.SearchTasksReply{}
+	resp = &types.SearchTasksReply{
+		Tasks: make([]*types.Task, 0),
+	}
 	// reverse
 	for i := range tasks {
 		task := tasks[len(tasks)-1-i]
 		resp.Tasks = append(resp.Tasks, &types.Task{
-			Id:         task.ID,
+			Id:         strconv.FormatInt(task.ID, 10),
 			Idf:        task.Idf,
 			CreateTime: task.CreateTime,
 			UpdateTime: task.UpdateTime,
