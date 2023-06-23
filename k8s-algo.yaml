@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: algo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: algo
+  template:
+    metadata:
+      labels:
+        app: algo
+    spec:
+      containers:
+        - name: spark-client
+          image: myharbor.com/bigdata/spark:3.3.0-hadoop3
+          workingDir: /opt/spark
+      serviceAccountName: spark

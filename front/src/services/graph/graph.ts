@@ -62,6 +62,22 @@ export async function algoDegree(
   });
 }
 
+/** 度中心度算法 GET /api/graph/algo/degree */
+export async function algoComp(
+    // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+    params: Graph.algoDegreeParams,
+    options?: { [key: string]: any },
+) {
+  return request<Graph.AlgoRankReply>('/api/graph/algo/comp', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
 /** 查询算法 GET /api/graph/algo/getAll */
 export async function algoGetAll(options?: { [key: string]: any }) {
   return request<Graph.AlgoReply>('/api/graph/algo/getAll', {

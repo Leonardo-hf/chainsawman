@@ -102,3 +102,7 @@ func (m *MinioClientImpl) UploadAlgo(ctx context.Context, name string, data []by
 func (m *MinioClientImpl) FetchAlgo(ctx context.Context, name string) (io.Reader, error) {
 	return m.fetch(ctx, m.algo, name)
 }
+
+func (m *MinioClientImpl) FetchSource(ctx context.Context, name string) (io.Reader, error) {
+	return m.fetch(ctx, m.source, name)
+}

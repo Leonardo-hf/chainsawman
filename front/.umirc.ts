@@ -1,10 +1,8 @@
 import {defineConfig} from '@umijs/max';
 
 
-
 export default defineConfig({
-    antd: {
-    },
+    antd: {},
     // access: {},
     model: {},
     initialState: {},
@@ -23,6 +21,11 @@ export default defineConfig({
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },
+        '/api/monitor':{
+            'target': 'http://127.0.0.1:8890/',
+            'changeOrigin': true,
+            'pathRewrite': {'^/api/monitor': '/'},
+        }
     },
     mock: false,
     dva: {},
@@ -66,6 +69,11 @@ export default defineConfig({
                 }
             ]
         },
+        {
+            name: 'monitor',
+            path: '/monitor',
+            component: './Monitor'
+        }
     ],
     npmClient: 'npm',
 });

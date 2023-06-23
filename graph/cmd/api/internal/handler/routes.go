@@ -74,6 +74,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/algo/comp",
+				Handler: algoCompHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/task/getAll",
 				Handler: getGraphTasksHandler(serverCtx),
 			},

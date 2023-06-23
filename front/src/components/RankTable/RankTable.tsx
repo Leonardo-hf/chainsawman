@@ -1,7 +1,6 @@
 import {ProColumns, ProTable} from '@ant-design/pro-components';
-import {Button, Layout, Row, Typography} from 'antd';
+import {Row} from 'antd';
 import React from 'react';
-import styles from './Guide.less';
 
 type Row = {
     node: string,
@@ -22,7 +21,8 @@ const RankTable: React.FC<Props> = (props) => {
         },
         {
             title: 'rank',
-            dataIndex: 'rank'
+            dataIndex: 'rank',
+            renderText: text => text.toFixed(3)
         },
     ]
     return <ProTable
@@ -32,7 +32,7 @@ const RankTable: React.FC<Props> = (props) => {
         search={false}
         options={false}
         toolBarRender={() => [
-            <a key="out" href={'/api/file/fetch/' + file}>导出数据</a>
+            <a key='out' target='_blank' href={'/api/file/fetch/' + file}>导出数据</a>
         ]}
         pagination={false}
     />

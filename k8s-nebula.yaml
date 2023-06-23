@@ -1,0 +1,70 @@
+apiVersion: apps.nebula-graph.io/v1alpha1
+kind: NebulaCluster
+metadata:
+  name: nebula
+spec:
+  graphd:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "500Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+    replicas: 1
+    image: vesoft/nebula-graphd
+    version: v3.4.1
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: graph-pv
+  metad:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "500Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+    replicas: 1
+    image: vesoft/nebula-metad
+    version: v3.4.1
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: graph-pv
+    dataVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: graph-pv
+  storaged:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "500Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+    replicas: 1
+    image: vesoft/nebula-storaged
+    version: v3.4.1
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: graph-pv
+    dataVolumeClaims:   # 从 Operator 1.3.0 开始，支持挂载多个数据盘。
+      - resources:
+          requests:
+            storage: 2Gi
+        storageClassName: graph-pv
+    enableAutoBalance: true
+  reference:
+    name: statefulsets.apps
+    version: v1
+  schedulerName: default-scheduler
+  imagePullPolicy: IfNotPresent
+  unsatisfiableAction: ScheduleAnyway

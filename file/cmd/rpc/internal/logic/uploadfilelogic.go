@@ -22,8 +22,8 @@ func NewUploadFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upload
 }
 
 func (l *UploadFileLogic) UploadFile(in *file.FileUploadReq) (*file.FileIDReply, error) {
-	id := l.svcCtx.IDGen.New()
-	err := l.svcCtx.OSSClient.UploadAlgo(l.ctx, in.Name, in.Data)
+	id := in.Name + l.svcCtx.IDGen.New() + ".csv"
+	err := l.svcCtx.OSSClient.UploadAlgo(l.ctx, id, in.Data)
 	if err != nil {
 		return nil, err
 	}

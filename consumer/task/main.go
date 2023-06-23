@@ -33,6 +33,7 @@ func initHandleTable() {
 	handleTable[common.AlgoBetweenness] = &handler.AlgoBetweenness{}
 	handleTable[common.AlgoAvgCC] = &handler.AlgoAvgCC{}
 	handleTable[common.AlgoLouvain] = &handler.AlgoLouvain{}
+	handleTable[common.AlgoComp] = &handler.AlgoComp{}
 }
 
 func main() {
@@ -92,6 +93,7 @@ func handle(ctx context.Context, task *model.KVTask, h handler.Handler) error {
 			Status: int64(task.Status),
 			Result: res,
 		})
+		fmt.Println(err)
 	}
 	return err
 }

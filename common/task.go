@@ -12,6 +12,7 @@ const (
 	AlgoVoterank    = "algo:voterank"
 	AlgoLouvain     = "algo:louvain"
 	AlgoAvgCC       = "algo:avgCC"
+	AlgoComp        = "algo:comp"
 )
 
 const (
@@ -71,6 +72,10 @@ var taskAttrMap = map[string]*TaskAttr{
 		Persistent: true,
 	},
 	AlgoAvgCC: {
+		Queue:      PLow,
+		Persistent: true,
+	},
+	AlgoComp: {
 		Queue:      PLow,
 		Persistent: true,
 	},

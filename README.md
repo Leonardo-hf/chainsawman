@@ -17,7 +17,8 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 * file rpc, allow back-end to upload/fetch files
   * `run file/cmd/rpc/file/go`
 * consumer, exec requests which cost time
-  * `run consumer/main.go`
+  * `run consumer/connector/main.go`
+  * `run consumer/task/main.go`
 * algo rpc, interact with spark to resolve graph algorithm
   * `cd algo`
   * `mvn clean compile dependency:properties exec:exec@server`

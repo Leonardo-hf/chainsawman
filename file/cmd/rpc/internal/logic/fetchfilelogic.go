@@ -24,7 +24,7 @@ func NewFetchFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FetchFi
 }
 
 func (l *FetchFileLogic) FetchFile(in *file.IDReq) (*file.FileReply, error) {
-	r, err := l.svcCtx.OSSClient.FetchAlgo(l.ctx, in.Id)
+	r, err := l.svcCtx.OSSClient.FetchSource(l.ctx, in.Id)
 	if err != nil {
 		return nil, err
 	}

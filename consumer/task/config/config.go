@@ -44,7 +44,7 @@ func Init(c *Config) {
 	RedisClient = db.InitRedisClient(&c.Redis)
 
 	FileRPC = file.NewFileClient(zrpc.MustNewClient(c.FileRPC).Conn())
-	AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
+	//AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
 
 	if c.TaskMqEd == common.TaskMqEd {
 		TaskMq = mq.InitTaskMq(&c.TaskMq)

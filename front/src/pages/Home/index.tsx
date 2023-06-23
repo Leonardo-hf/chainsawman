@@ -167,7 +167,7 @@ const HomePage: React.FC = (props) => {
             }).then(res => {
                 edgeId = res.id
             })
-            createGraph({taskId: 0, nodeId: nodeId, edgeId: edgeId, graph: name, desc: desc})
+            createGraph({nodeId: nodeId, edgeId: edgeId, graph: name, desc: desc})
                 .then((res) => {
                     setModalOpen(false)
                     message.success("文件上传成功")
