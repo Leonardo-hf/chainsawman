@@ -387,6 +387,48 @@
         ]
       }
     },
+    "/api/graph/file/get": {
+      "get": {
+        "summary": "获得文件下载链接",
+        "operationId": "fileGetPresigned",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/PresignedReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/file/put": {
+      "get": {
+        "summary": "获得文件上传链接",
+        "operationId": "filePutPresigned",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/PresignedReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/get": {
       "get": {
         "summary": "获取图的详细节点信息",
@@ -1059,6 +1101,34 @@
       "required": [
         "key",
         "value"
+      ]
+    },
+    "PresignedReply": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        }
+      },
+      "title": "PresignedReply",
+      "required": [
+        "url",
+        "filename"
+      ]
+    },
+    "PresignedRequest": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      },
+      "title": "PresignedRequest",
+      "required": [
+        "filename"
       ]
     },
     "Rank": {

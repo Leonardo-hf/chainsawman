@@ -2,7 +2,6 @@ import {RequestConfig} from "@@/plugin-request/request";
 import React from "react";
 import {RunTimeLayoutConfig} from "@umijs/max";
 import Graph from "./pages/Graph"
-import {layoutActionRef} from "./testa";
 import {getAllGraph} from "./services/graph/graph";
 
 let graphs: any[] = []

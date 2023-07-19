@@ -201,6 +201,15 @@ type (
 	DropTaskRequest {
 		TaskID string `json:"taskId,optional"`
 	}
+
+	PresignedRequest {
+		Filename string `form:"filename"`
+	}
+
+	PresignedReply {
+		Url      string `json:"url"`
+		Filename string `json:"filename"`
+	}
 )
 
 @server(
@@ -278,4 +287,12 @@ service graph {
 	@doc "查询算法"
 	@handler algoGetAll
 	get /algo/getAll returns (AlgoReply)
+	
+	@doc "获得文件上传链接"
+	@handler filePutPresigned
+	get /file/put returns (PresignedReply)
+	
+	@doc "获得文件下载链接"
+	@handler fileGetPresigned
+	get /file/get (PresignedRequest) returns (PresignedReply)
 }

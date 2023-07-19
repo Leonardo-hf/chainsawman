@@ -1,6 +1,8 @@
 import {ProColumns, ProTable} from '@ant-design/pro-components';
 import {Row} from 'antd';
-import React from 'react';
+import React, {useState} from 'react';
+import Loading from "@ant-design/pro-card/es/components/Loading";
+import {getPreviewURL} from "@/utils/oss";
 
 type Row = {
     node: string,
@@ -14,6 +16,7 @@ interface Props {
 
 const RankTable: React.FC<Props> = (props) => {
     const {rows, file} = props;
+    const [fileURL, setFileURL] = useState<string>('')
     const columns: ProColumns[] = [
         {
             title: 'node',
@@ -25,6 +28,9 @@ const RankTable: React.FC<Props> = (props) => {
             renderText: text => text.toFixed(3)
         },
     ]
+    if (fileURL === '') {
+        getPreviewURL(file).then(url => setFileURL(url))
+    }
     return <ProTable
         rowKey='node'
         dataSource={rows}
@@ -32,7 +38,8 @@ const RankTable: React.FC<Props> = (props) => {
         search={false}
         options={false}
         toolBarRender={() => [
-            <a key='out' target='_blank' href={'/api/file/fetch/' + file}>导出数据</a>
+            fileURL === '' ? <Loading/> :
+                <a key='out' target='_blank' href={fileURL}>导出数据</a>
         ]}
         pagination={false}
     />

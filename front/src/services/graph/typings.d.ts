@@ -123,6 +123,10 @@ declare namespace Graph {
     type: number;
   };
 
+  type fileGetPresignedParams = {
+    filename: string;
+  };
+
   type GetGraphInfoReply = {
     name: string;
     graphId: number;
@@ -182,6 +186,15 @@ declare namespace Graph {
   type Param = {
     key: string;
     value: string;
+  };
+
+  type PresignedReply = {
+    url: string;
+    filename: string;
+  };
+
+  type PresignedRequest = {
+    filename: string;
   };
 
   type Rank = {

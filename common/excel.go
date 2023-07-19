@@ -1,9 +1,11 @@
 package common
 
 import (
+	"bytes"
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"go.uber.org/multierr"
 	"io"
 	"os"
 	"strconv"
@@ -54,7 +56,7 @@ type csvParser struct {
 	reader *csv.Reader
 }
 
-func initCSVParser(file *os.File) (*csvParser, error) {
+func initCSVParser(file io.Reader) (*csvParser, error) {
 	parser := &csvParser{}
 	parser.reader = csv.NewReader(file)
 	var err error
@@ -89,9 +91,10 @@ type xlsParser struct {
 	reader *xls.WorkSheet
 }
 
-func initXLSParser(file *os.File) (*xlsParser, error) {
+func initXLSParser(content io.Reader) (*xlsParser, error) {
 	parser := &xlsParser{}
-	workbook, err := xls.OpenReader(file, "utf-8")
+	bs, _ := io.ReadAll(content)
+	workbook, err := xls.OpenReader(bytes.NewReader(bs), "utf-8")
 	if err != nil {
 		return nil, fmtErr(err)
 	}
@@ -127,10 +130,10 @@ type xlsxParser struct {
 	reader *xlsx.Sheet
 }
 
-func initXLSXParser(file *os.File) (*xlsxParser, error) {
+func initXLSXParser(content io.Reader) (*xlsxParser, error) {
 	parser := &xlsxParser{}
-	stat, _ := file.Stat()
-	workbook, err := xlsx.OpenReaderAt(file, stat.Size())
+	bs, _ := io.ReadAll(content)
+	workbook, err := xlsx.OpenBinary(bs)
 	if err != nil {
 		return nil, fmtErr(err)
 	}
@@ -160,17 +163,22 @@ func (c *xlsxParser) Next() (*Record, error) {
 	return r, nil
 }
 
-func NewExcelParser(path string) (ExcelParser, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("[Excel] no such api, path = %v", path)
+func NewExcelParser(content io.Reader) (ExcelParser, error) {
+	var merr error
+	if p, err := initCSVParser(content); err != nil {
+		merr = multierr.Append(merr, err)
+	} else {
+		return p, nil
 	}
-	if strings.HasSuffix(path, ".csv") {
-		return initCSVParser(file)
-	} else if strings.HasSuffix(path, ".xls") {
-		return initXLSParser(file)
-	} else if strings.HasSuffix(path, ".xlsx") {
-		return initXLSXParser(file)
+	if p, err := initXLSParser(content); err != nil {
+		merr = multierr.Append(merr, err)
+	} else {
+		return p, nil
 	}
-	return nil, fmt.Errorf("[Excel] only suppot csv, xls and xlsx, but the api passed is %v", path)
+	if p, err := initXLSXParser(content); err != nil {
+		merr = multierr.Append(merr, err)
+	} else {
+		return p, nil
+	}
+	return nil, fmt.Errorf("[Excel] only suppot csv, xls and xlsx, err=%v", merr)
 }

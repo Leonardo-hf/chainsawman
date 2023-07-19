@@ -18,24 +18,24 @@ export default {
                     createTime: 93,
                     updateTime: 72,
                     status: 1,
-                    req: {},
-                    res: {
-                        ranks: [
+                    req: '{}',
+                    res: `{
+                        "ranks": [
                             {
-                                nodeID: 64,
-                                score: 93
+                                "nodeID": 64,
+                                "score": 93
                             },
                             {
-                                nodeID: 74,
-                                score: 91
+                                "nodeID": 74,
+                                "score": 91
                             },
                             {
-                                nodeID: 75,
-                                score: 88
-                            },
+                                "nodeID": 75,
+                                "score": 88
+                            }
                         ],
-                        file: 'betweenness108364e3-3282-4e2e-8704-6d0e203739c5.csv'
-                    },
+                        "file": "betweenness108364e3-3282-4e2e-8704-6d0e203739c5.csv"
+                    }`,
                 },
                 {
                     idf: 1,
@@ -43,10 +43,10 @@ export default {
                     createTime: 61,
                     updateTime: 71,
                     status: 1,
-                    req: {},
-                    res: {
-                        score: 100
-                    },
+                    req: '{}',
+                    res: `{
+                        "score": 100
+                    }`,
                 },
                 {
                     idf: 2,
@@ -54,8 +54,8 @@ export default {
                     createTime: 92,
                     updateTime: 74,
                     status: 0,
-                    req: {},
-                    res: {},
+                    req: '{}',
+                    res: '{}',
                 },
             ],
         });

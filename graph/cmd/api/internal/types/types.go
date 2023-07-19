@@ -201,3 +201,12 @@ type GetNodeReduceRequest struct {
 type DropTaskRequest struct {
 	TaskID string `json:"taskId,optional"`
 }
+
+type PresignedRequest struct {
+	Filename string `form:"filename"`
+}
+
+type PresignedReply struct {
+	Url      string `json:"url"`
+	Filename string `json:"filename"`
+}

@@ -16,36 +16,34 @@ export default defineConfig({
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },
-        '/api/file': {
-            'target': 'http://127.0.0.1:8890/',
-            'changeOrigin': true,
-            // 'pathRewrite': {'^/api': ''},
-        },
-        '/api/monitor':{
+        // '/api/file': {
+        //     'target': 'http://127.0.0.1:8890/',
+        //     'changeOrigin': true,
+        //     // 'pathRewrite': {'^/api': ''},
+        // },
+        '/api/monitor': {
             'target': 'http://127.0.0.1:8890/',
             'changeOrigin': true,
             'pathRewrite': {'^/api/monitor': '/'},
-        }
+        },
+        '/api/util': {
+            'target': 'http://127.0.0.1:8082/',
+            'changeOrigin': true,
+            'pathRewrite': {'^/api/util': '/'},
+        },
     },
-    mock: false,
+    // mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
     },
     plugins: ['@umijs/max-plugin-openapi'],
-
     openAPI: [{
         requestLibPath: "import { request } from '@umijs/max';",
         schemaPath: [__dirname, 'graph.json'].join('/'),
         mock: false,
         namespace: 'Graph',
         projectName: 'graph'
-    }, {
-        requestLibPath: "import { request } from '@umijs/max';",
-        schemaPath: [__dirname, 'file.json'].join('/'),
-        mock: true,
-        namespace: 'File',
-        projectName: 'file'
     }],
     routes: [
         {
@@ -69,6 +67,11 @@ export default defineConfig({
                 }
             ]
         },
+        {
+            name: '软件成分分析',
+            path: '/util/extractor',
+            component: './Extractor'
+                       },
         {
             name: 'monitor',
             path: '/monitor',

@@ -1,12 +1,6 @@
 package config
 
-import akka.actor.ActorSystem
-import akka.grpc.GrpcClientSettings
-import dao.{MysqlClient, MysqlClientImpl, SparkClient, SparkClientImpl}
-import service.{IDReq, fileClient}
-
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContextExecutor}
+import dao.{MinioClientImpl, MysqlClient, MysqlClientImpl, OSSClient, SparkClient, SparkClientImpl}
 
 
 object ClientConfig {
@@ -15,17 +9,12 @@ object ClientConfig {
 
   var sparkClient: SparkClient = _
 
-  var fileRPC: fileClient = _
-
-  implicit val sys: ActorSystem = ActorSystem("FileServiceClient")
-  implicit val ec: ExecutionContextExecutor = sys.dispatcher
+  var ossClient: OSSClient= _
 
 
   def Init(): Unit = {
     mysqlClient = MysqlClientImpl.Init()
     sparkClient = SparkClientImpl.Init()
-    val clientSettings = GrpcClientSettings.connectToServiceAt("127.0.0.1", 8080).withTls(false)
-    // val clientSettings = GrpcClientSettings.fromConfig(GreeterService.name)
-    fileRPC = fileClient(clientSettings)
+    ossClient = MinioClientImpl.Init()
   }
 }

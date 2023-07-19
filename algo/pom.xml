@@ -141,7 +141,11 @@
             <systemPath>${project.basedir}/lib/nebula-spark-connector_3.0-3.0-SNAPSHOT-jar-with-dependencies.jar
             </systemPath>
         </dependency>
-
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.4</version>
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>

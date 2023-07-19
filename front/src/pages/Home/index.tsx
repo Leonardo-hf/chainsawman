@@ -5,12 +5,12 @@ import {Button, Dropdown, Form, Input, message, Modal, Typography, Upload, Uploa
 import React, {useRef, useState} from 'react';
 import FormItem from "antd/es/form/FormItem";
 import ProCard from "@ant-design/pro-card";
-import {upload} from "@/services/file/file";
 import {createGraph, dropGraph, getAllGraph} from "@/services/graph/graph";
 import {
     CSSProperties
 } from "react";
 import {useModel} from '@umijs/max';
+import {upload} from "@/utils/oss";
 
 const {Title} = Typography;
 const columns: ProColumns<Graph.Graph>[] = [
@@ -129,7 +129,6 @@ const HomePage: React.FC = (props) => {
 
         const handleFinish = async (value: any) => {
             const {name, desc, node, edge} = value;
-            const nodeData = new FormData();
             if (!name) {
                 message.error('必须输入一个图名称')
                 return
@@ -146,27 +145,7 @@ const HomePage: React.FC = (props) => {
                 message.error('必须上传一个边文件')
                 return
             }
-            nodeData.append('file', node[0].originFileObj)
-            const edgeData = new FormData();
-            edgeData.append('file', edge[0].originFileObj)
-            let nodeId: string = '', edgeId: string = '';
-
-            await upload({
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                    data: nodeData,
-                }).then(res => {
-                nodeId = res.id
-            })
-            await upload({
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                data: edgeData,
-            }).then(res => {
-                edgeId = res.id
-            })
+            let nodeId = await upload(node[0].originFileObj), edgeId = await upload(edge[0].originFileObj);
             createGraph({nodeId: nodeId, edgeId: edgeId, graph: name, desc: desc})
                 .then((res) => {
                     setModalOpen(false)
@@ -175,7 +154,9 @@ const HomePage: React.FC = (props) => {
                     // haha.push({id: res.graph.id, name: name, desc: desc, nodes: 0, edges: 0, status: 0})
                     // setGraphs(haha)
                     ref.current?.reload()
-                }).catch(e=>{console.log(e)})
+                }).catch(e => {
+                console.log(e)
+            })
         }
         return <Modal open={modalOpen} footer={null} onCancel={() => setModalOpen(false)}>
             <ProCard style={{height: "fit-content"}}>

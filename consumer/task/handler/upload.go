@@ -5,11 +5,11 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/model"
 	"chainsawman/consumer/task/types"
-	"chainsawman/consumer/task/types/rpc/file"
-	"context"
+
 	"github.com/zeromicro/go-zero/core/jsonx"
+
+	"context"
 	"io"
-	"os"
 	"time"
 )
 
@@ -23,11 +23,11 @@ func (h *Upload) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	ctx := context.Background()
-	nodeFile, err := config.FileRPC.FetchFile(ctx, &file.IDReq{Id: req.NodeID})
+	nodeFile, err := config.OSSClient.Fetch(ctx, req.NodeID)
 	if err != nil {
 		return "", err
 	}
-	edgeFile, err := config.FileRPC.FetchFile(ctx, &file.IDReq{Id: req.EdgeID})
+	edgeFile, err := config.OSSClient.Fetch(ctx, req.EdgeID)
 	if err != nil {
 		return "", err
 	}
@@ -35,7 +35,7 @@ func (h *Upload) Handle(task *model.KVTask) (string, error) {
 	var nodes []*model.Node
 	var edges []*model.Edge
 	nodeMap := make(map[int64]*model.Node)
-	records, err := handle(nodeFile.Data)
+	records, err := handle(nodeFile)
 	for _, record := range records {
 		id, idErr := record.GetAsInt("id")
 		name, nameErr := record.Get("name")
@@ -47,7 +47,7 @@ func (h *Upload) Handle(task *model.KVTask) (string, error) {
 			nodeMap[id] = node
 		}
 	}
-	records, err = handle(edgeFile.Data)
+	records, err = handle(edgeFile)
 	for _, record := range records {
 		source, sourceErr := record.GetAsInt("source")
 		target, targetErr := record.GetAsInt("target")
@@ -108,12 +108,8 @@ func (h *Upload) Handle(task *model.KVTask) (string, error) {
 	return jsonx.MarshalToString(resp)
 }
 
-func handle(content []byte) ([]*common.Record, error) {
-	path, err := tempSave(content)
-	if err != nil {
-		return nil, err
-	}
-	parser, err := common.NewExcelParser(path)
+func handle(content io.Reader) ([]*common.Record, error) {
+	parser, err := common.NewExcelParser(content)
 	if err != nil {
 		return nil, err
 	}
@@ -128,14 +124,4 @@ func handle(content []byte) ([]*common.Record, error) {
 		records = append(records, record)
 	}
 	return records, nil
-}
-
-func tempSave(content []byte) (string, error) {
-	tempFile, err := os.CreateTemp("", "*.csv")
-	defer tempFile.Close()
-	if err != nil {
-		return "", err
-	}
-	tempFile.Write(content)
-	return tempFile.Name(), nil
 }

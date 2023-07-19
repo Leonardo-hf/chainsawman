@@ -74,11 +74,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/algo/comp",
-				Handler: algoCompHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
 				Path:    "/task/getAll",
 				Handler: getGraphTasksHandler(serverCtx),
 			},
@@ -106,6 +101,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/algo/getAll",
 				Handler: algoGetAllHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/file/put",
+				Handler: filePutPresignedHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/file/get",
+				Handler: fileGetPresignedHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/graph"),

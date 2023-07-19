@@ -6,7 +6,7 @@ import {
     algoLouvain,
     algoPageRank,
     algoVoteRank,
-    algoComp
+
 } from "@/services/graph/graph"
 
 export type Algo = {
@@ -168,7 +168,8 @@ export const algos: Algo[] = [
         title: 'comprehensive',
         description: '综合影响力算法，使用论文中提出的方法计算',
         type: AlgoType.rank,
-        action: algoComp,
+        // TODO: fix
+        action: algoDegree,
         params: []
     },
 ]

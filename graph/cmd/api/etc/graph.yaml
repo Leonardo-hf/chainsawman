@@ -1,6 +1,5 @@
 Name: graph
 Host: 0.0.0.0
-
 Port: 8888
 
 AlgoRpc:
@@ -16,6 +15,14 @@ Redis:
   Expired: 3600
 Mysql:
   Addr: "root:12345678@(localhost:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"
+Minio:
+  Endpoint: 127.0.0.1:9000
+  AccessKeyID: minioadmin
+  SecretAccessKey: minioadmin
+  UseSSL: false
+  SourceBucket: source
+  SourceExpired: 1
+  URLExpired: 3600
 
 TaskMqEd: "task_ed2"
 TaskMq:

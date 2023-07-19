@@ -44,7 +44,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -77,7 +76,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -110,7 +108,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -143,7 +140,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -161,7 +157,6 @@
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -218,7 +213,6 @@
             "default": "0.5"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -267,7 +261,6 @@
             "default": "0.85"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -308,7 +301,6 @@
             "default": "100"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -336,7 +328,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -364,7 +355,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -392,7 +382,48 @@
             }
           }
         ],
-        "requestBody": {},
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/file/get": {
+      "get": {
+        "summary": "获得文件下载链接",
+        "operationId": "fileGetPresigned",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/PresignedReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/file/put": {
+      "get": {
+        "summary": "获得文件上传链接",
+        "operationId": "filePutPresigned",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/PresignedReply"
+            }
+          }
+        },
         "tags": [
           "graph"
         ]
@@ -432,7 +463,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -450,7 +480,6 @@
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -478,7 +507,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -506,7 +534,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -560,7 +587,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -588,7 +614,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -615,7 +640,6 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "graph"
         ]
@@ -1077,6 +1101,34 @@
       "required": [
         "key",
         "value"
+      ]
+    },
+    "PresignedReply": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        }
+      },
+      "title": "PresignedReply",
+      "required": [
+        "url",
+        "filename"
+      ]
+    },
+    "PresignedRequest": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      },
+      "title": "PresignedRequest",
+      "required": [
+        "filename"
       ]
     },
     "Rank": {

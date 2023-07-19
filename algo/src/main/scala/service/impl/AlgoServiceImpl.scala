@@ -3,14 +3,13 @@ package service.impl
 //#import
 
 import akka.actor.typed.ActorSystem
-import akka.util.Timeout
 import config.ClientConfig
 import model.{AlgoPO, AlgoParamPO}
+import org.apache.spark.sql.DataFrame
 import service._
 import util.CSVUtil
-import org.apache.spark.sql.{DataFrame}
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future}
+
+import scala.concurrent.Future
 import scala.language.postfixOps
 
 //#import
@@ -21,8 +20,6 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   private implicit val sys: ActorSystem[_] = system
 
   private val preview = 10
-
-  private val timeout = Timeout(10 seconds)
 
   //#service-request-reply
 
@@ -64,8 +61,8 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "degree", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(getRank(res, r.id))
+    val (id, _) = ClientConfig.ossClient.upload(name = "degree", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
   }
 
   override def pagerank(in: PageRankReq): Future[RankReply] = {
@@ -73,8 +70,8 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "pagerank", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(getRank(res, r.id))
+    val (id, _) = ClientConfig.ossClient.upload(name = "pagerank", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
   }
 
   override def voterank(in: VoteRankReq): Future[RankReply] = ???
@@ -84,8 +81,8 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "betweenness", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(getRank(res, r.id))
+    val (id, _) = ClientConfig.ossClient.upload(name = "betweenness", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
   }
 
   override def closeness(in: BaseReq): Future[RankReply] = {
@@ -93,8 +90,8 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "closeness", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(getRank(res, r.id))
+    val (id, _) = ClientConfig.ossClient.upload(name = "closeness", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
   }
 
   override def avgClustering(in: BaseReq): Future[MetricsReply] = {
@@ -106,7 +103,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   }
 
   override def custom(in: CustomAlgoReq): Future[CustomAlgoReply] = {
-    // TODO: 需求太小众，不打算写了
+    // TODO: 暂时搁置
     //    val graph = in.base.get.graphID
     //    val (algo, err) = ClientConfig.mysqlClient.queryCustomAlgo(in.algoID)
     Future.successful(CustomAlgoReply())
@@ -117,8 +114,8 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
-    val r = Await.result(ClientConfig.fileRPC.uploadFile(FileUploadReq.apply(name = "louvain", data = CSVUtil.df2CSV(res))), timeout.duration)
-    Future.successful(RankReply.apply(ranks = res.rdd.collect().slice(0, preview).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq, file = r.id))
+    val (id, _) = ClientConfig.ossClient.upload(name = "louvain", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
   }
 }
 //#service-stream

@@ -37,7 +37,7 @@ import MetricTable from "@/components/MetricTable";
 import RankTable from "@/components/RankTable";
 import {history} from 'umi';
 
-const {Text, Paragraph} = Typography;
+const {Text} = Typography;
 const {Hoverable} = Behaviors;
 const {Search} = Input
 
@@ -513,6 +513,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                         const getTaskResult = (sres: string) => {
                             try {
                                 const res = JSON.parse(sres)
+                                console.log(res.rank)
                                 if (res?.score) {
                                     return <MetricTable score={res.score}/>
                                 }
@@ -526,6 +527,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                         })}/>
                                 }
                             } catch (e) {
+                                console.log(e)
                                 return
                             }
                         }

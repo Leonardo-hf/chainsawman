@@ -13,6 +13,7 @@ type Config struct {
 	Nebula db.NebulaConfig
 	Redis  db.RedisConfig
 	Mysql  db.MysqlConfig
+	Minio  db.MinioConfig
 
 	TaskMqEd string
 	TaskMq   mq.TaskMqConfig
