@@ -7,18 +7,13 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 * npm, maven, goctl, protobuf
 * spark
 
-
 ### services list:
 * graph api, resolve requests from front-end
   * `run graph/scripts/graph.sql`
   * `go run graph/cmd/api/graph.go`
-* file api, allow front-end to upload/fetch files
-  * `run file/cmd/api/file.go`
-* file rpc, allow back-end to upload/fetch files
-  * `run file/cmd/rpc/file/go`
 * consumer, exec requests which cost time
-  * `run consumer/connector/main.go`
-  * `run consumer/task/main.go`
+  * `go run consumer/connector/main.go`
+  * `go run consumer/task/main.go`
 * algo rpc, interact with spark to resolve graph algorithm
   * `cd algo`
   * `mvn clean compile dependency:properties exec:exec@server`

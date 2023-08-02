@@ -31,8 +31,12 @@ export default defineConfig({
             'changeOrigin': true,
             'pathRewrite': {'^/api/util': '/'},
         },
+        '/source': {
+            'target': 'http://127.0.0.1:9000/',
+            'changeOrigin': true,
+        },
     },
-    // mock: false,
+    mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
@@ -55,7 +59,6 @@ export default defineConfig({
             path: '/home',
             component: './Home',
         },
-
         {
             name: 'graph',
             path: '/graph',
@@ -71,7 +74,7 @@ export default defineConfig({
             name: '软件成分分析',
             path: '/util/extractor',
             component: './Extractor'
-                       },
+        },
         {
             name: 'monitor',
             path: '/monitor',

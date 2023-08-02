@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.pki.pem.{DERPrivateKeyLoader, PEMDecoder}
 import config.ClientConfig
 import service.impl.AlgoServiceImpl
-import service.{algo, algoHandler}
+import service._
 
 import java.security.{KeyStore, SecureRandom}
 import java.security.cert.{Certificate, CertificateFactory}
@@ -26,7 +26,7 @@ class GrpcServer(system: ActorSystem[_]) {
       algoHandler(new AlgoServiceImpl(system))
 
     val bound: Future[Http.ServerBinding] = Http(system)
-      .newServerAt(interface = "127.0.0.1", port = 8081)
+      .newServerAt(interface = "0.0.0.0", port = 8081)
 //      .enableHttps(serverHttpContext)
       .bind(service)
       .map(_.addToCoordinatedShutdown(hardTerminationDeadline = 10.seconds))

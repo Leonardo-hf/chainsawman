@@ -1,0 +1,11 @@
+{
+  "MINIO": {
+    "ENDPOINT": "minio-svc:9000",
+    "ACCESS_KEY_ID": "minioadmin",
+    "SECRET_ACCESS_KEY": "minioadmin",
+    "USE_SSL": false,
+    "BUCKET": "source"
+  },
+  "HOST": "127.0.0.1",
+  "PORT": "8082"
+}

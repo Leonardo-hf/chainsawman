@@ -30,7 +30,7 @@ const Extractor: React.FC = (props) => {
         }
         const fileId = await upload(fileList[0].originFileObj!)
         request('/api/util/parse', {
-            timeout: 2000,
+            timeout: 20000,
             method: 'get',
             params: {
                 'fileId': fileId,
@@ -94,7 +94,7 @@ const Extractor: React.FC = (props) => {
                 return
             }
             request('/api/util/search', {
-                timeout: 2000,
+                timeout: 20000,
                 method: 'get',
                 params: {
                     'package': title,
@@ -129,7 +129,7 @@ const Extractor: React.FC = (props) => {
                 resolve()
             })
         })
-    return <PageContainer header={{title: ''}}>
+    return <PageContainer>
         <Space direction="vertical" size="middle" style={{display: 'flex'}}>
             <div>
                 <Typography.Text strong>解析对象：</Typography.Text>

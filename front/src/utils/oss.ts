@@ -5,7 +5,9 @@ import {RcFile} from 'antd/es/upload';
 export const upload = async (file: RcFile) => {
     const res = await filePutPresigned()
     const filename = res.filename
-    return await request(res.url, {
+    const url = res.url
+    return await request(url.substring(url.indexOf('/source')), {
+        timeout: 10000,
         headers: {
             'Content-Type': file.type,
         },
@@ -16,5 +18,6 @@ export const upload = async (file: RcFile) => {
 
 export const getPreviewURL = async (fileId: string) => {
     const res = await fileGetPresigned({filename: fileId})
-    return res.url
+    const url =  res.url
+    return url.substring(url.indexOf('/source'))
 }

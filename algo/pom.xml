@@ -4,9 +4,9 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>Akka gRPC Scala example project</name>
-    <groupId>chainsawman</groupId>
-    <artifactId>algo</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <groupId>applerodite</groupId>
+    <artifactId>chs-algo</artifactId>
+    <version>v0.1</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -194,6 +194,17 @@
                                     <resource>reference.conf</resource>
                                 </transformer>
                             </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>

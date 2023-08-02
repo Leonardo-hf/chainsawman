@@ -1,5 +1,6 @@
 package config
 
+import com.typesafe.config.Config
 import dao.{MinioClientImpl, MysqlClient, MysqlClientImpl, OSSClient, SparkClient, SparkClientImpl}
 
 
@@ -12,9 +13,9 @@ object ClientConfig {
   var ossClient: OSSClient= _
 
 
-  def Init(): Unit = {
-    mysqlClient = MysqlClientImpl.Init()
-    sparkClient = SparkClientImpl.Init()
-    ossClient = MinioClientImpl.Init()
+  def Init(config: Config): Unit = {
+//    mysqlClient = MysqlClientImpl.Init()
+    sparkClient = SparkClientImpl.Init(config.getConfig("spark"))
+    ossClient = MinioClientImpl.Init(config.getConfig("minio"))
   }
 }

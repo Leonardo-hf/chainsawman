@@ -36,6 +36,7 @@ import {getTaskTypeDesc, TaskTypeMap} from "./_task";
 import MetricTable from "@/components/MetricTable";
 import RankTable from "@/components/RankTable";
 import {history} from 'umi';
+import graph from "@/models/graph";
 
 const {Text} = Typography;
 const {Hoverable} = Behaviors;
@@ -71,11 +72,11 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
 
     constructor(props: { graph: { id: number, name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }) {
         super(props)
-
+        const defaultMin = Math.ceil(2 * this.props.graph.edges / this.props.graph.nodes)
         this.state = {
             graph: {
-                min: 10,
-                kmin: 10
+                min: defaultMin,
+                kmin: defaultMin
             },
             extKeysAlgo: [],
             extKeysTask: [],

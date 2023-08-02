@@ -1,6 +1,7 @@
 package dao
 
 import com.facebook.thrift.protocol.TCompactProtocol
+import com.typesafe.config.Config
 import com.vesoft.nebula.connector.NebulaConnectionConfig
 import config.AlgoConstants
 import org.apache.spark.SparkConf
@@ -28,20 +29,20 @@ object SparkClientImpl extends SparkClient {
       StructField(AlgoConstants.SCORE_COL, DoubleType, nullable = true)
     ))
 
-  def Init(): SparkClient = {
+  def Init(config: Config): SparkClient = {
     val sparkConf = new SparkConf()
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .registerKryoClasses(Array[Class[_]](classOf[TCompactProtocol]))
     spark = SparkSession
       .builder()
-      .master("local")
+      .master(config.getString("url"))
       .config(sparkConf)
       .getOrCreate()
     spark.sparkContext.setLogLevel("WARN")
     nebulaCfg =
       NebulaConnectionConfig
         .builder()
-        .withMetaAddress("127.0.0.1:9559")
+        .withMetaAddress(config.getString("nebula"))
         .withConenctionRetry(2)
         .withExecuteRetry(2)
         .withTimeout(6000)

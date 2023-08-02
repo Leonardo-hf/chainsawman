@@ -4,6 +4,7 @@ import (
 	"chainsawman/graph/cmd/api/internal/config"
 	"chainsawman/graph/cmd/api/internal/handler"
 	"chainsawman/graph/cmd/api/internal/svc"
+	"os"
 
 	"flag"
 	"fmt"
@@ -12,14 +13,16 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "graph/cmd/api/etc/graph.yaml", "the config api")
-
 func main() {
-
 	flag.Parse()
-
+	defaultCfg := "graph/cmd/api/etc/graph.yaml"
+	switch os.Getenv("CHS_ENV") {
+	case "pre":
+		defaultCfg = "graph/cmd/api/etc/graph-pre.yaml"
+	}
+	var configFile = flag.String("f", defaultCfg, "the config api")
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	conf.MustLoad(*configFile, &c, conf.UseEnv())
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()

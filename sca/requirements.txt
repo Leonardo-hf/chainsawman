@@ -1,0 +1,11 @@
+astroid==2.11.5
+chardet==3.0.4
+Flask==2.3.2
+lxml==4.9.1
+minio==7.1.15
+packaging==21.3
+parse==1.19.1
+requests==2.22.0
+semver==3.0.1
+smart_open==6.3.0
+toml==0.10.2

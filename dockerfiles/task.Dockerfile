@@ -10,11 +10,12 @@ RUN apk update --no-cache && apk add --no-cache tzdata
 
 WORKDIR /build
 
+COPY consumer/task consumer/task
+COPY common common
+COPY consumer/task/etc /app/etc
 ADD go.mod .
 ADD go.sum .
-COPY graph .
-RUN go mod tidy
-RUN go build -ldflags="-s -w" -o /app/graph graph/cmd/api/graph.go
+RUN go mod tidy && go build -ldflags="-s -w" -o /app/task consumer/task/main.go
 
 
 FROM scratch
@@ -24,6 +25,7 @@ COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/S
 ENV TZ Asia/Shanghai
 
 WORKDIR /app
-COPY --from=builder /app/graph /app/graph
+COPY --from=builder /app/task /app/task
+COPY --from=builder /app/etc /app/consumer/task/etc
 
-CMD ["./graph"]
+CMD ["./task"]

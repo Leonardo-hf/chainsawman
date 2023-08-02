@@ -5,6 +5,7 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/handler"
 	"chainsawman/consumer/task/model"
+	"os"
 	"strconv"
 	"time"
 
@@ -38,7 +39,12 @@ func initHandleTable() {
 
 func main() {
 	flag.Parse()
-	var configFile = flag.String("f", "consumer/task/etc/consumer.yaml", "the config api")
+	defaultCfg := "consumer/task/etc/consumer.yaml"
+	switch os.Getenv("CHS_ENV") {
+	case "pre":
+		defaultCfg = "consumer/task/etc/consumer-pre.yaml"
+	}
+	var configFile = flag.String("f", defaultCfg, "the config api")
 	var c config.Config
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	config.Init(&c)

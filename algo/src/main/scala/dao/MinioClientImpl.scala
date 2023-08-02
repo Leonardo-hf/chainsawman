@@ -1,5 +1,6 @@
 package dao
 
+import com.typesafe.config.Config
 import io.minio.{BucketExistsArgs, GetObjectArgs, MakeBucketArgs, MinioClient, PutObjectArgs, UploadObjectArgs}
 
 import java.io.ByteArrayInputStream
@@ -8,14 +9,15 @@ import java.util.UUID
 object MinioClientImpl extends OSSClient {
   var minioClient: MinioClient = _
 
-  val bucket = "algo"
+  var bucket: String = _
 
-  def Init(): OSSClient = {
+  def Init(config: Config): OSSClient = {
     minioClient =
       MinioClient.builder()
-        .endpoint("http://localhost:9000")
-        .credentials("minioadmin", "minioadmin")
+        .endpoint(config.getString("url"))
+        .credentials(config.getString("user"), config.getString("password"))
         .build()
+    bucket = config.getString("bucket")
     if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
       minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build())
     }
