@@ -1,10 +1,9 @@
 import io
 
-from sca.common.consts import RES_OK, RES_ILLEGAL_FILE, RES_NOT_FOUND, RES_NO_REQUIREMENTS
-from sca.requirements_detector.methods import from_setup_cfg, from_setup_py, from_requirements_txt, \
+from common.consts import RES_OK, RES_ILLEGAL_FILE, RES_NOT_FOUND, RES_NO_REQUIREMENTS
+from requirements_detector.methods import from_setup_cfg, from_setup_py, from_requirements_txt, \
     from_pyproject_toml
-from sca.util.file_helper import *
-from sca.util.http import get_python_package
+from util.http import get_python_package
 
 FILE_SETUP_PY = 'setup.py'
 FILE_SETUP_CFG = 'setup.cfg'

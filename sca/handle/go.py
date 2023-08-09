@@ -1,8 +1,8 @@
 import io
 
-from sca.common.consts import RES_OK, RES_NO_REQUIREMENTS, RES_EXTRA_REQUIREMENTS, RES_ILLEGAL_FILE
-from sca.util.file_helper import *
-from sca.util.http import spider
+from common.consts import RES_OK, RES_NO_REQUIREMENTS, RES_EXTRA_REQUIREMENTS, RES_ILLEGAL_FILE
+from util.file_helper import *
+from util.http import spider
 
 GOMOD_DEPS = 'go.mod'
 

@@ -3,9 +3,8 @@ import json
 
 import toml
 
-from sca.common.consts import RES_OK, RES_ILLEGAL_FILE, RES_NO_REQUIREMENTS, RES_EXTRA_REQUIREMENTS, RES_NOT_FOUND
-from sca.util.file_helper import *
-from sca.util.http import spider
+from common.consts import RES_OK, RES_ILLEGAL_FILE, RES_NO_REQUIREMENTS, RES_EXTRA_REQUIREMENTS, RES_NOT_FOUND
+from util.http import spider
 
 CARGO_DEPS = 'cargo.toml'
 

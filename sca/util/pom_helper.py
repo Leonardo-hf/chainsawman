@@ -2,7 +2,7 @@ import re
 
 from lxml import etree
 
-from sca.util.http import spider
+from util.http import spider
 
 central_url = 'https://repo1.maven.org/maven2'
 base_url = central_url

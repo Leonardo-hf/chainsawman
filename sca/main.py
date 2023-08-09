@@ -1,13 +1,14 @@
 import json
 
 from flask import Flask, request
+from gevent import pywsgi
 
-from sca.common.consts import LANG_PY, RES_NOT_SUPPORT, LANG_JAVA, LANG_GO, LANG_RUST
-from sca.handle.go import search_go, parse_go
-from sca.handle.java import parse_java, search_java
-from sca.handle.python import parse_python, search_python
-from sca.handle.rust import parse_rust, search_rust
-from sca.util.minio_helper import MinioHelper
+from common.consts import LANG_PY, RES_NOT_SUPPORT, LANG_JAVA, LANG_GO, LANG_RUST
+from handle.go import search_go, parse_go
+from handle.java import parse_java, search_java
+from handle.python import parse_python, search_python
+from handle.rust import parse_rust, search_rust
+from util.minio_helper import MinioHelper
 
 app = Flask(__name__)
 
@@ -59,10 +60,16 @@ def search():
 
 if __name__ == '__main__':
     app.config.setdefault('CHS_ENV', '')
-    app.config.from_envvar('CHS_ENV', silent=True)
+    app.config.from_prefixed_env()
     if app.config.get('CHS_ENV') == 'pre':
         app.config.from_file('config/client-pre.json', load=json.load)
     else:
         app.config.from_file('config/client.json', load=json.load)
     app.config.setdefault('MINIO_CLIENT', MinioHelper(app.config['MINIO']))
-    app.run(host=app.config['HOST'], port=app.config['PORT'])
+    host = app.config['HOST']
+    port = int(app.config['PORT'])
+    if app.config.get('CHS_ENV') == 'pre':
+        server = pywsgi.WSGIServer((host, port), app)
+        server.serve_forever()
+    else:
+        app.run(host=app.config['HOST'], port=app.config['PORT'])

@@ -16,11 +16,6 @@ export default defineConfig({
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },
-        // '/api/file': {
-        //     'target': 'http://127.0.0.1:8890/',
-        //     'changeOrigin': true,
-        //     // 'pathRewrite': {'^/api': ''},
-        // },
         '/api/monitor': {
             'target': 'http://127.0.0.1:8890/',
             'changeOrigin': true,

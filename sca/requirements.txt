@@ -6,6 +6,7 @@ minio==7.1.15
 packaging==21.3
 parse==1.19.1
 requests==2.22.0
-semver==3.0.1
+poetry-semver
 smart_open==6.3.0
 toml==0.10.2
+gevent==21.12.0

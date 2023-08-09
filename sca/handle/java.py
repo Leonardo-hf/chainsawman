@@ -1,8 +1,9 @@
 import io
+import zipfile
 
-from sca.common.consts import RES_OK, RES_ILLEGAL_FILE, RES_NO_REQUIREMENTS, RES_EXTRA_REQUIREMENTS
-from sca.util.file_helper import *
-from sca.util.pom_helper import POM
+from common.consts import RES_OK, RES_ILLEGAL_FILE, RES_NO_REQUIREMENTS, RES_EXTRA_REQUIREMENTS
+from util.file_helper import is_text, from_zip, from_tar
+from util.pom_helper import POM
 
 MAVEN_DEPS = 'pom.xml'
 
