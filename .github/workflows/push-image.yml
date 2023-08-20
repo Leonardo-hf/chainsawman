@@ -24,7 +24,7 @@ jobs:
       - name: Set Environment -- Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20rc2'
+          go-version: '1.20'
       - name: Set Environment -- Python
         uses: actions/setup-python@v4
         with:
@@ -38,49 +38,34 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Get Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: |
-            name/app
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
       - name: Build and push Docker image -- graph
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           file: dockerfiles/graph.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: applerodite/chs-graph:latest
       - name: Build and push Docker image -- sca
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           file: dockerfiles/sca.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: applerodite/chs-sca:latest
       - name: Build and push Docker image -- task
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           file: dockerfiles/task.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: applerodite/chs-task:latest
       - name: Build and push Docker image -- front
         uses: docker/build-push-action@v4
         with:
           context: front/
           push: true
           file: front/front.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: applerodite/chs-front:latest
       - name: Build Jar for algo
         run: |
           mvn --batch-mode --update-snapshots package -DskipTests=true -Dmaven.javadoc.skip=true
@@ -89,5 +74,4 @@ jobs:
         with:
           context: algo/target/docker/
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: applerodite/chs-algo:latest
