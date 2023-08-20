@@ -43,7 +43,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            name=,enable=false
+            enable=false
           tags: |
             type=ref,event=branch
             type=ref,event=pr
