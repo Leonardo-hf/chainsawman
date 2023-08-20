@@ -42,8 +42,6 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: |
-            name/app
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -55,7 +53,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/graph.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: applerodite/chs-graph:${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Build and push Docker image -- sca
         uses: docker/build-push-action@v4
@@ -63,7 +61,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/sca.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: applerodite/chs-sca:${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Build and push Docker image -- task
         uses: docker/build-push-action@v4
@@ -71,7 +69,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/task.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: applerodite/chs-task:${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Build and push Docker image -- front
         uses: docker/build-push-action@v4
@@ -79,7 +77,7 @@ jobs:
           context: front/
           push: true
           file: front/front.Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: applerodite/chs-front:${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Build Jar for algo
         run: |
@@ -89,5 +87,5 @@ jobs:
         with:
           context: algo/target/docker/
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: applerodite/chs-algo:${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
