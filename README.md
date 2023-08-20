@@ -17,13 +17,14 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 * algo rpc, interact with spark to resolve graph algorithm
   * `cd algo`
   * `mvn clean compile dependency:properties exec:exec@server`
+* sca api, resolve requests about software 
 * front, front-end, allow CRUD and inspect for graph
   * `npm run install`
   * `npm run dev`
-
 ### TODO LIST:
 * multiple data source, connector
   * a default datasource for python requirements updated daily
 * deploy by kubernetes
 * use openfass to deploy consumers
 * data interface to format
+* replace redis with abase

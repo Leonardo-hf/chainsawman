@@ -36,7 +36,6 @@ import {getTaskTypeDesc, TaskTypeMap} from "./_task";
 import MetricTable from "@/components/MetricTable";
 import RankTable from "@/components/RankTable";
 import {history} from 'umi';
-import graph from "@/models/graph";
 
 const {Text} = Typography;
 const {Hoverable} = Behaviors;
@@ -72,7 +71,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
 
     constructor(props: { graph: { id: number, name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }) {
         super(props)
-        const defaultMin = Math.ceil(2 * this.props.graph.edges / this.props.graph.nodes)
+        const defaultMin = Math.ceil((2 * this.props.graph.edges / this.props.graph.nodes) ** 2)
         this.state = {
             graph: {
                 min: defaultMin,
@@ -192,7 +191,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                         min: min,
                     }
                 }).then((taskStatus: number) => {
-                    if (taskStatus === 1) {
+                    if (taskStatus === 1 || min !== this.state.graph.min) {
                         clearInterval(timer)
                     }
                 })
@@ -224,7 +223,7 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                     this.state.query.kmin = this.state.query.min
                     this.state.query.kname = this.state.query.name
                     this.state.query.kdistance = this.state.query.distance
-                    if (taskStatus === 1) {
+                    if (taskStatus === 1 || query.min !== this.state.query.min) {
                         clearInterval(timer)
                     }
                 })
@@ -372,6 +371,14 @@ class Graph extends React.Component<{ graph: { id: number, name: string, desc: s
                                     })
                                 }
                                 }>删除图</Button>
+                            },
+                            {
+                                title: '导出',
+                                description: <Button danger type="primary" onClick={() => {
+                                    graphinRef.current.graph.downloadFullImage()
+                                }}>
+                                    下载图
+                                </Button>
                             }
                         ]
                         if (query.ok) {

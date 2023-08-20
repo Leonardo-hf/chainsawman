@@ -5,10 +5,9 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/model"
 	"chainsawman/consumer/task/types"
-
-	"github.com/zeromicro/go-zero/core/jsonx"
-
 	"context"
+	"github.com/zeromicro/go-zero/core/jsonx"
+	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"time"
 )
@@ -36,6 +35,9 @@ func (h *Upload) Handle(task *model.KVTask) (string, error) {
 	var edges []*model.Edge
 	nodeMap := make(map[int64]*model.Node)
 	records, err := handle(nodeFile)
+	if err != nil {
+		return "", err
+	}
 	for _, record := range records {
 		id, idErr := record.GetAsInt("id")
 		name, nameErr := record.Get("name")
@@ -55,9 +57,11 @@ func (h *Upload) Handle(task *model.KVTask) (string, error) {
 			continue
 		}
 		if _, sourceExist := nodeMap[source]; !sourceExist {
+			logx.Error("source doesn't exist", source)
 			continue
 		}
 		if _, targetExist := nodeMap[target]; !targetExist {
+			logx.Error("target doesn't exist", target)
 			continue
 		}
 		edge := &model.Edge{Source: source, Target: target}
@@ -119,7 +123,8 @@ func handle(content io.Reader) ([]*common.Record, error) {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return nil, err
+			continue
+			//return nil, err
 		}
 		records = append(records, record)
 	}

@@ -71,7 +71,7 @@ func (n *NebulaClientImpl) DropGraph(graph int64) error {
 		graph)
 	res, err := session.Execute(drop)
 	if !res.IsSucceed() {
-		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), drop)
 	}
 	return err
 }

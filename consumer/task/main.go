@@ -83,6 +83,7 @@ func main() {
 func handle(ctx context.Context, task *model.KVTask, h handler.Handler) error {
 	res, err := h.Handle(task)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	logx.Infof("[Task] finish task, idf=%v", task.Idf)

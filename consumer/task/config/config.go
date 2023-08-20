@@ -41,7 +41,7 @@ func Init(c *Config) {
 	RedisClient = db.InitRedisClient(&c.Redis)
 	OSSClient = db.InitMinioClient(&c.Minio)
 
-	AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
+	//AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
 
 	if c.TaskMqEd == common.TaskMqEd {
 		TaskMq = mq.InitTaskMq(&c.TaskMq)

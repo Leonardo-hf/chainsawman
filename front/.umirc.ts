@@ -9,7 +9,6 @@ export default defineConfig({
     request: {
         dataField: 'data'
     },
-
     proxy: {
         '/api/graph': {
             'target': 'http://127.0.0.1:8888/',

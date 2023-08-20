@@ -4,6 +4,7 @@ import (
 	"chainsawman/common"
 	"chainsawman/consumer/task/model"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"strconv"
 
 	nebula "github.com/vesoft-inc/nebula-go/v3"
@@ -13,6 +14,7 @@ type NebulaClientImpl struct {
 	Pool     *nebula.ConnectionPool
 	Username string
 	Password string
+	Batch    int
 }
 
 type NebulaConfig struct {
@@ -20,6 +22,7 @@ type NebulaConfig struct {
 	Port     int
 	Username string
 	Passwd   string
+	Batch    int
 }
 
 func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
@@ -35,6 +38,7 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 		Pool:     pool,
 		Username: cfg.Username,
 		Password: cfg.Passwd,
+		Batch:    cfg.Batch,
 	}
 }
 
@@ -55,7 +59,7 @@ func (n *NebulaClientImpl) CreateGraph(graph int64) error {
 		graph, graph)
 	res, err := session.Execute(create)
 	if !res.IsSucceed() {
-		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), create)
 	}
 	return err
 }
@@ -74,7 +78,7 @@ func (n *NebulaClientImpl) InsertNode(graph int64, node *model.Node) (int, error
 		return 0, err
 	}
 	if !res.IsSucceed() {
-		return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), insert)
 	}
 	return res.GetColSize(), nil
 }
@@ -85,17 +89,23 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, nodes []*model.Node) (i
 	if err != nil {
 		return 0, err
 	}
-	for i, node := range nodes {
+	for i := 0; i < len(nodes); {
 		insert := fmt.Sprintf("USE G%v;"+
-			"INSERT VERTEX snode(name, intro, deg) VALUES \"%v\":(\"%v\", \"%v\", %v);",
-			graph, node.ID, node.Name, node.Desc, node.Deg)
+			"INSERT VERTEX snode(name, intro, deg) VALUES ", graph)
+		for p := 0; p < n.Batch && i < len(nodes); p++ {
+			node := nodes[i]
+			i++
+			insert = insert + fmt.Sprintf("\"%v\":(\"%v\", \"%v\", %v), ", node.ID, node.Name, node.Desc, node.Deg)
+		}
+		insert = insert[:len(insert)-2] + ";"
 		res, err := session.Execute(insert)
 		if err != nil {
 			return i, err
 		}
 		if !res.IsSucceed() {
-			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), insert)
 		}
+		logx.Infof("[NEBULA] insert %v-th nodes: %v", i, nodes[i-1])
 	}
 	return len(nodes), nil
 }
@@ -113,7 +123,7 @@ func (n *NebulaClientImpl) InsertEdge(graph int64, edge *model.Edge) (int, error
 		return 0, err
 	}
 	if !res.IsSucceed() {
-		return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), insert)
 	}
 	return res.GetColSize(), nil
 }
@@ -124,16 +134,23 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edges []*model.Edge) (i
 	if err != nil {
 		return 0, err
 	}
-	for i, edge := range edges {
+	for i := 0; i < len(edges); {
 		insert := fmt.Sprintf("USE G%v;"+
-			"INSERT EDGE sedge() VALUES \"%v\"->\"%v\":();", graph, edge.Source, edge.Target)
+			"INSERT EDGE sedge() VALUES ", graph)
+		for p := 0; p < n.Batch && i < len(edges); p++ {
+			edge := edges[i]
+			i++
+			insert = insert + fmt.Sprintf("\"%v\"->\"%v\":(), ", edge.Source, edge.Target)
+		}
+		insert = insert[:len(insert)-2] + ";"
 		res, err := session.Execute(insert)
 		if err != nil {
 			return i, err
 		}
 		if !res.IsSucceed() {
-			return 0, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), insert)
 		}
+		logx.Infof("[NEBULA] insert %v-th edge: %v", i, edges[i-1])
 	}
 	return len(edges), nil
 }
@@ -153,7 +170,7 @@ func (n *NebulaClientImpl) GetNodes(graph int64, min int64) ([]*model.Node, erro
 		return nil, err
 	}
 	if !res.IsSucceed() {
-		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return nil, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), query)
 	}
 	var nodes []*model.Node
 	for i := 0; i < res.GetRowSize(); i++ {
@@ -182,7 +199,7 @@ func (n *NebulaClientImpl) GetEdges(graph int64) ([]*model.Edge, error) {
 		return nil, err
 	}
 	if !res.IsSucceed() {
-		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return nil, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), query)
 	}
 	var edges []*model.Edge
 	for i := 0; i < res.GetRowSize(); i++ {
@@ -205,7 +222,7 @@ func (n *NebulaClientImpl) DropGraph(graph int64) error {
 		graph)
 	res, err := session.Execute(drop)
 	if !res.IsSucceed() {
-		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), drop)
 	}
 	return err
 }
@@ -221,7 +238,7 @@ func (n *NebulaClientImpl) GetNeighbors(graph int64, nodeID int64, min int64, di
 		"YIELD VERTICES AS nodes, EDGES AS relations;", graph, distance, nodeID, min)
 	res, err := session.Execute(query)
 	if !res.IsSucceed() {
-		return nil, nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
+		return nil, nil, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), query)
 	}
 	var nodes []*model.Node
 	var edges []*model.Edge

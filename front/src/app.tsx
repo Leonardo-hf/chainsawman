@@ -41,7 +41,7 @@ export function patchClientRoutes({routes}) {
 // }
 
 export const request: RequestConfig = {
-    timeout: 1000,
+    timeout: 10000,
 }
 
 

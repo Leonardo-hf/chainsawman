@@ -1,4 +1,6 @@
 import io
+import json
+from ctypes import *
 
 from common.consts import RES_OK, RES_NO_REQUIREMENTS, RES_EXTRA_REQUIREMENTS, RES_ILLEGAL_FILE
 from util.file_helper import *
@@ -8,87 +10,48 @@ GOMOD_DEPS = 'go.mod'
 
 
 def go_deps(content):
-    content = content.split('\n')
-    require = False
-    exclude = False
-    replace = False
+    content = content.encode()
+    lib = CDLL("./lib/libmod.so")
+    lib.Parse.restype = c_char_p
+    res = lib.Parse(c_char_p(content))
+    res = json.loads(res.decode())
+    reqs = []
+    if 'Require' in res and res['Require']:
+        for r in res['Require']:
+            reqs.append({'artifact': r['Mod']['Path'], 'version': r['Mod']['Version'],
+                         'indirect': r['Indirect'], 'exclude': False})
+    if 'Replace' in res and res['Replace']:
+        for r in res['Replace']:
+            old = {'artifact': r['Old']['Path'], 'version': r['Old'].setdefault('Version', '')}
+            new = {'artifact': r['New']['Path'], 'version': r['New'].setdefault('Version', '')}
+            index = -1
+            for i in range(len(reqs)):
+                if reqs[i]['artifact'] == old['artifact']:
+                    index = i
+                    break
+            if index == -1:
+                continue
+            if new['artifact'] and new['artifact'].startswith('.'):
+                del reqs[index]
+                continue
+            reqs[index]['artifact'] = new['artifact']
+            reqs[index]['version'] = new['version']
+    if 'Exclude' in res and res['Exclude']:
+        for e in res['Exclude']:
+            index = -1
+            for i in range(len(reqs)):
+                if reqs[i]['artifact'] == e['Mod']['Path']:
+                    index = i
+                    break
+            indirect = False
+            if index != -1:
+                indirect = True
+            reqs.append({'artifact': e['Mod']['Path'], 'version': e['Mod']['Version'],
+                         'indirect': indirect, 'exclude': True})
     module = '?'
-    deps = {}
-
-    def handle_require(l, exclude=False):
-        l = l.split(' ')
-        ta = l[0]
-        tv = l[1]
-        indirect = len(l) >= 4 and l[3] == 'indirect'
-        deps[ta + '@' + tv] = {
-            'artifact': ta,
-            'version': tv,
-            'indirect': indirect,
-            'exclude': exclude
-        }
-
-    def handle_replace(l):
-        l = l.split(' ')
-        oa = l[0]
-        tod = ''
-        if len(l) == 3:
-            for key in deps.keys():
-                if key.startswith(oa + '@'):
-                    tod = key
-                    break
-        elif len(l) == 4:
-            na = l[2]
-            nv = l[3]
-            for key in deps.keys():
-                if key.startswith(oa + '@'):
-                    deps[na + '@' + nv] = {
-                        'artifact': na,
-                        'version': nv,
-                        'indirect': deps[key]['indirect'],
-                        'exclude': False
-                    }
-                    tod = key
-                    break
-        elif len(l) == 5:
-            ov = l[1]
-            tod = oa + '@' + ov
-            na = l[3]
-            if not na.startswith('.'):
-                nv = l[4]
-                deps[na + '@' + nv] = {
-                    'artifact': na,
-                    'version': nv,
-                    'indirect': deps[tod]['indirect'],
-                    'exclude': False
-                }
-        if tod in deps:
-            del deps[tod]
-
-    for line in content:
-        line = line.strip()
-        if len(line) == 0 or (len(line) == 1 and line[0] == ')'):
-            require = False
-            exclude = False
-            replace = False
-        elif line.startswith('require ('):
-            require = True
-        elif line.startswith('require'):
-            handle_require(line[8:])
-        elif line.startswith('exclude ('):
-            exclude = True
-        elif line.startswith('exclude'):
-            handle_require(line[8:], True)
-        elif require or exclude:
-            handle_require(line, exclude)
-        elif line.startswith('replace ('):
-            replace = True
-        elif line.startswith('replace'):
-            handle_replace(line[8:])
-        elif replace:
-            handle_replace(line)
-        elif line.startswith('module'):
-            module = line[6:].strip()
-    return module, list(deps.values())
+    if 'Module' in res and res['Module']:
+        module = res['Module']['Mod']['Path']
+    return module, reqs
 
 
 def parse_go(data):
