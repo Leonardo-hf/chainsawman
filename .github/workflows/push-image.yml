@@ -68,6 +68,7 @@ jobs:
           tags: applerodite/chs-front:latest
       - name: Build Jar for algo
         run: |
+          cd algo
           mvn --batch-mode --update-snapshots package -DskipTests=true -Dmaven.javadoc.skip=true
       - name: Build and push Docker image -- algo
         uses: docker/build-push-action@v4
