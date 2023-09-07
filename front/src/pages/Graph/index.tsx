@@ -1,844 +1,669 @@
-import {PageContainer, ProList} from "@ant-design/pro-components";
-import {
-    ApartmentOutlined,
-    AppstoreFilled,
-    BranchesOutlined,
-    ChromeFilled,
-    CopyrightCircleFilled,
-    CustomerServiceFilled,
-    ShareAltOutlined,
-    TrademarkCircleFilled,
-} from '@ant-design/icons';
+import {PageContainer, ProForm, ProFormDigit, ProFormSelect, ProList, QueryFilter} from '@ant-design/pro-components';
 import Graphin, {Behaviors} from '@antv/graphin';
-import {
-    Button,
-    Card,
-    Col,
-    Divider,
-    Form,
-    Input,
-    InputNumber,
-    message,
-    Row,
-    Select,
-    Space,
-    Spin,
-    Tag,
-    Tooltip,
-    Typography
-} from 'antd';
-import React, {SetStateAction} from "react";
-import {connect} from "@@/exports";
-import {formatDate, formatNumber, getTag} from "@/utils/format";
+import {Button, Card, Col, Divider, InputNumber, message, Row, Space, Spin, Tag, Tooltip, Typography} from 'antd';
+import React, {SetStateAction, useEffect, useState} from 'react';
+import {connect, useModel} from '@@/exports';
+import {formatDate, formatNumber, getRandomColor} from '@/utils/format';
 import {Algo, algos, AlgoType, AlgoTypeMap, getAlgoTypeDesc, ParamType} from './_algo';
-import {dropGraph, dropTask, getGraphTasks} from "@/services/graph/graph";
-import {getTaskTypeDesc, TaskTypeMap} from "./_task";
-import MetricTable from "@/components/MetricTable";
-import RankTable from "@/components/RankTable";
+import {dropGraph, dropTask, getGraphTasks, getMatchNodes} from '@/services/graph/graph';
+import {getTaskTypeDesc, TaskTypeMap} from './_task';
+import MetricTable from '@/components/MetricTable';
+import RankTable from '@/components/RankTable';
 import {history} from 'umi';
+import {findByGid, getGraphName, isSubGraph} from '@/models/graph';
+import LayoutSelector from "@/components/LayoutSelector";
+import {layouts, layoutsConfig} from "@/pages/Graph/_layout";
+
 
 const {Text} = Typography;
 const {Hoverable} = Behaviors;
-const {Search} = Input
 
-const iconMap = {
-    'graphin-force': <ShareAltOutlined/>,
-    random: <TrademarkCircleFilled/>,
-    concentric: <ChromeFilled/>,
-    circle: <BranchesOutlined/>,
-    force: <AppstoreFilled/>,
-    dagre: <ApartmentOutlined/>,
-    grid: <CopyrightCircleFilled/>,
-    radial: <ShareAltOutlined/>,
-};
-
-const mapStateToProps = (state: any) => {
-    const {details} = state.graph
-    return {
-        details: details
-    }
+type Props = {
+    graph: Graph.Graph,
+    details: any,
+    dispatch: any
 }
 
-const defaultNameProps = {
-    hint: '目标查询节点',
-    status: undefined,
-    min: 0,
-    distance: 1,
-}
+const Graph: React.FC<Props> = (props) => {
+    console.log('reload graph')
+    const {graph, details, dispatch} = props
+    const [renderMax, setRenderMax] = useState<number>(2000)
+    const [renderTop, setRenderTop] = useState<number>(20)
+    const [renderDistance, setRenderDistance] = useState<number>(3)
+    const [renderDirection, setRenderDirection] = useState<string>(' ')
+    const [renderSrcNode, setRenderSrcNode] = useState<{ id: number, primaryAttr: string, tag: string }>()
+    const [select, setSelect] = useState<boolean>(false)
+    const [selectNode, setSelectNode] = useState<{ id: number, deg: number, tag: string, attrs: Graph.Pair[] }>()
+    const [extKeysAlgo, setExtKeysAlgo] = useState<any[]>([])
+    const [extKeysTask, setExtKeysTask] = useState<any[]>([])
+    const [graphLayout, setGraphLayout] = useState<string>('graphin-force')
+    const [tab, setTab] = useState<string>('attr')
+    const [gid, setGID] = useState<string>(getGraphName(graph.id))
 
-@connect(mapStateToProps)
-class Graph extends React.Component<{ graph: { id: number, name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }, any> {
+    const graphinRef = React.createRef(), taskListRef = React.createRef()
+    const graphDetail = findByGid(details, gid)
 
-    constructor(props: { graph: { id: number, name: string, desc: string, nodes: number, edges: number }, details: any, dispatch: any }) {
-        super(props)
-        const defaultMin = Math.ceil((2 * this.props.graph.edges / this.props.graph.nodes) ** 2)
-        this.state = {
-            graph: {
-                min: defaultMin,
-                kmin: defaultMin
-            },
-            extKeysAlgo: [],
-            extKeysTask: [],
-            type: 'graphin-force',
-            tab: 'attr',
-            graphinRef: React.createRef(),
-            taskListRef: React.createRef(),
-            select: {
-                ok: false,
-                name: '',
-                desc: '',
-                deg: '',
-            },
-            query: {
-                ok: false,
-                nameHint: defaultNameProps.hint,
-                nameStatus: defaultNameProps.status,
-                // 绑定input
-                name: '',
-                id: 0,
-                min: defaultNameProps.min,
-                distance: defaultNameProps.distance,
-                // 记录搜索成功后的input值
-                kname: '',
-                kmin: defaultNameProps.min,
-                kdistance: defaultNameProps.distance,
-            }
+    useEffect(() => {
+        const handleNodeClick = (e: { item: { get: (arg0: string) => string; }; }) => {
+            const id = e.item.get('id')
+            const node = graphDetail.nodes.find((n: { id: number; }) => n.id.toString() === id)
+            setSelect(true)
+            setSelectNode(node)
         }
-    }
-
-    handleNodeClick = (e: { item: { get: (arg0: string) => string; }; }) => {
-        // console.log(e.item)
-        const id = e.item.get('id')
-        const target = this.state.query.ok ? getTag(this.props.graph.id, this.state.query.id) : this.props.graph.id
-        // 图模式和节点模式需要查询不同的图
-        const node = this.props.details[target].nodes.find((n: { id: number; }) => n.id.toString() === id);
-        this.setState({
-            select: {
-                ok: true,
-                name: node.name,
-                desc: node.desc,
-                deg: node.deg,
-            }
-        });
-    };
-
-    componentDidMount() {
-        // console.log('mount')
-        const {graph} = this.state.graphinRef.current;
-        graph.on('node:click', this.handleNodeClick);
+        // @ts-ignore
+        const {graph} = graphinRef.current
+        graph.on('node:click', handleNodeClick);
         graph.on('canvas:click', () => {
-            this.setState({
-                select: {
-                    ...this.state.select,
-                    ok: false
-                }
-            })
+            setSelect(false)
         })
-    }
+        return () => {
+            graph.off('node:click');
+            graph.off('canvas:click')
+        };
+    }, [graphDetail])
 
-    componentWillUnmount() {
-        // console.log('unmount')
-        const {graph} = this.state.graphinRef.current;
-        graph.off('node:click');
-        graph.off('canvas:click')
-    }
-
-    render() {
-        // console.log('render')
-        const {graph, details} = this.props
-        let {id, name} = graph
-        const {tab, type, graphinRef, taskListRef, select, query} = this.state
-        const {min, kmin} = this.state.graph
-        const tag = getTag(id, query.id)
-        // 判断图有没有加载好
-        const loading = !details[id] || !details[id].status ||
-            (query.ok && (!details[tag] || !details[tag].status))
-        const nodes: { id: string, style: { keyshape: { size: number, fill: string }, label: { value: string } } }[] = []
-        const edges: { source: string, target: string }[] = []
-        const data = {
-            nodes: nodes,
-            edges: edges,
-        }
-        const tabListNoTitle = [
-            {
-                key: 'attr',
-                tab: '属性',
-            },
-            {
-                key: 'algo',
-                tab: '算法',
-            },
-            {
-                key: 'task',
-                tab: '任务',
-                disabled: !details[id] || !details[id].status
-            },
-        ];
-
-        const layout = layouts.find(item => item.type === type);
-        // 图模式，如果graph state没有就发起查询
-        if (!query.ok && !details[id]) {
+    const timerManager: NodeJS.Timer[] = []
+    const {groups} = useModel('global')
+    const {id, name} = graph
+    // 判断是否为子图
+    const isSub = isSubGraph(gid)
+    // 判断是否数据加载完毕
+    const loading = !graphDetail?.status
+    const hasTimer = graphDetail?.timer
+    if (loading && !hasTimer) {
+        // 图模式
+        if (!isSub) {
+            let timer: NodeJS.Timer
             const queryDetail = async () => {
-                let taskId = ""
-                if (this.props.details[id]) {
-                    taskId = this.props.details[id].taskId
-                }
-                this.props.dispatch({
-                    type: 'graph/queryDetail',
+                dispatch({
+                    type: 'graph/queryGraph',
                     payload: {
                         graphId: id,
-                        taskId: taskId,
-                        min: min,
-                    }
+                        taskId: graphDetail?.taskId,
+                        top: renderTop,
+                        max: renderMax,
+                    },
+                    timer: timer
                 }).then((taskStatus: number) => {
-                    if (taskStatus === 1 || min !== this.state.graph.min) {
+                    if (taskStatus) {
                         clearInterval(timer)
                     }
                 })
-                // if (this.props.details[name].status === 1) {
-                //     clearInterval(timer)
-                // }
             }
-            queryDetail()
-            const timer = setInterval(queryDetail, 5000)
-        }
-        // 节点模式
-        if (query.ok && !details[tag]) {
+            if (graphDetail) {
+                timer = setInterval(queryDetail, 5000)
+                timerManager.push(timer)
+            } else {
+                queryDetail().then()
+            }
+        } else {
+            let timer: NodeJS.Timer
             const queryNeibors = async () => {
-                let taskId = ""
-                if (this.props.details[tag]) {
-                    taskId = this.props.details[tag].taskId
-                }
-                console.log(query)
-                this.props.dispatch({
-                    type: 'graph/queryNeibors',
+                dispatch({
+                    type: 'graph/queryNeighbors',
                     payload: {
                         graphId: id,
-                        taskId: taskId,
-                        nodeId: query.id,
-                        min: query.min,
-                        distance: query.distance
-                    }
+                        taskId: findByGid(details, gid)?.taskId,
+                        nodeId: renderSrcNode!.id,
+                        direction: renderDirection,
+                        max: renderMax,
+                        distance: renderDistance
+                    },
+                    timer: timer
                 }).then((taskStatus: number) => {
-                    this.state.query.kmin = this.state.query.min
-                    this.state.query.kname = this.state.query.name
-                    this.state.query.kdistance = this.state.query.distance
-                    if (taskStatus === 1 || query.min !== this.state.query.min) {
+                    if (taskStatus) {
                         clearInterval(timer)
                     }
                 })
-                // if (this.props.details[name].status === 1) {
-                //     clearInterval(timer)
-                // }
             }
-            queryNeibors()
-            const timer = setInterval(queryNeibors, 5000)
+            if (graphDetail) {
+                timer = setInterval(queryNeibors, 5000)
+                timerManager.push(timer)
+            } else {
+                queryNeibors().then()
+            }
         }
-
-        if (!loading) {
-            const target = query.ok ? tag : id
-            details[target].nodes?.forEach((n: { id: number, name: string; deg: number; color: string; }) => nodes.push({
+    }
+    // Tab栏
+    const tabListNoTitle = [
+        {
+            key: 'attr',
+            tab: '属性',
+        },
+        {
+            key: 'algo',
+            tab: '算法',
+        },
+        {
+            key: 'task',
+            tab: '任务',
+        },
+    ]
+    // 图谱布局
+    const layout = layoutsConfig.find(item => item.type === graphLayout)
+    // 数据准备
+    const nodes: any[] = []
+    const edges: any[] = []
+    const data = {
+        nodes: nodes,
+        edges: edges,
+    }
+    // 如果数据准备好，则加载数据
+    if (!loading) {
+        const group: Graph.Group = groups.find((g: Graph.Group) => g.id === graph.groupId)!
+        const data = findByGid(details, gid)
+        // 设置节点数据
+        data.nodes.forEach((n: { tag: string; attrs: Graph.Pair[]; id: number; deg: number }) => {
+            const tag = n.tag
+            const nodeType = group.nodeTypeList.find(nt => nt.name === tag)!
+            // TODO：display
+            const display = nodeType.display
+            const labelAttr = nodeType.attrs.find(a => a.primary)
+            let v = ''
+            if (labelAttr) {
+                v = n.attrs.find(a => a.key === labelAttr.name)!.value
+            }
+            const node = {
                 id: n.id.toString(),
                 style: {
-                    keyshape:
-                        {
-                            fill: n.color,
-                            size: Math.floor((Math.log(n.deg + 1) + 1) * 10),
-                        },
+                    keyshape: {
+                        size: Math.floor((Math.log(n.deg + 1) + 1) * 10),
+                        fill: getRandomColor()
+                    },
                     label: {
-                        value: n.name
+                        value: v
                     }
                 }
-            }))
-            details[target].edges?.forEach((e: { source: number; target: number; }) => edges.push({
-                source: e.source.toString(),
-                target: e.target.toString(),
-            }))
-        }
-
-        const getSearch = () => {
-            const resetGraph = () => {
-                // console.log('search')
-                if (!query.name) {
-                    this.setState({
-                        query: {
-                            ...this.state.query,
-                            nameHint: '必须设置目标查询节点',
-                            nameStatus: 'error'
-                        }
-                    })
-                    return
-                }
-                const nodeID = details[id].nodes.find((node: { name: string; }) => node.name === query.name)?.id
-                if (nodeID === undefined) {
-                    message.error('图中没有该节点')
-                    return;
-                }
-                this.setState({
-                    query: {
-                        ...this.state.query,
-                        id: nodeID,
-                        ok: true,
-                        nameHint: defaultNameProps.hint,
-                        nameStatus: defaultNameProps.status
-                    }
-                })
             }
-            return <Space direction="horizontal">
-                <Search addonBefore='目标节点' placeholder={query.nameHint}
-                        status={query.nameStatus}
-                        disabled={loading}
-                        onSearch={resetGraph}
-                        onChange={(v) => {
-                            this.state.query.name = v.target.value
-                        }}/>
-                <InputNumber addonBefore={
-                    <Tooltip title="子图仅展示与目标节点距离低于`最大距离`的节点">
-                        <span>最大距离</span>
-                    </Tooltip>
-                } defaultValue={defaultNameProps.distance} formatter={formatNumber}
-                             onChange={(v) => this.state.query.distance = v}/>
-                <InputNumber addonBefore={
-                    <Tooltip title="子图仅展示高于`最低度数`的节点">
-                        <span>最低度数</span>
-                    </Tooltip>
-                } defaultValue={defaultNameProps.min} formatter={formatNumber}
-                             onChange={(v) => this.state.query.min = v}/>
-            </Space>
+            nodes.push(node)
+        })
+        // 设置边数据
+        data.edges.forEach((n: { tag: string; attrs: Graph.Pair[]; source: number; target: number }) => {
+            const tag = n.tag
+            const edgeType = group.edgeTypeList.find(nt => nt.name === tag)!
+            const display = edgeType.display
+            const labelAttr = edgeType.attrs.find(a => a.primary)
+            let v = ''
+            if (labelAttr) {
+                v = n.attrs.find(a => a.key === labelAttr.name)!.value
+            }
+            let edge: any = {
+                source: n.source.toString(),
+                target: n.target.toString(),
+                style: {
+                    label: {
+                        value: v
+                    }
+                }
+            }
+            if (display === 'dash') {
+                edge.style = {
+                    ...edge.style,
+                    keyshape: {
+                        lineDash: [4, 4],
+                    }
+                }
+            }
+            edges.push(edge)
+        })
+    }
+    const resetGraph = () => {
+        // 重置图谱点击
+        // @ts-ignore
+        graphinRef.current.graph.emit('canvas:click')
+        // 删除图谱数据
+        dispatch({
+            type: 'graph/resetGraph',
+            payload: id
+        })
+        // 重置图谱ID
+        setGID(getGraphName(id))
+        // 重置定时器
+        for (const timer of timerManager) {
+            clearInterval(timer)
         }
-        const getTabContent = () => {
-            switch (tab) {
-                case 'attr':
-                    let dataSource = []
-                    if (select.ok) {
-                        dataSource = [
-                            {
-                                title: '节点',
-                                description: select.name
-                            },
-                            {
-                                title: '描述',
-                                description: select.desc
-                            },
-                            {
-                                title: '度数',
-                                description: select.deg
-                            },
-                        ]
-                    } else {
-                        dataSource = [
-                            {
-                                title: '图',
-                                description: name
-                            },
-                            {
-                                title: '总节点数',
-                                description: graph.nodes
-                            },
-                            {
-                                title: '总边数',
-                                description: graph.edges
-                            },
-                            {
-                                title: '当前节点数',
-                                description: nodes.length
-                            },
-                            {
-                                title: '当前边数',
-                                description: edges.length
-                            },
-                            {
-                                title: '来源',
-                                description: '文件导入'
-                            },
-                            {
-                                title: <Tooltip
-                                    title={'大图仅展示高于`最低度数`的节点'}><span>图最低度数</span></Tooltip>,
-                                description: <InputNumber defaultValue={min} formatter={formatNumber} min={0}
-                                                          onChange={v => {
-                                                              this.state.graph.min = v
-                                                          }}/>
-                            },
-                            {
-                                title: '操作',
-                                description: <Button danger type="primary" onClick={() => {
-                                    dropGraph({
-                                        graphId: id
-                                    }).then(res => {
-                                        message.success('删除图`' + name + '`成功')
-                                        history.push('/')
-                                        // setTimeout(() => window.location.reload(), 1000)
+        timerManager.length = 0
+    }
+    const getSearch = () => {
+        return <QueryFilter span={6}
+                            submitter={{
+                                searchConfig: {
+                                    submitText: '查询子节点',
+                                },
+                                resetButtonProps: {
+                                    style: {
+                                        display: 'none',
+                                    },
+                                },
+                            }}
+                            onFinish={
+                                async (v) => {
+                                    // 清除原有的子节点查询记录
+                                    dispatch({
+                                        type: 'graph/clearSubGraph',
+                                        payload: id
                                     })
+                                    const src = JSON.parse(v.src)
+                                    console.log(v)
+                                    setGID(getGraphName(id, src.id))
+                                    setRenderDirection(v.direct)
+                                    setRenderDistance(v.distance)
+                                    setRenderSrcNode(src)
                                 }
-                                }>删除图</Button>
-                            },
-                            {
-                                title: '导出',
-                                description: <Button danger type="primary" onClick={() => {
-                                    graphinRef.current.graph.downloadFullImage()
-                                }}>
-                                    下载图
-                                </Button>
+                            } disabled={loading}>
+            <ProFormSelect label='目标节点' name='src' rules={[{required: true}]}
+                           showSearch
+                           debounceTime={300}
+                           fieldProps={{
+                               filterOption: () => {
+                                   return true
+                               }
+                           }}
+                           request={async (v) => {
+                               let packs: any[] = []
+                               if (!v.keyWords) {
+                                   return packs
+                               }
+                               await getMatchNodes({
+                                   graphId: id,
+                                   keywords: v.keyWords
+                               }).then(res => {
+                                   res.matchNodePacks.forEach(mp => packs.push({
+                                           label: mp.tag,
+                                           options: mp.match.map(m => {
+                                               return {
+                                                   label: m.primaryAttr,
+                                                   value: JSON.stringify({
+                                                       tag: mp.tag,
+                                                       primaryAttr: m.primaryAttr,
+                                                       id: m.id
+                                                   })
+                                               }
+                                           })
+                                       })
+                                   )
+                               })
+                               return packs
+                           }}/>
+            <ProFormDigit label='距离' name='distance' fieldProps={{precision: 0}} min={1} max={10} initialValue={3}
+                          rules={[{required: true}]}/>
+            <ProFormSelect label='方向' name='direct' rules={[{required: true}]} initialValue={'REVERSELY'}
+                           options={[{
+                               label: '正向',
+                               value: ' '
+                           }, {
+                               label: '反向',
+                               value: 'REVERSELY'
+                           }, {
+                               label: '双向',
+                               value: 'BIDIRECT'
+                           },]}/>
+        </QueryFilter>
+    }
+    const getTabContent = () => {
+        switch (tab) {
+            case 'attr':
+                let dataSource = []
+                if (select) {
+                    dataSource = [
+                        {
+                            title: 'ID',
+                            description: selectNode!.id
+                        },
+                        {
+                            title: '类别',
+                            description: selectNode!.tag
+                        },
+                        {
+                            title: '度数',
+                            description: selectNode!.deg
+                        },
+                        ...selectNode!.attrs.map((a: Graph.Pair) => {
+                            return {
+                                title: a.key,
+                                description: a.value,
                             }
-                        ]
-                        if (query.ok) {
-                            dataSource.push({
-                                title: '子节点',
-                                description: this.state.query.kname
-                            })
-                            dataSource.push({
-                                title: '最大距离',
-                                description: this.state.query.kdistance
-                            })
-                            dataSource.push({
-                                title: '最低度数',
-                                description: this.state.query.kmin
-                            })
+                        })
+                    ]
+                } else {
+                    dataSource = [
+                        {
+                            title: '图',
+                            description: name
+                        },
+                        {
+                            title: '总节点数',
+                            description: graph.numNode
+                        },
+                        {
+                            title: '总边数',
+                            description: graph.numEdge
+                        },
+                        {
+                            title: '当前节点数',
+                            description: nodes.length
+                        },
+                        {
+                            title: '当前边数',
+                            description: edges.length
+                        },
+                        {
+                            title: <Tooltip title={'图谱展示节点上限'}><span>最大节点数</span></Tooltip>,
+                            description: <InputNumber defaultValue={renderMax} formatter={formatNumber} min={1}
+                                                      onChange={v => setRenderMax(v!)}/>
+                        },
+                        {
+                            title: '操作',
+                            description: <Button danger type='primary' onClick={() => {
+                                dropGraph({
+                                    graphId: id
+                                }).then(res => {
+                                    message.success('删除图`' + name + '`成功')
+                                    history.push('/')
+                                })
+                            }
+                            }>删除图谱</Button>
+                        },
+                        {
+                            title: '导出',
+                            description: <Button type='primary' onClick={() => {
+                                // @ts-ignore
+                                graphinRef.current.graph.downloadFullImage()
+                            }}>
+                                PNG
+                            </Button>
                         }
+                    ]
+                    if (isSub) {
+                        let direct = '正向'
+                        if (renderDirection == 'REVERSELY')
+                            direct = '反向'
+                        else if (renderDirection == 'BIDIRECT')
+                            direct = '双向'
+                        dataSource.push(...[{
+                            title: '目标节点',
+                            description: renderSrcNode!.primaryAttr
+                        }, {
+                            title: '类型',
+                            description: renderSrcNode!.tag
+                        }, {
+                            title: '最大距离',
+                            description: renderDistance
+                        }, {
+                            title: '方向',
+                            description: direct
+                        },])
                     }
-                    return <ProList
-                        key="attrListGraph"
-                        rowKey='title'
-                        dataSource={dataSource}
-                        metas={{
-                            title: {},
-                            description: {},
-                        }}/>
-                case 'algo':
-                    const getAlgoTag = (type: AlgoType) => {
-                        const desc = getAlgoTypeDesc(type)
-                        return <Tag color={desc.color}>{desc.text}</Tag>
+                }
+                return <ProList
+                    key='attrListGraph'
+                    rowKey='title'
+                    dataSource={dataSource}
+                    metas={{
+                        title: {},
+                        description: {},
+                    }}/>
+            case 'algo':
+                const getAlgoTag = (type: AlgoType) => {
+                    const desc = getAlgoTypeDesc(type)
+                    return <Tag color={desc.color}>{desc.text}</Tag>
+                }
+                const getAlgoContent = (algo: Algo) => {
+                    const onFinish = async (params: any) => {
+                        return await algo.action({
+                            graphId: id,
+                            ...params
+                        }).then(() => {
+                            message.success('算法已提交')
+                            setExtKeysAlgo([])
+                            setTab('task')
+                            return true
+                        })
                     }
-                    const getAlgoContent = (algo: Algo) => {
-                        const onFinish = (params: any) => {
-                            algo.action({
-                                graphId: id,
-                                ...params
-                            }).then(() => {
-                                message.success('算法已提交')
-                                this.setState({
-                                    extKeysAlgo: [],
-                                    tab: 'task'
-                                })
-                            })
-                        }
-                        return <Space direction={'vertical'}>
-                            <Text type={'secondary'}>{algo.description}</Text>
-                            <Divider/>
-                            <Form
-                                name='basic'
-                                onFinish={onFinish}
-                                autoComplete='off'
-                                initialValues={{
-                                    // pagerank
-                                    iter: 3,
-                                    prob: 0.85,
-                                    // louvain
-                                    maxIter: 10,
-                                    internalIter: 5,
-                                    tol: 0.3,
-                                }}
-                            >{
-                                algo.params.map(p => {
-                                    switch (p.type) {
-                                        case ParamType.Int:
-                                            return <Form.Item name={p.field}>
-                                                <InputNumber addonBefore={p.text} max={p.max} min={p.min}
-                                                             formatter={formatNumber}/>
-                                            </Form.Item>
-                                        case ParamType.Double:
-                                            return <Form.Item name={p.field}>
-                                                <InputNumber addonBefore={p.text} max={p.max} min={p.min}
-                                                             precision={4} step={1e-4}/>
-                                            </Form.Item>
-                                    }
-                                })
-                            }
-                                <Form.Item>
-                                    <Button htmlType="submit" style={{float: 'right'}}>执行</Button>
-                                </Form.Item>
-                            </Form>
-                        </Space>
-                    }
-                    return <ProList<Algo>
-                        key="algoProList"
-                        rowKey={(row, index) => row.title}
-                        toolBarRender={() => {
-                            return [
-                                <Button key="3" type="primary">
-                                    新建
-                                </Button>,
-                            ];
-                        }}
-                        style={{
-                            height: '80vh',
-                            overflowY: 'scroll',
-                        }}
-                        expandable={{
-                            expandedRowKeys: this.state.extKeysAlgo, onExpandedRowsChange: (expandedKeys) => {
-                                this.setState({
-                                    extKeysAlgo: expandedKeys
-                                })
-                            }
-                        }}
-                        search={{
-                            filterType: 'light',
-                        }}
-                        request={
-                            async (params = {time: Date.now()}) => {
-                                return {
-                                    data: algos.filter(a => !params.subTitle || a.type == params.subTitle),
-                                    success: true,
-                                    total: algos.length
+                    return <Space direction={'vertical'}>
+                        <Text type={'secondary'}>{algo.description}</Text>
+                        <Divider/>
+                        <ProForm
+                            onFinish={onFinish}
+                            submitter={{
+                                searchConfig: {
+                                    resetText: '重置',
+                                    submitText: '执行',
                                 }
                             }}
-                        metas={{
-                            title: {
-                                search: false
-                            },
-                            subTitle: {
-                                title: '类别',
-                                render: (_, row) => {
-                                    return <Space size={0}>
-                                        {getAlgoTag(row.type)}
-                                    </Space>
-                                },
-                                valueType: 'select',
-                                valueEnum: AlgoTypeMap,
-                            },
-                            description: {
-                                search: false,
-                                render: (_, row) => getAlgoContent(row)
-                            },
+                            initialValues={{
+                                // pagerank
+                                iter: 3,
+                                prob: 0.85,
+                                // louvain
+                                maxIter: 10,
+                                internalIter: 5,
+                                tol: 0.3,
+                            }}
+                        >{
+                            algo.params.map(p => {
+                                switch (p.type) {
+                                    case ParamType.Int:
+                                        return <ProFormDigit name={p.field} fieldProps={{precision: 0}}
+                                                             label={p.text} max={p.max} min={p.min}/>
+                                    case ParamType.Double:
+                                        return <ProFormDigit name={p.field} fieldProps={{precision: 4, step: 1e-4}}
+                                                             label={p.text} max={p.max} min={p.min}/>
+                                }
+                            })
+                        }
+                        </ProForm>
+                    </Space>
+                }
+                return <ProList<Algo>
+                    key='algoProList'
+                    rowKey={(row, index) => row.id}
+                    toolBarRender={() => {
+                        return [
+                            <Button key='3' type='primary'>
+                                新建
+                            </Button>,
+                        ];
+                    }}
+                    style={{
+                        height: '80vh',
+                        overflowY: 'scroll',
+                    }}
+                    expandable={{
+                        expandedRowKeys: extKeysAlgo, onExpandedRowsChange: (expandedKeys) => {
+                            // @ts-ignore
+                            setExtKeysAlgo(expandedKeys)
+                        }
+                    }}
+                    search={{
+                        filterType: 'light',
+                    }}
+                    request={
+                        async (params = {time: Date.now()}) => {
+                            return {
+                                data: algos.filter(a => !params.subTitle || a.type == params.subTitle),
+                                success: true,
+                                total: algos.length
+                            }
                         }}
-                    />
-                case 'task':
-                    const getTaskTag = (status: number) => {
-                        const s = getTaskTypeDesc(status)
-                        return <Tag color={s.color}>{s.text}</Tag>
-                    }
-                    const getTaskContent = (task: Graph.Task) => {
-                        const getTaskResult = (sres: string) => {
-                            try {
-                                const res = JSON.parse(sres)
-                                console.log(res.rank)
-                                if (res?.score) {
-                                    return <MetricTable score={res.score}/>
-                                }
-                                if (res?.ranks) {
-                                    return <RankTable file={res.file} rows={
-                                        res.ranks.map((r: { nodeId: number; score: any; }) => {
-                                            return {
-                                                node: details[id].nodes.find((n: { id: number; }) => r.nodeId == n.id)?.name,
-                                                rank: r.score,
-                                            }
-                                        })}/>
-                                }
-                            } catch (e) {
-                                console.log(e)
+                    metas={{
+                        title: {
+                            search: false
+                        },
+                        subTitle: {
+                            title: '类别',
+                            render: (_, row) => {
+                                return <Space size={0}>
+                                    {getAlgoTag(row.type)}
+                                </Space>
+                            },
+                            valueType: 'select',
+                            valueEnum: AlgoTypeMap,
+                        },
+                        description: {
+                            search: false,
+                            render: (_, row) => getAlgoContent(row)
+                        },
+                    }}
+                />
+            case 'task':
+                const getTaskTag = (status: number) => {
+                    const s = getTaskTypeDesc(status)
+                    return <Tag color={s.color}>{s.text}</Tag>
+                }
+                const getTaskContent = (task: Graph.Task) => {
+                    const getTaskResult = (sres: string) => {
+                        try {
+                            if (!sres) {
                                 return
                             }
-                        }
-                        return getTaskResult(task.res)
-                    }
-                    return <ProList<Graph.Task>
-                        key="taskProList"
-                        itemLayout="vertical"
-                        actionRef={taskListRef}
-                        rowKey="id"
-                        style={{
-                            height: '80vh',
-                            overflowY: 'scroll',
-                            overflowX: 'hidden'
-                        }}
-                        expandable={{
-                            // rowExpandable: (row) => {
-                            //     return row.status == TaskType.finished
-                            // },
-                            expandedRowKeys: this.state.extKeysTask, onExpandedRowsChange: (expandedKeys) => {
-                                this.setState({
-                                    extKeysTask: expandedKeys
-                                })
+                            const res = JSON.parse(sres)
+                            if (res?.score) {
+                                return <MetricTable score={res.score}/>
                             }
-                        }}
-                        search={{
-                            filterType: 'light',
-                        }}
-                        request={async (params = {time: Date.now()}) => {
-                            const tasks = await getGraphTasks({
-                                graphId: id
-                            })
-                            return {
-                                data: tasks.tasks?.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
-                                success: true,
-                                total: tasks.tasks.length
-                            }
-                        }}
-                        metas={{
-                            title: {
-                                search: false,
-                                render: (_, row) => <Text>{row.desc}</Text>
-                            },
-                            subTitle: {
-                                title: '类别',
-                                render: (_, row) => {
-                                    return <Space size={0}>
-                                        {getTaskTag(row.status)}
-                                    </Space>
-                                },
-                                valueType: 'select',
-                                valueEnum: TaskTypeMap,
-                            },
-                            extra: {
-                                render: (_, row) => {
-                                    return <Space direction={'vertical'}>
-                                        <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
-                                        <a style={{float: 'right'}} onClick={() => {
-                                            console.log(row.id)
-                                            dropTask({
-                                                taskId: row.id
-                                            }).then(() => {
-                                                taskListRef.current?.reload()
-                                            })
-                                        }}>{row.status ? '删除' : '终止'}</a>
-                                    </Space>
-                                },
-                                search: false,
-                            },
-                            content: {
-                                search: false,
-                                render: (_, row) => getTaskContent(row)
-                            },
-                        }}
-                    />
-            }
-        }
-        return <PageContainer header={{
-            title: ''
-        }} content={
-            <Row gutter={16} style={{height: '100%'}}>
-                <Col span={18}>
-                    <Card
-                        title={getSearch()}
-                        style={{height: '100%'}}
-                        bodyStyle={{padding: '0 0 0 0'}}
-                        extra={
-                            <Space>
-                                <Button type={'primary'} onClick={() => {
-                                    const {graph} = graphinRef.current
-                                    graph.emit('canvas:click')
-                                    this.setState({
-                                        query: {
-                                            ...this.state.query,
-                                            ok: false
+                            if (res?.ranks) {
+                                console.log(res)
+                                return <RankTable file={res.file} rows={
+                                    res.ranks.map((r: { tag: string, node: Graph.Node; score: any; }) => {
+                                        let node = r.tag + '(' + r.node.id + ','
+                                        for (let p of r.node.attrs) {
+                                            node = node + p.key + "=" + p.value + ','
                                         }
-                                    })
-                                    if (this.state.graph.kmin !== this.state.graph.min) {
-                                        this.state.graph.kmin = this.state.graph.min
-                                        this.props.dispatch({
-                                            type: 'graph/resetGraph',
-                                            payload: {
-                                                graphID: id
-                                            }
-                                        })
-                                    }
-                                }}>
-                                    重置
-                                </Button>
-                                <LayoutSelector options={layouts} value={type}
-                                                onChange={(value: SetStateAction<string>) => {
-                                                    this.setState({
-                                                        type: value
-                                                    })
-                                                }}/>
-                            </Space>
+                                        node = node.substring(0, node.length - 1) + ')'
+                                        return {
+                                            node: node,
+                                            rank: r.score,
+                                        }
+                                    })}/>
+                            }
+                        } catch (e) {
+                            console.log(e)
+                            return
                         }
-                    >
-                        <Spin spinning={loading}>
-                            <Graphin data={data} layout={layout} fitView={true}
-                                     containerStyle={{height: '80vh'}}
-                                     ref={graphinRef}>
-                                <Hoverable bindType="node"/>
-                                <Hoverable bindType="edge"/>
-                            </Graphin>
-                        </Spin>
-                    </Card>
-                </Col>
-                <Col span={6} style={{height: '100%'}}>
-                    <Card
-                        activeTabKey={tab}
-                        style={{height: '100%'}}
-                        bodyStyle={{padding: 0}}
-                        tabList={tabListNoTitle}
-                        onTabChange={key => {
-                            this.setState({tab: key})
-                        }}>
-                        {getTabContent()}
-                    </Card>
-                </Col>
-            </Row>
-        }>
-        </PageContainer>
+                    }
+                    return getTaskResult(task.res)
+                }
+                return <ProList<Graph.Task>
+                    key='taskProList'
+                    itemLayout='vertical'
+                    // @ts-ignore
+                    actionRef={taskListRef}
+                    rowKey='id'
+                    style={{
+                        height: '80vh',
+                        overflowY: 'scroll',
+                        overflowX: 'hidden'
+                    }}
+                    expandable={{
+                        expandedRowKeys: extKeysTask, onExpandedRowsChange: (expandedKeys) => {
+                            // @ts-ignore
+                            setExtKeysTask(expandedKeys)
+                        }
+                    }}
+                    search={{
+                        filterType: 'light',
+                    }}
+                    request={async (params = {time: Date.now()}) => {
+                        const tasks = await getGraphTasks({
+                            graphId: id
+                        })
+                        return {
+                            data: tasks.tasks?.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
+                            success: true,
+                            total: tasks.tasks.length
+                        }
+                    }}
+                    metas={{
+                        title: {
+                            search: false,
+                            render: (_, row) => <Text>{row.idf}</Text>
+                        },
+                        subTitle: {
+                            title: '类别',
+                            render: (_, row) => {
+                                return <Space size={0}>
+                                    {getTaskTag(row.status)}
+                                </Space>
+                            },
+                            valueType: 'select',
+                            valueEnum: TaskTypeMap,
+                        },
+                        extra: {
+                            render: (_: any, row: { createTime: number; id: any; status: any; }) => {
+                                return <Space direction={'vertical'}>
+                                    <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
+                                    <a style={{float: 'right'}} onClick={() => {
+                                        dropTask({
+                                            taskId: row.id
+                                        }).then(() => {
+                                            // @ts-ignore
+                                            taskListRef.current?.reload()
+                                        })
+                                    }}>{row.status ? '删除' : '终止'}</a>
+                                </Space>
+                            },
+                            search: false,
+                        },
+                        content: {
+                            search: false,
+                            render: (_, row) => getTaskContent(row)
+                        },
+                    }}
+                />
+        }
+    }
+    return <PageContainer header={{title: ''}} content={
+        <Row gutter={16} style={{height: '100%'}}>
+            <Col span={18}>
+                <Card
+                    title={getSearch()}
+                    style={{height: '100%'}}
+                    bodyStyle={{padding: '0 0 0 0'}}
+                    extra={
+                        <Space>
+                            <Button danger type={'primary'} onClick={resetGraph}>重置图谱</Button>
+                            <LayoutSelector options={layouts} value={graphLayout}
+                                            onChange={(value: SetStateAction<string>) => {
+                                                setGraphLayout(value)
+                                            }}/>
+                        </Space>
+                    }
+                >
+                    <Spin spinning={loading}>
+                        <Graphin data={data} layout={layout} fitView={true}
+                                 containerStyle={{height: '80vh'}}
+                            // @ts-ignore
+                                 ref={graphinRef}>
+                            <Hoverable bindType='node'/>
+                            <Hoverable bindType='edge'/>
+                        </Graphin>
+                    </Spin>
+                </Card>
+            </Col>
+            <Col span={6} style={{height: '100%'}}>
+                <Card
+                    activeTabKey={tab}
+                    style={{height: '100%'}}
+                    bodyStyle={{padding: 0}}
+                    tabList={tabListNoTitle}
+                    onTabChange={key => {
+                        setTab(key)
+                    }}>
+                    {getTabContent()}
+                </Card>
+            </Col>
+        </Row>
+    }
+    >
+    </PageContainer>
+
+
+}
+
+const mapStateToProps = (state: any) => {
+    return {
+        details: state.graph
     }
 }
 
-export default Graph;
-const SelectOption = Select.Option;
-const LayoutSelector = (props: { value: any; onChange: any; options: any; }) => {
-    const {value, onChange, options} = props;
-    return (
-        <div
-            // style={{ position: 'absolute', top: 10, left: 10 }}
-        >
-            <Select style={{width: '120px'}} value={value} onChange={onChange}>
-                {options.map((item: { type: any; }) => {
-                    const {type} = item;
-                    // @ts-ignore
-                    const iconComponent = iconMap[type] || <CustomerServiceFilled/>;
-                    return (
-                        <SelectOption key={type} value={type}>
-                            {iconComponent} &nbsp;
-                            {type}
-                        </SelectOption>
-                    );
-                })}
-            </Select>
-        </div>
-    );
-};
-
-const
-    layouts = [
-        {
-            type: 'graphin-force'
-        },
-        {
-            type: 'grid',
-            // begin: [0, 0], // 可选，
-            // preventOverlap: true, // 可选，必须配合 nodeSize
-            // preventOverlapPdding: 20, // 可选
-            // nodeSize: 30, // 可选
-            // condense: false, // 可选
-            // rows: 5, // 可选
-            // cols: 5, // 可选
-            // sortBy: 'degree', // 可选
-            // workerEnabled: false, // 可选，开启 web-worker
-        },
-        {
-            type: 'circular',
-            // center: [200, 200], // 可选，默认为图的中心
-            // radius: null, // 可选
-            // startRadius: 10, // 可选
-            // endRadius: 100, // 可选
-            // clockwise: false, // 可选
-            // divisions: 5, // 可选
-            // ordering: 'degree', // 可选
-            // angleRatio: 1, // 可选
-        },
-        {
-            type: 'radial',
-            // center: [200, 200], // 可选，默认为图的中心
-            // linkDistance: 50, // 可选，边长
-            // maxIteration: 1000, // 可选
-            // focusNode: 'node11', // 可选
-            // unitRadius: 100, // 可选
-            // preventOverlap: true, // 可选，必须配合 nodeSize
-            // nodeSize: 30, // 可选
-            // strictRadial: false, // 可选
-            // workerEnabled: false, // 可选，开启 web-worker
-        },
-        {
-            type: 'force',
-            preventOverlap: true,
-            // center: [200, 200], // 可选，默认为图的中心
-            linkDistance: 50, // 可选，边长
-            nodeStrength: 30, // 可选
-            edgeStrength: 0.8, // 可选
-            collideStrength: 0.8, // 可选
-            nodeSize: 30, // 可选
-            alpha: 0.9, // 可选
-            alphaDecay: 0.3, // 可选
-            alphaMin: 0.01, // 可选
-            forceSimulation: null, // 可选
-            onTick: () => {
-                // 可选
-                console.log('ticking');
-            },
-            onLayoutEnd: () => {
-                // 可选
-                console.log('force layout done');
-            },
-        },
-        {
-            type: 'gForce',
-            linkDistance: 150, // 可选，边长
-            nodeStrength: 30, // 可选
-            edgeStrength: 0.1, // 可选
-            nodeSize: 30, // 可选
-            onTick: () => {
-                // 可选
-                console.log('ticking');
-            },
-            onLayoutEnd: () => {
-                // 可选
-                console.log('force layout done');
-            },
-            workerEnabled: false, // 可选，开启 web-worker
-            gpuEnabled: false, // 可选，开启 GPU 并行计算，G6 4.0 支持
-        },
-        {
-            type: 'concentric',
-            maxLevelDiff: 0.5,
-            sortBy: 'degree',
-            // center: [200, 200], // 可选，
-
-            // linkDistance: 50, // 可选，边长
-            // preventOverlap: true, // 可选，必须配合 nodeSize
-            // nodeSize: 30, // 可选
-            // sweep: 10, // 可选
-            // equidistant: false, // 可选
-            // startAngle: 0, // 可选
-            // clockwise: false, // 可选
-            // maxLevelDiff: 10, // 可选
-            // sortBy: 'degree', // 可选
-            // workerEnabled: false, // 可选，开启 web-worker
-        },
-        {
-            type: 'dagre',
-            rankdir: 'LR', // 可选，默认为图的中心
-            // align: 'DL', // 可选
-            // nodesep: 20, // 可选
-            // ranksep: 50, // 可选
-            // controlPoints: true, // 可选
-        },
-        {
-            type: 'fruchterman',
-            // center: [200, 200], // 可选，默认为图的中心
-            // gravity: 20, // 可选
-            // speed: 2, // 可选
-            // clustering: true, // 可选
-            // clusterGravity: 30, // 可选
-            // maxIteration: 2000, // 可选，迭代次数
-            // workerEnabled: false, // 可选，开启 web-worker
-            // gpuEnabled: false, // 可选，开启 GPU 并行计算，G6 4.0 支持
-        },
-        {
-            type: 'mds',
-            workerEnabled: false, // 可选，开启 web-worker
-        },
-        {
-            type: 'comboForce',
-            // // center: [200, 200], // 可选，默认为图的中心
-            // linkDistance: 50, // 可选，边长
-            // nodeStrength: 30, // 可选
-            // edgeStrength: 0.1, // 可选
-            // onTick: () => {
-            //   // 可选
-            //   console.log('ticking');
-            // },
-            // onLayoutEnd: () => {
-            //   // 可选
-            //   console.log('combo force layout done');
-            // },
-        },
-    ];
+export default connect(mapStateToProps, null)(Graph)

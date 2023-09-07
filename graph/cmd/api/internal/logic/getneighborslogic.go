@@ -26,11 +26,13 @@ func NewGetNeighborsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetN
 	}
 }
 
-func (l *GetNeighborsLogic) GetNeighbors(req *types.SearchNodeRequest) (resp *types.SearchNodeReply, err error) {
-	resp = &types.SearchNodeReply{Base: &types.BaseReply{
-		TaskID:     req.TaskID,
-		TaskStatus: int64(model.KVTask_New),
-	}}
+func (l *GetNeighborsLogic) GetNeighbors(req *types.GetNeighborsRequest) (resp *types.GetGraphDetailReply, err error) {
+	resp = &types.GetGraphDetailReply{
+		Base: &types.BaseReply{
+			TaskID:     req.TaskID,
+			TaskStatus: int64(model.KVTask_New),
+		},
+	}
 	idf := common.GraphNeighbors
 	if req.TaskID != "" {
 		// 任务已经提交过

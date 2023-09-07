@@ -5,22 +5,17 @@ export default {
   'GET /api/graph/algo/pr': (req: Request, res: Response) => {
     res.status(200).send({
       base: {
-        status: 96,
-        msg: '入便自题化照先九影件商容压程分接支按。',
-        taskId: 64,
-        taskStatus: 70,
+        status: 73,
+        msg: '话说石角但情道队空儿龙起历维温类油。',
+        taskId: 'e9Db7f62-E9f0-3e50-5dAa-0EB67E914Db7',
+        taskStatus: 62,
         extra: {},
       },
       ranks: [
-        { nodeId: 79, score: 74 },
-        { nodeId: 75, score: 99 },
-        { nodeId: 85, score: 97 },
-        { nodeId: 95, score: 80 },
-        { nodeId: 79, score: 72 },
-        { nodeId: 91, score: 96 },
-        { nodeId: 83, score: 98 },
+        { nodeId: 63, score: 63 },
+        { nodeId: 65, score: 84 },
       ],
-      file: '较来标众快红西感参标相清下斗。',
+      file: '数度引日张张设严光反除整次工必。',
     });
   },
 };

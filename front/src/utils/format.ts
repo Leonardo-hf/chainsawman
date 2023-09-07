@@ -1,7 +1,6 @@
-export const getTag = (graph: number, node: number) => graph.toString() + '@' + node.toString()
 
 export const formatDate = (time: number) => {
-    const t = new Date(time * 1000);
+    const t = new Date(time);
     const tf = (i: number) => (i < 10 ? '0' : '') + i
     const year = t.getUTCFullYear()
     const thisYear = new Date().getUTCFullYear()
@@ -20,3 +19,8 @@ export const UUID = () =>
             v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
+
+export const getRandomColor = function () {
+    const text = '00000' + (Math.random() * 0x1000000 << 0).toString(16)
+    return '#' + text.substring(text.length - 6);
+}

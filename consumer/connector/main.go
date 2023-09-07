@@ -22,7 +22,7 @@ func initHandleTable() {
 	handleTable[msg.Deletes] = &handler.Deletes{}
 }
 
-// TODO: 很多问题没有解决
+// TODO: 很多问题没有解决，暂时无法使用，待更新
 // TODO: 顺序消费
 // TODO: 事务
 func main() {

@@ -23,7 +23,19 @@ type MysqlClient interface {
 
 	GetGraphByName(ctx context.Context, name string) (*model.Graph, error)
 
+	UpdateGraphStatusByID(ctx context.Context, id int64, status int64) (int64, error)
+
 	GetAllGraph(ctx context.Context) ([]*model.Graph, error)
 
+	GetGraphByGroupID(ctx context.Context, groupID int64) ([]*model.Graph, error)
+
 	GetTasksByGraph(ctx context.Context, graphID int64) ([]*model.Task, error)
+
+	GetAllGroups(ctx context.Context) ([]*model.Group, error)
+
+	InsertGroup(ctx context.Context, group *model.Group) error
+
+	GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error)
+
+	DropGroupByID(ctx context.Context, id int64) (int64, error)
 }

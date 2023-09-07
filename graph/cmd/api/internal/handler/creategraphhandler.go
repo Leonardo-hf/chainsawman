@@ -1,22 +1,18 @@
 package handler
 
 import (
+	"net/http"
+
 	"chainsawman/graph/cmd/api/internal/logic"
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
-	"fmt"
-
-	"net/http"
-
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func createGraphHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.UploadRequest
+		var req types.CreateGraphRequest
 		if err := httpx.Parse(r, &req); err != nil {
-			fmt.Println(req)
-			fmt.Println(err)
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}

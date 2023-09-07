@@ -4,7 +4,6 @@ import (
 	"chainsawman/graph/db/query"
 	"chainsawman/graph/model"
 	"context"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -72,12 +71,51 @@ func (c *MysqlClientImpl) GetGraphByID(ctx context.Context, id int64) (*model.Gr
 	return g.WithContext(ctx).Where(g.ID.Eq(id)).First()
 }
 
+func (c *MysqlClientImpl) GetGraphByGroupID(ctx context.Context, groupID int64) ([]*model.Graph, error) {
+	g := query.Graph
+	return g.WithContext(ctx).Where(g.GroupID.Eq(groupID)).Find()
+}
+
 func (c *MysqlClientImpl) GetGraphByName(ctx context.Context, name string) (*model.Graph, error) {
 	g := query.Graph
 	return g.WithContext(ctx).Where(g.Name.Eq(name)).First()
 }
 
+func (c *MysqlClientImpl) UpdateGraphStatusByID(ctx context.Context, id int64, status int64) (int64, error) {
+	g := query.Graph
+	res, err := g.WithContext(ctx).Where(g.ID.Eq(id)).Updates(map[string]interface{}{
+		"status": status,
+	})
+	return res.RowsAffected, err
+}
+
 func (c *MysqlClientImpl) GetAllGraph(ctx context.Context) ([]*model.Graph, error) {
 	g := query.Graph
 	return g.WithContext(ctx).Find()
+}
+
+func (c *MysqlClientImpl) InsertGroup(ctx context.Context, group *model.Group) error {
+	gr := query.Group
+	return gr.WithContext(ctx).Create(group)
+}
+
+func (c *MysqlClientImpl) DropGroupByID(ctx context.Context, id int64) (int64, error) {
+	gr := query.Group
+	res, err := gr.WithContext(ctx).Where(gr.ID.Eq(id)).Delete()
+	return res.RowsAffected, err
+}
+
+func (c *MysqlClientImpl) GetAllGroups(ctx context.Context) ([]*model.Group, error) {
+	gr := query.Group
+	return gr.WithContext(ctx).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).Find()
+}
+
+func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error) {
+	g := query.Graph
+	graph, err := g.WithContext(ctx).Where(g.ID.Eq(id)).First()
+	if err != nil {
+		return nil, err
+	}
+	gr := query.Group
+	return gr.WithContext(ctx).Where(gr.ID.Eq(graph.GroupID)).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).First()
 }

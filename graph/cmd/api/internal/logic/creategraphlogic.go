@@ -6,8 +6,6 @@ import (
 	"chainsawman/graph/cmd/api/internal/types"
 	"chainsawman/graph/cmd/api/internal/util"
 	"chainsawman/graph/model"
-	"fmt"
-
 	"context"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -27,12 +25,8 @@ func NewCreateGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 	}
 }
 
-func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.SearchGraphReply, err error) {
-	resp = &types.SearchGraphReply{
-		Base: &types.BaseReply{
-			TaskID:     req.TaskID,
-			TaskStatus: int64(model.KVTask_New),
-		},
+func (l *CreateGraphLogic) CreateGraph(req *types.CreateGraphRequest) (resp *types.GraphInfoReply, err error) {
+	resp = &types.GraphInfoReply{
 		Graph: &types.Graph{},
 	}
 	idf := common.GraphCreate
@@ -44,11 +38,12 @@ func (l *CreateGraphLogic) CreateGraph(req *types.UploadRequest) (resp *types.Se
 		return resp, nil
 	}
 	graph := &model.Graph{
-		Name: req.Graph,
-		Desc: req.Desc,
+		Name:    req.Graph,
+		Desc:    req.Desc,
+		GroupID: req.GroupID,
+		Status:  common.GraphStatusInit,
 	}
 	err = l.svcCtx.MysqlClient.InsertGraph(l.ctx, graph)
-	fmt.Print(err)
 	if err != nil {
 		return nil, err
 	}

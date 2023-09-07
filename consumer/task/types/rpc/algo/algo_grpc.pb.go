@@ -28,6 +28,8 @@ type AlgoClient interface {
 	Degree(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
 	Pagerank(ctx context.Context, in *PageRankReq, opts ...grpc.CallOption) (*RankReply, error)
 	Voterank(ctx context.Context, in *VoteRankReq, opts ...grpc.CallOption) (*RankReply, error)
+	Depth(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
+	Ecology(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
 	Betweenness(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
 	Closeness(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error)
 	Louvain(ctx context.Context, in *LouvainReq, opts ...grpc.CallOption) (*RankReply, error)
@@ -97,6 +99,24 @@ func (c *algoClient) Voterank(ctx context.Context, in *VoteRankReq, opts ...grpc
 	return out, nil
 }
 
+func (c *algoClient) Depth(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error) {
+	out := new(RankReply)
+	err := c.cc.Invoke(ctx, "/service.algo/depth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *algoClient) Ecology(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error) {
+	out := new(RankReply)
+	err := c.cc.Invoke(ctx, "/service.algo/ecology", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *algoClient) Betweenness(ctx context.Context, in *BaseReq, opts ...grpc.CallOption) (*RankReply, error) {
 	out := new(RankReply)
 	err := c.cc.Invoke(ctx, "/service.algo/betweenness", in, out, opts...)
@@ -152,6 +172,8 @@ type AlgoServer interface {
 	Degree(context.Context, *BaseReq) (*RankReply, error)
 	Pagerank(context.Context, *PageRankReq) (*RankReply, error)
 	Voterank(context.Context, *VoteRankReq) (*RankReply, error)
+	Depth(context.Context, *BaseReq) (*RankReply, error)
+	Ecology(context.Context, *BaseReq) (*RankReply, error)
 	Betweenness(context.Context, *BaseReq) (*RankReply, error)
 	Closeness(context.Context, *BaseReq) (*RankReply, error)
 	Louvain(context.Context, *LouvainReq) (*RankReply, error)
@@ -181,6 +203,12 @@ func (UnimplementedAlgoServer) Pagerank(context.Context, *PageRankReq) (*RankRep
 }
 func (UnimplementedAlgoServer) Voterank(context.Context, *VoteRankReq) (*RankReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Voterank not implemented")
+}
+func (UnimplementedAlgoServer) Depth(context.Context, *BaseReq) (*RankReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Depth not implemented")
+}
+func (UnimplementedAlgoServer) Ecology(context.Context, *BaseReq) (*RankReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ecology not implemented")
 }
 func (UnimplementedAlgoServer) Betweenness(context.Context, *BaseReq) (*RankReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Betweenness not implemented")
@@ -318,6 +346,42 @@ func _Algo_Voterank_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Algo_Depth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BaseReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlgoServer).Depth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.algo/depth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlgoServer).Depth(ctx, req.(*BaseReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Algo_Ecology_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BaseReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlgoServer).Ecology(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/service.algo/ecology",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlgoServer).Ecology(ctx, req.(*BaseReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Algo_Betweenness_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BaseReq)
 	if err := dec(in); err != nil {
@@ -438,6 +502,14 @@ var Algo_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "voterank",
 			Handler:    _Algo_Voterank_Handler,
+		},
+		{
+			MethodName: "depth",
+			Handler:    _Algo_Depth_Handler,
+		},
+		{
+			MethodName: "ecology",
+			Handler:    _Algo_Ecology_Handler,
 		},
 		{
 			MethodName: "betweenness",

@@ -89,6 +89,7 @@ message LouvainConfig{
 
 message BaseReq{
   int64 graphID = 1;
+  repeated string edgeTags = 2;
 }
 
 message PageRankReq{
@@ -129,6 +130,10 @@ service algo {
   rpc pagerank(PageRankReq) returns(RankReply);
 
   rpc voterank(VoteRankReq) returns(RankReply);
+
+  rpc depth(BaseReq) returns(RankReply);
+
+  rpc ecology(BaseReq) returns(RankReply);
 
   rpc betweenness(BaseReq) returns(RankReply);
 

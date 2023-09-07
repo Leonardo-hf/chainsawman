@@ -5,16 +5,17 @@ import com.typesafe.config.Config
 import com.vesoft.nebula.connector.NebulaConnectionConfig
 import config.AlgoConstants
 import org.apache.spark.SparkConf
-import org.apache.spark.graphx.{Edge, EdgeDirection, EdgeTriplet, Graph, Pregel, VertexId, VertexRDD}
+import org.apache.spark.graphx.{Edge, EdgeDirection, EdgeTriplet, Graph, Pregel, TripletFields, VertexId, VertexRDD}
 import org.apache.spark.graphx.lib._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types.{DoubleType, LongType, StructField, StructType}
-import service.{LouvainConfig, PRConfig}
+import service.{LouvainConfig, PRConfig, VoteConfig}
 import util.GraphUtil
 
-import scala.collection.mutable
+import scala.collection.{breakOut, mutable}
 import scala.collection.mutable.ListBuffer
+import scala.util.control.Breaks
 
 
 object SparkClientImpl extends SparkClient {
@@ -50,8 +51,8 @@ object SparkClientImpl extends SparkClient {
     this
   }
 
-  override def degree(graphID: Long): (DataFrame, Option[Exception]) = {
-    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+  override def degree(graphID: Long, edgeTags: Seq[String]): (DataFrame, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
     val schema = StructType(
       List(
         StructField(AlgoConstants.NODE_ID_COL, LongType, nullable = false),
@@ -61,14 +62,14 @@ object SparkClientImpl extends SparkClient {
       .createDataFrame(graph.degrees.map(r => Row.apply(r._1, r._2.toDouble)), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
   }
 
-  override def pagerank(graphID: Long, cfg: PRConfig): (DataFrame, Option[Exception]) = {
-    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+  override def pagerank(graphID: Long, edgeTags: Seq[String], cfg: PRConfig): (DataFrame, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
     val prResultRDD = PageRank.run(graph, cfg.iter.toInt, cfg.prob).vertices.map(r => Row.apply(r._1, r._2))
     (spark.sqlContext
       .createDataFrame(prResultRDD, schema).sort(AlgoConstants.SCORE_COL), Option.empty)
   }
 
-  override def betweenness(graphID: Long): (DataFrame, Option[Exception]) = {
+  override def betweenness(graphID: Long, edgeTags: Seq[String]): (DataFrame, Option[Exception]) = {
     /**
      * 构建BetweennessCentrality图，图中顶点属性维护了图中所有顶点id的列表和所有边（srcId， dstId， attr）的列表
      *
@@ -240,7 +241,7 @@ object SparkClientImpl extends SparkClient {
       resultG
     }
 
-    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
     val initBCgraph = createBetweenGraph(graph, k = 3)
     val vertexBCGraph = initBCgraph.mapVertices((id, attr) => {
       (id, betweennessCentralityForUnweightedGraph(id, attr))
@@ -250,7 +251,7 @@ object SparkClientImpl extends SparkClient {
       .createDataFrame(BCGraph.vertices.map(r => Row.apply(r._1, r._2)), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
   }
 
-  override def closeness(graphID: Long): (DataFrame, Option[Exception]) = {
+  override def closeness(graphID: Long, edgeTags: Seq[String]): (DataFrame, Option[Exception]) = {
     type SPMap = Map[VertexId, Double]
 
     def makeMap(x: (VertexId, Double)*) = Map(x: _*)
@@ -275,7 +276,7 @@ object SparkClientImpl extends SparkClient {
       else Iterator.empty
     }
 
-    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
     val spGraph = graph.mapVertices((vid, _) => makeMap(vid -> 0.0))
     val initialMessage = makeMap()
 
@@ -293,10 +294,191 @@ object SparkClientImpl extends SparkClient {
       .createDataFrame(closenessRDD, schema).sort(AlgoConstants.SCORE_COL), Option.empty)
   }
 
-  override def voterank(graphID: VertexId): (DataFrame, Option[Exception]) = ???
+  override def voterank(graphID: VertexId, edgeTags: Seq[String], cfg: VoteConfig): (DataFrame, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    val res = ListBuffer[Row]()
 
-  override def clusteringCoefficient(graphID: VertexId): (Double, Option[Exception]) = {
-    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+    val sumDegree = graph.inDegrees.map(v => v._2).sum()
+    var f = 1.0
+    if (sumDegree != 0) {
+      f = graph.numVertices / sumDegree
+    }
+    val cal = mutable.Set[VertexId]()
+    var vGraph = graph.mapVertices((_, _) => 1.0)
+    var iter = cfg.iter
+    val loop = new Breaks
+    loop.breakable {
+      while (iter > 0 && res.length < graph.numVertices) {
+        iter = iter - 1
+        val addVertices = vGraph.aggregateMessages[Double](t => t.sendToDst(t.srcAttr), _ + _, TripletFields.Src).filter(vid => !cal.contains(vid._1))
+        if (addVertices.isEmpty()) {
+          loop.break()
+        }
+        val (maxVertex, score) = addVertices.max()(Ordering.by[(VertexId, Double), Double](_._2))
+        res.append(Row.apply(maxVertex, score))
+        cal.add(maxVertex)
+        vGraph = vGraph.joinVertices(graph.edges.filter(e => e.dstId == maxVertex).map[(VertexId, Double)](e => (e.srcId, -f))) {
+          (_, oldScore, change) => oldScore + change
+        }.mapVertices((vid, score) => {
+          if (vid == maxVertex || score < 0) {
+            0
+          } else {
+            score
+          }
+        })
+      }
+    }
+    (spark.sqlContext
+      .createDataFrame(spark.sparkContext.parallelize(res), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
+  }
+
+  def depth(graphID: Long, edgeTags: Seq[String]): (DataFrame, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    if (graph.numVertices == 0) {
+      return (spark.sqlContext
+        .createDataFrame(spark.sparkContext.parallelize(List.apply(Row.apply("", 0))
+        ), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
+    }
+    if (graph.numVertices == 1) {
+      return (spark.sqlContext
+        .createDataFrame(spark.sparkContext.parallelize(graph.vertices.map(v => Row.apply(v._1, 0)).collect()
+        ), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
+    }
+    var vGraph = graph.outerJoinVertices(graph.outDegrees) { (_, _, d) => {
+      if (d.isEmpty) {
+        // 当前累计分，当前累计出节点数目，出度，应用层级
+        (0.0, 1, 0, 0.0)
+      } else {
+        (0.0, 0, d.get, 0.0)
+      }
+    }
+    }
+
+    // 获得所有节点的应用层级
+    vGraph = Pregel(vGraph, initialMsg = (0.0, 0), maxIterations = Int.MaxValue, activeDirection = EdgeDirection.In)(
+      (_, attr, msg) => {
+        var al = 0.0
+        if (attr._3 - msg._2 == 0) {
+          al = 1 + math.sqrt((attr._1 + msg._1) / (attr._2 + msg._2))
+        }
+        (attr._1 + msg._1, attr._2 + msg._2, attr._3 - msg._2, al)
+      },
+      edge => {
+        if (edge.dstAttr._3 == 0) {
+          Iterator((edge.srcId, (math.pow(edge.dstAttr._4, 2), 1)))
+        } else {
+          Iterator.empty
+        }
+      }, (a, b) => (a._1 + b._1, a._2 + b._2))
+
+    // 获得深度之和
+    var vsGraph = vGraph.outerJoinVertices(graph.inDegrees) { (_, t, d) => {
+      if (d.isEmpty) {
+        // 当前累计分，入度，当前累计总节点数目，应用层级，深度指标
+        (t._4, 0, 1, t._4, 0.0)
+      } else {
+        (0.0, d.get, 0, t._4, 0.0)
+      }
+    }
+    }
+    val size = vsGraph.numVertices
+    vsGraph = Pregel(vsGraph, initialMsg = (0.0, 0, 0), maxIterations = Int.MaxValue, activeDirection = EdgeDirection.Out)(
+      (_, attr, msg) => {
+        var ds = 0.0
+        if (attr._2 - msg._2 == 0) {
+          ds = (attr._1 + msg._1 - (attr._3 + msg._3) * attr._4) / size
+        }
+        (attr._1 + msg._1, attr._2 - msg._2, attr._3 + msg._3, attr._4, ds)
+      },
+      edge => {
+        if (edge.srcAttr._2 == 0) {
+          Iterator((edge.dstId, (edge.srcAttr._4, 1, edge.srcAttr._3)))
+        } else {
+          Iterator.empty
+        }
+      }, (a, b) => (a._1 + b._1, a._2 + b._2, a._3 + b._3))
+    (spark.sqlContext
+      .createDataFrame(vsGraph.vertices.map(v => Row.apply(v._1, v._2._5)), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
+  }
+
+  def ecology(graphID: Long, edgeTags: Seq[String]): (DataFrame, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    val r = 2
+    val res = ListBuffer[Row]()
+    val vids = graph.vertices.map(v => v._1).collect()
+    for (vid <- Seq(1L)) {
+      var score: Double = 0.0
+      // 获得vid相关子图
+      var vGraph = graph.mapVertices((v, _) => {
+        if (vid == v) {
+          1
+        } else {
+          0
+        }
+      })
+      vGraph = Pregel(vGraph, initialMsg = 0, maxIterations = Int.MaxValue, activeDirection = EdgeDirection.In)(
+        (_, attr, msg) => Math.max(attr, msg),
+        edge => {
+          if (edge.dstAttr > edge.srcAttr) {
+            Iterator((edge.srcId, edge.dstAttr))
+          } else {
+            Iterator.empty
+          }
+        },
+        (a, b) => math.max(a, b)
+      ).subgraph(vpred = (_, s) => s == 1)
+
+      def setCI(g: Graph[Int, Double]): Graph[Int, Double] = {
+        // 准备入度
+        var cGraph = g.outerJoinVertices(g.inDegrees) {
+          (_, _, deg) => (0, deg.getOrElse(0), ListBuffer[List[(VertexId, Int)]]())
+        }
+
+        // 获得所有入路径
+        cGraph = Pregel(cGraph, initialMsg = (0, ListBuffer[List[(VertexId, Int)]]()), maxIterations = Int.MaxValue, activeDirection = EdgeDirection.Out)(
+          (_, attr, msg) => {
+            // 累计完成的节点
+            (attr._1 + msg._1, attr._2, attr._3.union(msg._2))
+          },
+          edge => {
+            if (edge.srcAttr._1 == edge.srcAttr._2) {
+              val paths = ListBuffer[List[(VertexId, Int)]]()
+              // 如果是空，则将自身直接加入
+              if (edge.srcAttr._3.isEmpty) {
+                paths.append(List.apply((edge.srcId, edge.srcAttr._2)))
+              }
+              // 否则，将自己加入到路径的最后
+              for (p <- edge.srcAttr._3) {
+                paths.append(p :+ (edge.srcId, edge.srcAttr._2))
+              }
+              Iterator((edge.dstId, (1, paths)))
+            } else {
+              Iterator.empty
+            }
+          }, (a, b) => (a._1 + b._1, a._2.union(b._2)))
+
+        // 过滤得到所有长度为r的路径，计算CI值
+        cGraph.mapVertices((_, vd) =>
+          vd._3.filter(p => p.length >= r).map(p => p(p.length - r)).toSet[(VertexId, Int)].map(p => p._2 - 1).sum * (vd._2 - 1)
+        )
+      }
+
+      vGraph = setCI(vGraph)
+
+      while (math.pow(vGraph.vertices.map(v => v._2).sum() / vGraph.inDegrees.map(d => d._2).sum(), 1.0 / (r + 1)) > 1) {
+        val (maxVertex, _) = vGraph.vertices.max()(Ordering.by[(VertexId, Int), Double](_._2))
+        score += 1.0
+        vGraph = vGraph.subgraph(epred = e => e.srcId != maxVertex && e.dstId != maxVertex)
+        vGraph = setCI(vGraph)
+      }
+      res.append(Row.apply(vid, score))
+    }
+    (spark.sqlContext
+      .createDataFrame(spark.sparkContext.parallelize(res), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
+  }
+
+  override def clusteringCoefficient(graphID: VertexId, edgeTags: Seq[String]): (Double, Option[Exception]) = {
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
     val closedTriangleNum = graph.triangleCount().vertices.map(_._2).reduce(_ + _)
     // compute the number of open triangle and closed triangle (According to C(n,2)=n*(n-1)/2)
     val triangleNum = graph.degrees.map(vertex => (vertex._2 * (vertex._2 - 1)) / 2.0).reduce(_ + _)
@@ -306,7 +488,7 @@ object SparkClientImpl extends SparkClient {
       ((closedTriangleNum / triangleNum * 1.0).formatted("%.6f").toDouble, Option.empty)
   }
 
-  override def louvain(graphID: VertexId, cfg: LouvainConfig): (DataFrame, Option[Exception]) = {
+  override def louvain(graphID: VertexId, edgeTags: Seq[String], cfg: LouvainConfig): (DataFrame, Option[Exception]) = {
     /**
      * Louvain step1：Traverse the vertices and get the new community information of each node遍历节点，获取每个节点对应的所属新社区信息
      *
@@ -602,7 +784,7 @@ object SparkClientImpl extends SparkClient {
       var degree = 0.0
     }
 
-    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, hasWeight = false)
+    val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
     val sc = spark.sparkContext
 
     // convert origin graph to Louvain Graph, Louvain Graph records vertex's community、innerVertices and innerDegrees

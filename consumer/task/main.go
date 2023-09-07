@@ -24,17 +24,23 @@ var handleTable map[string]handler.Handler
 
 func initHandleTable() {
 	handleTable = make(map[string]handler.Handler)
-	handleTable[common.GraphGet] = &handler.GetGraph{}
+	handleTable[common.GraphGet] = &handler.GetGraphDetail{}
+	handleTable[common.GraphUpdate] = &handler.UpdateGraph{}
 	handleTable[common.GraphNeighbors] = &handler.GetNeighbors{}
-	handleTable[common.GraphCreate] = &handler.Upload{}
+	handleTable[common.GraphNodes] = &handler.GetNodes{}
+	handleTable[common.GraphCreate] = &handler.CreateGraph{}
 	handleTable[common.AlgoDegree] = &handler.AlgoDegree{}
 	handleTable[common.AlgoPagerank] = &handler.AlgoPageRank{}
-	handleTable[common.AlgoVoterank] = &handler.AlgoVoteRank{}
 	handleTable[common.AlgoCloseness] = &handler.AlgoCloseness{}
 	handleTable[common.AlgoBetweenness] = &handler.AlgoBetweenness{}
 	handleTable[common.AlgoAvgCC] = &handler.AlgoAvgCC{}
 	handleTable[common.AlgoLouvain] = &handler.AlgoLouvain{}
-	handleTable[common.AlgoComp] = &handler.AlgoComp{}
+	//handleTable[common.AlgoComp] = &handler.AlgoComp{}
+	handleTable[common.AlgoQuantity] = &handler.AlgoQuantity{}
+	handleTable[common.AlgoDepth] = &handler.AlgoDepth{}
+	handleTable[common.AlgoIntegration] = &handler.AlgoBetweenness{}
+	handleTable[common.AlgoEcology] = &handler.AlgoEcology{}
+
 }
 
 func main() {
@@ -95,12 +101,11 @@ func handle(ctx context.Context, task *model.KVTask, h handler.Handler) error {
 	}
 	if common.TaskIdf(task.Idf).Persistent {
 		taskIDInt, _ := strconv.ParseInt(task.Id, 10, 64)
-		_, err = config.MysqlClient.UpdateTaskByID(&model.Task{
+		_, err = config.MysqlClient.UpdateTaskByID(ctx, &model.Task{
 			ID:     taskIDInt,
 			Status: int64(task.Status),
 			Result: res,
 		})
-		fmt.Println(err)
 	}
 	return err
 }

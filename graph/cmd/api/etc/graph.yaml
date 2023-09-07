@@ -21,6 +21,7 @@ Minio:
   SecretAccessKey: minioadmin
   UseSSL: false
   SourceBucket: source
+  AlgoBucket: algo
   SourceExpired: 1
   URLExpired: 3600
 

@@ -16,39 +16,64 @@ import (
 )
 
 var (
-	Q     = new(Query)
-	Graph *graph
-	Task  *task
+	Q         = new(Query)
+	Edge      *edge
+	EdgesAttr *edgesAttr
+	Graph     *graph
+	Group     *group
+	Node      *node
+	NodesAttr *nodesAttr
+	Task      *task
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Edge = &Q.Edge
+	EdgesAttr = &Q.EdgesAttr
 	Graph = &Q.Graph
+	Group = &Q.Group
+	Node = &Q.Node
+	NodesAttr = &Q.NodesAttr
 	Task = &Q.Task
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:    db,
-		Graph: newGraph(db, opts...),
-		Task:  newTask(db, opts...),
+		db:        db,
+		Edge:      newEdge(db, opts...),
+		EdgesAttr: newEdgesAttr(db, opts...),
+		Graph:     newGraph(db, opts...),
+		Group:     newGroup(db, opts...),
+		Node:      newNode(db, opts...),
+		NodesAttr: newNodesAttr(db, opts...),
+		Task:      newTask(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Graph graph
-	Task  task
+	Edge      edge
+	EdgesAttr edgesAttr
+	Graph     graph
+	Group     group
+	Node      node
+	NodesAttr nodesAttr
+	Task      task
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:    db,
-		Graph: q.Graph.clone(db),
-		Task:  q.Task.clone(db),
+		db:        db,
+		Edge:      q.Edge.clone(db),
+		EdgesAttr: q.EdgesAttr.clone(db),
+		Graph:     q.Graph.clone(db),
+		Group:     q.Group.clone(db),
+		Node:      q.Node.clone(db),
+		NodesAttr: q.NodesAttr.clone(db),
+		Task:      q.Task.clone(db),
 	}
 }
 
@@ -62,21 +87,36 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:    db,
-		Graph: q.Graph.replaceDB(db),
-		Task:  q.Task.replaceDB(db),
+		db:        db,
+		Edge:      q.Edge.replaceDB(db),
+		EdgesAttr: q.EdgesAttr.replaceDB(db),
+		Graph:     q.Graph.replaceDB(db),
+		Group:     q.Group.replaceDB(db),
+		Node:      q.Node.replaceDB(db),
+		NodesAttr: q.NodesAttr.replaceDB(db),
+		Task:      q.Task.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Graph IGraphDo
-	Task  ITaskDo
+	Edge      IEdgeDo
+	EdgesAttr IEdgesAttrDo
+	Graph     IGraphDo
+	Group     IGroupDo
+	Node      INodeDo
+	NodesAttr INodesAttrDo
+	Task      ITaskDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Graph: q.Graph.WithContext(ctx),
-		Task:  q.Task.WithContext(ctx),
+		Edge:      q.Edge.WithContext(ctx),
+		EdgesAttr: q.EdgesAttr.WithContext(ctx),
+		Graph:     q.Graph.WithContext(ctx),
+		Group:     q.Group.WithContext(ctx),
+		Node:      q.Node.WithContext(ctx),
+		NodesAttr: q.NodesAttr.WithContext(ctx),
+		Task:      q.Task.WithContext(ctx),
 	}
 }
 
@@ -85,10 +125,14 @@ func (q *Query) Transaction(fc func(tx *Query) error, opts ...*sql.TxOptions) er
 }
 
 func (q *Query) Begin(opts ...*sql.TxOptions) *QueryTx {
-	return &QueryTx{q.clone(q.db.Begin(opts...))}
+	tx := q.db.Begin(opts...)
+	return &QueryTx{Query: q.clone(tx), Error: tx.Error}
 }
 
-type QueryTx struct{ *Query }
+type QueryTx struct {
+	*Query
+	Error error
+}
 
 func (q *QueryTx) Commit() error {
 	return q.db.Commit().Error

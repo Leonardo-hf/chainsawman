@@ -5,19 +5,21 @@ export default {
   'GET /api/graph/algo/closeness': (req: Request, res: Response) => {
     res.status(200).send({
       base: {
-        status: 81,
-        msg: '如记江那年使更风山共山领月县派或。',
-        taskId: 97,
-        taskStatus: 98,
+        status: 97,
+        msg: '利相级容资一以之性白影强变件。',
+        taskId: '18bDC6c8-cC2B-4eb1-CBE9-CBe8d3A65Ae3',
+        taskStatus: 88,
         extra: {},
       },
       ranks: [
-        { nodeId: 99, score: 75 },
-        { nodeId: 73, score: 88 },
-        { nodeId: 64, score: 91 },
-        { nodeId: 96, score: 61 },
+        { nodeId: 83, score: 93 },
+        { nodeId: 72, score: 68 },
+        { nodeId: 74, score: 66 },
+        { nodeId: 90, score: 84 },
+        { nodeId: 78, score: 72 },
+        { nodeId: 76, score: 69 },
       ],
-      file: '现者她正格理型意去图青解身际道。',
+      file: '好算划府想会己与王年备习种共龙从论。',
     });
   },
 };

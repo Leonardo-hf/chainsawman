@@ -57,7 +57,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   }
 
   override def degree(in: BaseReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.degree(in.graphID)
+    val (res, err) = ClientConfig.sparkClient.degree(in.graphID, in.edgeTags)
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
@@ -66,7 +66,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   }
 
   override def pagerank(in: PageRankReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.pagerank(in.base.get.graphID, in.cfg.getOrElse(PRConfig.apply(iter = 3, prob = 0.85)))
+    val (res, err) = ClientConfig.sparkClient.pagerank(in.base.get.graphID, in.base.get.edgeTags, in.cfg.getOrElse(PRConfig.apply(iter = 3, prob = 0.85)))
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
@@ -74,10 +74,35 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
     Future.successful(getRank(res, id))
   }
 
-  override def voterank(in: VoteRankReq): Future[RankReply] = ???
+  override def voterank(in: VoteRankReq): Future[RankReply] = {
+    val (res, err) = ClientConfig.sparkClient.voterank(in.base.get.graphID, in.base.get.edgeTags, in.cfg.getOrElse(VoteConfig.apply(iter = 2000)))
+    if (err.nonEmpty) {
+      return Future.failed(err.get)
+    }
+    val (id, _) = ClientConfig.ossClient.upload(name = "voterank", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
+  }
+
+  override def depth(in: BaseReq): Future[RankReply] = {
+    val (res, err) = ClientConfig.sparkClient.depth(in.graphID, in.edgeTags)
+    if (err.nonEmpty) {
+      return Future.failed(err.get)
+    }
+    val (id, _) = ClientConfig.ossClient.upload(name = "depth", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
+  }
+
+  override def ecology(in: BaseReq): Future[RankReply] = {
+    val (res, err) = ClientConfig.sparkClient.ecology(in.graphID, in.edgeTags)
+    if (err.nonEmpty) {
+      return Future.failed(err.get)
+    }
+    val (id, _) = ClientConfig.ossClient.upload(name = "ecology", content = CSVUtil.df2CSV(res))
+    Future.successful(getRank(res, id))
+  }
 
   override def betweenness(in: BaseReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.betweenness(in.graphID)
+    val (res, err) = ClientConfig.sparkClient.betweenness(in.graphID, in.edgeTags)
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
@@ -86,7 +111,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   }
 
   override def closeness(in: BaseReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.closeness(in.graphID)
+    val (res, err) = ClientConfig.sparkClient.closeness(in.graphID, in.edgeTags)
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
@@ -95,7 +120,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   }
 
   override def avgClustering(in: BaseReq): Future[MetricsReply] = {
-    val (res, err) = ClientConfig.sparkClient.clusteringCoefficient(in.graphID)
+    val (res, err) = ClientConfig.sparkClient.clusteringCoefficient(in.graphID, in.edgeTags)
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }
@@ -110,7 +135,7 @@ class AlgoServiceImpl(system: ActorSystem[_]) extends algo {
   }
 
   override def louvain(in: LouvainReq): Future[RankReply] = {
-    val (res, err) = ClientConfig.sparkClient.louvain(in.base.get.graphID, in.cfg.getOrElse(LouvainConfig.apply(maxIter = 10, internalIter = 5, tol = 0.5)))
+    val (res, err) = ClientConfig.sparkClient.louvain(in.base.get.graphID, in.base.get.edgeTags, in.cfg.getOrElse(LouvainConfig.apply(maxIter = 10, internalIter = 5, tol = 0.5)))
     if (err.nonEmpty) {
       return Future.failed(err.get)
     }

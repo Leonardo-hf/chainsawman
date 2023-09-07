@@ -14,11 +14,11 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
-    "@ant-design/pro-components": "^2.0.1",
+    "@ant-design/pro-components": "^2.6.15",
     "@antv/graphin": "^2.7.13",
     "@umijs/max": "^4.0.61",
     "@umijs/max-plugin-openapi": "^2.0.3",
-    "antd": "^5.0.0"
+    "antd": "^5.8.6"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

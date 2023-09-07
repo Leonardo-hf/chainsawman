@@ -2,17 +2,23 @@ package common
 
 const (
 	GraphCreate    = "graph:create"
+	GraphUpdate    = "graph:update"
 	GraphGet       = "graph:get"
+	GraphNodes     = "graph:nodes"
 	GraphNeighbors = "graph:neighbors"
 
 	AlgoDegree      = "algo:degree"
 	AlgoPagerank    = "algo:pagerank"
 	AlgoBetweenness = "algo:between"
 	AlgoCloseness   = "algo:close"
-	AlgoVoterank    = "algo:voterank"
 	AlgoLouvain     = "algo:louvain"
 	AlgoAvgCC       = "algo:avgCC"
-	AlgoComp        = "algo:comp"
+	AlgoQuantity    = "algo:quantity"
+	AlgoDepth       = "algo:depth"
+	AlgoIntegration = "algo:integration"
+	AlgoEcology     = "algo:ecology"
+
+	AlgoComp = "algo:comp"
 )
 
 const (
@@ -40,6 +46,14 @@ var taskAttrMap = map[string]*TaskAttr{
 		Queue:      PMedium,
 		Persistent: false,
 	},
+	GraphUpdate: {
+		Queue:      PMedium,
+		Persistent: false,
+	},
+	GraphNodes: {
+		Queue:      PLow,
+		Persistent: false,
+	},
 	GraphGet: {
 		Queue: PHigh, Persistent: false,
 	},
@@ -63,10 +77,6 @@ var taskAttrMap = map[string]*TaskAttr{
 		Queue:      PLow,
 		Persistent: true,
 	},
-	AlgoVoterank: {
-		Queue:      PLow,
-		Persistent: true,
-	},
 	AlgoLouvain: {
 		Queue:      PLow,
 		Persistent: true,
@@ -76,6 +86,22 @@ var taskAttrMap = map[string]*TaskAttr{
 		Persistent: true,
 	},
 	AlgoComp: {
+		Queue:      PLow,
+		Persistent: true,
+	},
+	AlgoQuantity: {
+		Queue:      PLow,
+		Persistent: true,
+	},
+	AlgoDepth: {
+		Queue:      PLow,
+		Persistent: true,
+	},
+	AlgoIntegration: {
+		Queue:      PLow,
+		Persistent: true,
+	},
+	AlgoEcology: {
 		Queue:      PLow,
 		Persistent: true,
 	},

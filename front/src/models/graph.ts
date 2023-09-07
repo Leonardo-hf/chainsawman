@@ -1,90 +1,112 @@
-import {getAllGraph, getGraph, getNeighbors} from "@/services/graph/graph";
-import {getTag} from "@/utils/format";
+import {getGraph, getNeighbors} from "@/services/graph/graph";
 
 
-const getRandomColor = function () {
-    const text = '00000' + (Math.random() * 0x1000000 << 0).toString(16)
-    return '#' + text.substring(text.length - 6);
+export const getGraphName = function (graphID: number, tgtNodeID: number | undefined = undefined) {
+    if (tgtNodeID) {
+        return 'Graph@' + graphID.toString() + '/' + tgtNodeID.toString()
+    }
+    return 'Graph@' + graphID.toString()
 }
 
+export const isSubGraph = function (gid: string) {
+    return gid.indexOf('/') !== -1;
+}
+
+export const findByGid = function (state: any[], gid: string) {
+    return state.find(s => s.gid === gid)
+}
+
+export const filterByGraph = function (state: any[], graphId: number) {
+    return state.filter(s => s.gid.startsWith(getGraphName(graphId)))
+}
+
+
+// @ts-ignore
 export default {
-    state: {
-        details: {},
-        graphs: {}
-    },
-
+    state: [],
     effects: {
-        * queryGraphs({}, {call, put}) {
-            const data: Promise<Graph.SearchAllGraphReply> = yield call(getAllGraph);
-            yield put({type: 'getGraphs', payload: data});
-        },
-
-        * queryDetail({payload}, {call, put}) {
-            const data: Promise<Graph.SearchGraphDetailReply> = yield call(getGraph, payload);
-            data['graphId'] = payload.graphId;
-            yield put({type: 'getDetail', payload: data});
+        // @ts-ignore
+        * queryGraph({payload, timer}, {call, put}) {
+            const data: Graph.GetGraphDetailReply = yield call(getGraph, payload)
+            yield put(
+                {
+                    type: 'add',
+                    payload: {
+                        gid: getGraphName(payload.graphId),
+                        timer: timer,
+                        ...data
+                    }
+                })
             return data.base.taskStatus
         },
 
-        * queryNeibors({payload}, {call, put}) {
-            const data: Promise<Graph.SearchNodeReply> = yield call(getNeighbors, payload);
-            data['graphId'] = getTag(payload.graphId, payload.nodeId);
-            yield put({type: 'getDetail', payload: data});
+        // @ts-ignore
+        * queryNeighbors({payload, timer}, {call, put}) {
+            const data: Graph.GetGraphDetailReply = yield call(getNeighbors, payload);
+            yield put(
+                {
+                    type: 'add',
+                    payload: {
+                        gid: getGraphName(payload.graphId, payload.nodeId),
+                        timer: timer,
+                        ...data
+                    }
+                })
             return data.base.taskStatus
         }
     },
 
     reducers: {
-        getGraphs(state, {payload}) {
-            return {
-                ...state,
-                graphs: payload
-            }
+        // @ts-ignore
+        clearSubGraph(state, {payload}) {
+            return state.filter((d: { gid: string; }) => !d.gid.startsWith(getGraphName(payload) + '/'))
         },
+        // @ts-ignore
         resetGraph(state, {payload}) {
-            const details = {}
-            for (let attr in state.details) {
-                if (attr !== payload.graphID.toString()) {
-                    details[attr] = state.details[attr]
-                }
-            }
-            return {
-                ...state,
-                details
-            }
+            // 删除graphID对应的图和子图数据
+            return state.filter((d: { gid: string; }) => !d.gid.startsWith(getGraphName(payload)))
         },
-        getDetail(state, {payload}) {
-            const details = {}
-            for (let attr in state.details) {
-                details[attr] = state.details[attr]
-            }
-            details[payload.graphId] = {
+        // @ts-ignore
+        add(state, {payload}) {
+            const nodes: { id: number; tag: string; attrs: Graph.Pair[]; deg: number }[] = [],
+                edges: { source: number; target: number; tag: string; attrs: Graph.Pair[]; }[] = []
+            const nState = [...state]
+            payload.nodePacks?.forEach((np: Graph.NodePack) => {
+                np.nodes.forEach(n => {
+                    nodes.push({
+                        id: n.id,
+                        tag: np.tag,
+                        attrs: n.attrs,
+                        deg: n.deg
+                    })
+                })
+            })
+            payload.edgePacks?.forEach((np: Graph.EdgePack) => {
+                np.edges.forEach(n => {
+                    edges.push({
+                        source: n.source,
+                        target: n.target,
+                        tag: np.tag,
+                        attrs: n.attrs
+                    })
+                })
+            })
+            const i = nState.findIndex(s => s.gid == payload.gid)
+            const v = {
+                gid: payload.gid,
                 taskId: payload.base.taskId,
                 status: payload.base.taskStatus,
-                nodes: payload.nodes,
-                edges: payload.edges,
+                nodes: nodes,
+                edges: edges,
+                timer: payload.timer
             }
-            for (let i = 0; i < details[payload.graphId].nodes?.length; i++) {
-                details[payload.graphId].nodes[i]['color'] = getRandomColor()
+            if (i === -1) {
+                nState.push(v)
+            } else {
+                nState[i] = v
             }
-            return {
-                ...state,
-                details
-            }
+            // 新增图或子图数据
+            return nState
         },
     },
-
-
-    // subscriptions: {
-    //     setup({dispatch, history}) {
-    //         history.listen(({location}) => {
-    //             if (location.pathname === '/home') {
-    //                 dispatch({
-    //                     type: 'queryGraphs'
-    //                 })
-    //             }
-    //         });
-    //     }
-    // },
-    //
 }

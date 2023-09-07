@@ -62,10 +62,47 @@ export async function algoDegree(
   });
 }
 
-/** 查询算法 GET /api/graph/algo/getAll */
-export async function algoGetAll(options?: { [key: string]: any }) {
-  return request<Graph.AlgoReply>('/api/graph/algo/getAll', {
+/** Depth算法 GET /api/graph/algo/depth */
+export async function algoDepth(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.algoDepthParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.AlgoRankReply>('/api/graph/algo/depth', {
     method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** Ecology算法 GET /api/graph/algo/ecology */
+export async function algoEcology(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.algoEcologyParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.AlgoRankReply>('/api/graph/algo/ecology', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** Integration算法 GET /api/graph/algo/integration */
+export async function algoIntegration(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.algoIntegrationParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.AlgoRankReply>('/api/graph/algo/integration', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
@@ -110,13 +147,13 @@ export async function algoPageRank(
   });
 }
 
-/** VoteRank算法 GET /api/graph/algo/vr */
-export async function algoVoteRank(
+/** Quantity算法 GET /api/graph/algo/quantity */
+export async function algoQuantity(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoVoteRankParams,
+  params: Graph.algoQuantityParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/vr', {
+  return request<Graph.AlgoRankReply>('/api/graph/algo/quantity', {
     method: 'GET',
     params: {
       // iter has a default value: 100
@@ -127,9 +164,12 @@ export async function algoVoteRank(
   });
 }
 
-/** 上传图 POST /api/graph/create */
-export async function createGraph(body: Graph.UploadRequest, options?: { [key: string]: any }) {
-  return request<Graph.SearchGraphReply>('/api/graph/create', {
+/** 新建图 POST /api/graph/create */
+export async function createGraph(
+  body: Graph.CreateGraphRequest,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GraphInfoReply>('/api/graph/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -139,23 +179,25 @@ export async function createGraph(body: Graph.UploadRequest, options?: { [key: s
   });
 }
 
-/** 创建空图 POST /api/graph/createEmpty */
-export async function createEmptyGraph(
-  body: Graph.UploadEmptyRequest,
+/** 获取图的详细边节点信息 GET /api/graph/detail */
+export async function getGraph(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getGraphParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.SearchGraphReply>('/api/graph/createEmpty', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  return request<Graph.GetGraphDetailReply>('/api/graph/detail', {
+    method: 'GET',
+    params: {
+      // max has a default value: 2000
+      max: '2000',
+      ...params,
     },
-    data: body,
     ...(options || {}),
   });
 }
 
 /** 删除图 POST /api/graph/drop */
-export async function dropGraph(body: Graph.DropRequest, options?: { [key: string]: any }) {
+export async function dropGraph(body: Graph.DropGraphRequest, options?: { [key: string]: any }) {
   return request<Graph.BaseReply>('/api/graph/drop', {
     method: 'POST',
     headers: {
@@ -189,13 +231,48 @@ export async function filePutPresigned(options?: { [key: string]: any }) {
   });
 }
 
-/** 获取图的详细节点信息 GET /api/graph/get */
-export async function getGraph(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.getGraphParams,
+/** 获取图列表 GET /api/graph/getAll */
+export async function getAllGraph(options?: { [key: string]: any }) {
+  return request<Graph.GetAllGraphReply>('/api/graph/getAll', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 新建策略组 POST /api/graph/group/create */
+export async function createGroup(
+  body: Graph.CreateGroupRequest,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.SearchGraphDetailReply>('/api/graph/get', {
+  return request<Graph.GroupInfoReply>('/api/graph/group/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 删除策略组 POST /api/graph/group/drop */
+export async function dropGroup(body: Graph.DropGroupRequest, options?: { [key: string]: any }) {
+  return request<Graph.BaseReply>('/api/graph/group/drop', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 根据名称查询图信息 GET /api/graph/info */
+export async function getGraphInfo(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getGraphInfoParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GraphInfoReply>('/api/graph/info', {
     method: 'GET',
     params: {
       ...params,
@@ -204,53 +281,47 @@ export async function getGraph(
   });
 }
 
-/** 获取图列表 GET /api/graph/getAll */
-export async function getAllGraph(options?: { [key: string]: any }) {
-  return request<Graph.SearchAllGraphReply>('/api/graph/getAll', {
+/** 获得全部节点 GET /api/graph/node/getAll */
+export async function getNodes(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getNodesParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GetNodesReply>('/api/graph/node/getAll', {
     method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
 
-/** 由图名称获得图id POST /api/graph/getGraphInfo */
-export async function getGraphInfo(
-  body: Graph.GetGraphInfoRequest,
+/** 获得匹配节点 GET /api/graph/node/getMatch */
+export async function getMatchNodes(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getMatchNodesParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.GetGraphInfoReply>('/api/graph/getGraphInfo', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  return request<Graph.GetMatchNodesReply>('/api/graph/node/getMatch', {
+    method: 'GET',
+    params: {
+      ...params,
     },
-    data: body,
     ...(options || {}),
   });
 }
 
-/** 获得节点id信息 POST /api/graph/getNodesInfo */
-export async function getNodesInfo(
-  body: Graph.GetNodeReduceRequest,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.NodesInfo>('/api/graph/getNodesInfo', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 获取节点信息及邻居节点 GET /api/graph/node/get */
+/** 获取节点信息及邻居节点 GET /api/graph/node/nbr */
 export async function getNeighbors(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: Graph.getNeighborsParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.SearchNodeReply>('/api/graph/node/get', {
+  return request<Graph.GetGraphDetailReply>('/api/graph/node/nbr', {
     method: 'GET',
     params: {
+      // max has a default value: 2000
+      max: '2000',
       ...params,
     },
     ...(options || {}),
@@ -269,17 +340,32 @@ export async function dropTask(body: Graph.DropTaskRequest, options?: { [key: st
   });
 }
 
-/** 获取图计算任务 GET /api/graph/task/getAll */
+/** 获取图计算任务 GET /api/graph/task/task/getAll */
 export async function getGraphTasks(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: Graph.getGraphTasksParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.SearchTasksReply>('/api/graph/task/getAll', {
+  return request<Graph.GetTasksReply>('/api/graph/task/task/getAll', {
     method: 'GET',
     params: {
       ...params,
     },
+    ...(options || {}),
+  });
+}
+
+/** 更新图 POST /api/graph/update */
+export async function updateGraph(
+  body: Graph.UpdateGraphRequest,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GraphInfoReply>('/api/graph/update', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
     ...(options || {}),
   });
 }

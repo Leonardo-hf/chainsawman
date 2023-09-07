@@ -24,12 +24,12 @@ func NewGetGraphTasksLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 	}
 }
 
-func (l *GetGraphTasksLogic) GetGraphTasks(req *types.SearchTasksRequest) (resp *types.SearchTasksReply, err error) {
+func (l *GetGraphTasksLogic) GetGraphTasks(req *types.GetTasksRequest) (resp *types.GetTasksReply, err error) {
 	tasks, err := l.svcCtx.MysqlClient.GetTasksByGraph(l.ctx, req.GraphID)
 	if err != nil {
 		return nil, err
 	}
-	resp = &types.SearchTasksReply{
+	resp = &types.GetTasksReply{
 		Tasks: make([]*types.Task, 0),
 	}
 	// reverse
@@ -38,8 +38,8 @@ func (l *GetGraphTasksLogic) GetGraphTasks(req *types.SearchTasksRequest) (resp 
 		resp.Tasks = append(resp.Tasks, &types.Task{
 			Id:         strconv.FormatInt(task.ID, 10),
 			Idf:        task.Idf,
-			CreateTime: task.CreateTime,
-			UpdateTime: task.UpdateTime,
+			CreateTime: task.CreateTime.UnixMilli(),
+			UpdateTime: task.UpdateTime.UnixMilli(),
 			Status:     task.Status,
 			Req:        task.Params,
 			Res:        task.Result,

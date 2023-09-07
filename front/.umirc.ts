@@ -29,6 +29,10 @@ export default defineConfig({
             'target': 'http://127.0.0.1:9000/',
             'changeOrigin': true,
         },
+        '/algo': {
+            'target': 'http://127.0.0.1:9000/',
+            'changeOrigin': true,
+        },
     },
     mock: false,
     dva: {},
@@ -54,7 +58,7 @@ export default defineConfig({
             component: './Home',
         },
         {
-            name: 'graph',
+            name: '图谱',
             path: '/graph',
             routes: [
                 {
@@ -70,7 +74,7 @@ export default defineConfig({
             component: './Extractor'
         },
         {
-            name: 'monitor',
+            name: '服务监控',
             path: '/monitor',
             component: './Monitor'
         }

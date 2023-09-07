@@ -4,8 +4,6 @@
     "title": "",
     "version": ""
   },
-  "host": "127.0.0.1",
-  "basePath": "/api/graph",
   "schemes": [
     "http",
     "https"
@@ -145,18 +143,97 @@
         ]
       }
     },
-    "/api/graph/algo/getAll": {
+    "/api/graph/algo/depth": {
       "get": {
-        "summary": "查询算法",
-        "operationId": "algoGetAll",
+        "summary": "Depth算法",
+        "operationId": "algoDepth",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/AlgoReply"
+              "$ref": "#/definitions/AlgoRankReply"
             }
           }
         },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/ecology": {
+      "get": {
+        "summary": "Ecology算法",
+        "operationId": "algoEcology",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/integration": {
+      "get": {
+        "summary": "Integration算法",
+        "operationId": "algoIntegration",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
         "tags": [
           "graph"
         ]
@@ -266,10 +343,10 @@
         ]
       }
     },
-    "/api/graph/algo/vr": {
+    "/api/graph/algo/quantity": {
       "get": {
-        "summary": "VoteRank算法",
-        "operationId": "algoVoteRank",
+        "summary": "Quantity算法",
+        "operationId": "algoQuantity",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -308,13 +385,13 @@
     },
     "/api/graph/create": {
       "post": {
-        "summary": "上传图",
+        "summary": "新建图",
         "operationId": "createGraph",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/SearchGraphReply"
+              "$ref": "#/definitions/GraphInfoReply"
             }
           }
         },
@@ -324,7 +401,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UploadRequest"
+              "$ref": "#/definitions/CreateGraphRequest"
             }
           }
         ],
@@ -333,26 +410,46 @@
         ]
       }
     },
-    "/api/graph/createEmpty": {
-      "post": {
-        "summary": "创建空图",
-        "operationId": "createEmptyGraph",
+    "/api/graph/detail": {
+      "get": {
+        "summary": "获取图的详细边节点信息",
+        "operationId": "getGraph",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/SearchGraphReply"
+              "$ref": "#/definitions/GetGraphDetailReply"
             }
           }
         },
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/UploadEmptyRequest"
-            }
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "max",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "default": "2000"
           }
         ],
         "tags": [
@@ -378,7 +475,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/DropRequest"
+              "$ref": "#/definitions/DropGraphRequest"
             }
           }
         ],
@@ -429,15 +526,111 @@
         ]
       }
     },
-    "/api/graph/get": {
+    "/api/graph/getAll": {
       "get": {
-        "summary": "获取图的详细节点信息",
-        "operationId": "getGraph",
+        "summary": "获取图列表",
+        "operationId": "getAllGraph",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/SearchGraphDetailReply"
+              "$ref": "#/definitions/GetAllGraphReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/group/create": {
+      "post": {
+        "summary": "新建策略组",
+        "operationId": "createGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GroupInfoReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateGroupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/group/drop": {
+      "post": {
+        "summary": "删除策略组",
+        "operationId": "dropGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DropGroupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/info": {
+      "get": {
+        "summary": "根据名称查询图信息",
+        "operationId": "getGraphInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GraphInfoReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/node/getAll": {
+      "get": {
+        "summary": "获得全部节点",
+        "operationId": "getNodes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetNodesReply"
             }
           }
         },
@@ -454,57 +647,38 @@
             "required": true,
             "type": "integer",
             "format": "int64"
-          },
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/node/getMatch": {
+      "get": {
+        "summary": "获得匹配节点",
+        "operationId": "getMatchNodes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetMatchNodesReply"
+            }
+          }
+        },
+        "parameters": [
           {
-            "name": "min",
+            "name": "graphId",
             "in": "query",
             "required": true,
             "type": "integer",
             "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/getAll": {
-      "get": {
-        "summary": "获取图列表",
-        "operationId": "getAllGraph",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/SearchAllGraphReply"
-            }
-          }
-        },
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/getGraphInfo": {
-      "post": {
-        "summary": "由图名称获得图id",
-        "operationId": "getGraphInfo",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/GetGraphInfoReply"
-            }
-          }
-        },
-        "parameters": [
+          },
           {
-            "name": "body",
-            "in": "body",
+            "name": "keywords",
+            "in": "query",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/GetGraphInfoRequest"
-            }
+            "type": "string"
           }
         ],
         "tags": [
@@ -512,34 +686,7 @@
         ]
       }
     },
-    "/api/graph/getNodesInfo": {
-      "post": {
-        "summary": "获得节点id信息",
-        "operationId": "getNodesInfo",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/NodesInfo"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/GetNodeReduceRequest"
-            }
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/node/get": {
+    "/api/graph/node/nbr": {
       "get": {
         "summary": "获取节点信息及邻居节点",
         "operationId": "getNeighbors",
@@ -547,7 +694,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/SearchNodeReply"
+              "$ref": "#/definitions/GetGraphDetailReply"
             }
           }
         },
@@ -580,11 +727,18 @@
             "format": "int64"
           },
           {
-            "name": "min",
+            "name": "direction",
             "in": "query",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "max",
+            "in": "query",
+            "required": false,
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "default": "2000"
           }
         ],
         "tags": [
@@ -619,7 +773,7 @@
         ]
       }
     },
-    "/api/graph/task/getAll": {
+    "/api/graph/task/task/getAll": {
       "get": {
         "summary": "获取图计算任务",
         "operationId": "getGraphTasks",
@@ -627,7 +781,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/SearchTasksReply"
+              "$ref": "#/definitions/GetTasksReply"
             }
           }
         },
@@ -644,47 +798,36 @@
           "graph"
         ]
       }
+    },
+    "/api/graph/update": {
+      "post": {
+        "summary": "更新图",
+        "operationId": "updateGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GraphInfoReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGraphRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
     }
   },
   "definitions": {
-    "Algo": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "desc": {
-          "type": "string"
-        },
-        "isCustom": {
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "type": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "params": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Element"
-          }
-        }
-      },
-      "title": "Algo",
-      "required": [
-        "id",
-        "name",
-        "desc",
-        "isCustom",
-        "type",
-        "params"
-      ]
-    },
     "AlgoDegreeRequest": {
       "type": "object",
       "properties": {
@@ -803,25 +946,6 @@
         "file"
       ]
     },
-    "AlgoReply": {
-      "type": "object",
-      "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
-        },
-        "algos": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Algo"
-          }
-        }
-      },
-      "title": "AlgoReply",
-      "required": [
-        "base",
-        "algos"
-      ]
-    },
     "AlgoRequest": {
       "type": "object",
       "properties": {
@@ -860,6 +984,32 @@
         "iter"
       ]
     },
+    "Attr": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "primary": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Attr",
+      "required": [
+        "name",
+        "desc",
+        "primary",
+        "type"
+      ]
+    },
     "BaseReply": {
       "type": "object",
       "properties": {
@@ -890,7 +1040,64 @@
         "extra"
       ]
     },
-    "DropRequest": {
+    "CreateGraphRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "graph": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "CreateGraphRequest",
+      "required": [
+        "graph",
+        "groupId"
+      ]
+    },
+    "CreateGroupRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "nodeTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Structure"
+          }
+        },
+        "edgeTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Structure"
+          }
+        }
+      },
+      "title": "CreateGroupRequest",
+      "required": [
+        "name",
+        "desc",
+        "nodeTypeList",
+        "edgeTypeList"
+      ]
+    },
+    "DropGraphRequest": {
       "type": "object",
       "properties": {
         "graphId": {
@@ -898,9 +1105,22 @@
           "format": "int64"
         }
       },
-      "title": "DropRequest",
+      "title": "DropGraphRequest",
       "required": [
         "graphId"
+      ]
+    },
+    "DropGroupRequest": {
+      "type": "object",
+      "properties": {
+        "groupId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "DropGroupRequest",
+      "required": [
+        "groupId"
       ]
     },
     "DropTaskRequest": {
@@ -922,50 +1142,110 @@
         "target": {
           "type": "integer",
           "format": "int64"
+        },
+        "attrs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pair"
+          }
         }
       },
       "title": "Edge",
       "required": [
         "source",
-        "target"
+        "target",
+        "attrs"
       ]
     },
-    "Element": {
+    "EdgePack": {
       "type": "object",
       "properties": {
-        "key": {
+        "tag": {
           "type": "string"
         },
-        "keyDesc": {
-          "type": "string"
-        },
-        "type": {
-          "type": "integer",
-          "format": "int64"
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          }
         }
       },
-      "title": "Element",
+      "title": "EdgePack",
       "required": [
-        "key",
-        "keyDesc",
-        "type"
+        "tag",
+        "edges"
       ]
     },
-    "GetGraphInfoReply": {
+    "GetAllGraphReply": {
       "type": "object",
       "properties": {
-        "name": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          }
+        }
+      },
+      "title": "GetAllGraphReply",
+      "required": [
+        "base",
+        "groups"
+      ]
+    },
+    "GetGraphDetailReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "nodePacks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodePack"
+          }
+        },
+        "edgePacks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EdgePack"
+          }
+        }
+      },
+      "title": "GetGraphDetailReply",
+      "required": [
+        "base",
+        "nodePacks",
+        "edgePacks"
+      ]
+    },
+    "GetGraphDetailRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
           "type": "string"
         },
         "graphId": {
           "type": "integer",
           "format": "int64"
+        },
+        "top": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max": {
+          "type": "integer",
+          "format": "int64",
+          "default": "2000"
         }
       },
-      "title": "GetGraphInfoReply",
+      "title": "GetGraphDetailRequest",
       "required": [
-        "name",
-        "graphId"
+        "graphId",
+        "top",
+        "max"
       ]
     },
     "GetGraphInfoRequest": {
@@ -980,17 +1260,143 @@
         "name"
       ]
     },
-    "GetNodeReduceRequest": {
+    "GetMatchNodesReply": {
       "type": "object",
       "properties": {
-        "id": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "matchNodePacks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MatchNodePacks"
+          }
+        }
+      },
+      "title": "GetMatchNodesReply",
+      "required": [
+        "base",
+        "matchNodePacks"
+      ]
+    },
+    "GetMatchNodesRequest": {
+      "type": "object",
+      "properties": {
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "keywords": {
+          "type": "string"
+        }
+      },
+      "title": "GetMatchNodesRequest",
+      "required": [
+        "graphId",
+        "keywords"
+      ]
+    },
+    "GetNeighborsRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nodeId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "distance": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "max": {
+          "type": "integer",
+          "format": "int64",
+          "default": "2000"
+        }
+      },
+      "title": "GetNeighborsRequest",
+      "required": [
+        "graphId",
+        "nodeId",
+        "distance",
+        "direction",
+        "max"
+      ]
+    },
+    "GetNodesReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "nodePacks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodePack"
+          }
+        }
+      },
+      "title": "GetNodesReply",
+      "required": [
+        "base",
+        "nodePacks"
+      ]
+    },
+    "GetNodesRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string"
+        },
+        "graphId": {
           "type": "integer",
           "format": "int64"
         }
       },
-      "title": "GetNodeReduceRequest",
+      "title": "GetNodesRequest",
       "required": [
-        "id"
+        "graphId"
+      ]
+    },
+    "GetTasksReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task"
+          }
+        }
+      },
+      "title": "GetTasksReply",
+      "required": [
+        "base",
+        "tasks"
+      ]
+    },
+    "GetTasksRequest": {
+      "type": "object",
+      "properties": {
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "GetTasksRequest",
+      "required": [
+        "graphId"
       ]
     },
     "Graph": {
@@ -1002,7 +1408,11 @@
         },
         "status": {
           "type": "integer",
-          "format": "int32"
+          "format": "int64"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64"
         },
         "name": {
           "type": "string"
@@ -1010,11 +1420,19 @@
         "desc": {
           "type": "string"
         },
-        "nodes": {
+        "numNode": {
           "type": "integer",
           "format": "int64"
         },
-        "edges": {
+        "numEdge": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "creatAt": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "updateAt": {
           "type": "integer",
           "format": "int64"
         }
@@ -1023,10 +1441,123 @@
       "required": [
         "id",
         "status",
+        "groupId",
         "name",
         "desc",
-        "nodes",
-        "edges"
+        "numNode",
+        "numEdge",
+        "creatAt",
+        "updateAt"
+      ]
+    },
+    "GraphInfoReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "graph": {
+          "$ref": "#/definitions/Graph"
+        }
+      },
+      "title": "GraphInfoReply",
+      "required": [
+        "base",
+        "graph"
+      ]
+    },
+    "Group": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "nodeTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Structure"
+          }
+        },
+        "edgeTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Structure"
+          }
+        },
+        "graphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Graph"
+          }
+        }
+      },
+      "title": "Group",
+      "required": [
+        "id",
+        "name",
+        "desc",
+        "nodeTypeList",
+        "edgeTypeList",
+        "graphs"
+      ]
+    },
+    "GroupInfoReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "group": {
+          "$ref": "#/definitions/Group"
+        }
+      },
+      "title": "GroupInfoReply",
+      "required": [
+        "base",
+        "group"
+      ]
+    },
+    "MatchNode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "primaryAttr": {
+          "type": "string"
+        }
+      },
+      "title": "MatchNode",
+      "required": [
+        "id",
+        "primaryAttr"
+      ]
+    },
+    "MatchNodePacks": {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "type": "string"
+        },
+        "match": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MatchNode"
+          }
+        }
+      },
+      "title": "MatchNodePacks",
+      "required": [
+        "tag",
+        "match"
       ]
     },
     "Node": {
@@ -1036,58 +1567,44 @@
           "type": "integer",
           "format": "int64"
         },
-        "name": {
-          "type": "string"
-        },
-        "desc": {
-          "type": "string"
-        },
         "deg": {
           "type": "integer",
           "format": "int64"
+        },
+        "attrs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pair"
+          }
         }
       },
       "title": "Node",
       "required": [
         "id",
-        "name",
-        "desc",
-        "deg"
+        "deg",
+        "attrs"
       ]
     },
-    "NodeReduce": {
+    "NodePack": {
       "type": "object",
       "properties": {
-        "name": {
+        "tag": {
           "type": "string"
         },
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "NodeReduce",
-      "required": [
-        "name",
-        "id"
-      ]
-    },
-    "NodesInfo": {
-      "type": "object",
-      "properties": {
         "nodes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/NodeReduce"
+            "$ref": "#/definitions/Node"
           }
         }
       },
-      "title": "NodesInfo",
+      "title": "NodePack",
       "required": [
+        "tag",
         "nodes"
       ]
     },
-    "Param": {
+    "Pair": {
       "type": "object",
       "properties": {
         "key": {
@@ -1097,7 +1614,7 @@
           "type": "string"
         }
       },
-      "title": "Param",
+      "title": "Pair",
       "required": [
         "key",
         "value"
@@ -1134,9 +1651,11 @@
     "Rank": {
       "type": "object",
       "properties": {
-        "nodeId": {
-          "type": "integer",
-          "format": "int64"
+        "tag": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "#/definitions/Node"
         },
         "score": {
           "type": "number",
@@ -1145,183 +1664,46 @@
       },
       "title": "Rank",
       "required": [
-        "nodeId",
+        "tag",
+        "node",
         "score"
       ]
     },
-    "SearchAllGraphReply": {
+    "Structure": {
       "type": "object",
       "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
+        "id": {
+          "type": "integer",
+          "format": "int64"
         },
-        "graphs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Graph"
-          }
-        }
-      },
-      "title": "SearchAllGraphReply",
-      "required": [
-        "base",
-        "graphs"
-      ]
-    },
-    "SearchGraphDetailReply": {
-      "type": "object",
-      "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
-        },
-        "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Node"
-          }
-        },
-        "edges": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Edge"
-          }
-        }
-      },
-      "title": "SearchGraphDetailReply",
-      "required": [
-        "base",
-        "nodes",
-        "edges"
-      ]
-    },
-    "SearchGraphReply": {
-      "type": "object",
-      "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
-        },
-        "graph": {
-          "$ref": "#/definitions/Graph"
-        }
-      },
-      "title": "SearchGraphReply",
-      "required": [
-        "base",
-        "graph"
-      ]
-    },
-    "SearchNodeReply": {
-      "type": "object",
-      "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
-        },
-        "node": {
-          "$ref": "#/definitions/Node"
-        },
-        "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Node"
-          }
-        },
-        "edges": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Edge"
-          }
-        }
-      },
-      "title": "SearchNodeReply",
-      "required": [
-        "base",
-        "node",
-        "nodes",
-        "edges"
-      ]
-    },
-    "SearchNodeRequest": {
-      "type": "object",
-      "properties": {
-        "taskId": {
+        "name": {
           "type": "string"
         },
-        "graphId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "nodeId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "distance": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "min": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "SearchNodeRequest",
-      "required": [
-        "graphId",
-        "nodeId",
-        "distance",
-        "min"
-      ]
-    },
-    "SearchRequest": {
-      "type": "object",
-      "properties": {
-        "taskId": {
+        "desc": {
           "type": "string"
         },
-        "graphId": {
-          "type": "integer",
-          "format": "int64"
+        "edgeDirection": {
+          "type": "boolean",
+          "format": "boolean"
         },
-        "min": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "SearchRequest",
-      "required": [
-        "graphId",
-        "min"
-      ]
-    },
-    "SearchTasksReply": {
-      "type": "object",
-      "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
+        "display": {
+          "type": "string"
         },
-        "tasks": {
+        "attrs": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Task"
+            "$ref": "#/definitions/Attr"
           }
         }
       },
-      "title": "SearchTasksReply",
+      "title": "Structure",
       "required": [
-        "base",
-        "tasks"
-      ]
-    },
-    "SearchTasksRequest": {
-      "type": "object",
-      "properties": {
-        "graphId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "SearchTasksRequest",
-      "required": [
-        "graphId"
+        "id",
+        "name",
+        "desc",
+        "edgeDirection",
+        "display",
+        "attrs"
       ]
     },
     "Task": {
@@ -1363,49 +1745,34 @@
         "res"
       ]
     },
-    "UploadEmptyRequest": {
-      "type": "object",
-      "properties": {
-        "graph": {
-          "type": "string"
-        },
-        "desc": {
-          "type": "string"
-        }
-      },
-      "title": "UploadEmptyRequest",
-      "required": [
-        "graph"
-      ]
-    },
-    "UploadRequest": {
+    "UpdateGraphRequest": {
       "type": "object",
       "properties": {
         "taskId": {
           "type": "string"
         },
-        "graph": {
-          "type": "string"
-        },
-        "desc": {
-          "type": "string"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "edgeId": {
-          "type": "string"
-        },
         "graphId": {
           "type": "integer",
           "format": "int64"
+        },
+        "nodeFileList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pair"
+          }
+        },
+        "edgeFileList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pair"
+          }
         }
       },
-      "title": "UploadRequest",
+      "title": "UpdateGraphRequest",
       "required": [
-        "graph",
-        "nodeId",
-        "edgeId"
+        "graphId",
+        "nodeFileList",
+        "edgeFileList"
       ]
     }
   },

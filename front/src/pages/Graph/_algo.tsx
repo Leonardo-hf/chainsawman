@@ -3,9 +3,12 @@ import {
     algoBetweenness,
     algoCloseness,
     algoDegree,
+    algoDepth,
+    algoEcology,
+    algoIntegration,
     algoLouvain,
     algoPageRank,
-    algoVoteRank,
+    algoQuantity,
 
 } from "@/services/graph/graph"
 
@@ -113,14 +116,6 @@ export const algos: Algo[] = [
 
     {
         id: 5,
-        title: 'voterank',
-        description: '使用投票系统创建的基于邻居意见的排序算法。',
-        type: AlgoType.rank,
-        action: algoVoteRank,
-        params: []
-    },
-    {
-        id: 6,
         title: 'average clustering coefficient',
         description: '平均聚类系数。描图中的节点与其相连节点之间的聚集程度。',
         type: AlgoType.metrics,
@@ -128,7 +123,7 @@ export const algos: Algo[] = [
         params: []
     },
     {
-        id: 7,
+        id: 6,
         title: 'louvain',
         description: '一种基于模块度的社区发现算法。其基本思想是网络中节点尝试遍历所有邻居的社区标签，并选择最大化模块度增量的社区标签。',
         type: AlgoType.cluster,
@@ -163,13 +158,46 @@ export const algos: Algo[] = [
             },
         ]
     },
+    // {
+    //     id: 7,
+    //     title: 'comprehensive',
+    //     description: '综合影响力算法，使用论文中提出的方法计算',
+    //     type: AlgoType.rank,
+    //     // TODO: fix
+    //     action: algoDegree,
+    //     params: []
+    // },
     {
-        id: 8,
-        title: 'comprehensive',
-        description: '综合影响力算法，使用论文中提出的方法计算',
+        id: 7,
+        title: 'quantity',
+        description: '广度排序算法，使用基于邻居意见的Voterank算法',
         type: AlgoType.rank,
-        // TODO: fix
-        action: algoDegree,
+        action: algoQuantity,
+        params: []
+    },
+
+    {
+        id:8,
+        title: 'depth',
+        description: '深度排序算法，基于节点在图谱中的应用层级',
+        type: AlgoType.rank,
+        action: algoDepth,
+        params: []
+    },
+    {
+        id: 9,
+        title: 'integration',
+        description: '集成度排序算法，基于桥梁作用的betweenness++',
+        type: AlgoType.rank,
+        action: algoIntegration,
+        params: []
+    },
+    {
+        id: 10,
+        title: 'ecology',
+        description: '子图稳定性排序算法，基于最小渗流的collective influence算法',
+        type: AlgoType.rank,
+        action: algoEcology,
         params: []
     },
 ]

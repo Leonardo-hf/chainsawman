@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gorm.io/gen/field"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
@@ -31,12 +32,12 @@ func main() {
 
 	g.UseDB(db)
 
-	dataMap := map[string]func(detailType string) (dataType string){
-		"tinyint":   func(detailType string) (dataType string) { return "int64" },
-		"smallint":  func(detailType string) (dataType string) { return "int64" },
-		"mediumint": func(detailType string) (dataType string) { return "int64" },
-		"bigint":    func(detailType string) (dataType string) { return "int64" },
-		"int":       func(detailType string) (dataType string) { return "int64" },
+	dataMap := map[string]func(columnType gorm.ColumnType) (dataType string){
+		"tinyint":   func(columnType gorm.ColumnType) (dataType string) { return "int64" },
+		"smallint":  func(columnType gorm.ColumnType) (dataType string) { return "int64" },
+		"mediumint": func(columnType gorm.ColumnType) (dataType string) { return "int64" },
+		"bigint":    func(columnType gorm.ColumnType) (dataType string) { return "int64" },
+		"int":       func(columnType gorm.ColumnType) (dataType string) { return "int64" },
 	}
 
 	g.WithDataTypeMap(dataMap)
@@ -48,17 +49,51 @@ func main() {
 	//	}
 	//	return columnName
 	//})
-	autoUpdateTimeField := gen.FieldGORMTag("update_time", "column:update_time;type:int unsigned;autoUpdateTime")
-	autoCreateTimeField := gen.FieldGORMTag("create_time", "column:create_time;type:int unsigned;autoCreateTime")
+	autoUpdateTimeField := gen.FieldGORMTag("updateTime", func(tag field.GormTag) field.GormTag {
+		tag.Set("column", "updateTime")
+		tag.Set("type", "datetime(0)")
+		tag.Set("autoUpdateTime", "")
+		return tag
+	})
+	autoCreateTimeField := gen.FieldGORMTag("createTime", func(tag field.GormTag) field.GormTag {
+		tag.Set("column", "createTime")
+		tag.Set("type", "datetime(0)")
+		tag.Set("autoCreateTime", "")
+		return tag
+	})
 	//softDeleteField := gen.FieldType("delete_time", "gorm.DeletedAt")
 
 	fieldOpts := []gen.ModelOpt{autoUpdateTimeField, autoCreateTimeField}
 
 	graphModel := g.GenerateModel("graphs", fieldOpts...)
-	taskModel := g.GenerateModel("task", fieldOpts...)
-
+	taskModel := g.GenerateModel("tasks", fieldOpts...)
+	nodeAttrModel := g.GenerateModel("nodes_attr")
+	edgeAttrModel := g.GenerateModel("edges_attr")
+	nodeIDGormTag := field.NewGormTag()
+	nodeIDGormTag.Set("foreignKey", "nodeID")
+	nodeModel := g.GenerateModel("nodes", gen.FieldRelate(field.HasMany, "NodeAttrs", nodeAttrModel, &field.RelateConfig{
+		RelateSlicePointer: true,
+		GORMTag:            nodeIDGormTag,
+	}))
+	edgeIDGormTag := field.NewGormTag()
+	edgeIDGormTag.Set("foreignKey", "edgeID")
+	edgeModel := g.GenerateModel("edges", gen.FieldRelate(field.HasMany, "EdgeAttrs", edgeAttrModel, &field.RelateConfig{
+		RelateSlicePointer: true,
+		GORMTag:            edgeIDGormTag,
+	}))
+	groupIDGormTag := field.NewGormTag()
+	groupIDGormTag.Set("foreignKey", "groupID")
+	groupModel := g.GenerateModel("groups",
+		gen.FieldRelate(field.HasMany, "Nodes", nodeModel, &field.RelateConfig{
+			RelateSlicePointer: true,
+			GORMTag:            groupIDGormTag,
+		}),
+		gen.FieldRelate(field.HasMany, "Edges", edgeModel, &field.RelateConfig{
+			RelateSlicePointer: true,
+			GORMTag:            groupIDGormTag,
+		}))
 	//allModel := g.GenerateAllTable(fieldOpts...)
-	g.ApplyBasic(graphModel, taskModel)
+	g.ApplyBasic(graphModel, taskModel, groupModel, nodeModel, edgeModel, nodeAttrModel, edgeAttrModel)
 
 	g.Execute()
 }

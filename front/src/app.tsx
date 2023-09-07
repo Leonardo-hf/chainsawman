@@ -1,23 +1,37 @@
 import {RequestConfig} from "@@/plugin-request/request";
 import React from "react";
 import {RunTimeLayoutConfig} from "@umijs/max";
+import Group from "./pages/Group"
 import Graph from "./pages/Graph"
+
 import {getAllGraph} from "./services/graph/graph";
+import {setInit, splitGroupsGraph} from "@/models/global";
 
-let graphs: any[] = []
+let newRoutes: any[] = []
 
+// 查询组信息，生成路由
 export function render(oldRender: () => void) {
     getAllGraph().then(data => {
-        if (data.graphs) {
-            // setInitGraphs(data.graphs)
-            graphs = data.graphs
-            if (graphs != null) {
-                data.graphs.forEach((graph) => graphs.push({
-                    path: '/graph/' + graph.id,
-                    element: <Graph graph={graph} key={graph.id}/>,
-                    name: graph.name,
-                }))
-            }
+        const gs = data.groups
+        if (gs) {
+            // 初始化图与组信息
+            const {graphs, groups} = splitGroupsGraph(gs)
+            setInit(graphs, groups)
+            // 生成路由
+            gs.forEach((g) => {
+                newRoutes.push({
+                    path: '/graph/' + g.id,
+                    name: g.name,
+                    // element: <Group group={g} key={g.id}/>,
+                    children: g.graphs.map(graph => {
+                        return {
+                            path: '/graph/' + g.id + '/' + graph.id,
+                            name: graph.name,
+                            element: <Graph graph={graph} key={graph.id}/>,
+                        }
+                    })
+                })
+            })
         }
         oldRender()
     })
@@ -29,11 +43,10 @@ export function patchClientRoutes({routes}) {
     let menu = routes[0].children[2]
     // menu["routes"] = []
     menu["children"] = []
-    graphs.forEach(graph => {
+    newRoutes.forEach((r: any) => {
         // menu.routes.push(graph)
-        menu.children.push(graph)
+        menu.children.push(r)
     })
-    // console.log(routes)
 }
 
 // export async function getInitialState(): Promise<{ name: string }> {

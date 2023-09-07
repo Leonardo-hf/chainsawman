@@ -1,30 +1,195 @@
 type (
+	BaseReply {
+		Status     int64             `json:"status"`
+		Msg        string            `json:"msg"`
+		TaskID     string            `json:"taskId"`
+		TaskStatus int64             `json:"taskStatus"`
+		Extra      map[string]string `json:"extra"`
+	}
+)
+type (
 	Graph {
-		Id     int64  `json:"id"`
-		Status int    `json:"status"`
-		Name   string `json:"name"`
-		Desc   string `json:"desc"`
-		Nodes  int64  `json:"nodes"`
-		Edges  int64  `json:"edges"`
+		Id       int64  `json:"id"`
+		Status   int64  `json:"status"`
+		GroupID  int64  `json:"groupId"`
+		Name     string `json:"name"`
+		Desc     string `json:"desc"`
+		NumNode  int64  `json:"numNode"`
+		NumEdge  int64  `json:"numEdge"`
+		CreatAt  int64  `json:"creatAt"`
+		UpdateAt int64  `json:"updateAt"`
 	}
 
-	Node {
-		ID   int64  `json:"id"`
-		Name string `json:"name"`
-		Desc string `json:"desc"`
-		Deg  int64  `json:"deg"`
+	Structure {
+		Id            int64   `json:"id"`
+		Name          string  `json:"name"`
+		Desc          string  `json:"desc"`
+		EdgeDirection bool    `json:"edgeDirection"`
+		Display       string  `json:"display"`
+		Attrs         []*Attr `json:"attrs"`
 	}
 
-	Edge {
-		Source int64 `json:"source"`
-		Target int64 `json:"target"`
+	Attr {
+		Name    string `json:"name"`
+		Desc    string `json:"desc"`
+		Primary bool   `json:"primary"`
+		Type    int64  `json:"type"`
 	}
 
-	Param {
+	Pair {
 		Key   string `json:"key"`
 		Value string `json:"value"`
 	}
 
+	Node {
+		Id    int64   `json:"id"`
+		Deg   int64   `json:"deg"`
+		Attrs []*Pair `json:"attrs"`
+	}
+
+	MatchNode {
+		Id          int64  `json:"id"`
+		PrimaryAttr string `json:"primaryAttr"`
+	}
+
+	NodePack {
+		Tag   string  `json:"tag"`
+		Nodes []*Node `json:"nodes"`
+	}
+
+	MatchNodePacks {
+		Tag   string       `json:"tag"`
+		Match []*MatchNode `json:"match"`
+	}
+
+	Edge {
+		Source int64   `json:"source"`
+		Target int64   `json:"target"`
+		Attrs  []*Pair `json:"attrs"`
+	}
+
+	EdgePack {
+		Tag   string  `json:"tag"`
+		Edges []*Edge `json:"edges"`
+	}
+
+	Group {
+		Id           int64        `json:"id"`
+		Name         string       `json:"name"`
+		Desc         string       `json:"desc"`
+		NodeTypeList []*Structure `json:"nodeTypeList"`
+		EdgeTypeList []*Structure `json:"edgeTypeList"`
+		Graphs       []*Graph     `json:"graphs"`
+	}
+
+	GetAllGraphReply {
+		Base   *BaseReply `json:"base"`
+		Groups []*Group   `json:"groups"`
+	}
+
+	GetGraphDetailRequest {
+		TaskID  string `form:"taskId,optional"`
+		GraphID int64  `form:"graphId"`
+		Top     int64  `form:"top"`
+		Max     int64  `form:"max,default=2000"`
+		//		Min     int64  `form:"min"`
+	}
+
+	GetGraphDetailReply {
+		Base      *BaseReply  `json:"base"`
+		NodePacks []*NodePack `json:"nodePacks"`
+		EdgePacks []*EdgePack `json:"edgePacks"`
+	}
+
+	GetNeighborsRequest {
+		TaskID string `form:"taskId,optional"`
+
+		GraphID   int64  `form:"graphId"`
+		NodeID    int64  `form:"nodeId"`
+		Distance  int64  `form:"distance"`
+		Direction string `form:"direction"`
+		Max       int64  `form:"max,default=2000"`
+		//        Min int64 `form:"min"`
+	}
+
+	DropGraphRequest {
+		GraphID int64 `json:"graphId"`
+	}
+
+	CreateGraphRequest {
+		TaskID  string `json:"taskId,optional"`
+		GraphID int64  `json:"graphId,optional"`
+
+		Graph   string `json:"graph"`
+		Desc    string `json:"desc,optional"`
+		GroupID int64  `json:"groupId"`
+	}
+
+	UpdateGraphRequest {
+		TaskID       string  `json:"taskId,optional"`
+		GraphID      int64   `json:"graphId"`
+		NodeFileList []*Pair `json:"nodeFileList"`
+		EdgeFileList []*Pair `json:"edgeFileList"`
+	}
+
+	GraphInfoReply {
+		Base  *BaseReply `json:"base"`
+		Graph *Graph     `json:"graph"`
+	}
+
+	GetGraphInfoRequest {
+		Name string `form:"name"`
+	}
+
+	GetNodesRequest {
+		TaskID  string `form:"taskId,optional"`
+		GraphID int64  `form:"graphId"`
+	}
+
+	GetMatchNodesRequest {
+		GraphID  int64  `form:"graphId"`
+		Keywords string `form:"keywords"`
+	}
+
+	GetMatchNodesReply {
+		Base           *BaseReply        `json:"base"`
+		MatchNodePacks []*MatchNodePacks `json:"matchNodePacks"`
+	}
+
+	GetNodesReply {
+		Base      *BaseReply  `json:"base"`
+		NodePacks []*NodePack `json:"nodePacks"`
+	}
+
+	CreateGroupRequest {
+		Name         string       `json:"name"`
+		Desc         string       `json:"desc"`
+		NodeTypeList []*Structure `json:"nodeTypeList"`
+		EdgeTypeList []*Structure `json:"edgeTypeList"`
+	}
+
+	GroupInfoReply {
+		Base  *BaseReply `json:"base"`
+		Group *Group     `json:"group"`
+	}
+
+	DropGroupRequest {
+		GroupID int64 `json:"groupId"`
+	}
+)
+
+type (
+	PresignedRequest {
+		Filename string `form:"filename"`
+	}
+
+	PresignedReply {
+		Url      string `json:"url"`
+		Filename string `json:"filename"`
+	}
+)
+
+type (
 	Task {
 		Id         string `json:"id"`
 		Idf        string `json:"idf"`
@@ -35,61 +200,41 @@ type (
 		Res        string `json:"res"`
 	}
 
-	Rank {
-		NodeID int64   `json:"nodeId"`
-		Score  float64 `json:"score"`
+	GetTasksRequest {
+		GraphID int64 `form:"graphId"`
 	}
 
-	Algo {
-		Id       int64      `json:"id"`
-		Name     string     `json:"name"`
-		Desc     string     `json:"desc"`
-		IsCustom bool       `json:"isCustom"`
-		Type     int64      `json:"type"`
-		Params   []*Element `json:"params"`
-	}
-
-	Element {
-		Key     string `json:"key"`
-		KeyDesc string `json:"keyDesc"`
-		Type    int64  `json:"type"`
-	}
-
-	BaseReply {
-		Status     int64             `json:"status"`
-		Msg        string            `json:"msg"`
-		TaskID     string            `json:"taskId"`
-		TaskStatus int64             `json:"taskStatus"`
-		Extra      map[string]string `json:"extra"`
-	}
-
-	SearchTasksReply {
+	GetTasksReply {
 		Base  *BaseReply `json:"base"`
 		Tasks []*Task    `json:"tasks"`
 	}
 
-	SearchAllGraphReply {
-		Base   *BaseReply `json:"base"`
-		Graphs []*Graph   `json:"graphs"`
+	DropTaskRequest {
+		TaskID string `json:"taskId,optional"`
+	}
+)
+
+type (
+	Rank {
+		Tag   string  `json:"tag"`
+		Node  *Node   `json:"node"`
+		Score float64 `json:"score"`
 	}
 
-	SearchGraphReply {
-		Base  *BaseReply `json:"base"`
-		Graph *Graph     `json:"graph"`
-	}
-
-	SearchNodeReply {
-		Base  *BaseReply `json:"base"`
-		Info  *Node      `json:"node"`
-		Nodes []*Node    `json:"nodes"`
-		Edges []*Edge    `json:"edges"`
-	}
-
-	SearchGraphDetailReply {
-		Base  *BaseReply `json:"base"`
-		Nodes []*Node    `json:"nodes"`
-		Edges []*Edge    `json:"edges"`
-	}
+	//    Algo {
+	//        Id int64 `json:"id"`
+	//        Name string `json:"name"`
+	//        Desc string `json:"desc"`
+	//        IsCustom bool `json:"isCustom"`
+	//        Type int64 `json:"type"`
+	//        Params []*Element `json:"params"`
+	//    }
+	//
+	//    Element {
+	//        Key string `json:"key"`
+	//        KeyDesc string `json:"keyDesc"`
+	//        Type int64 `json:"type"`
+	//    }
 
 	AlgoRankReply {
 		Base  *BaseReply `json:"base"`
@@ -102,49 +247,10 @@ type (
 		Score float64    `json:"score"`
 	}
 
-	AlgoReply {
-		Base  *BaseReply `json:"base"`
-		Algos []*Algo    `json:"algos"`
-	}
-
-	SearchTasksRequest {
-		GraphID int64 `form:"graphId"`
-	}
-
-	SearchRequest {
-		TaskID  string `form:"taskId,optional"`
-		GraphID int64  `form:"graphId"`
-		Min     int64  `form:"min"`
-	}
-
-	SearchNodeRequest {
-		TaskID string `form:"taskId,optional"`
-
-		GraphID  int64 `form:"graphId"`
-		NodeID   int64 `form:"nodeId"`
-		Distance int64 `form:"distance"`
-		Min      int64 `form:"min"`
-	}
-
-	DropRequest {
-		GraphID int64 `json:"graphId"`
-	}
-
-	UploadEmptyRequest {
-		Graph string `json:"graph"`
-		Desc  string `json:"desc,optional"`
-	}
-
-	UploadRequest {
-		TaskID string `json:"taskId,optional"`
-		Graph  string `json:"graph"`
-		Desc   string `json:"desc,optional"`
-
-		NodeID string `json:"nodeId"`
-		EdgeID string `json:"edgeId"`
-
-		GraphID int64 `json:"graphId,optional"`
-	}
+	//    AlgoReply {
+	//        Base *BaseReply `json:"base"`
+	//        Algos []*Algo `json:"algos"`
+	//    }
 
 	AlgoRequest {
 		TaskID  string `form:"taskId,optional"`
@@ -176,123 +282,128 @@ type (
 		InternalIter int64   `form:"internalIter,default=5"`
 		Tol          float64 `form:"tol,default=0.5"`
 	}
-
-	GetGraphInfoRequest {
-		Name string `form:"name"`
-	}
-
-	GetGraphInfoReply {
-		Name    string `json:"name"`
-		GraphId int64  `json:"graphId"`
-	}
-
-	NodeReduce {
-		Name string `json:"name"`
-		Id   int64  `form:"id"`
-	}
-
-	NodesInfo {
-		Nodes []NodeReduce `form:"nodes"`
-	}
-
-	GetNodeReduceRequest {
-		Id int64 `form:"id"`
-	}
-	DropTaskRequest {
-		TaskID string `json:"taskId,optional"`
-	}
-
-	PresignedRequest {
-		Filename string `form:"filename"`
-	}
-
-	PresignedReply {
-		Url      string `json:"url"`
-		Filename string `json:"filename"`
-	}
 )
 
 @server(
 	prefix: /api/graph
 )
 service graph {
-	@doc "获取图列表"
-	@handler getAllGraph
-	get /getAll returns (SearchAllGraphReply)
+	@doc "新建策略组"
+	@handler createGroup
+	post /group/create (CreateGroupRequest) returns (GroupInfoReply)
 	
-	@doc "获取图的详细节点信息"
-	@handler getGraph
-	get /get (SearchRequest) returns (SearchGraphDetailReply)
+	@doc "删除策略组"
+	@handler dropGroup
+	post /group/drop (DropGroupRequest) returns (BaseReply)
 	
-	@doc "获取节点信息及邻居节点"
-	@handler getNeighbors
-	get /node/get (SearchNodeRequest) returns (SearchNodeReply)
+	@doc "新建图"
+	@handler createGraph
+	post /create (CreateGraphRequest) returns (GraphInfoReply)
+	
+	@doc "更新图"
+	@handler updateGraph
+	post /update (UpdateGraphRequest) returns (GraphInfoReply)
 	
 	@doc "删除图"
 	@handler dropGraph
-	post /drop (DropRequest) returns (BaseReply)
+	post /drop (DropGraphRequest) returns (BaseReply)
 	
-	@doc "上传图"
-	@handler createGraph
-	post /create (UploadRequest) returns (SearchGraphReply)
+	@doc "获取图列表"
+	@handler getAllGraph
+	get /getAll returns (GetAllGraphReply)
 	
-	@doc "度中心度算法"
-	@handler algoDegree
-	get /algo/degree (AlgoDegreeRequest) returns (AlgoRankReply)
+	@doc "根据名称查询图信息"
+	@handler getGraphInfo
+	get /info (GetGraphInfoRequest) returns (GraphInfoReply)
 	
-	@doc "PageRank算法"
-	@handler algoPageRank
-	get /algo/pr (AlgoPageRankRequest) returns (AlgoRankReply)
+	@doc "获取图的详细边节点信息"
+	@handler getGraph
+	get /detail (GetGraphDetailRequest) returns (GetGraphDetailReply)
 	
-	@doc "VoteRank算法"
-	@handler algoVoteRank
-	get /algo/vr (AlgoVoteRankRequest) returns (AlgoRankReply)
+	@doc "获得全部节点"
+	@handler getNodes
+	get /node/getAll (GetNodesRequest) returns (GetNodesReply)
 	
-	@doc "Betweenness算法"
-	@handler algoBetweenness
-	get /algo/betweenness (AlgoRequest) returns (AlgoRankReply)
+	@doc "获得匹配节点"
+	@handler getMatchNodes
+	get /node/getMatch (GetMatchNodesRequest) returns (GetMatchNodesReply)
 	
-	@doc "Closeness算法"
-	@handler algoCloseness
-	get /algo/closeness (AlgoRequest) returns (AlgoRankReply)
-	
-	@doc "平均聚类系数"
-	@handler algoAvgCC
-	get /algo/avgCC (AlgoRequest) returns (AlgoMetricReply)
-	
-	@doc "Louvain聚类算法"
-	@handler algoLouvain
-	get /algo/louvain (AlgoLouvainRequest) returns (AlgoRankReply)
-	
+	@doc "获取节点信息及邻居节点"
+	@handler getNeighbors
+	get /node/nbr (GetNeighborsRequest) returns (GetGraphDetailReply)
+}
+
+@server(
+	prefix: /api/graph/task
+)
+service graph {
 	@doc "获取图计算任务"
 	@handler getGraphTasks
-	get /task/getAll (SearchTasksRequest) returns (SearchTasksReply)
+	get /task/getAll (GetTasksRequest) returns (GetTasksReply)
 	
 	@doc "删除任务"
 	@handler dropTask
-	post /task/drop (DropTaskRequest) returns (BaseReply)
+	post /drop (DropTaskRequest) returns (BaseReply)
+}
+
+@server(
+	prefix: /api/graph/algo
+)
+service graph {
+	//    @doc "查询算法"
+	//    @handler algoGetAll
+	//    get /algo/getAll returns (AlgoReply)
 	
-	@doc "创建空图"
-	@handler createEmptyGraph
-	post /createEmpty (UploadEmptyRequest) returns (SearchGraphReply)
+	@doc "度中心度算法"
+	@handler algoDegree
+	get /degree (AlgoDegreeRequest) returns (AlgoRankReply)
 	
-	@doc "由图名称获得图id"
-	@handler getGraphInfo
-	post /getGraphInfo (GetGraphInfoRequest) returns (GetGraphInfoReply)
+	@doc "PageRank算法"
+	@handler algoPageRank
+	get /pr (AlgoPageRankRequest) returns (AlgoRankReply)
 	
-	@doc "获得节点id信息"
-	@handler getNodesInfo
-	post /getNodesInfo (GetNodeReduceRequest) returns (NodesInfo)
+	@doc "Betweenness算法"
+	@handler algoBetweenness
+	get /betweenness (AlgoRequest) returns (AlgoRankReply)
 	
-	@doc "查询算法"
-	@handler algoGetAll
-	get /algo/getAll returns (AlgoReply)
+	@doc "Closeness算法"
+	@handler algoCloseness
+	get /closeness (AlgoRequest) returns (AlgoRankReply)
 	
+	@doc "平均聚类系数"
+	@handler algoAvgCC
+	get /avgCC (AlgoRequest) returns (AlgoMetricReply)
+	
+	@doc "Louvain聚类算法"
+	@handler algoLouvain
+	get /louvain (AlgoLouvainRequest) returns (AlgoRankReply)
+	
+	@doc "Quantity算法"
+	@handler algoQuantity
+	get /quantity (AlgoVoteRankRequest) returns (AlgoRankReply)
+	
+	@doc "Ecology算法"
+	@handler algoEcology
+	get /ecology (AlgoRequest) returns (AlgoRankReply)
+	
+	@doc "Depth算法"
+	@handler algoDepth
+	get /depth (AlgoRequest) returns (AlgoRankReply)
+	
+	@doc "Integration算法"
+	@handler algoIntegration
+	get /integration (AlgoRequest) returns (AlgoRankReply)
+}
+
+@server(
+	prefix: /api/graph/file
+)
+service graph {
 	@doc "获得文件上传链接"
 	@handler filePutPresigned
-	get /file/put returns (PresignedReply)
+	get /put returns (PresignedReply)
 	
 	@doc "获得文件下载链接"
 	@handler fileGetPresigned
-	get /file/get (PresignedRequest) returns (PresignedReply)
+	get /get (PresignedRequest) returns (PresignedReply)
 }

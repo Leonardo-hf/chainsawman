@@ -19,16 +19,51 @@ func (h *AlgoBetweenness) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	ctx := context.Background()
-	res, err := config.AlgoRPC.Betweenness(ctx, &algo.BaseReq{GraphID: req.GraphID})
+	edgeTags, err := PrepareForAlgoRPC(ctx, req.GraphID)
 	if err != nil {
 		return "", err
 	}
-	ranks := make([]*types.Rank, 0)
-	for _, r := range res.GetRanks() {
-		ranks = append(ranks, &types.Rank{
-			NodeID: r.Id,
-			Score:  r.Score,
-		})
+	res, err := config.AlgoRPC.Betweenness(ctx, &algo.BaseReq{GraphID: req.GraphID, EdgeTags: edgeTags})
+	if err != nil {
+		return "", err
+	}
+	return HandleAlgoRPCRes(res, req.GraphID, taskID)
+}
+
+func PrepareForAlgoRPC(ctx context.Context, graphID int64) ([]string, error) {
+	group, err := config.MysqlClient.GetGroupByGraphId(ctx, graphID)
+	if err != nil {
+		return nil, err
+	}
+	edgeTags := make([]string, len(group.Edges))
+	for i, e := range group.Edges {
+		edgeTags[i] = e.Name
+	}
+	return edgeTags, nil
+}
+
+func HandleAlgoRPCRes(res *algo.RankReply, graphID int64, taskID string) (string, error) {
+	ids := make([]int64, len(res.GetRanks()))
+	ranks := make([]*types.Rank, len(res.GetRanks()))
+	for i, r := range res.GetRanks() {
+		ids[i] = r.Id
+		ranks[i] = &types.Rank{Score: r.Score}
+	}
+	nodePacks, err := config.NebulaClient.GetNodesByIds(graphID, ids)
+	if err != nil {
+		return "", err
+	}
+	// 一个垃圾的遍历赋值
+	for t, np := range nodePacks {
+		for _, n := range np {
+			for i, id := range ids {
+				if id == n.Id {
+					ranks[i].Node = n
+					ranks[i].Tag = t
+					break
+				}
+			}
+		}
 	}
 	resp := &types.AlgoRankReply{
 		Base: &types.BaseReply{

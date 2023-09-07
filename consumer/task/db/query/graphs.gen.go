@@ -31,8 +31,11 @@ func newGraph(db *gorm.DB, opts ...gen.DOOption) graph {
 	_graph.Name = field.NewString(tableName, "name")
 	_graph.Desc = field.NewString(tableName, "desc")
 	_graph.Status = field.NewInt64(tableName, "status")
-	_graph.Nodes = field.NewInt64(tableName, "nodes")
-	_graph.Edges = field.NewInt64(tableName, "edges")
+	_graph.NumNode = field.NewInt64(tableName, "numNode")
+	_graph.NumEdge = field.NewInt64(tableName, "numEdge")
+	_graph.GroupID = field.NewInt64(tableName, "groupID")
+	_graph.CreateTime = field.NewTime(tableName, "createTime")
+	_graph.UpdateTime = field.NewTime(tableName, "updateTime")
 
 	_graph.fillFieldMap()
 
@@ -42,13 +45,16 @@ func newGraph(db *gorm.DB, opts ...gen.DOOption) graph {
 type graph struct {
 	graphDo
 
-	ALL    field.Asterisk
-	ID     field.Int64
-	Name   field.String
-	Desc   field.String
-	Status field.Int64
-	Nodes  field.Int64
-	Edges  field.Int64
+	ALL        field.Asterisk
+	ID         field.Int64
+	Name       field.String
+	Desc       field.String
+	Status     field.Int64
+	NumNode    field.Int64
+	NumEdge    field.Int64
+	GroupID    field.Int64
+	CreateTime field.Time
+	UpdateTime field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -69,8 +75,11 @@ func (g *graph) updateTableName(table string) *graph {
 	g.Name = field.NewString(table, "name")
 	g.Desc = field.NewString(table, "desc")
 	g.Status = field.NewInt64(table, "status")
-	g.Nodes = field.NewInt64(table, "nodes")
-	g.Edges = field.NewInt64(table, "edges")
+	g.NumNode = field.NewInt64(table, "numNode")
+	g.NumEdge = field.NewInt64(table, "numEdge")
+	g.GroupID = field.NewInt64(table, "groupID")
+	g.CreateTime = field.NewTime(table, "createTime")
+	g.UpdateTime = field.NewTime(table, "updateTime")
 
 	g.fillFieldMap()
 
@@ -87,13 +96,16 @@ func (g *graph) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *graph) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 6)
+	g.fieldMap = make(map[string]field.Expr, 9)
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["name"] = g.Name
 	g.fieldMap["desc"] = g.Desc
 	g.fieldMap["status"] = g.Status
-	g.fieldMap["nodes"] = g.Nodes
-	g.fieldMap["edges"] = g.Edges
+	g.fieldMap["numNode"] = g.NumNode
+	g.fieldMap["numEdge"] = g.NumEdge
+	g.fieldMap["groupID"] = g.GroupID
+	g.fieldMap["createTime"] = g.CreateTime
+	g.fieldMap["updateTime"] = g.UpdateTime
 }
 
 func (g graph) clone(db *gorm.DB) graph {

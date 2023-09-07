@@ -23,11 +23,23 @@ func NewGetGraphInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetG
 	}
 }
 
-func (l *GetGraphInfoLogic) GetGraphInfo(req *types.GetGraphInfoRequest) (resp *types.GetGraphInfoReply, err error) {
+func (l *GetGraphInfoLogic) GetGraphInfo(req *types.GetGraphInfoRequest) (resp *types.GraphInfoReply, err error) {
 	name := req.Name
 	graph, err := l.svcCtx.MysqlClient.GetGraphByName(l.ctx, name)
 	if err != nil {
 		return nil, err
 	}
-	return &types.GetGraphInfoReply{GraphId: graph.ID, Name: name}, nil
+	return &types.GraphInfoReply{
+		Graph: &types.Graph{
+			Id:       graph.ID,
+			Status:   graph.Status,
+			GroupID:  graph.GroupID,
+			Name:     graph.Name,
+			Desc:     graph.Desc,
+			NumNode:  graph.NumNode,
+			NumEdge:  graph.NumEdge,
+			CreatAt:  graph.CreateTime.UnixMilli(),
+			UpdateAt: graph.UpdateTime.UnixMilli(),
+		},
+	}, nil
 }

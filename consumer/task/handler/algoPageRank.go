@@ -19,25 +19,14 @@ func (h *AlgoPageRank) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	ctx := context.Background()
-	res, err := config.AlgoRPC.Pagerank(ctx, &algo.PageRankReq{Base: &algo.BaseReq{GraphID: req.GraphID},
+	edgeTags, err := PrepareForAlgoRPC(ctx, req.GraphID)
+	if err != nil {
+		return "", err
+	}
+	res, err := config.AlgoRPC.Pagerank(ctx, &algo.PageRankReq{Base: &algo.BaseReq{GraphID: req.GraphID, EdgeTags: edgeTags},
 		Cfg: &algo.PRConfig{Iter: req.Iter, Prob: req.Prob}})
 	if err != nil {
 		return "", err
 	}
-	ranks := make([]*types.Rank, 0)
-	for _, r := range res.GetRanks() {
-		ranks = append(ranks, &types.Rank{
-			NodeID: r.Id,
-			Score:  r.Score,
-		})
-	}
-	resp := &types.AlgoRankReply{
-		Base: &types.BaseReply{
-			TaskID:     taskID,
-			TaskStatus: int64(model.KVTask_Finished),
-		},
-		Ranks: ranks,
-		File:  res.GetFile(),
-	}
-	return jsonx.MarshalToString(resp)
+	return HandleAlgoRPCRes(res, req.GraphID, taskID)
 }

@@ -1,9 +1,9 @@
 package logic
 
 import (
+	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
-
 	"context"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -23,21 +23,85 @@ func NewGetAllGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetAl
 	}
 }
 
-func (l *GetAllGraphLogic) GetAllGraph() (resp *types.SearchAllGraphReply, err error) {
+func (l *GetAllGraphLogic) GetAllGraph() (resp *types.GetAllGraphReply, err error) {
+	groups, err := l.svcCtx.MysqlClient.GetAllGroups(l.ctx)
+	if err != nil {
+		return nil, err
+	}
 	graphs, err := l.svcCtx.MysqlClient.GetAllGraph(l.ctx)
 	if err != nil {
 		return nil, err
 	}
-	resp = &types.SearchAllGraphReply{}
-	for _, graph := range graphs {
-		resp.Graphs = append(resp.Graphs, &types.Graph{
-			Id:     graph.ID,
-			Name:   graph.Name,
-			Desc:   graph.Desc,
-			Nodes:  graph.Nodes,
-			Edges:  graph.Edges,
-			Status: int(graph.Status),
+	gmap := make(map[int64]*types.Group)
+	resp = &types.GetAllGraphReply{
+		Groups: make([]*types.Group, 0),
+	}
+	// 获得所有group
+	for _, group := range groups {
+		nodes, edges := make([]*types.Structure, 0), make([]*types.Structure, 0)
+		for _, n := range group.Nodes {
+			nodeAttrs := make([]*types.Attr, 0)
+			for _, a := range n.NodeAttrs {
+				nodeAttrs = append(nodeAttrs, &types.Attr{
+					Name:    a.Name,
+					Desc:    a.Desc,
+					Type:    a.Type,
+					Primary: common.Int642Bool(a.Primary),
+				})
+			}
+			nodes = append(nodes, &types.Structure{
+				Id:      n.ID,
+				Name:    n.Name,
+				Desc:    n.Desc,
+				Display: n.Display,
+				Attrs:   nodeAttrs,
+			})
+		}
+		for _, n := range group.Edges {
+			edgeAttrs := make([]*types.Attr, 0)
+			for _, a := range n.EdgeAttrs {
+				edgeAttrs = append(edgeAttrs, &types.Attr{
+					Name:    a.Name,
+					Desc:    a.Desc,
+					Type:    a.Type,
+					Primary: common.Int642Bool(a.Primary),
+				})
+			}
+			edges = append(edges, &types.Structure{
+				Id:            n.ID,
+				Name:          n.Name,
+				Desc:          n.Desc,
+				Display:       n.Display,
+				EdgeDirection: common.Int642Bool(n.Direct),
+				Attrs:         edgeAttrs,
+			})
+		}
+		gmap[group.ID] = &types.Group{
+			Id:           group.ID,
+			Name:         group.Name,
+			Desc:         group.Desc,
+			NodeTypeList: nodes,
+			EdgeTypeList: edges,
+			Graphs:       make([]*types.Graph, 0),
+		}
+	}
+	// 为所有group填充graph
+	for _, g := range graphs {
+		gmap[g.GroupID].Graphs = append(gmap[g.GroupID].Graphs, &types.Graph{
+			Id:       g.ID,
+			Status:   g.Status,
+			GroupID:  g.GroupID,
+			Name:     g.Name,
+			Desc:     g.Desc,
+			NumNode:  g.NumNode,
+			NumEdge:  g.NumEdge,
+			CreatAt:  g.CreateTime.UnixMilli(),
+			UpdateAt: g.UpdateTime.UnixMilli(),
 		})
+	}
+	// map -> list
+	for _, v := range gmap {
+		resp.Groups = append(resp.Groups, v)
 	}
 	return resp, nil
 }

@@ -19,8 +19,12 @@ func (h *AlgoLouvain) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	ctx := context.Background()
+	edgeTags, err := PrepareForAlgoRPC(ctx, req.GraphID)
+	if err != nil {
+		return "", err
+	}
 	res, err := config.AlgoRPC.Louvain(ctx, &algo.LouvainReq{
-		Base: &algo.BaseReq{GraphID: req.GraphID},
+		Base: &algo.BaseReq{GraphID: req.GraphID, EdgeTags: edgeTags},
 		Cfg: &algo.LouvainConfig{
 			MaxIter:      req.MaxIter,
 			InternalIter: req.InternalIter,
@@ -30,20 +34,5 @@ func (h *AlgoLouvain) Handle(task *model.KVTask) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	ranks := make([]*types.Rank, 0)
-	for _, r := range res.GetRanks() {
-		ranks = append(ranks, &types.Rank{
-			NodeID: r.Id,
-			Score:  r.Score,
-		})
-	}
-	resp := &types.AlgoRankReply{
-		Base: &types.BaseReply{
-			TaskID:     taskID,
-			TaskStatus: int64(model.KVTask_Finished),
-		},
-		Ranks: ranks,
-		File:  res.GetFile(),
-	}
-	return jsonx.MarshalToString(resp)
+	return HandleAlgoRPCRes(res, req.GraphID, taskID)
 }

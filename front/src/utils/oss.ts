@@ -19,5 +19,5 @@ export const upload = async (file: RcFile) => {
 export const getPreviewURL = async (fileId: string) => {
     const res = await fileGetPresigned({filename: fileId})
     const url =  res.url
-    return url.substring(url.indexOf('/source'))
+    return url.substring(url.indexOf('/algo'))
 }

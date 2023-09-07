@@ -1,10 +1,8 @@
 use go-zero, graphin, nebula and spark graphx to build a extended visual system for graph analysis
 
-#### ONLY SUPPORT LOCAL DEPLOY CURRENTLY !!
-
 ### pre-prep
+* java(maven), go, python, js(npm)
 * [nebula](https://www.nebula-graph.com.cn/database), mysql, redis, minio
-* npm, maven, goctl, protobuf
 * spark
 
 ### services list:
@@ -17,14 +15,17 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 * algo rpc, interact with spark to resolve graph algorithm
   * `cd algo`
   * `mvn clean compile dependency:properties exec:exec@server`
-* sca api, resolve requests about software 
+* sca api, resolve requests about software composition analysis
 * front, front-end, allow CRUD and inspect for graph
   * `npm run install`
   * `npm run dev`
+### others:
+* k8s, support deploying simply by k8s
+* client, packaged client for interacting with graph service
 ### TODO LIST:
 * multiple data source, connector
   * a default datasource for python requirements updated daily
-* deploy by kubernetes
+* deploy by docker compose & kubernetes
 * use openfass to deploy consumers
 * data interface to format
 * replace redis with abase

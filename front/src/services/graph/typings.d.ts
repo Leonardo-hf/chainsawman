@@ -1,13 +1,4 @@
 declare namespace Graph {
-  type Algo = {
-    id: number;
-    name: string;
-    desc: string;
-    isCustom: boolean;
-    type: number;
-    params: Element[];
-  };
-
   type algoAvgCCParams = {
     taskId?: string;
     graphId: number;
@@ -29,6 +20,21 @@ declare namespace Graph {
   };
 
   type AlgoDegreeRequest = {
+    taskId?: string;
+    graphId: number;
+  };
+
+  type algoDepthParams = {
+    taskId?: string;
+    graphId: number;
+  };
+
+  type algoEcologyParams = {
+    taskId?: string;
+    graphId: number;
+  };
+
+  type algoIntegrationParams = {
     taskId?: string;
     graphId: number;
   };
@@ -68,15 +74,16 @@ declare namespace Graph {
     prob: number;
   };
 
+  type algoQuantityParams = {
+    taskId?: string;
+    graphId: number;
+    iter?: number;
+  };
+
   type AlgoRankReply = {
     base: BaseReply;
     ranks: Rank[];
     file: string;
-  };
-
-  type AlgoReply = {
-    base: BaseReply;
-    algos: Algo[];
   };
 
   type AlgoRequest = {
@@ -84,16 +91,17 @@ declare namespace Graph {
     graphId: number;
   };
 
-  type algoVoteRankParams = {
-    taskId?: string;
-    graphId: number;
-    iter?: number;
-  };
-
   type AlgoVoteRankRequest = {
     taskId?: string;
     graphId: number;
     iter: number;
+  };
+
+  type Attr = {
+    name: string;
+    desc: string;
+    primary: boolean;
+    type: number;
   };
 
   type BaseReply = {
@@ -104,8 +112,27 @@ declare namespace Graph {
     extra: Record<string, any>;
   };
 
-  type DropRequest = {
+  type CreateGraphRequest = {
+    taskId?: string;
+    graphId?: number;
+    graph: string;
+    desc?: string;
+    groupId: number;
+  };
+
+  type CreateGroupRequest = {
+    name: string;
+    desc: string;
+    nodeTypeList: Structure[];
+    edgeTypeList: Structure[];
+  };
+
+  type DropGraphRequest = {
     graphId: number;
+  };
+
+  type DropGroupRequest = {
+    groupId: number;
   };
 
   type DropTaskRequest = {
@@ -115,21 +142,38 @@ declare namespace Graph {
   type Edge = {
     source: number;
     target: number;
+    attrs: Pair[];
   };
 
-  type Element = {
-    key: string;
-    keyDesc: string;
-    type: number;
+  type EdgePack = {
+    tag: string;
+    edges: Edge[];
   };
 
   type fileGetPresignedParams = {
     filename: string;
   };
 
-  type GetGraphInfoReply = {
-    name: string;
+  type GetAllGraphReply = {
+    base: BaseReply;
+    groups: Group[];
+  };
+
+  type GetGraphDetailReply = {
+    base: BaseReply;
+    nodePacks: NodePack[];
+    edgePacks: EdgePack[];
+  };
+
+  type GetGraphDetailRequest = {
+    taskId?: string;
     graphId: number;
+    top: number;
+    max: number;
+  };
+
+  type getGraphInfoParams = {
+    name: string;
   };
 
   type GetGraphInfoRequest = {
@@ -139,11 +183,27 @@ declare namespace Graph {
   type getGraphParams = {
     taskId?: string;
     graphId: number;
-    min: number;
+    top: number;
+    max?: number;
   };
 
   type getGraphTasksParams = {
     graphId: number;
+  };
+
+  type getMatchNodesParams = {
+    graphId: number;
+    keywords: string;
+  };
+
+  type GetMatchNodesReply = {
+    base: BaseReply;
+    matchNodePacks: MatchNodePacks[];
+  };
+
+  type GetMatchNodesRequest = {
+    graphId: number;
+    keywords: string;
   };
 
   type getNeighborsParams = {
@@ -151,39 +211,96 @@ declare namespace Graph {
     graphId: number;
     nodeId: number;
     distance: number;
-    min: number;
+    direction: string;
+    max?: number;
   };
 
-  type GetNodeReduceRequest = {
-    id: number;
+  type GetNeighborsRequest = {
+    taskId?: string;
+    graphId: number;
+    nodeId: number;
+    distance: number;
+    direction: string;
+    max: number;
+  };
+
+  type getNodesParams = {
+    taskId?: string;
+    graphId: number;
+  };
+
+  type GetNodesReply = {
+    base: BaseReply;
+    nodePacks: NodePack[];
+  };
+
+  type GetNodesRequest = {
+    taskId?: string;
+    graphId: number;
+  };
+
+  type GetTasksReply = {
+    base: BaseReply;
+    tasks: Task[];
+  };
+
+  type GetTasksRequest = {
+    graphId: number;
   };
 
   type Graph = {
     id: number;
     status: number;
+    groupId: number;
     name: string;
     desc: string;
-    nodes: number;
-    edges: number;
+    numNode: number;
+    numEdge: number;
+    creatAt: number;
+    updateAt: number;
+  };
+
+  type GraphInfoReply = {
+    base: BaseReply;
+    graph: Graph;
+  };
+
+  type Group = {
+    id: number;
+    name: string;
+    desc: string;
+    nodeTypeList: Structure[];
+    edgeTypeList: Structure[];
+    graphs: Graph[];
+  };
+
+  type GroupInfoReply = {
+    base: BaseReply;
+    group: Group;
+  };
+
+  type MatchNode = {
+    id: number;
+    primaryAttr: string;
+  };
+
+  type MatchNodePacks = {
+    tag: string;
+    match: MatchNode[];
   };
 
   type Node = {
     id: number;
-    name: string;
-    desc: string;
     deg: number;
+    attrs: Pair[];
   };
 
-  type NodeReduce = {
-    name: string;
-    id: number;
+  type NodePack = {
+    tag: string;
+    nodes: Node[];
   };
 
-  type NodesInfo = {
-    nodes: NodeReduce[];
-  };
-
-  type Param = {
+  type Pair = {
     key: string;
     value: string;
   };
@@ -198,54 +315,18 @@ declare namespace Graph {
   };
 
   type Rank = {
-    nodeId: number;
+    tag: string;
+    node: Node;
     score: number;
   };
 
-  type SearchAllGraphReply = {
-    base: BaseReply;
-    graphs: Graph[];
-  };
-
-  type SearchGraphDetailReply = {
-    base: BaseReply;
-    nodes: Node[];
-    edges: Edge[];
-  };
-
-  type SearchGraphReply = {
-    base: BaseReply;
-    graph: Graph;
-  };
-
-  type SearchNodeReply = {
-    base: BaseReply;
-    node: Node;
-    nodes: Node[];
-    edges: Edge[];
-  };
-
-  type SearchNodeRequest = {
-    taskId?: string;
-    graphId: number;
-    nodeId: number;
-    distance: number;
-    min: number;
-  };
-
-  type SearchRequest = {
-    taskId?: string;
-    graphId: number;
-    min: number;
-  };
-
-  type SearchTasksReply = {
-    base: BaseReply;
-    tasks: Task[];
-  };
-
-  type SearchTasksRequest = {
-    graphId: number;
+  type Structure = {
+    id: number;
+    name: string;
+    desc: string;
+    edgeDirection: boolean;
+    display: string;
+    attrs: Attr[];
   };
 
   type Task = {
@@ -258,17 +339,10 @@ declare namespace Graph {
     res: string;
   };
 
-  type UploadEmptyRequest = {
-    graph: string;
-    desc?: string;
-  };
-
-  type UploadRequest = {
+  type UpdateGraphRequest = {
     taskId?: string;
-    graph: string;
-    desc?: string;
-    nodeId: string;
-    edgeId: string;
-    graphId?: number;
+    graphId: number;
+    nodeFileList: Pair[];
+    edgeFileList: Pair[];
   };
 }

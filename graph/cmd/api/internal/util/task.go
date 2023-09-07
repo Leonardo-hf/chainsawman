@@ -8,8 +8,6 @@ import (
 	"strconv"
 
 	"context"
-	"fmt"
-
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -20,7 +18,6 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(taskIDf)
 	persistTask := &model.Task{
 		Params:  params,
 		Idf:     taskIDf,
@@ -44,7 +41,7 @@ func PublishTask(ctx context.Context, svcCtx *svc.ServiceContext, graphID int64,
 		Id:         taskID,
 		Params:     params,
 		Status:     model.KVTask_New,
-		CreateTime: persistTask.CreateTime,
+		CreateTime: persistTask.CreateTime.UnixMilli(),
 		Idf:        taskIDf,
 	}
 	// 临时保存任务
@@ -86,8 +83,8 @@ func FetchTask(ctx context.Context, svcCtx *svc.ServiceContext, taskID string, i
 			Id:         strconv.FormatInt(oTask.ID, 10),
 			Params:     oTask.Params,
 			Status:     model.KVTask_Status(oTask.Status),
-			CreateTime: oTask.CreateTime,
-			UpdateTime: oTask.UpdateTime,
+			CreateTime: oTask.CreateTime.UnixMilli(),
+			UpdateTime: oTask.UpdateTime.UnixMilli(),
 			Result:     oTask.Result,
 		})
 		if err != nil {

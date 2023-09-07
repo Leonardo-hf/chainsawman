@@ -22,7 +22,7 @@ func NewDropGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DropGra
 	}
 }
 
-func (l *DropGraphLogic) DropGraph(req *types.DropRequest) (resp *types.BaseReply, err error) {
+func (l *DropGraphLogic) DropGraph(req *types.DropGraphRequest) (resp *types.BaseReply, err error) {
 	err = l.svcCtx.NebulaClient.DropGraph(req.GraphID)
 	if err != nil {
 		return nil, err

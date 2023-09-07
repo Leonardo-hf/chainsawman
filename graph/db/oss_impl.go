@@ -14,6 +14,7 @@ import (
 type MinioClientImpl struct {
 	client  *minio.Client
 	source  string
+	algo    string
 	expired time.Duration
 }
 
@@ -25,6 +26,7 @@ type MinioConfig struct {
 	SourceExpired   int
 	URLExpired      int
 	SourceBucket    string
+	AlgoBucket      string
 }
 
 func InitMinioClient(cfg *MinioConfig) OSSClient {
@@ -39,6 +41,7 @@ func InitMinioClient(cfg *MinioConfig) OSSClient {
 	c := &MinioClientImpl{
 		client:  m,
 		source:  bucket,
+		algo:    cfg.AlgoBucket,
 		expired: time.Duration(cfg.URLExpired) * time.Second,
 	}
 	ctx := context.Background()
@@ -78,7 +81,7 @@ func (m *MinioClientImpl) PutPresignedURL(ctx context.Context, name string) (str
 func (m *MinioClientImpl) GetPresignedURL(ctx context.Context, name string) (string, error) {
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=\"%v\"", name))
-	presignedURL, err := m.client.PresignedGetObject(ctx, m.source, name, m.expired, reqParams)
+	presignedURL, err := m.client.PresignedGetObject(ctx, m.algo, name, m.expired, reqParams)
 	if err != nil {
 		return "", err
 	}

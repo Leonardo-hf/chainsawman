@@ -25,9 +25,9 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 	return &MysqlClientImpl{}
 }
 
-func (c *MysqlClientImpl) UpdateTaskByID(task *model.Task) (int64, error) {
+func (c *MysqlClientImpl) UpdateTaskByID(ctx context.Context, task *model.Task) (int64, error) {
 	t := query.Task
-	info, err := t.Where(t.ID.Eq(task.ID)).Updates(map[string]interface{}{
+	info, err := t.WithContext(ctx).Where(t.ID.Eq(task.ID)).Updates(map[string]interface{}{
 		"status": task.Status,
 		"result": task.Result,
 	})
@@ -37,9 +37,23 @@ func (c *MysqlClientImpl) UpdateTaskByID(task *model.Task) (int64, error) {
 func (c *MysqlClientImpl) UpdateGraphByID(ctx context.Context, graph *model.Graph) (int64, error) {
 	g := query.Graph
 	ret, err := g.WithContext(ctx).Where(g.ID.Eq(graph.ID)).Updates(map[string]interface{}{
-		"status": 1,
-		"nodes":  graph.Nodes,
-		"edges":  graph.Edges,
+		"status":  graph.Status,
+		"numNode": graph.NumNode,
+		"numEdge": graph.NumEdge,
 	})
 	return ret.RowsAffected, err
+}
+
+func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error) {
+	g := query.Graph
+	graph, err := g.WithContext(ctx).Where(g.ID.Eq(id)).First()
+	if err != nil {
+		return nil, err
+	}
+	return c.GetGroupByID(ctx, graph.GroupID)
+}
+
+func (c *MysqlClientImpl) GetGroupByID(ctx context.Context, id int64) (*model.Group, error) {
+	gr := query.Group
+	return gr.WithContext(ctx).Where(gr.ID.Eq(id)).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).First()
 }

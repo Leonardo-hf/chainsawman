@@ -14,6 +14,9 @@ object AlgoApplication {
       conf = ConfigFactory.load("application-pre.conf")
     }
     ClientConfig.Init(conf)
+//    val (df, _) = ecology(3, Seq("edge_1"))
+//    println(RankReply.apply(ranks = df.rdd.collect().reverse.slice(0, 100).map(s => Rank.apply(id = s.getLong(0), score = s.getDouble(1))).toSeq))
+//    return
     val system = ActorSystem[Nothing](Behaviors.empty, "AlgoServer", conf)
     new GrpcServer(system).run()
   }

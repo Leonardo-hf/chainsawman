@@ -23,7 +23,6 @@ type NebulaConfig struct {
 }
 
 func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
-
 	hostAddress := nebula.HostAddress{Host: cfg.Addr, Port: cfg.Port}
 	hostList := []nebula.HostAddress{hostAddress}
 	testPoolConfig := nebula.GetDefaultConf()
@@ -37,28 +36,6 @@ func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 		Username: cfg.Username,
 		Password: cfg.Passwd,
 	}
-}
-
-func (n *NebulaClientImpl) CreateGraph(graph int64) error {
-	session, err := n.getSession()
-	defer func() { session.Release() }()
-	if err != nil {
-		return err
-	}
-	//_, _ = session.Execute("ADD HOSTS 127.0.0.1:9779;")
-	create := fmt.Sprintf(
-		"CREATE SPACE IF NOT EXISTS G%v (vid_type = FIXED_STRING(30));"+
-			"USE G%v;"+
-			"CREATE TAG IF NOT EXISTS snode(name string, intro string, deg int);"+
-			"CREATE TAG INDEX IF NOT EXISTS snode_tag_index on snode();"+
-			"CREATE EDGE IF NOT EXISTS sedge();"+
-			"CREATE EDGE INDEX IF NOT EXISTS sedge_tag_index on sedge();",
-		graph, graph)
-	res, err := session.Execute(create)
-	if !res.IsSucceed() {
-		return fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
-	}
-	return err
 }
 
 func (n *NebulaClientImpl) DropGraph(graph int64) error {
@@ -76,34 +53,52 @@ func (n *NebulaClientImpl) DropGraph(graph int64) error {
 	return err
 }
 
-func (n *NebulaClientImpl) GetAllNodes(graph int64) ([]*model.Node, error) {
+func (n *NebulaClientImpl) MatchNodes(graph int64, keywords string, group *model.Group) (map[string][]*MatchNode, error) {
 	session, err := n.getSession()
+	if err != nil {
+		return nil, err
+	}
 	defer func() { session.Release() }()
-	if err != nil {
-		return nil, err
+	matchNodePackMap := make(map[string][]*MatchNode)
+	for _, nt := range group.Nodes {
+		primary := ""
+		// 检查节点类型的主属性
+		for _, attr := range nt.NodeAttrs {
+			if common.Int642Bool(attr.Primary) {
+				primary = attr.Name
+				break
+			}
+		}
+		// 如果没有主属性，则返回
+		if primary == "" {
+			continue
+		}
+		tag := nt.Name
+		primary = fmt.Sprintf("%v.%v", tag, primary)
+		stat := fmt.Sprintf("USE G%v;"+
+			"MATCH (v:%v) "+
+			"WHERE v.%v STARTS WITH \"%v\" "+
+			"RETURN v.%v AS p, id(v) as id "+
+			"LIMIT %v;",
+			graph, common.BaseTag, primary, keywords, primary, common.MaxMatchCandidates)
+		res, err := session.Execute(stat)
+		if err != nil {
+			return nil, err
+		}
+		if !res.IsSucceed() {
+			return nil, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat)
+		}
+		matchNodePacks := make([]*MatchNode, res.GetRowSize())
+		for i := 0; i < res.GetRowSize(); i++ {
+			r, _ := res.GetRowValuesByIndex(i)
+			matchNodePacks[i] = &MatchNode{
+				Id:          common.ParseInt(r, "id"),
+				PrimaryAttr: common.Parse(r, "p"),
+			}
+		}
+		matchNodePackMap[tag] = matchNodePacks
 	}
-	query := fmt.Sprintf("USE G%v;"+
-		"LOOKUP ON snode "+
-		"YIELD id(vertex) AS nid, properties(vertex).name AS name, properties(vertex).intro AS intro, properties(vertex).deg AS deg;",
-		graph)
-	res, err := session.Execute(query)
-	if err != nil {
-		return nil, err
-	}
-	if !res.IsSucceed() {
-		return nil, fmt.Errorf("[NEBULA] nGQL error: %v", res.GetErrorMsg())
-	}
-	var nodes []*model.Node
-	for i := 0; i < res.GetRowSize(); i++ {
-		record, _ := res.GetRowValuesByIndex(i)
-		nodes = append(nodes, &model.Node{
-			ID:   common.ParseInt(record, "nid"),
-			Name: common.Parse(record, "name"),
-			Desc: common.Parse(record, "intro"),
-			Deg:  common.ParseInt(record, "deg"),
-		})
-	}
-	return nodes, nil
+	return matchNodePackMap, nil
 }
 
 // TODO: 连接池会被用尽，这个写法是错误的

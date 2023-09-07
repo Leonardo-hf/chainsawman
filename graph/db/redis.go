@@ -5,7 +5,6 @@ import (
 	"context"
 )
 
-// RedisClient TODO: 删掉用不上的接口
 type RedisClient interface {
 	GetTaskById(ctx context.Context, id string) (*model.KVTask, error)
 

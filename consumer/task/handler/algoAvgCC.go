@@ -19,7 +19,15 @@ func (h *AlgoAvgCC) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	ctx := context.Background()
-	res, err := config.AlgoRPC.AvgClustering(ctx, &algo.BaseReq{GraphID: req.GraphID})
+	group, err := config.MysqlClient.GetGroupByGraphId(ctx, req.GraphID)
+	if err != nil {
+		return "", err
+	}
+	edgeTags := make([]string, len(group.Edges))
+	for i, e := range group.Edges {
+		edgeTags[i] = e.Name
+	}
+	res, err := config.AlgoRPC.AvgClustering(ctx, &algo.BaseReq{GraphID: req.GraphID, EdgeTags: edgeTags})
 	if err != nil {
 		return "", err
 	}

@@ -26,11 +26,12 @@ func NewGetGraphLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetGraph
 	}
 }
 
-func (l *GetGraphLogic) GetGraph(req *types.SearchRequest) (resp *types.SearchGraphDetailReply, err error) {
-	resp = &types.SearchGraphDetailReply{Base: &types.BaseReply{
-		TaskID:     req.TaskID,
-		TaskStatus: int64(model.KVTask_New),
-	}}
+func (l *GetGraphLogic) GetGraph(req *types.GetGraphDetailRequest) (resp *types.GetGraphDetailReply, err error) {
+	resp = &types.GetGraphDetailReply{
+		Base: &types.BaseReply{
+			TaskID:     req.TaskID,
+			TaskStatus: int64(model.KVTask_New),
+		}}
 	idf := common.GraphGet
 	if req.TaskID != "" {
 		// 任务已经提交过

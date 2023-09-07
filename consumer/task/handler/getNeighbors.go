@@ -4,7 +4,7 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/model"
 	"chainsawman/consumer/task/types"
-
+	set "github.com/deckarep/golang-set/v2"
 	"github.com/zeromicro/go-zero/core/jsonx"
 )
 
@@ -13,39 +13,48 @@ type GetNeighbors struct {
 
 func (h *GetNeighbors) Handle(task *model.KVTask) (string, error) {
 	params, taskID := task.Params, task.Id
-	req := &types.SearchNodeRequest{}
+	req := &types.GetNeighborsRequest{}
 	if err := jsonx.UnmarshalFromString(params, req); err != nil {
 		return "", err
 	}
-	nodes, edges, err := config.NebulaClient.GetNeighbors(req.GraphID, req.NodeID, req.Min, req.Distance)
-	if err != nil {
-		return "", err
-	}
-	// TODO: 也许可以单独写一些类型转化的Format方法
-	var nodesRet []*types.Node
-	var edgesRet []*types.Edge
-	for _, node := range nodes {
-		nodesRet = append(nodesRet, &types.Node{
-			ID:   node.ID,
-			Name: node.Name,
-			Desc: node.Desc,
-			Deg:  node.Deg,
-		})
-	}
-	for _, edge := range edges {
-		edgesRet = append(edgesRet, &types.Edge{
-			Source: edge.Source,
-			Target: edge.Target,
-		})
-	}
-	resp := &types.SearchNodeReply{
+	resp := &types.GetGraphDetailReply{
 		Base: &types.BaseReply{
 			TaskID:     taskID,
 			TaskStatus: int64(model.KVTask_Finished),
 		},
-		Info:  nodesRet[0],
-		Nodes: nodesRet,
-		Edges: edgesRet,
+		NodePacks: make([]*types.NodePack, 0),
+		EdgePacks: make([]*types.EdgePack, 0),
+	}
+	if err := jsonx.UnmarshalFromString(params, req); err != nil {
+		return "", err
+	}
+	// 获得边
+	edges, err := config.NebulaClient.Go(req.GraphID, req.NodeID, req.Direction, req.Distance, req.Max)
+	if err != nil {
+		return "", err
+	}
+	// 获得边两端节点id
+	nodeSet := set.NewThreadUnsafeSet[int64]()
+	for tag, es := range edges {
+		resp.EdgePacks = append(resp.EdgePacks, &types.EdgePack{
+			Tag:   tag,
+			Edges: es,
+		})
+		for _, e := range es {
+			nodeSet.Add(e.Source)
+			nodeSet.Add(e.Target)
+		}
+	}
+	// 获得节点
+	nodes, err := config.NebulaClient.GetNodesByIds(req.GraphID, nodeSet.ToSlice())
+	if err != nil {
+		return "", err
+	}
+	for tag, ns := range nodes {
+		resp.NodePacks = append(resp.NodePacks, &types.NodePack{
+			Tag:   tag,
+			Nodes: ns,
+		})
 	}
 	return jsonx.MarshalToString(resp)
 }

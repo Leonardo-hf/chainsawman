@@ -3,7 +3,7 @@ module chainsawman
 go 1.20
 
 require (
-	github.com/deckarep/golang-set v1.8.0
+	github.com/deckarep/golang-set/v2 v2.3.1
 	github.com/extrame/xls v0.0.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang/protobuf v1.5.3
@@ -14,6 +14,7 @@ require (
 	github.com/tealeg/xlsx v1.0.5
 	github.com/vesoft-inc/nebula-go/v3 v3.5.0
 	github.com/zeromicro/go-zero v1.5.2
+	go.uber.org/multierr v1.9.0
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/mysql v1.5.1
@@ -91,7 +92,6 @@ require (
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/automaxprocs v1.5.2 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
