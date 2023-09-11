@@ -1,0 +1,169 @@
+Log file created at: 2023/09/10 14:34:47
+Running on machine: 8d52cbb935df
+Running duration (h:mm:ss): 0:00:00
+Log line format: [IWEF]yyyymmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I20230910 14:34:47.233937     1 MetaDaemon.cpp:137] localhost = "nebula-metad-headless":9559
+I20230910 14:34:47.251240     1 NebulaStore.cpp:48] Start the raft service...
+I20230910 14:34:47.251585     1 NebulaSnapshotManager.cpp:25] Send snapshot is rate limited to 10485760 for each part by default
+I20230910 14:34:47.341326     1 RaftexService.cpp:46] Start raft service on 9560
+I20230910 14:34:47.341398     1 NebulaStore.cpp:82] Scan the local path, and init the spaces_
+I20230910 14:34:47.341434     1 NebulaStore.cpp:90] Scan path "/data/meta/nebula/0"
+I20230910 14:34:47.341450     1 NebulaStore.cpp:292] Init data from partManager for "nebula-metad-headless":9559
+I20230910 14:34:47.341465     1 NebulaStore.cpp:417] Create data space 0
+I20230910 14:34:47.360442    74 RocksEngine.cpp:107] open rocksdb on /data/meta/nebula/0/data
+I20230910 14:34:47.382133     1 NebulaStore.cpp:480] Space 0, part 0 has been added, asLearner 0
+I20230910 14:34:47.382169     1 NebulaStore.cpp:75] Register handler...
+I20230910 14:34:47.382180     1 MetaDaemonInit.cpp:106] Waiting for the leader elected...
+I20230910 14:34:47.382191     1 MetaDaemonInit.cpp:118] Leader has not been elected, sleep 1s
+I20230910 14:34:48.386998     1 MetaDaemonInit.cpp:153] Get meta version is 4
+I20230910 14:34:48.387048     1 MetaDaemonInit.cpp:169] Nebula store init succeeded, clusterId 4092346548590204318
+I20230910 14:34:48.387056     1 MetaDaemon.cpp:150] Start http service
+I20230910 14:34:48.387243     1 MetaDaemonInit.cpp:226] Starting Meta HTTP Service
+I20230910 14:34:48.391782    97 WebService.cpp:124] Web service started on HTTP[19559]
+I20230910 14:34:48.391826     1 MetaDaemonInit.cpp:192] Check root user
+I20230910 14:34:48.391876     1 RootUserMan.h:35] God user exists
+I20230910 14:34:48.396720     1 MetaDaemon.cpp:193] The meta daemon start on "nebula-metad-headless":9559
+I20230910 14:34:48.396875     1 JobManager.cpp:64] JobManager initialized
+I20230910 14:34:48.396926   103 JobManager.cpp:150] JobManager::scheduleThread enter
+I20230910 14:34:48.843621   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:34:48.843681   116 HBProcessor.cpp:89] Update host "nebula-graphd-svc":9669 dir info, root path: /usr/local/nebula, data path size: 0
+I20230910 14:34:48.898555   116 SessionManagerProcessor.cpp:136] resp session size: 0
+I20230910 14:34:48.903009   116 SessionManagerProcessor.cpp:136] resp session size: 0
+I20230910 14:34:49.193040   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:34:49.193085   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:34:50.197141   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:34:50.197203   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:34:51.198946   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:34:51.199005   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:34:58.952308   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:35:01.200666   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:01.200711   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:02.203289   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:02.203409   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:03.206133   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:03.206260   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:04.208374   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:04.208534   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:08.961493   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:35:14.220278   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:14.220412   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:15.221578   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:15.221626   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:16.223254   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:16.223296   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:17.225783   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:17.225929   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:18.969157   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:35:27.229964   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:27.230099   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:28.253858   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:28.253984   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:28.979211   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:35:29.256858   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:29.257046   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:30.259858   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:30.259982   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:38.990121   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:35:40.261783   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:40.261848   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:41.263548   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:41.263700   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:42.265506   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:42.265659   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:43.267695   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:43.267822   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:49.001505   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:35:53.271107   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:53.271229   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:54.273231   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:54.273360   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:55.275328   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:55.275444   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:56.277125   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:35:56.277185   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:35:59.009733   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:36:06.278280   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:06.278326   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:07.289710   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:07.289780   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:08.291494   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:08.291611   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:09.020087   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:36:09.293412   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:09.293577   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:19.030290   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:36:19.296769   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:19.296950   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:20.298884   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:20.299000   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:21.300786   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:21.300899   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:22.302872   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:22.302994   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:29.041668   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:36:32.306115   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:32.306267   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:33.308300   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:33.308456   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:34.310271   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:34.310317   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:35.312083   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:35.312217   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:39.050048   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:36:45.315421   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:45.315551   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:46.317556   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:46.317680   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:47.319635   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:47.319763   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:48.321542   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:48.321709   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:49.061816   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:36:58.323184   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:58.323227   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:36:59.069583   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:36:59.324987   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:36:59.325110   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:00.327189   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:00.327316   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:01.329257   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:01.329375   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:09.080324   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:37:11.332691   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:11.332839   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:12.334990   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:12.335115   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:13.333549   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:13.333683   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:14.335867   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:14.336025   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:19.089673   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-graphd-svc":9669, role = GRAPH
+I20230910 14:37:21.597759   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:21.597903   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:22.599663   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:22.599728   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:23.601763   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:23.601887   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:24.604065   116 HBProcessor.cpp:33] Receive heartbeat from "nebula-storaged0":9779, role = STORAGE
+I20230910 14:37:24.604192   116 HBProcessor.cpp:41] Machine "nebula-storaged0":9779 is not registered
+I20230910 14:37:25.111985     1 MetaDaemon.cpp:230] Signal 15(Terminated) received, stopping this server
+I20230910 14:37:25.116813     1 JobManager.cpp:138] JobManager::shutDown() begin
+I20230910 14:37:25.117183   103 JobManager.cpp:155] Detect shutdown called, exit
+I20230910 14:37:25.117280   103 JobDescription.cpp:113] Loading job description failed, error: E_JOB_NOT_IN_SPACE
+I20230910 14:37:25.117362   103 JobManager.cpp:175] Load an invalid job from space 0 jodId 0
+I20230910 14:37:25.117507     1 JobManager.cpp:146] JobManager::shutDown() end
+I20230910 14:37:25.117545     1 NebulaStore.cpp:343] Stop the raft service...
+I20230910 14:37:25.117566     1 RaftexService.cpp:67] Stopping the raftex service on port 9560
+I20230910 14:37:25.117588     1 RaftexService.cpp:77] All partitions have stopped
+I20230910 14:37:25.117614     1 NebulaStore.cpp:346] Stop kv engine...
+I20230910 14:37:25.117858     1 NebulaStore.cpp:343] Stop the raft service...
+I20230910 14:37:25.117895     1 RaftexService.cpp:67] Stopping the raftex service on port 9560
+I20230910 14:37:25.117933     1 RaftexService.cpp:77] All partitions have stopped
+I20230910 14:37:25.117954     1 NebulaStore.cpp:346] Stop kv engine...
+I20230910 14:37:25.117990     1 NebulaStore.cpp:36] Cut off the relationship with meta client
+I20230910 14:37:25.118919     1 Part.h:59] [Port: 9560, Space: 0, Part: 0] ~Part()
+I20230910 14:37:25.119850     1 RocksEngine.h:247] Release rocksdb on /data/meta/nebula/0
+I20230910 14:37:25.120612     1 NebulaStore.cpp:44] ~NebulaStore()
+I20230910 14:37:25.120695     1 MetaDaemon.cpp:215] The meta Daemon stopped
+I20230910 14:37:25.124763     1 JobManager.cpp:138] JobManager::shutDown() begin
+I20230910 14:37:25.124804     1 JobManager.cpp:141] JobManager not running, exit

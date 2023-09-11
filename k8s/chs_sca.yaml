@@ -1,0 +1,39 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sca
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: sca
+  template:
+    metadata:
+      labels:
+        app: sca
+    spec:
+      containers:
+        - image: applerodite/chs-sca:latest
+          imagePullPolicy: Always
+          name: sca
+          ports:
+            - containerPort: 8082
+          env:
+            - name: FLASK_CHS_ENV
+              value: "pre"
+---
+#Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: sca-svc
+  namespace: default
+spec:
+  selector:
+    app: sca
+  type: ClusterIP
+  ports:
+    - port: 8082
+      protocol: TCP
+      targetPort: 8082

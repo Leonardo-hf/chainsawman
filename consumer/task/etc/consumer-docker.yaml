@@ -1,0 +1,31 @@
+AlgoRpc:
+  Endpoints:
+    - algo-svc:8081
+  Timeout: 86400000
+
+Nebula:
+  Addr: "nebula-graphd-svc"
+  Port: 9669
+  Username: "root"
+  Passwd: "nebula"
+  Batch: 1000
+Redis:
+  Addr: "redis-svc:6379"
+  Expired: 3600
+Mysql:
+  Addr: "root:12345678@(mysql-svc:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"
+Minio:
+  Endpoint: minio-svc.default:9000
+  AccessKeyID: minioadmin
+  SecretAccessKey: minioadmin
+  UseSSL: false
+  SourceBucket: source
+  SourceExpired: 1
+
+TaskMq:
+  Addr: "redis-svc:6379"
+  Topic: "task"
+  Group: "task_consumers"
+TaskMqV2:
+  Addr: "redis-svc:6379"
+TaskMqEd: "task_ed2"

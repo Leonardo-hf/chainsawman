@@ -1,0 +1,75 @@
+# PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+spec:
+  storageClassName: file-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: minio
+  name: minio
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - minio server /data --console-address :9001
+          env:
+            - name: MINIO_ROOT_USER
+              value: "minioadmin"
+            - name: MINIO_ROOT_PASSWORD
+              value: "minioadmin"
+          ports:
+            - containerPort: 9000
+              name: aws
+            - containerPort: 9001
+              name: console
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-pvc
+---
+# Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: minio-svc
+  labels:
+    app: minio-svc
+spec:
+  selector:
+    app: minio
+  type: NodePort
+  ports:
+    - port: 9000
+      name: aws
+      targetPort: 9000
+    - port: 9001
+      name: console
+      targetPort: 9001
+---

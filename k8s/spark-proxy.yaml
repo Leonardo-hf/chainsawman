@@ -1,0 +1,94 @@
+# Master Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+  labels:
+    app: spark-master
+spec:
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+    spec:
+      containers:
+        - name: spark-master
+          image: bitnami/spark:3.3.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPARK_MODE
+              value: "master"
+            - name: SPARK_RPC_AUTHENTICATION_ENABLED
+              value: "no"
+            - name: SPARK_RPC_ENCRYPTION_ENABLED
+              value: "no"
+            - name: SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED
+              value: "no"
+            - name: SPARK_SSL_ENABLED
+              value: "no"
+          ports:
+            - containerPort: 8080
+              name: ui
+            - containerPort: 7077
+              name: internal
+---
+# Master Service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spark-proxy
+  name: spark-proxy
+  namespace: default
+spec:
+  selector:
+    app: spark-master
+  type: ClusterIP
+  ports:
+    - port: 7077
+      name: internal
+      targetPort: 7077
+    - port: 8080
+      name: ui
+      targetPort: 8080
+---
+# worker Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spark-worker
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+    spec:
+      containers:
+        - image: bitnami/spark:3.3.2
+          imagePullPolicy: IfNotPresent
+          name: spark-worker
+          env:
+            - name: SPARK_MODE
+              value: "worker"
+            - name: SPARK_MASTER_URL
+              value: "spark://spark-proxy:7077"
+            - name: SPARK_WORKER_MEMORY
+              value: "1G"
+            - name: SPARK_WORKER_CORES
+              value: "1"
+            - name: SPARK_RPC_AUTHENTICATION_ENABLED
+              value: "no"
+            - name: SPARK_RPC_ENCRYPTION_ENABLED
+              value: "no"
+            - name: SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED
+              value: "no"
+            - name: SPARK_SSL_ENABLED
+              value: "no"

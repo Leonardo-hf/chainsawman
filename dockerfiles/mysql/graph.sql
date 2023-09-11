@@ -118,4 +118,3 @@ create table if not exists graph.tasks
         foreign key (graphID) references graph.graphs (id)
             on update cascade on delete cascade
 );
-

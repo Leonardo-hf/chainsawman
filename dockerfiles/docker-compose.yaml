@@ -1,0 +1,288 @@
+version: "3.4"
+services:
+  minio-svc:
+    image: minio/minio:latest                                    # 原镜像`minio/minio:latest`
+    container_name: minio-svc                                    # 容器名为"minio-svc"
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    volumes:                                                     # 数据卷挂载路径设置,将本机目录映射到容器目录
+      - "./minio/data:/data"
+      - "./minio/minio:/minio"
+      - "./minio/config:/root/.minio"
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      MINIO_PROMETHEUS_AUTH_TYPE: "public"
+      MINIO_ACCESS_KEY: "minioadmin"                             # 登录账号
+      MINIO_SECRET_KEY: "minioadmin"                             # 登录密码
+    command: server /data  --console-address ":9001"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+    ports:                                                       # 映射端口
+      - "9000"                                                   # 文件上传&预览端口
+      - "9001"                                                   # 控制台访问端口
+  mysql-svc:
+    image: mysql:8.0
+    container_name: mysql-svc                                    # 容器名为"mysql-svc"
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    volumes:                                                     # 数据卷挂载路径设置,将本机目录映射到容器目录
+      - "./mysql/my.cnf:/etc/mysql/conf.d/my.cnf"                # mysql配置文件
+      - "./mysql/graph.sql:/docker-entrypoint-initdb.d/g.sql"    # 数据库初始化SQL
+      - "./mysql/data:/var/lib/mysql"                            # 持久化数据库文件
+      - "./mysql/mysql-files:/var/lib/mysql-files"
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      MYSQL_ROOT_PASSWORD: 12345678                              # 设置root用户密码
+    privileged: true
+    user: root
+    ports:                                                       # 映射端口
+      - "3306"
+  redis-svc:
+    image: redis                                                 # 镜像"redis"
+    container_name: redis-svc                                    # 容器名为"redis-svc"
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    command: redis-server /etc/redis/redis.conf                  # 启动redis服务，不开启redis-aof方式持久化配置
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+    volumes:                                                     # 数据卷挂载路径设置,将本机目录映射到容器目录
+      - "./redis/redis.conf:/etc/redis/redis.conf"               # redis配置文件
+      - "./redis/data:/redis/data"
+    ports:                                                       # 映射端口
+      - "6379"
+  nebula-metad-headless:
+    image: docker.io/vesoft/nebula-metad:v3.6.0
+    container_name: nebula-metad-headless
+    environment:
+      USER: root
+    command:
+      - --meta_server_addrs=nebula-metad-headless:9559
+      - --local_ip=nebula-metad-headless
+      - --ws_ip=nebula-metad-headless
+      - --port=9559
+      - --ws_http_port=19559
+      - --data_path=/data/meta
+      - --log_dir=/logs
+      - --v=0
+      - --minloglevel=0
+    healthcheck:
+      test: [ "CMD", "curl", "-sf", "http://nebula-metad-headless:19559/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    ports:
+      - "9559"
+      - "19559"
+      - "19560"
+    volumes:
+      - ./nebula/data/meta0:/data/meta
+      - ./nebula/logs/meta0:/logs
+    restart: on-failure
+    cap_add:
+      - SYS_PTRACE
+  nebula-storaged0:
+    image: docker.io/vesoft/nebula-storaged:v3.6.0
+    container_name: nebula-storaged0
+    environment:
+      USER: root
+      TZ: Asia/Shanghai
+    command:
+      - --meta_server_addrs=nebula-metad-headless:9559
+      - --local_ip=nebula-storaged0
+      - --ws_ip=nebula-storaged0
+      - --port=9779
+      - --ws_http_port=19779
+      - --data_path=/data/storage
+      - --log_dir=/logs
+      - --v=0
+      - --minloglevel=0
+    depends_on:
+      - nebula-metad-headless
+    healthcheck:
+      test: [ "CMD", "curl", "-sf", "http://nebula-storaged0:19779/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    ports:
+      - "9779"
+      - "19779"
+      - "19780"
+    volumes:
+      - ./nebula/data/storage0:/data/storage
+      - ./nebula/logs/storage0:/logs
+    restart: on-failure
+    cap_add:
+      - SYS_PTRACE
+  nebula-graphd-svc:
+    image: docker.io/vesoft/nebula-graphd:v3.6.0
+    container_name: nebula-graphd-svc
+    environment:
+      USER: root
+      TZ: Asia/Shanghai
+    command:
+      - --meta_server_addrs=nebula-metad-headless:9559
+      - --port=9669
+      - --local_ip=nebula-graphd-svc
+      - --ws_ip=nebula-graphd-svc
+      - --ws_http_port=19669
+      - --log_dir=/logs
+      - --v=0
+      - --minloglevel=0
+    depends_on:
+      - nebula-storaged0
+    healthcheck:
+      test: [ "CMD", "curl", "-sf", "http://nebula-graphd-svc:19669/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    ports:
+      - "9669"
+      - "19669"
+      - "19670"
+    volumes:
+      - ./nebula/logs/graph:/logs
+    restart: on-failure
+    cap_add:
+      - SYS_PTRACE
+  spark-proxy:
+    image: bitnami/spark:3.3.2
+    container_name: spark-proxy
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./spark/share:/opt/share
+    ports:
+      - "8080"
+      - "4040"
+      - "7077"
+  spark-worker1:
+    image: bitnami/spark:3.3.2
+    container_name: spark-worker1
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-proxy:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./spark/share:/opt/share
+    depends_on:
+      - spark-proxy
+    ports:
+      - "8081"
+  spark-worker2:
+    image: bitnami/spark:3.3.2
+    container_name: spark-worker2
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-proxy:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./spark/share:/opt/share
+    depends_on:
+      - spark-proxy
+    ports:
+      - "8081"
+  algo-svc:
+    image: applerodite/chs-algo:latest                           # 镜像"applerodite/chs-algo:latest"
+    container_name: algo-svc
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      CHS_ENV: "pre"
+    depends_on:
+      - minio-svc
+      - mysql-svc
+      - nebula-graphd-svc
+      - spark-proxy
+    ports:
+      - "8081"
+  task1:
+    image: applerodite/chs-task:latest                           # 镜像"applerodite/chs-task:latest"
+    container_name: task1
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      CHS_ENV: "docker-compose"
+    depends_on:
+      - minio-svc
+      - mysql-svc
+      - nebula-graphd-svc
+      - algo-svc
+  task2:
+    image: applerodite/chs-task:latest                           # 镜像"applerodite/chs-task:latest"
+    container_name: task2
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    environment: # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      CHS_ENV: "docker-compose"
+    depends_on:
+      - minio-svc
+      - mysql-svc
+      - nebula-graphd-svc
+      - algo-svc
+  graph-svc:
+    image: applerodite/chs-graph:latest                          # 镜像"applerodite/chs-graph:latest"
+    container_name: graph-svc
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      CHS_ENV: "pre"
+    depends_on:
+      - minio-svc
+      - mysql-svc
+      - nebula-graphd-svc
+      - algo-svc
+      - task1
+      - task2
+    ports:
+      - "8888"
+  sca-svc:
+    image: applerodite/chs-sca:latest                            # 镜像"applerodite/chs-sca:latest"
+    container_name: sca-svc
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      FLASK_CHS_ENV: "pre"
+    depends_on:
+      - minio-svc
+    ports:
+      - "8082"
+  front:
+    image: applerodite/chs-front:latest                          # 镜像"applerodite/chs-front:latest"
+    container_name: front
+    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      CHS_ENV: "pre"
+    depends_on:
+      - graph-svc
+      - sca-svc
+    ports:
+      - "30123:8000"
+    volumes: # 数据卷挂载路径设置,将本机目录映射到容器目录
+      - "./front/nginx.conf:/etc/nginx/conf.d/default.conf"       # nginx配置文件

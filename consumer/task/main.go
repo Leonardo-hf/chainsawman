@@ -47,6 +47,8 @@ func main() {
 	flag.Parse()
 	defaultCfg := "consumer/task/etc/consumer.yaml"
 	switch os.Getenv("CHS_ENV") {
+	case "docker-compose":
+		defaultCfg = "consumer/task/etc/consumer-docker.yaml"
 	case "pre":
 		defaultCfg = "consumer/task/etc/consumer-pre.yaml"
 	}

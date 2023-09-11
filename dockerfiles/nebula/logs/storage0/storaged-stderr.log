@@ -1,0 +1,356 @@
+I20230910 13:24:22.154764     1 StorageDaemon.cpp:132] localhost = "nebula-storaged0":9779
+I20230910 13:24:22.155936     1 StorageDaemon.cpp:147] data path= /data/storage
+I20230910 13:24:22.175504     1 MetaClient.cpp:80] Create meta client to "nebula-metad0":9559
+I20230910 13:24:22.175537     1 MetaClient.cpp:81] root path: /usr/local/nebula, data path size: 1
+W20230910 13:24:22.177160     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 13:24:22.200464    48 ThriftClientManager-inl.h:67] resolve "nebula-metad0":9559 as "172.19.0.4":9559
+E20230910 13:24:25.270633     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 13:24:25.271078     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 13:24:35.272943     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 13:24:35.276463    54 ThriftClientManager-inl.h:67] resolve "nebula-metad0":9559 as "172.19.0.4":9559
+E20230910 13:24:38.283624     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 13:24:38.283659     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 13:24:48.283809     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 13:24:48.285807    55 ThriftClientManager-inl.h:67] resolve "nebula-metad0":9559 as "172.19.0.4":9559
+E20230910 13:24:51.296468     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 13:24:51.296500     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+I20230910 13:24:51.432974     1 StorageDaemon.cpp:201] Signal 15(Terminated) received, stopping this server
+W20230910 13:24:51.433509     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 13:24:51.435421    56 ThriftClientManager-inl.h:67] resolve "nebula-metad0":9559 as "172.19.0.4":9559
+E20230910 13:24:54.463459     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+E20230910 13:24:54.463490     1 MetaClient.cpp:143] Connect to the MetaServer Failed
+E20230910 13:24:54.463500     1 StorageServer.cpp:237] waitForMetadReady error!
+E20230910 13:24:54.463508     1 StorageDaemon.cpp:180] Storage server start failed
+I20230910 21:53:56.709223     1 StorageDaemon.cpp:132] localhost = "nebula-storaged0":9779
+I20230910 21:53:56.710276     1 StorageDaemon.cpp:147] data path= /data/storage
+I20230910 21:53:56.716740     1 MetaClient.cpp:80] Create meta client to "nebula-metad-headless":9559
+I20230910 21:53:56.716779     1 MetaClient.cpp:81] root path: /usr/local/nebula, data path size: 1
+W20230910 21:53:56.716817     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:53:56.728644    48 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+I20230910 21:53:57.754263    48 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:53:59.781318     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:53:59.781569     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:54:09.781788     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:54:09.784267    54 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:54:12.791110     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:54:12.791141     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:54:22.791232     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:54:22.792563    55 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:54:25.821465     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:54:25.821497     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:54:35.821674     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:54:35.823506    56 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:54:38.872272     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:54:38.872383     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:54:48.872633     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:54:48.873827    57 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:54:51.882575     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:54:51.882716     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:55:01.882918     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:55:01.886965    58 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:55:04.896003     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:55:04.896122     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:55:14.896294     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:55:14.897398    59 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:55:17.904479     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:55:17.904596     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:55:27.904718     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:55:27.905130    60 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:55:30.911852     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:55:30.911940     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:55:40.912158     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:55:40.913107    61 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:55:43.921034     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:55:43.921149     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:55:53.921372     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:55:53.922598    62 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:55:56.930536     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:55:56.930698     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:56:06.930914     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:56:06.932065    63 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:56:09.940179     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:56:09.940295     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:56:19.940570     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:56:19.940960    64 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:56:22.946211     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:56:22.946396     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:56:32.946638     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:56:32.947774    72 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:56:35.955514     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:56:35.955629     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:56:45.955960     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:56:45.957173    73 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:56:48.965333     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:56:48.965457     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:56:58.965667     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:56:58.966710    74 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:57:01.973645     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:57:01.973762     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:57:11.974083     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 21:57:11.975281    75 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.5":9559
+E20230910 21:57:14.982189     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:57:14.982300     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:57:24.982704     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:57:27.990716     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:57:27.990839     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:57:37.991127     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:57:40.998127     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:57:40.998239     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:57:50.998651     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:57:54.003357     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:57:54.003423     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:58:04.003602     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:58:07.012391     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:58:07.012506     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:58:17.012974     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:58:20.020229     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:58:20.020380     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:58:30.020704     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:58:33.027339     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:58:33.027406     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:58:43.027721     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:58:46.034032     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:58:46.034163     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:58:56.034346     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:58:59.041569     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:58:59.041687     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:59:09.041899     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:59:12.049729     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:59:12.049880     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:59:22.050134     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:59:25.058297     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:59:25.058449     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:59:35.058671     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:59:38.065371     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:59:38.065454     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 21:59:48.065658     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 21:59:51.072860     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 21:59:51.072993     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:00:01.073170     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:00:04.080333     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:00:04.080449     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:00:14.080639     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:00:17.087788     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:00:17.087908     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:00:27.088119     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:00:30.095495     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:00:30.095609     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+I20230910 22:00:34.157197     1 StorageDaemon.cpp:201] Signal 15(Terminated) received, stopping this server
+W20230910 22:00:34.157295     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:00:37.163893     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+E20230910 22:00:37.163935     1 MetaClient.cpp:143] Connect to the MetaServer Failed
+E20230910 22:00:37.163949     1 StorageServer.cpp:237] waitForMetadReady error!
+E20230910 22:00:37.163961     1 StorageDaemon.cpp:180] Storage server start failed
+I20230910 22:12:21.662500     1 StorageDaemon.cpp:132] localhost = "nebula-storaged0":9779
+I20230910 22:12:21.663283     1 StorageDaemon.cpp:147] data path= /data/storage
+I20230910 22:12:21.684485     1 MetaClient.cpp:80] Create meta client to "nebula-metad-headless":9559
+I20230910 22:12:21.684530     1 MetaClient.cpp:81] root path: /usr/local/nebula, data path size: 1
+W20230910 22:12:21.685441     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:12:21.709945    47 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+I20230910 22:12:22.770969    47 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:12:24.775269     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:12:24.775477     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:12:34.775782     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:12:34.777438    53 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:12:37.786216     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:12:37.786335     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:12:47.786509     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:12:47.788352    54 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:12:50.798858     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:12:50.798970     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:13:00.799214     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:13:00.801182    55 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:13:03.840358     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:13:03.840463     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:13:13.840704     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:13:13.842013    56 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:13:16.850318     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:13:16.850445     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:13:26.850643     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:13:26.851961    57 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:13:29.860147     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:13:29.860251     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:13:39.860496     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:13:39.861013    58 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:13:42.868651     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:13:42.907263     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:13:52.907528     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:13:52.908735    59 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:13:55.915302     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:13:55.915333     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:14:05.915521     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:14:05.916005    60 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:14:08.922037     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:14:08.922164     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:14:18.922561     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:14:18.923758    61 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:14:21.932390     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:14:21.932509     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:14:31.932632     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:14:31.933058    62 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:14:34.940325     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:14:34.940479     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:14:44.940953     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:14:44.942093    63 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:14:47.988569     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:14:47.988690     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:14:57.988842     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:14:57.989192    71 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:15:00.996083     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:15:00.996201     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:15:10.996466     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:15:10.996848    72 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:15:14.003965     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:15:14.004084     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:15:24.004312     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:15:24.005389    73 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:15:27.013643     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:15:27.013759     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:15:37.013999     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:15:37.015342    74 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.4":9559
+E20230910 22:15:40.022162     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:15:40.022279     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:15:50.022473     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:15:53.028578     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:15:53.028707     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:16:03.029011     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:16:06.036315     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:16:06.036490     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:16:16.036702     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:16:19.041767     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:16:19.041865     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:16:29.042089     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:16:32.048326     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:16:32.048449     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+I20230910 22:16:37.357527     1 StorageDaemon.cpp:201] Signal 15(Terminated) received, stopping this server
+W20230910 22:16:37.357622     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230910 22:16:40.364238     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+E20230910 22:16:40.364356     1 MetaClient.cpp:143] Connect to the MetaServer Failed
+E20230910 22:16:40.364418     1 StorageServer.cpp:237] waitForMetadReady error!
+E20230910 22:16:40.364464     1 StorageDaemon.cpp:180] Storage server start failed
+I20230910 22:29:26.381098     1 StorageDaemon.cpp:132] localhost = "nebula-storaged0":9779
+I20230910 22:29:26.381336     1 StorageDaemon.cpp:147] data path= /data/storage
+I20230910 22:29:26.389931     1 MetaClient.cpp:80] Create meta client to "nebula-metad-headless":9559
+I20230910 22:29:26.389981     1 MetaClient.cpp:81] root path: /usr/local/nebula, data path size: 1
+W20230910 22:29:26.390030     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:29:26.406714    48 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.6":9559
+I20230910 22:29:27.413182    48 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.6":9559
+E20230910 22:29:29.417249     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:29:29.417466     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:29:39.417616     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:29:39.428848    54 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.6":9559
+E20230910 22:29:42.437009     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:29:42.437178     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:29:52.437357     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:29:52.438988    55 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.6":9559
+E20230910 22:29:55.448154     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:29:55.448251     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:30:05.448673     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:30:05.450506    56 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.6":9559
+E20230910 22:30:08.486188     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:30:08.495819     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:30:18.495977     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:30:18.497177    57 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.6":9559
+E20230910 22:30:21.504050     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:30:21.504196     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:30:31.504348     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:30:31.504804    58 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.6":9559
+I20230910 22:30:32.039350     1 StorageDaemon.cpp:201] Signal 15(Terminated) received, stopping this server
+E20230910 22:30:34.510110     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+E20230910 22:30:34.510219     1 MetaClient.cpp:143] Connect to the MetaServer Failed
+E20230910 22:30:34.510267     1 StorageServer.cpp:237] waitForMetadReady error!
+E20230910 22:30:34.510313     1 StorageDaemon.cpp:180] Storage server start failed
+I20230910 22:34:48.149015     1 StorageDaemon.cpp:132] localhost = "nebula-storaged0":9779
+I20230910 22:34:48.149320     1 StorageDaemon.cpp:147] data path= /data/storage
+I20230910 22:34:48.166886     1 MetaClient.cpp:80] Create meta client to "nebula-metad-headless":9559
+I20230910 22:34:48.166929     1 MetaClient.cpp:81] root path: /usr/local/nebula, data path size: 1
+W20230910 22:34:48.166968     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:34:48.190013    48 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+I20230910 22:34:49.192617    48 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:34:51.199230     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:34:51.199422     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:35:01.199555     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:35:01.200265    54 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:35:04.208946     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:35:04.209064     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:35:14.209286     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:35:14.210034    55 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:35:17.226418     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:35:17.226552     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:35:27.226985     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:35:27.228839    56 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:35:30.260450     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:35:30.260594     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:35:40.260722     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:35:40.261252    57 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:35:43.268261     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:35:43.268402     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:35:53.268744     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:35:53.269949    58 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:35:56.277336     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:35:56.277375     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:36:06.277462     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:36:06.277880    59 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:36:09.294067     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:36:09.294178     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:36:19.294459     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:36:19.295660    60 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:36:22.303479     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:36:22.303592     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:36:32.303822     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:36:32.304998    61 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:36:35.312788     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:36:35.312940     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:36:45.313303     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:36:45.314354    62 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:36:48.322178     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:36:48.322322     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:36:58.322456     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:36:58.322827    63 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:37:01.329875     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:37:01.329998     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230910 22:37:11.330225     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:37:11.331547    64 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:37:14.336562     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+I20230910 22:37:14.336679     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+I20230910 22:37:21.594844     1 StorageDaemon.cpp:201] Signal 15(Terminated) received, stopping this server
+W20230910 22:37:21.595544     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+I20230910 22:37:21.596622    72 ThriftClientManager-inl.h:67] resolve "nebula-metad-headless":9559 as "172.19.0.3":9559
+E20230910 22:37:24.604637     1 MetaClient.cpp:112] Heartbeat failed, status:Machine not existed!
+E20230910 22:37:24.604761     1 MetaClient.cpp:143] Connect to the MetaServer Failed
+E20230910 22:37:24.604809     1 StorageServer.cpp:237] waitForMetadReady error!
+E20230910 22:37:24.604854     1 StorageDaemon.cpp:180] Storage server start failed
+I20230911 21:36:16.734061     1 StorageDaemon.cpp:132] localhost = "nebula-storaged0":9779
+I20230911 21:36:16.735486     1 StorageDaemon.cpp:147] data path= /data/storage
+I20230911 21:36:16.741555     1 MetaClient.cpp:80] Create meta client to "nebula-metad-headless":9559
+I20230911 21:36:16.741590     1 MetaClient.cpp:81] root path: /usr/local/nebula, data path size: 1
+W20230911 21:36:16.742281     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230911 21:36:17.071014    48 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:18.275555    48 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:19.495090    48 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:20.671736    48 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:20.672138    48 MetaClient.cpp:772] Send request to "nebula-metad-headless":9559, exceed retry limit
+E20230911 21:36:20.672250    48 MetaClient.cpp:773] RpcResponse exception: apache::thrift::transport::TTransportException: Connection not open: apache::thrift::transport::TTransportException: AsyncSocketException: setReadCallback() called with socket in invalid state, type = Socket not open
+E20230911 21:36:20.672454     1 MetaClient.cpp:112] Heartbeat failed, status:RPC failure in MetaClient: apache::thrift::transport::TTransportException: Connection not open: apache::thrift::transport::TTransportException: AsyncSocketException: setReadCallback() called with socket in invalid state, type = Socket not open
+I20230911 21:36:20.672554     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+W20230911 21:36:30.672798     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230911 21:36:30.776310    54 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:31.875736    54 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:33.020922    54 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:34.076117    54 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:34.076568    54 MetaClient.cpp:772] Send request to "nebula-metad-headless":9559, exceed retry limit
+E20230911 21:36:34.076699    54 MetaClient.cpp:773] RpcResponse exception: apache::thrift::transport::TTransportException: Connection not open: apache::thrift::transport::TTransportException: AsyncSocketException: setReadCallback() called with socket in invalid state, type = Socket not open
+E20230911 21:36:34.076857     1 MetaClient.cpp:112] Heartbeat failed, status:RPC failure in MetaClient: apache::thrift::transport::TTransportException: Connection not open: apache::thrift::transport::TTransportException: AsyncSocketException: setReadCallback() called with socket in invalid state, type = Socket not open
+I20230911 21:36:34.076956     1 MetaClient.cpp:137] Waiting for the metad to be ready!
+I20230911 21:36:43.337658     1 StorageDaemon.cpp:201] Signal 15(Terminated) received, stopping this server
+W20230911 21:36:43.337747     1 FileBasedClusterIdMan.cpp:43] Open file failed, error No such file or directory
+E20230911 21:36:43.465893    55 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:44.530802    55 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:45.708266    55 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:46.798827    55 ThriftClientManager-inl.h:70] Failed to resolve address for 'nebula-metad-headless': Name or service not known (error=-2): Unknown error -2
+E20230911 21:36:46.798942    55 MetaClient.cpp:772] Send request to "nebula-metad-headless":9559, exceed retry limit
+E20230911 21:36:46.798972    55 MetaClient.cpp:773] RpcResponse exception: apache::thrift::transport::TTransportException: Connection not open: apache::thrift::transport::TTransportException: AsyncSocketException: setReadCallback() called with socket in invalid state, type = Socket not open
+E20230911 21:36:46.799036     1 MetaClient.cpp:112] Heartbeat failed, status:RPC failure in MetaClient: apache::thrift::transport::TTransportException: Connection not open: apache::thrift::transport::TTransportException: AsyncSocketException: setReadCallback() called with socket in invalid state, type = Socket not open
+E20230911 21:36:46.799067     1 MetaClient.cpp:143] Connect to the MetaServer Failed
+E20230911 21:36:46.799082     1 StorageServer.cpp:237] waitForMetadReady error!
+E20230911 21:36:46.799095     1 StorageDaemon.cpp:180] Storage server start failed

@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rds-pv
+spec:
+  storageClassName: rds-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  hostPath:
+    path: /share/rds
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nosql-pv
+spec:
+  storageClassName: nosql-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 2Gi
+  hostPath:
+    path: /share/nosql
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: file-pv
+spec:
+  storageClassName: file-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 20Gi
+  hostPath:
+    path: /share/file
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: graph-pv-0
+spec:
+  storageClassName: graph-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /share/graph/0
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: graph-pv-1
+spec:
+  storageClassName: graph-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /share/graph/1
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: graph-pv-2
+spec:
+  storageClassName: graph-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /share/graph/2
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: graph-pv-3
+spec:
+  storageClassName: graph-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 2Gi
+  hostPath:
+    path: /share/graph/3
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: graph-pv-4
+spec:
+  storageClassName: graph-pv
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  hostPath:
+    path: /share/graph/4
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem

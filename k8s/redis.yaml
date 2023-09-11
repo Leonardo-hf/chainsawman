@@ -1,0 +1,84 @@
+# PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: default
+spec:
+  storageClassName: nosql-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+# Config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: default
+  labels:
+    app: redis
+data:
+  redis.conf: |+
+    port 6379
+    dir /data
+    appendonly yes
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis
+  name: redis
+  namespace: default
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - image: redis
+          name: redis
+          imagePullPolicy: IfNotPresent
+          command: [ "redis-server","/etc/redis/redis.conf" ]
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redisvolume
+              mountPath: /data
+            - name: config
+              mountPath: /etc/redis/redis.conf
+              subPath: redis.conf
+      volumes:
+        - name: redisvolume
+          persistentVolumeClaim:
+            claimName: redis-pvc
+        - name: config
+          configMap:
+            name: redis-config
+---
+#Service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis-svc
+  name: redis-svc
+  namespace: default
+spec:
+  selector:
+    app: redis
+  type: ClusterIP
+  ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379

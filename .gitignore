@@ -1,5 +1,4 @@
 .idea
-*.yaml
 
 file/storage
 
@@ -13,3 +12,9 @@ algo/target
 algo/.idea
 algo/dependency-reduced-pom.xml
 
+dockerfiles/minio/
+dockerfiles/mysql/data
+dockerfiles/mysql/mysql-files
+dockerfiles/nebula/
+dockerfiles/redis/data
+dockerfiles/spark/
