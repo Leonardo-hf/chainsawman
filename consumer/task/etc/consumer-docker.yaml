@@ -15,7 +15,7 @@ Redis:
 Mysql:
   Addr: "root:12345678@(mysql-svc:3306)/graph?charset=utf8mb4&parseTime=True&loc=Local"
 Minio:
-  Endpoint: minio-svc.default:9000
+  Endpoint: minio-svc:9000
   AccessKeyID: minioadmin
   SecretAccessKey: minioadmin
   UseSSL: false

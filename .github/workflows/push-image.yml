@@ -76,3 +76,10 @@ jobs:
           context: algo/target/docker/
           push: true
           tags: applerodite/chs-algo:latest
+      - name: Build and push Docker image -- spark
+        uses: docker/build-push-action@v4
+        with:
+          context: algo/target/docker/
+          push: true
+          tags: applerodite/chs-spark:latest
+          file: dockerfiles/myspark.Dockerfile

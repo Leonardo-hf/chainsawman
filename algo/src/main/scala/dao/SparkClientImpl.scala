@@ -297,7 +297,6 @@ object SparkClientImpl extends SparkClient {
   override def voterank(graphID: VertexId, edgeTags: Seq[String], cfg: VoteConfig): (DataFrame, Option[Exception]) = {
     val graph: Graph[None.type, Double] = GraphUtil.loadInitGraph(graphID, edgeTags, hasWeight = false)
     val res = ListBuffer[Row]()
-
     val sumDegree = graph.inDegrees.map(v => v._2).sum()
     var f = 1.0
     if (sumDegree != 0) {
@@ -328,6 +327,7 @@ object SparkClientImpl extends SparkClient {
         })
       }
     }
+
     (spark.sqlContext
       .createDataFrame(spark.sparkContext.parallelize(res), schema).sort(AlgoConstants.SCORE_COL), Option.empty)
   }

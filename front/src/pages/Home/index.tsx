@@ -2,19 +2,17 @@ import {PlusOutlined} from '@ant-design/icons';
 import {
     ActionType,
     DrawerForm,
+    PageContainer,
     ProColumns,
+    ProFormDependency,
+    ProFormGroup,
+    ProFormList,
     ProFormSelect,
     ProFormText,
-    ProFormList,
-    ProFormGroup, ProFormDependency, ProFormUploadButton
+    ProFormUploadButton,
+    ProTable
 } from '@ant-design/pro-components';
-import {PageContainer, ProTable} from '@ant-design/pro-components';
-import {
-    Button,
-    Form,
-    message, Space,
-    Typography
-} from 'antd';
+import {Button, Form, message, Space, Typography} from 'antd';
 import React, {CSSProperties, useRef} from 'react';
 import ProCard from '@ant-design/pro-card';
 import {createGraph, createGroup, dropGraph, getAllGraph, updateGraph} from '@/services/graph/graph';
@@ -154,6 +152,7 @@ const HomePage: React.FC = (props) => {
                     console.log(e)
                 })
         }
+
         // 为当前组各个可能上传的文件生成上传栏
         const getUploadFormItem = (crtGroup: Graph.Group) => {
             let nodeItems: JSX.Element[] = []
@@ -161,12 +160,22 @@ const HomePage: React.FC = (props) => {
             crtGroup.nodeTypeList.forEach(t => {
                 nodeItems.push(<ProFormUploadButton
                     max={1}
+                    fieldProps={{
+                        customRequest: (option:any) => {
+                            option.onSuccess()
+                        }
+                    }}
                     name={t.name}
                     label={t.name + '文件[可选]'}>
                 </ProFormUploadButton>)
             })
             crtGroup.edgeTypeList.forEach(t => {
                 edgeItems.push(<ProFormUploadButton
+                    fieldProps={{
+                        customRequest: (option:any) => {
+                            option.onSuccess()
+                        }
+                    }}
                     max={1}
                     name={t.name}
                     label={t.name + '文件[可选]'}>

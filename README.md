@@ -16,7 +16,9 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
   * `cd algo`
   * `mvn clean compile dependency:properties exec:exec@server`
 * sca api, resolve requests about software composition analysis
+  * `python sca/main.py`
 * front, front-end, allow CRUD and inspect for graph
+  * `cd front`
   * `npm run install`
   * `npm run dev`
 ### others:
@@ -25,7 +27,6 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 ### TODO LIST:
 * multiple data source, connector
   * a default datasource for python requirements updated daily
-* deploy by docker compose & kubernetes
 * use openfass to deploy consumers
 * data interface to format
 * replace redis with abase

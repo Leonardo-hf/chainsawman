@@ -3,7 +3,8 @@ import {defineConfig} from '@umijs/max';
 
 export default defineConfig({
     antd: {},
-    // access: {},
+    history: { type: 'hash' },
+    hash: true,
     model: {},
     initialState: {},
     request: {

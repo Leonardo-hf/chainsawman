@@ -15,7 +15,6 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-var fmtErr = func(err error) error { return fmt.Errorf("[Excel] wrong excel format, err = %v", err.Error()) }
 var convErr = func(column string) error {
 	return fmt.Errorf("[Excel] cannot find or parse target column, err = %v", column)
 }
@@ -65,7 +64,7 @@ func initCSVParser(file io.Reader) (*csvParser, error) {
 		parser.titles[i] = strings.ToLower(strings.TrimSpace(parser.titles[i]))
 	}
 	if err != nil {
-		return nil, fmtErr(err)
+		return nil, err
 	}
 	return parser, nil
 }
@@ -76,7 +75,7 @@ func (c *csvParser) Next() (*Record, error) {
 		return nil, err
 	}
 	if err != nil || len(records) != len(c.titles) {
-		return nil, fmtErr(err)
+		return nil, err
 	}
 	r := &Record{make(map[string]string)}
 	for i, v := range records {
@@ -96,11 +95,11 @@ func initXLSParser(content io.Reader) (*xlsParser, error) {
 	bs, _ := io.ReadAll(content)
 	workbook, err := xls.OpenReader(bytes.NewReader(bs), "utf-8")
 	if err != nil {
-		return nil, fmtErr(err)
+		return nil, err
 	}
 	reader := workbook.GetSheet(0)
 	if reader.MaxRow == 0 {
-		return nil, fmtErr(errors.New("empty"))
+		return nil, errors.New("empty XLS file")
 	}
 	row := reader.Row(0)
 	for i := 0; i < row.LastCol(); i++ {
@@ -135,11 +134,11 @@ func initXLSXParser(content io.Reader) (*xlsxParser, error) {
 	bs, _ := io.ReadAll(content)
 	workbook, err := xlsx.OpenBinary(bs)
 	if err != nil {
-		return nil, fmtErr(err)
+		return nil, err
 	}
 	reader := workbook.Sheets[0]
 	if reader.MaxRow == 0 {
-		return nil, fmtErr(errors.New("empty"))
+		return nil, errors.New("empty XLSX file")
 	}
 	row := reader.Row(0)
 	for i := 0; i < len(row.Cells); i++ {
