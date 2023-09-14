@@ -7,7 +7,7 @@ export const upload = async (file: RcFile) => {
     const filename = res.filename
     const url = res.url
     return await request(url.substring(url.indexOf('/source')), {
-        timeout: 10000,
+        timeout: 3600 * 1000,
         headers: {
             'Content-Type': file.type,
         },
