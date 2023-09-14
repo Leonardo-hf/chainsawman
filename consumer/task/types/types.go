@@ -27,7 +27,7 @@ type Structure struct {
 	Desc          string  `json:"desc"`
 	EdgeDirection bool    `json:"edgeDirection"`
 	Display       string  `json:"display"`
-	Attrs         []*Attr `json:"attrs"`
+	Attrs         []*Attr `json:"attrs,optional"`
 }
 
 type Attr struct {

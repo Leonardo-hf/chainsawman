@@ -1702,8 +1702,7 @@
         "name",
         "desc",
         "edgeDirection",
-        "display",
-        "attrs"
+        "display"
       ]
     },
     "Task": {

@@ -530,7 +530,7 @@ const HomePage: React.FC = (props) => {
                     color: 'grey'
                 } : undefined
                 return <Space>
-                    <a href={'/graph/' + record.groupId + '/' + record.id} style={disable}>
+                    <a href={'/#/graph/' + record.groupId + '/' + record.id} style={disable}>
                         查看
                     </a>
                     {getUpdateGraphModal(record.id, record.groupId, disable)}

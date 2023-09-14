@@ -75,11 +75,11 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		for _, r := range records {
 			src, err := r.GetAsInt(common.KeySrc)
 			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of edgeRecords needs `source`")
+				return "", fmt.Errorf("update graph fail, source files of edges needs `source`")
 			}
 			tgt, err := r.GetAsInt(common.KeyTgt)
 			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of nodes needs `target`")
+				return "", fmt.Errorf("update graph fail, source files of edges needs `target`")
 			}
 			var ok bool
 			var srcRecord, tgtRecord *common.Record
