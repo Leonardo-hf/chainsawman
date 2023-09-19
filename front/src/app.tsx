@@ -1,7 +1,6 @@
 import {RequestConfig} from "@@/plugin-request/request";
 import React from "react";
 import {RunTimeLayoutConfig} from "@umijs/max";
-import Group from "./pages/Group"
 import Graph from "./pages/Graph"
 
 import {getAllGraph} from "./services/graph/graph";
@@ -54,7 +53,7 @@ export function patchClientRoutes({routes}) {
 // }
 
 export const request: RequestConfig = {
-    timeout: 10000,
+    timeout: 10 * 1000,
 }
 
 

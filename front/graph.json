@@ -720,13 +720,6 @@
             "format": "int64"
           },
           {
-            "name": "distance",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
             "name": "direction",
             "in": "query",
             "required": true,
@@ -1310,10 +1303,6 @@
           "type": "integer",
           "format": "int64"
         },
-        "distance": {
-          "type": "integer",
-          "format": "int64"
-        },
         "direction": {
           "type": "string"
         },
@@ -1327,7 +1316,6 @@
       "required": [
         "graphId",
         "nodeId",
-        "distance",
         "direction",
         "max"
       ]

@@ -1,17 +1,16 @@
 package server
 import akka.actor.typed.ActorSystem
-import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
 import akka.pki.pem.{DERPrivateKeyLoader, PEMDecoder}
-import config.ClientConfig
-import service.impl.AlgoServiceImpl
 import service._
+import service.impl.AlgoServiceImpl
 
-import java.security.{KeyStore, SecureRandom}
 import java.security.cert.{Certificate, CertificateFactory}
+import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext}
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
 import scala.util.{Failure, Success}
 

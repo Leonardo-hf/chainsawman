@@ -23,11 +23,11 @@ type NebulaClient interface {
 
 	GetTopNodes(graph int64, top int64) (map[string][]*types.Node, error)
 
-	Go(graph int64, src int64, direction string, distance int64, max int64) (map[string][]*types.Edge, error)
+	Go(graph int64, src int64, direction string, max int64) (map[string][]*types.Edge, error)
 
-	MultiGo(graph int64, srcList []int64, direction string, distance int64, max int64) (map[string][]*types.Edge, error)
+	MultiGo(graph int64, srcList []int64, direction string, max int64) (map[string][]*types.Edge, error)
 
-	GoFromTopNodes(graph int64, top int64, direction string, distance int64, max int64) (map[string][]*types.Edge, error)
+	GoFromTopNodes(graph int64, top int64, direction string, max int64) (map[string][]*types.Edge, error)
 
 	DropGraph(graph int64) error
 }

@@ -29,7 +29,7 @@ func (h *GetNeighbors) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	// 获得边
-	edges, err := config.NebulaClient.Go(req.GraphID, req.NodeID, req.Direction, req.Distance, req.Max)
+	edges, err := config.NebulaClient.Go(req.GraphID, req.NodeID, req.Direction, req.Max)
 	if err != nil {
 		return "", err
 	}

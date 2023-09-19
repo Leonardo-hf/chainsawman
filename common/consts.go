@@ -37,5 +37,5 @@ const (
 	DirectionBoth    = "BIDIRECT"
 
 	MaxGoDistance      = 5
-	MaxMatchCandidates = 10
+	MaxMatchCandidates = 5
 )

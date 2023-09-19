@@ -61,6 +61,7 @@ func (n *NebulaClientImpl) MatchNodes(graph int64, keywords string, group *model
 	defer func() { session.Release() }()
 	matchNodePackMap := make(map[string][]*MatchNode)
 	for _, nt := range group.Nodes {
+		fmt.Println(nt.Name)
 		primary := ""
 		// 检查节点类型的主属性
 		for _, attr := range nt.NodeAttrs {
@@ -69,6 +70,7 @@ func (n *NebulaClientImpl) MatchNodes(graph int64, keywords string, group *model
 				break
 			}
 		}
+		fmt.Println(primary)
 		// 如果没有主属性，则返回
 		if primary == "" {
 			continue
@@ -80,7 +82,8 @@ func (n *NebulaClientImpl) MatchNodes(graph int64, keywords string, group *model
 			"WHERE v.%v STARTS WITH \"%v\" "+
 			"RETURN v.%v AS p, id(v) as id "+
 			"LIMIT %v;",
-			graph, common.BaseTag, primary, keywords, primary, common.MaxMatchCandidates)
+			graph, tag, primary, keywords, primary, common.MaxMatchCandidates)
+		fmt.Println(stat)
 		res, err := session.Execute(stat)
 		if err != nil {
 			return nil, err
@@ -88,6 +91,7 @@ func (n *NebulaClientImpl) MatchNodes(graph int64, keywords string, group *model
 		if !res.IsSucceed() {
 			return nil, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat)
 		}
+		fmt.Println(res.AsStringTable())
 		matchNodePacks := make([]*MatchNode, res.GetRowSize())
 		for i := 0; i < res.GetRowSize(); i++ {
 			r, _ := res.GetRowValuesByIndex(i)
@@ -101,7 +105,6 @@ func (n *NebulaClientImpl) MatchNodes(graph int64, keywords string, group *model
 	return matchNodePackMap, nil
 }
 
-// TODO: 连接池会被用尽，这个写法是错误的
 func (n *NebulaClientImpl) getSession() (*nebula.Session, error) {
 	return n.Pool.GetSession(n.Username, n.Password)
 }

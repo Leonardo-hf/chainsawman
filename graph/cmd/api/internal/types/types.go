@@ -105,7 +105,6 @@ type GetNeighborsRequest struct {
 	TaskID    string `form:"taskId,optional"`
 	GraphID   int64  `form:"graphId"`
 	NodeID    int64  `form:"nodeId"`
-	Distance  int64  `form:"distance"`
 	Direction string `form:"direction"`
 	Max       int64  `form:"max,default=2000"`
 }

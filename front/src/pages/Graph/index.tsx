@@ -27,9 +27,8 @@ type Props = {
 const Graph: React.FC<Props> = (props) => {
     console.log('reload graph')
     const {graph, details, dispatch} = props
-    const [renderMax, setRenderMax] = useState<number>(2000)
-    const [renderTop, setRenderTop] = useState<number>(20)
-    const [renderDistance, setRenderDistance] = useState<number>(3)
+    const [renderMax, setRenderMax] = useState<number>(1000)
+    const [renderTop, setRenderTop] = useState<number>(10)
     const [renderDirection, setRenderDirection] = useState<string>(' ')
     const [renderSrcNode, setRenderSrcNode] = useState<{ id: number, primaryAttr: string, tag: string }>()
     const [select, setSelect] = useState<boolean>(false)
@@ -107,7 +106,6 @@ const Graph: React.FC<Props> = (props) => {
                         nodeId: renderSrcNode!.id,
                         direction: renderDirection,
                         max: renderMax,
-                        distance: renderDistance
                     },
                     timer: timer
                 }).then((taskStatus: number) => {
@@ -158,7 +156,7 @@ const Graph: React.FC<Props> = (props) => {
             const nodeType = group.nodeTypeList.find(nt => nt.name === tag)!
             // TODO：display
             const display = nodeType.display
-            const labelAttr = nodeType.attrs.find(a => a.primary)
+            const labelAttr = nodeType.attrs?.find(a => a.primary)
             let v = ''
             if (labelAttr) {
                 v = n.attrs.find(a => a.key === labelAttr.name)!.value
@@ -182,7 +180,7 @@ const Graph: React.FC<Props> = (props) => {
             const tag = n.tag
             const edgeType = group.edgeTypeList.find(nt => nt.name === tag)!
             const display = edgeType.display
-            const labelAttr = edgeType.attrs.find(a => a.primary)
+            const labelAttr = edgeType.attrs?.find(a => a.primary)
             let v = ''
             if (labelAttr) {
                 v = n.attrs.find(a => a.key === labelAttr.name)!.value
@@ -247,7 +245,6 @@ const Graph: React.FC<Props> = (props) => {
                                     console.log(v)
                                     setGID(getGraphName(id, src.id))
                                     setRenderDirection(v.direct)
-                                    setRenderDistance(v.distance)
                                     setRenderSrcNode(src)
                                 }
                             } disabled={loading}>
@@ -285,8 +282,6 @@ const Graph: React.FC<Props> = (props) => {
                                })
                                return packs
                            }}/>
-            <ProFormDigit label='距离' name='distance' fieldProps={{precision: 0}} min={1} max={10} initialValue={3}
-                          rules={[{required: true}]}/>
             <ProFormSelect label='方向' name='direct' rules={[{required: true}]} initialValue={'REVERSELY'}
                            options={[{
                                label: '正向',
@@ -386,9 +381,6 @@ const Graph: React.FC<Props> = (props) => {
                         }, {
                             title: '类型',
                             description: renderSrcNode!.tag
-                        }, {
-                            title: '最大距离',
-                            description: renderDistance
                         }, {
                             title: '方向',
                             description: direct

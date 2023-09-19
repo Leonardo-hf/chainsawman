@@ -92,7 +92,6 @@ type (
 		GraphID int64  `form:"graphId"`
 		Top     int64  `form:"top"`
 		Max     int64  `form:"max,default=2000"`
-		//		Min     int64  `form:"min"`
 	}
 
 	GetGraphDetailReply {
@@ -106,10 +105,8 @@ type (
 
 		GraphID   int64  `form:"graphId"`
 		NodeID    int64  `form:"nodeId"`
-		Distance  int64  `form:"distance"`
 		Direction string `form:"direction"`
 		Max       int64  `form:"max,default=2000"`
-		//        Min int64 `form:"min"`
 	}
 
 	DropGraphRequest {

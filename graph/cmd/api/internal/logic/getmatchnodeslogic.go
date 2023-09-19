@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
@@ -25,9 +26,11 @@ func NewGetMatchNodesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 
 func (l *GetMatchNodesLogic) GetMatchNodes(req *types.GetMatchNodesRequest) (resp *types.GetMatchNodesReply, err error) {
 	group, err := l.svcCtx.MysqlClient.GetGroupByGraphId(l.ctx, req.GraphID)
+	fmt.Println(group)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(req.GraphID, req.Keywords)
 	nodes, err := l.svcCtx.NebulaClient.MatchNodes(req.GraphID, req.Keywords, group)
 	if err != nil {
 		return nil, err

@@ -150,6 +150,7 @@ services:
       - SYS_PTRACE
   console:
     image: docker.io/vesoft/nebula-console:v3.5
+    container_name: nebula-console
     entrypoint: ""
     command:
       - sh
@@ -240,6 +241,11 @@ services:
     image: applerodite/chs-task:latest                           # 镜像"applerodite/chs-task:latest"
     container_name: task1
     restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4G
     environment:                                                 # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
@@ -257,6 +263,11 @@ services:
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
       CHS_ENV: "docker-compose"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4G
     depends_on:
       - minio-svc
       - mysql-svc

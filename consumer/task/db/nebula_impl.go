@@ -349,12 +349,12 @@ func parseRelationship(res *nebula.ResultSet) (map[string][]*types.Edge, error) 
 }
 
 // Go 以单个节点为起点展开游走，返回游走的边
-func (n *NebulaClientImpl) Go(graph int64, src int64, direction string, distance int64, max int64) (map[string][]*types.Edge, error) {
-	return n.MultiGo(graph, []int64{src}, direction, distance, max)
+func (n *NebulaClientImpl) Go(graph int64, src int64, direction string, max int64) (map[string][]*types.Edge, error) {
+	return n.MultiGo(graph, []int64{src}, direction, max)
 }
 
 // MultiGo 以多个节点为起点展开游走，返回游走的边
-func (n *NebulaClientImpl) MultiGo(graph int64, srcList []int64, direction string, distance int64, max int64) (map[string][]*types.Edge, error) {
+func (n *NebulaClientImpl) MultiGo(graph int64, srcList []int64, direction string, max int64) (map[string][]*types.Edge, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
@@ -364,17 +364,16 @@ func (n *NebulaClientImpl) MultiGo(graph int64, srcList []int64, direction strin
 	for i, src := range srcList {
 		names[i] = fmt.Sprintf("%v", src)
 	}
-	start := 20.0
-	sample := make([]string, distance)
-	for i := int64(0); i < distance; i++ {
-		sample[i] = strconv.FormatInt(int64(start), 10)
-		start = math.Ceil(start / 2.0)
+	start := float64(max + 1.0)
+	sample := make([]string, 0)
+	for start > 1 {
+		start = math.Ceil(start / 2)
+		sample = append(sample, strconv.FormatInt(int64(start), 10))
 	}
 	stat := fmt.Sprintf("USE G%v;"+
 		"GO 1 TO %v STEPS FROM %v OVER * %v "+
 		"YIELD DISTINCT edge AS relations "+
-		"SAMPLE [%v] "+
-		"|LIMIT %v;", graph, distance, strings.Join(names, ","), direction, strings.Join(sample, ","), max)
+		"SAMPLE [%v];", graph, len(sample), strings.Join(names, ","), direction, strings.Join(sample, ","))
 	res, err := session.Execute(stat)
 	if err != nil {
 		return nil, err
@@ -386,17 +385,17 @@ func (n *NebulaClientImpl) MultiGo(graph int64, srcList []int64, direction strin
 }
 
 // GoFromTopNodes 以度数前top名的节点为起点展开游走，返回游走的边
-func (n *NebulaClientImpl) GoFromTopNodes(graph int64, top int64, direction string, distance int64, max int64) (map[string][]*types.Edge, error) {
+func (n *NebulaClientImpl) GoFromTopNodes(graph int64, top int64, direction string, max int64) (map[string][]*types.Edge, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
 	}
 	defer func() { session.Release() }()
-	start := 20.0
-	sample := make([]string, distance)
-	for i := int64(0); i < distance; i++ {
-		sample[i] = strconv.FormatInt(int64(start), 10)
-		start = math.Ceil(start / 2.0)
+	start := float64(max + 1.0)
+	sample := make([]string, 0)
+	for start > 1 {
+		start = math.Ceil(start / 2)
+		sample = append(sample, strconv.FormatInt(int64(start), 10))
 	}
 	stat := fmt.Sprintf("USE G%v;"+
 		"LOOKUP ON base YIELD id(vertex) AS nid, properties(vertex).deg AS deg"+
@@ -404,8 +403,7 @@ func (n *NebulaClientImpl) GoFromTopNodes(graph int64, top int64, direction stri
 		"| LIMIT %v"+
 		"| GO 1 TO %v STEPS FROM $-.nid OVER * %v"+
 		"  YIELD DISTINCT edge AS relations"+
-		"  SAMPLE [%v]"+
-		"  | LIMIT %v;", graph, top, distance, direction, strings.Join(sample, ","), max)
+		"  SAMPLE [%v];", graph, top, len(sample), direction, strings.Join(sample, ","))
 	res, err := session.Execute(stat)
 	if err != nil {
 		return nil, err

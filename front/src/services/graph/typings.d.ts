@@ -210,7 +210,6 @@ declare namespace Graph {
     taskId?: string;
     graphId: number;
     nodeId: number;
-    distance: number;
     direction: string;
     max?: number;
   };
@@ -219,7 +218,6 @@ declare namespace Graph {
     taskId?: string;
     graphId: number;
     nodeId: number;
-    distance: number;
     direction: string;
     max: number;
   };
@@ -326,7 +324,7 @@ declare namespace Graph {
     desc: string;
     edgeDirection: boolean;
     display: string;
-    attrs: Attr[];
+    attrs?: Attr[];
   };
 
   type Task = {

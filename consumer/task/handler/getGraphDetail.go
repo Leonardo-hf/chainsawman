@@ -27,7 +27,7 @@ func (h *GetGraphDetail) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	// 获得边
-	edges, err := config.NebulaClient.GoFromTopNodes(req.GraphID, req.Top, common.DirectionBoth, common.MaxGoDistance, req.Max)
+	edges, err := config.NebulaClient.GoFromTopNodes(req.GraphID, req.Top, common.DirectionBoth, req.Max)
 	if err != nil {
 		return "", err
 	}
