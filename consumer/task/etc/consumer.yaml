@@ -1,7 +1,6 @@
-AlgoRpc:
-  Endpoints:
-    - 127.0.0.1:8081
-  Timeout: 86400000
+Algo:
+  Addr: "127.0.0.1:8998"
+  SparkMasterUI: "127.0.0.1:8080"
 
 Nebula:
   Addr: "127.0.0.1"
@@ -20,6 +19,7 @@ Minio:
   SecretAccessKey: minioadmin
   UseSSL: false
   SourceBucket: source
+  AlgoBucket: algo
   SourceExpired: 1
 
 TaskMq:

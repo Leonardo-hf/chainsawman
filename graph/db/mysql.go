@@ -38,4 +38,10 @@ type MysqlClient interface {
 	GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error)
 
 	DropGroupByID(ctx context.Context, id int64) (int64, error)
+
+	GetAllAlgo(ctx context.Context) ([]*model.Algo, error)
+
+	InsertAlgo(ctx context.Context, algo *model.Algo) error
+
+	DropAlgoByID(ctx context.Context, id int64) (int64, error)
 }

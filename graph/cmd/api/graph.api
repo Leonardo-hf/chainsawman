@@ -218,20 +218,23 @@ type (
 		Score float64 `json:"score"`
 	}
 
-	//    Algo {
-	//        Id int64 `json:"id"`
-	//        Name string `json:"name"`
-	//        Desc string `json:"desc"`
-	//        IsCustom bool `json:"isCustom"`
-	//        Type int64 `json:"type"`
-	//        Params []*Element `json:"params"`
-	//    }
-	//
-	//    Element {
-	//        Key string `json:"key"`
-	//        KeyDesc string `json:"keyDesc"`
-	//        Type int64 `json:"type"`
-	//    }
+	Algo {
+		Id       int64        `json:"id"`
+		Name     string       `json:"name"`
+		Desc     string       `json:"desc"`
+		IsCustom bool         `json:"isCustom"`
+		Type     int64        `json:"type"`
+		Params   []*AlgoParam `json:"params"`
+	}
+
+	AlgoParam {
+		Key       string  `json:"key"`
+		KeyDesc   string  `json:"keyDesc"`
+		Type      int64   `json:"type"`
+		InitValue float64 `json:"initValue"`
+		Max       float64 `json:"max"`
+		Min       float64 `json:"min"`
+	}
 
 	AlgoRankReply {
 		Base  *BaseReply `json:"base"`
@@ -244,40 +247,28 @@ type (
 		Score float64    `json:"score"`
 	}
 
-	//    AlgoReply {
-	//        Base *BaseReply `json:"base"`
-	//        Algos []*Algo `json:"algos"`
-	//    }
-
-	AlgoRequest {
-		TaskID  string `form:"taskId,optional"`
-		GraphID int64  `form:"graphId"`
+	GetAlgoReply {
+		Base  *BaseReply `json:"base"`
+		Algos []*Algo    `json:"algos"`
 	}
 
-	AlgoDegreeRequest {
-		TaskID  string `form:"taskId,optional"`
-		GraphID int64  `form:"graphId"`
+	DropAlgoRequest {
+		AlgoID int64 `json:"algoId"`
 	}
 
-	AlgoPageRankRequest {
+	CreateAlgoRequest {
+		Algo       *Algo        `json:"algo"`
+		EntryPoint string       `json:"entryPoint"`
+		Jar        string       `json:"jar"`
+		JVMOpts    []*Pair      `json:"jvmOpts,optional"`
+		AlgoParams []*AlgoParam `json:"algoParams,optional"`
+	}
+
+	ExecAlgoRequest {
 		TaskID  string  `form:"taskId,optional"`
 		GraphID int64   `form:"graphId"`
-		Iter    int64   `form:"iter,default=3"`
-		Prob    float64 `form:"prob,default=0.85"`
-	}
-
-	AlgoVoteRankRequest {
-		TaskID  string `form:"taskId,optional"`
-		GraphID int64  `form:"graphId"`
-		Iter    int64  `form:"iter,default=100"`
-	}
-
-	AlgoLouvainRequest {
-		TaskID       string  `form:"taskId,optional"`
-		GraphID      int64   `form:"graphId"`
-		MaxIter      int64   `form:"maxIter,default=10"`
-		InternalIter int64   `form:"internalIter,default=5"`
-		Tol          float64 `form:"tol,default=0.5"`
+		AlgoID  int64   `form:"algoId"`
+		Params  []*Pair `form:"params,optional"`
 	}
 )
 
@@ -347,60 +338,40 @@ service graph {
 	prefix: /api/graph/algo
 )
 service graph {
-	//    @doc "查询算法"
-	//    @handler algoGetAll
-	//    get /algo/getAll returns (AlgoReply)
+	@doc "查询算法"
+	@handler algoGetAll
+	get /algo/getAll returns (GetAlgoReply)
 	
-	@doc "度中心度算法"
-	@handler algoDegree
-	get /degree (AlgoDegreeRequest) returns (AlgoRankReply)
+	@doc "创建算法"
+	@handler algoCreate
+	post /algo/create (CreateAlgoRequest) returns (BaseReply)
 	
-	@doc "PageRank算法"
-	@handler algoPageRank
-	get /pr (AlgoPageRankRequest) returns (AlgoRankReply)
+	@doc "删除算法"
+	@handler algoDrop
+	post /algo/drop (DropAlgoRequest) returns (BaseReply)
 	
-	@doc "Betweenness算法"
-	@handler algoBetweenness
-	get /betweenness (AlgoRequest) returns (AlgoRankReply)
+	@doc "执行排序算法"
+	@handler algoExecRank
+	get /algo/exec/rank (ExecAlgoRequest) returns (AlgoRankReply)
 	
-	@doc "Closeness算法"
-	@handler algoCloseness
-	get /closeness (AlgoRequest) returns (AlgoRankReply)
-	
-	@doc "平均聚类系数"
-	@handler algoAvgCC
-	get /avgCC (AlgoRequest) returns (AlgoMetricReply)
-	
-	@doc "Louvain聚类算法"
-	@handler algoLouvain
-	get /louvain (AlgoLouvainRequest) returns (AlgoRankReply)
-	
-	@doc "Quantity算法"
-	@handler algoQuantity
-	get /quantity (AlgoVoteRankRequest) returns (AlgoRankReply)
-	
-	@doc "Ecology算法"
-	@handler algoEcology
-	get /ecology (AlgoRequest) returns (AlgoRankReply)
-	
-	@doc "Depth算法"
-	@handler algoDepth
-	get /depth (AlgoRequest) returns (AlgoRankReply)
-	
-	@doc "Integration算法"
-	@handler algoIntegration
-	get /integration (AlgoRequest) returns (AlgoRankReply)
+	@doc "执行指标算法"
+	@handler algoExecScore
+	get /algo/exec/score (ExecAlgoRequest) returns (AlgoMetricReply)
 }
 
 @server(
 	prefix: /api/graph/file
 )
 service graph {
-	@doc "获得文件上传链接"
-	@handler filePutPresigned
-	get /put returns (PresignedReply)
+	@doc "获得图源文件上传链接"
+	@handler fileSourcePutPresigned
+	get /put/source returns (PresignedReply)
+	
+	@doc "获得算法库文件上传链接"
+	@handler fileLibPutPresigned
+	get /put/lib returns (PresignedReply)
 	
 	@doc "获得文件下载链接"
-	@handler fileGetPresigned
-	get /get (PresignedRequest) returns (PresignedReply)
+	@handler fileAlgoGetPresigned
+	get /get/algo (PresignedRequest) returns (PresignedReply)
 }

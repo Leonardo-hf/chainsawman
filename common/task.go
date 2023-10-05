@@ -7,18 +7,8 @@ const (
 	GraphNodes     = "graph:nodes"
 	GraphNeighbors = "graph:neighbors"
 
-	AlgoDegree      = "algo:degree"
-	AlgoPagerank    = "algo:pagerank"
-	AlgoBetweenness = "algo:between"
-	AlgoCloseness   = "algo:close"
-	AlgoLouvain     = "algo:louvain"
-	AlgoAvgCC       = "algo:avgCC"
-	AlgoQuantity    = "algo:quantity"
-	AlgoDepth       = "algo:depth"
-	AlgoIntegration = "algo:integration"
-	AlgoEcology     = "algo:ecology"
-
-	AlgoComp = "algo:comp"
+	AlgoRank  = "algo:rank"
+	AlgoScore = "algo:score"
 )
 
 const (
@@ -55,53 +45,18 @@ var taskAttrMap = map[string]*TaskAttr{
 		Persistent: false,
 	},
 	GraphGet: {
-		Queue: PHigh, Persistent: false,
+		Queue:      PHigh,
+		Persistent: false,
 	},
 	GraphNeighbors: {
 		Queue:      PHigh,
 		Persistent: false,
 	},
-	AlgoDegree: {
+	AlgoRank: {
 		Queue:      PLow,
 		Persistent: true,
 	},
-	AlgoPagerank: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoBetweenness: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoCloseness: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoLouvain: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoAvgCC: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoComp: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoQuantity: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoDepth: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoIntegration: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoEcology: {
+	AlgoScore: {
 		Queue:      PLow,
 		Persistent: true,
 	},

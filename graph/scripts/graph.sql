@@ -7,6 +7,8 @@ drop table if exists graph.edges_attr;
 drop table if exists graph.edges;
 drop table if exists graph.graphs;
 drop table if exists graph.groups;
+drop table if exists graph.algos;
+drop table if exists graph.algos_param;
 
 create table if not exists graph.groups
 (
@@ -119,3 +121,62 @@ create table if not exists graph.tasks
             on update cascade on delete cascade
 );
 
+create table if not exists graph.algos
+(
+    id        int auto_increment
+        primary key,
+    name      varchar(255)      not null,
+    `desc`    text              null,
+    type      int     default 0 not null,
+    jarPath   varchar(255)      null,
+    mainClass varchar(255)      null,
+    isCustom  tinyint default 0 null
+);
+
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (1, "degree", "度中心度算法，测量网络中一个节点与所有其它节点相联系的程度。", 0, "s3a://lib/degree-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (2, "pagerank", "PageRank是Google使用的对其搜索引擎搜索结果中的网页进行排名的一种算法。能够衡量集合范围内某一元素的相关重要性。", 0, "s3a://lib/pagerank-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (3, "betweenness", "中介中心性用于衡量一个顶点出现在其他任意两个顶点对之间的最短路径的次数。", 0, "s3a://lib/betweenness-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (4, "closeness", "接近中心性反映在网络中某一节点与其他节点之间的接近程度。", 0, "s3a://lib/closeness-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (5, "average clustering coefficient", "平均聚类系数。描图中的节点与其相连节点之间的聚集程度。", 2, "s3a://lib/clusteringCoefficient-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (6, "louvain", "一种基于模块度的社区发现算法。其基本思想是网络中节点尝试遍历所有邻居的社区标签，并选择最大化模块度增量的社区标签。", 1, "s3a://lib/louvain-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (7, "quantity", "广度排序算法，使用基于邻居意见的Voterank算法", 0, "s3a://lib/quantity-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (8, "depth", "深度排序算法，基于节点在图谱中的应用层级", 0, "s3a://lib/depth-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (9, "integration", "集成度排序算法，基于桥梁作用的betweenness++", 0, "s3a://lib/integration-latest.jar", "applerodite.Main");
+INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
+VALUES (10, "ecology", "子图稳定性排序算法，基于最小渗流的collective influence算法", 0, "s3a://lib/ecology-latest.jar", "applerodite.Main");
+
+create table if not exists graph.algos_param
+(
+    id        int auto_increment
+        primary key,
+    algoID    int           not null,
+    fieldName varchar(255)  not null,
+    fieldDesc varchar(255)  null,
+    fieldType int default 0 not null,
+    initValue double        null,
+    `max`       double        null,
+    `min`       double        null,
+    constraint algoParam___id
+        foreign key (algoID) references algos (id)
+            on update cascade on delete cascade
+);
+
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+VALUES (2, "iter", "迭代次数", 2, 3, 1, 100);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+VALUES (2, "prob", "阻尼系数", 0, 0.85, 0.1, 1);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+VALUES (6, "maxIter", "外部迭代次数", 2, 10, 1, 100);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+VALUES (6, "internalIter", "内部迭代次数", 2, 5, 1, 50);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+VALUES (6, "tol", "最小增加量", 0, 0.3, 0.1, 1);

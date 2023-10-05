@@ -4,11 +4,11 @@ services:
     image: minio/minio:latest                                    # 原镜像`minio/minio:latest`
     container_name: minio-svc                                    # 容器名为"minio-svc"
     restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
-    volumes:                                                     # 数据卷挂载路径设置,将本机目录映射到容器目录
+    volumes: # 数据卷挂载路径设置,将本机目录映射到容器目录
       - "./minio/data:/data"
       - "./minio/minio:/minio"
       - "./minio/config:/root/.minio"
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+    environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
       MINIO_PROMETHEUS_AUTH_TYPE: "public"
@@ -19,37 +19,47 @@ services:
       driver: "json-file"
       options:
         max-size: "100m"
-    ports:                                                       # 映射端口
+    ports: # 映射端口
       - "9000"                                                   # 文件上传&预览端口
-      - "9001"                                                   # 控制台访问端口
+      - "30124:9001"                                                   # 控制台访问端口
+  mc:
+    image: minio/mc:latest
+    container_name: mc
+    entrypoint: ""
+    volumes:
+      - "./minio/jar:/jar"
+      - "./minio/mc/init.sh:/init.sh"
+    command: /init.sh
+    depends_on:
+      - minio-svc
   mysql-svc:
     image: mysql:8.0
     container_name: mysql-svc                                    # 容器名为"mysql-svc"
     restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
-    volumes:                                                     # 数据卷挂载路径设置,将本机目录映射到容器目录
+    volumes: # 数据卷挂载路径设置,将本机目录映射到容器目录
       - "./mysql/my.cnf:/etc/mysql/conf.d/my.cnf"                # mysql配置文件
       - "./mysql/graph.sql:/docker-entrypoint-initdb.d/g.sql"    # 数据库初始化SQL
       - "./mysql/data:/var/lib/mysql"                            # 持久化数据库文件
       - "./mysql/mysql-files:/var/lib/mysql-files"
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+    environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
       MYSQL_ROOT_PASSWORD: 12345678                              # 设置root用户密码
     privileged: true
     user: root
-    ports:                                                       # 映射端口
-      - "3306"
+    ports: # 映射端口
+      - "30125:3306"
   redis-svc:
     image: redis                                                 # 镜像"redis"
     container_name: redis-svc                                    # 容器名为"redis-svc"
     restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
     command: redis-server /etc/redis/redis.conf                  # 启动redis服务，不开启redis-aof方式持久化配置
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+    environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
-    volumes:                                                     # 数据卷挂载路径设置,将本机目录映射到容器目录
+    volumes: # 数据卷挂载路径设置,将本机目录映射到容器目录
       - "./redis/redis.conf:/etc/redis/redis.conf"               # redis配置文件
       - "./redis/data:/redis/data"
-    ports:                                                       # 映射端口
+    ports: # 映射端口
       - "6379"
   nebula-metad-headless:
     image: docker.io/vesoft/nebula-metad:v3.6.0
@@ -77,8 +87,8 @@ services:
       - "19559"
       - "19560"
     volumes:
-      - ./nebula/data/meta0:/data/meta
-      - ./nebula/logs/meta0:/logs
+      - "./nebula/data/meta0:/data/meta"
+      - "./nebula/logs/meta0:/logs"
     restart: on-failure
     cap_add:
       - SYS_PTRACE
@@ -111,8 +121,8 @@ services:
       - "19779"
       - "19780"
     volumes:
-      - ./nebula/data/storage0:/data/storage
-      - ./nebula/logs/storage0:/logs
+      - "./nebula/data/storage0:/data/storage"
+      - "./nebula/logs/storage0:/logs"
     restart: on-failure
     cap_add:
       - SYS_PTRACE
@@ -144,7 +154,7 @@ services:
       - "19669"
       - "19670"
     volumes:
-      - ./nebula/logs/graph:/logs
+      - "./nebula/logs/graph:/logs"
     restart: on-failure
     cap_add:
       - SYS_PTRACE
@@ -171,57 +181,86 @@ services:
     hostname: spark-proxy
     container_name: spark-proxy
     environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+      SPARK_MODE: "master"
+      SPARK_RPC_AUTHENTICATION_ENABLED: "no"
+      SPARK_RPC_ENCRYPTION_ENABLED: "no"
+      SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
+      SPARK_SSL_ENABLED: "no"
+      CHS_ENV: "pre"
     volumes:
       - ./spark/share:/opt/share
     ports:
-      - "8080"
+      - "30126:8080"
       - "4040"
       - "7077"
   spark-worker1:
     image: applerodite/chs-spark:latest
     hostname: spark-worker1
     container_name: spark-worker1
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4G
     user: root
     environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-proxy:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+      SPARK_MODE: "worker"
+      SPARK_MASTER_URL: "spark://spark-proxy:7077"
+      SPARK_WORKER_MEMORY: "4G"
+      SPARK_WORKER_CORES: "2"
+      SPARK_RPC_AUTHENTICATION_ENABLED: "no"
+      SPARK_RPC_ENCRYPTION_ENABLED: "no"
+      SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
+      SPARK_SSL_ENABLED: "no"
+      CHS_ENV: "pre"
     volumes:
-      - ./spark/share:/opt/share
+      - "./spark/share:/opt/share"
     depends_on:
       - spark-proxy
     ports:
-      - "8081"
+      - "30127:8081"
   spark-worker2:
     image: applerodite/chs-spark:latest
     hostname: spark-worker2
     container_name: spark-worker2
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4G
     user: root
     environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-proxy:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+      SPARK_MODE: "worker"
+      SPARK_MASTER_URL: "spark://spark-proxy:7077"
+      SPARK_WORKER_MEMORY: "4G"
+      SPARK_WORKER_CORES: "2"
+      SPARK_RPC_AUTHENTICATION_ENABLED: "no"
+      SPARK_RPC_ENCRYPTION_ENABLED: "no"
+      SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
+      SPARK_SSL_ENABLED: "no"
+      CHS_ENV: "pre"
+      AWS_ACCESS_KEY_ID: "minioadmin"
+      AWS_SECRET_ACCESS_KEY: "minioadmin"
     volumes:
-      - ./spark/share:/opt/share
+      - "./spark/share:/opt/share"
     depends_on:
       - spark-proxy
     ports:
-      - "8081"
+      - "30128:8081"
+  livy:
+    image: applerodite/chs-livy:latest
+    container_name: livy
+    user: root
+    volumes:
+      - "./livy/conf:/opt/bitnami/livy/conf"
+      - "./livy/target:/target"
+      - "./livy/data:/data"
+    ports:
+      - '30129:8998'
+    depends_on:
+      - spark-proxy
+      - spark-worker1
+      - spark-worker2
   algo-svc:
     image: applerodite/chs-algo:latest                           # 镜像"applerodite/chs-algo:latest"
     container_name: algo-svc
@@ -245,7 +284,7 @@ services:
       resources:
         limits:
           cpus: "2.00"
-          memory: 4G
+          memory: 2G
     environment:                                                 # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
@@ -267,7 +306,7 @@ services:
       resources:
         limits:
           cpus: "2.00"
-          memory: 4G
+          memory: 2G
     depends_on:
       - minio-svc
       - mysql-svc

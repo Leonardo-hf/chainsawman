@@ -91,53 +91,28 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/degree",
-				Handler: algoDegreeHandler(serverCtx),
+				Path:    "/algo/getAll",
+				Handler: algoGetAllHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/algo/create",
+				Handler: algoCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/algo/drop",
+				Handler: algoDropHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/pr",
-				Handler: algoPageRankHandler(serverCtx),
+				Path:    "/algo/exec/rank",
+				Handler: algoExecRankHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/betweenness",
-				Handler: algoBetweennessHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/closeness",
-				Handler: algoClosenessHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/avgCC",
-				Handler: algoAvgCCHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/louvain",
-				Handler: algoLouvainHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/quantity",
-				Handler: algoQuantityHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/ecology",
-				Handler: algoEcologyHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/depth",
-				Handler: algoDepthHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/integration",
-				Handler: algoIntegrationHandler(serverCtx),
+				Path:    "/algo/exec/score",
+				Handler: algoExecScoreHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/graph/algo"),
@@ -147,13 +122,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/put",
-				Handler: filePutPresignedHandler(serverCtx),
+				Path:    "/put/source",
+				Handler: fileSourcePutPresignedHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/get",
-				Handler: fileGetPresignedHandler(serverCtx),
+				Path:    "/put/lib",
+				Handler: fileLibPutPresignedHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/get/algo",
+				Handler: fileAlgoGetPresignedHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/graph/file"),

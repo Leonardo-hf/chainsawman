@@ -9,10 +9,13 @@ const (
 const (
 	TypeString = 0
 	TypeDouble = 1
+	TypeInt    = 2
 )
 
 func Type2String(t int64) string {
 	switch t {
+	case TypeInt:
+		return "int"
 	case TypeString:
 		return "string"
 	case TypeDouble:

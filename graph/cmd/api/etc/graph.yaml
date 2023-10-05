@@ -3,9 +3,6 @@ Host: 0.0.0.0
 Port: 8888
 Timeout: 60000
 
-AlgoRpc:
-  Endpoints:
-    - 127.0.0.1:8081
 Nebula:
   Addr: "127.0.0.1"
   Port: 9669
@@ -22,6 +19,7 @@ Minio:
   SecretAccessKey: minioadmin
   UseSSL: false
   SourceBucket: source
+  LibBucket: lib
   AlgoBucket: algo
   SourceExpired: 1
   URLExpired: 3600

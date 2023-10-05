@@ -15,10 +15,110 @@
     "application/json"
   ],
   "paths": {
-    "/api/graph/algo/avgCC": {
+    "/api/graph/algo/algo/create": {
+      "post": {
+        "summary": "创建算法",
+        "operationId": "algoCreate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateAlgoRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/algo/drop": {
+      "post": {
+        "summary": "删除算法",
+        "operationId": "algoDrop",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DropAlgoRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/algo/exec/rank": {
       "get": {
-        "summary": "平均聚类系数",
-        "operationId": "algoAvgCC",
+        "summary": "执行排序算法",
+        "operationId": "algoExecRank",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AlgoRankReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "algoId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "params",
+            "in": "query",
+            "required": false,
+            "type": "invalid",
+            "format": "UNKNOWN"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/algo/exec/score": {
+      "get": {
+        "summary": "执行指标算法",
+        "operationId": "algoExecScore",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -40,6 +140,20 @@
             "required": true,
             "type": "integer",
             "format": "int64"
+          },
+          {
+            "name": "algoId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "params",
+            "in": "query",
+            "required": false,
+            "type": "invalid",
+            "format": "UNKNOWN"
           }
         ],
         "tags": [
@@ -47,337 +161,18 @@
         ]
       }
     },
-    "/api/graph/algo/betweenness": {
+    "/api/graph/algo/algo/getAll": {
       "get": {
-        "summary": "Betweenness算法",
-        "operationId": "algoBetweenness",
+        "summary": "查询算法",
+        "operationId": "algoGetAll",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
+              "$ref": "#/definitions/GetAlgoReply"
             }
           }
         },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/closeness": {
-      "get": {
-        "summary": "Closeness算法",
-        "operationId": "algoCloseness",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/degree": {
-      "get": {
-        "summary": "度中心度算法",
-        "operationId": "algoDegree",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/depth": {
-      "get": {
-        "summary": "Depth算法",
-        "operationId": "algoDepth",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/ecology": {
-      "get": {
-        "summary": "Ecology算法",
-        "operationId": "algoEcology",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/integration": {
-      "get": {
-        "summary": "Integration算法",
-        "operationId": "algoIntegration",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/louvain": {
-      "get": {
-        "summary": "Louvain聚类算法",
-        "operationId": "algoLouvain",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "maxIter",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64",
-            "default": "10"
-          },
-          {
-            "name": "internalIter",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64",
-            "default": "5"
-          },
-          {
-            "name": "tol",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "default": "0.5"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/pr": {
-      "get": {
-        "summary": "PageRank算法",
-        "operationId": "algoPageRank",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "iter",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64",
-            "default": "3"
-          },
-          {
-            "name": "prob",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "default": "0.85"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/quantity": {
-      "get": {
-        "summary": "Quantity算法",
-        "operationId": "algoQuantity",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "iter",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64",
-            "default": "100"
-          }
-        ],
         "tags": [
           "graph"
         ]
@@ -484,10 +279,10 @@
         ]
       }
     },
-    "/api/graph/file/get": {
+    "/api/graph/file/get/algo": {
       "get": {
         "summary": "获得文件下载链接",
-        "operationId": "fileGetPresigned",
+        "operationId": "fileAlgoGetPresigned",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -509,10 +304,27 @@
         ]
       }
     },
-    "/api/graph/file/put": {
+    "/api/graph/file/put/lib": {
       "get": {
-        "summary": "获得文件上传链接",
-        "operationId": "filePutPresigned",
+        "summary": "获得算法库文件上传链接",
+        "operationId": "fileLibPutPresigned",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/PresignedReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/file/put/source": {
+      "get": {
+        "summary": "获得图源文件上传链接",
+        "operationId": "fileSourcePutPresigned",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -821,54 +633,42 @@
     }
   },
   "definitions": {
-    "AlgoDegreeRequest": {
+    "Algo": {
       "type": "object",
       "properties": {
-        "taskId": {
-          "type": "string"
-        },
-        "graphId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "AlgoDegreeRequest",
-      "required": [
-        "graphId"
-      ]
-    },
-    "AlgoLouvainRequest": {
-      "type": "object",
-      "properties": {
-        "taskId": {
-          "type": "string"
-        },
-        "graphId": {
+        "id": {
           "type": "integer",
           "format": "int64"
         },
-        "maxIter": {
-          "type": "integer",
-          "format": "int64",
-          "default": "10"
+        "name": {
+          "type": "string"
         },
-        "internalIter": {
-          "type": "integer",
-          "format": "int64",
-          "default": "5"
+        "desc": {
+          "type": "string"
         },
-        "tol": {
-          "type": "number",
-          "format": "double",
-          "default": "0.5"
+        "isCustom": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlgoParam"
+          }
         }
       },
-      "title": "AlgoLouvainRequest",
+      "title": "Algo",
       "required": [
-        "graphId",
-        "maxIter",
-        "internalIter",
-        "tol"
+        "id",
+        "name",
+        "desc",
+        "isCustom",
+        "type",
+        "params"
       ]
     },
     "AlgoMetricReply": {
@@ -888,32 +688,40 @@
         "score"
       ]
     },
-    "AlgoPageRankRequest": {
+    "AlgoParam": {
       "type": "object",
       "properties": {
-        "taskId": {
+        "key": {
           "type": "string"
         },
-        "graphId": {
+        "keyDesc": {
+          "type": "string"
+        },
+        "type": {
           "type": "integer",
           "format": "int64"
         },
-        "iter": {
-          "type": "integer",
-          "format": "int64",
-          "default": "3"
-        },
-        "prob": {
+        "initValue": {
           "type": "number",
-          "format": "double",
-          "default": "0.85"
+          "format": "double"
+        },
+        "max": {
+          "type": "number",
+          "format": "double"
+        },
+        "min": {
+          "type": "number",
+          "format": "double"
         }
       },
-      "title": "AlgoPageRankRequest",
+      "title": "AlgoParam",
       "required": [
-        "graphId",
-        "iter",
-        "prob"
+        "key",
+        "keyDesc",
+        "type",
+        "initValue",
+        "max",
+        "min"
       ]
     },
     "AlgoRankReply": {
@@ -937,44 +745,6 @@
         "base",
         "ranks",
         "file"
-      ]
-    },
-    "AlgoRequest": {
-      "type": "object",
-      "properties": {
-        "taskId": {
-          "type": "string"
-        },
-        "graphId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "AlgoRequest",
-      "required": [
-        "graphId"
-      ]
-    },
-    "AlgoVoteRankRequest": {
-      "type": "object",
-      "properties": {
-        "taskId": {
-          "type": "string"
-        },
-        "graphId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "iter": {
-          "type": "integer",
-          "format": "int64",
-          "default": "100"
-        }
-      },
-      "title": "AlgoVoteRankRequest",
-      "required": [
-        "graphId",
-        "iter"
       ]
     },
     "Attr": {
@@ -1033,6 +803,38 @@
         "extra"
       ]
     },
+    "CreateAlgoRequest": {
+      "type": "object",
+      "properties": {
+        "algo": {
+          "$ref": "#/definitions/Algo"
+        },
+        "entryPoint": {
+          "type": "string"
+        },
+        "jar": {
+          "type": "string"
+        },
+        "jvmOpts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pair"
+          }
+        },
+        "algoParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlgoParam"
+          }
+        }
+      },
+      "title": "CreateAlgoRequest",
+      "required": [
+        "algo",
+        "entryPoint",
+        "jar"
+      ]
+    },
     "CreateGraphRequest": {
       "type": "object",
       "properties": {
@@ -1088,6 +890,19 @@
         "desc",
         "nodeTypeList",
         "edgeTypeList"
+      ]
+    },
+    "DropAlgoRequest": {
+      "type": "object",
+      "properties": {
+        "algoId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "DropAlgoRequest",
+      "required": [
+        "algoId"
       ]
     },
     "DropGraphRequest": {
@@ -1167,6 +982,52 @@
       "required": [
         "tag",
         "edges"
+      ]
+    },
+    "ExecAlgoRequest": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string"
+        },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "algoId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pair"
+          }
+        }
+      },
+      "title": "ExecAlgoRequest",
+      "required": [
+        "graphId",
+        "algoId"
+      ]
+    },
+    "GetAlgoReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "algos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Algo"
+          }
+        }
+      },
+      "title": "GetAlgoReply",
+      "required": [
+        "base",
+        "algos"
       ]
     },
     "GetAllGraphReply": {

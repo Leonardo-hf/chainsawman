@@ -6,5 +6,9 @@ import (
 )
 
 type OSSClient interface {
-	Fetch(ctx context.Context, name string) (io.Reader, error)
+	FetchSource(ctx context.Context, name string) (io.Reader, error)
+
+	FetchAlgo(ctx context.Context, name string) (io.Reader, error)
+
+	AlgoGenerated(ctx context.Context, name string) bool
 }

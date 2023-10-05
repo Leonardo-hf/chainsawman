@@ -3,7 +3,7 @@ import React from "react";
 import {RunTimeLayoutConfig} from "@umijs/max";
 import Graph from "./pages/Graph"
 
-import {getAllGraph} from "./services/graph/graph";
+import {algoGetAll, getAllGraph} from "./services/graph/graph";
 import {setInit, splitGroupsGraph} from "@/models/global";
 
 let newRoutes: any[] = []
@@ -21,7 +21,6 @@ export function render(oldRender: () => void) {
                 newRoutes.push({
                     path: '/graph/' + g.id,
                     name: g.name,
-                    // element: <Group group={g} key={g.id}/>,
                     children: g.graphs.map(graph => {
                         return {
                             path: '/graph/' + g.id + '/' + graph.id,
@@ -48,9 +47,12 @@ export function patchClientRoutes({routes}) {
     })
 }
 
-// export async function getInitialState(): Promise<{ name: string }> {
-//     return {name: '@umijs/max'};
-// }
+export async function getInitialState(): Promise<{ algos: Graph.Algo[] }> {
+    const algosRes = await algoGetAll()
+    return {
+        algos: algosRes.algos
+    }
+}
 
 export const request: RequestConfig = {
     timeout: 10 * 1000,

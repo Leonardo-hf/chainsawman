@@ -30,3 +30,9 @@ use go-zero, graphin, nebula and spark graphx to build a extended visual system 
 * use openfass to deploy consumers
 * data interface to format
 * replace redis with abase
+* 算法服务要每个算法一个session，要能取消session中任务的执行
+* 算法服务返回值是什么？
+* 任务服务怎么轮询结果，怎么取消轮询
+* 更新文件大小问题，太大边文件会不会爆内存
+* Mysql 存在慢查询问题
+* nebula 上全文索引

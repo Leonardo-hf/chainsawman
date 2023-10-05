@@ -12,6 +12,7 @@ import (
 type MinioClientImpl struct {
 	client *minio.Client
 	source string
+	algo   string
 }
 
 type MinioConfig struct {
@@ -20,6 +21,7 @@ type MinioConfig struct {
 	SecretAccessKey string
 	UseSSL          bool
 	SourceExpired   int
+	AlgoBucket      string
 	SourceBucket    string
 }
 
@@ -34,25 +36,8 @@ func InitMinioClient(cfg *MinioConfig) OSSClient {
 	c := &MinioClientImpl{
 		client: m,
 		source: cfg.SourceBucket,
+		algo:   cfg.AlgoBucket,
 	}
-	//err = c.createBucket(cfg.SourceBucket)
-	//if err != nil {
-	//	logx.Errorf("[OSS] minio create bucket fail, err=%v ", err)
-	//	panic(err)
-	//}
-	//err = c.createBucketWithRules(cfg.AlgoBucket, []lifecycle.Rule{
-	//	{
-	//		ID:     "expire-source",
-	//		Status: "Enabled",
-	//		Expiration: lifecycle.Expiration{
-	//			Days: lifecycle.ExpirationDays(cfg.SourceExpired),
-	//		},
-	//	},
-	//})
-	//if err != nil {
-	//	logx.Errorf("[OSS] minio create bucket fail, err=%v ", err)
-	//	panic(err)
-	//}
 	logx.Info("[OSS] minio init.")
 	return c
 }
@@ -78,6 +63,13 @@ func (m *MinioClientImpl) createBucketWithRules(bucket string, rules []lifecycle
 	})
 }
 
-func (m *MinioClientImpl) Fetch(ctx context.Context, name string) (io.Reader, error) {
+func (m *MinioClientImpl) FetchSource(ctx context.Context, name string) (io.Reader, error) {
 	return m.client.GetObject(ctx, m.source, name, minio.GetObjectOptions{})
+}
+func (m *MinioClientImpl) FetchAlgo(ctx context.Context, name string) (io.Reader, error) {
+	return m.client.GetObject(ctx, m.algo, name, minio.GetObjectOptions{})
+}
+func (m *MinioClientImpl) AlgoGenerated(ctx context.Context, name string) bool {
+	_, err := m.client.StatObject(ctx, m.algo, name, minio.StatObjectOptions{})
+	return err == nil
 }

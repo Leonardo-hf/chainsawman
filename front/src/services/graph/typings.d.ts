@@ -1,58 +1,25 @@
 declare namespace Graph {
-  type algoAvgCCParams = {
-    taskId?: string;
-    graphId: number;
+  type Algo = {
+    id: number;
+    name: string;
+    desc: string;
+    isCustom: boolean;
+    type: number;
+    params: AlgoParam[];
   };
 
-  type algoBetweennessParams = {
+  type algoExecRankParams = {
     taskId?: string;
     graphId: number;
+    algoId: number;
+    params?: any;
   };
 
-  type algoClosenessParams = {
+  type algoExecScoreParams = {
     taskId?: string;
     graphId: number;
-  };
-
-  type algoDegreeParams = {
-    taskId?: string;
-    graphId: number;
-  };
-
-  type AlgoDegreeRequest = {
-    taskId?: string;
-    graphId: number;
-  };
-
-  type algoDepthParams = {
-    taskId?: string;
-    graphId: number;
-  };
-
-  type algoEcologyParams = {
-    taskId?: string;
-    graphId: number;
-  };
-
-  type algoIntegrationParams = {
-    taskId?: string;
-    graphId: number;
-  };
-
-  type algoLouvainParams = {
-    taskId?: string;
-    graphId: number;
-    maxIter?: number;
-    internalIter?: number;
-    tol?: number;
-  };
-
-  type AlgoLouvainRequest = {
-    taskId?: string;
-    graphId: number;
-    maxIter: number;
-    internalIter: number;
-    tol: number;
+    algoId: number;
+    params?: any;
   };
 
   type AlgoMetricReply = {
@@ -60,41 +27,19 @@ declare namespace Graph {
     score: number;
   };
 
-  type algoPageRankParams = {
-    taskId?: string;
-    graphId: number;
-    iter?: number;
-    prob?: number;
-  };
-
-  type AlgoPageRankRequest = {
-    taskId?: string;
-    graphId: number;
-    iter: number;
-    prob: number;
-  };
-
-  type algoQuantityParams = {
-    taskId?: string;
-    graphId: number;
-    iter?: number;
+  type AlgoParam = {
+    key: string;
+    keyDesc: string;
+    type: number;
+    initValue: number;
+    max: number;
+    min: number;
   };
 
   type AlgoRankReply = {
     base: BaseReply;
     ranks: Rank[];
     file: string;
-  };
-
-  type AlgoRequest = {
-    taskId?: string;
-    graphId: number;
-  };
-
-  type AlgoVoteRankRequest = {
-    taskId?: string;
-    graphId: number;
-    iter: number;
   };
 
   type Attr = {
@@ -112,6 +57,14 @@ declare namespace Graph {
     extra: Record<string, any>;
   };
 
+  type CreateAlgoRequest = {
+    algo: Algo;
+    entryPoint: string;
+    jar: string;
+    jvmOpts?: Pair[];
+    algoParams?: AlgoParam[];
+  };
+
   type CreateGraphRequest = {
     taskId?: string;
     graphId?: number;
@@ -125,6 +78,10 @@ declare namespace Graph {
     desc: string;
     nodeTypeList: Structure[];
     edgeTypeList: Structure[];
+  };
+
+  type DropAlgoRequest = {
+    algoId: number;
   };
 
   type DropGraphRequest = {
@@ -150,8 +107,20 @@ declare namespace Graph {
     edges: Edge[];
   };
 
-  type fileGetPresignedParams = {
+  type ExecAlgoRequest = {
+    taskId?: string;
+    graphId: number;
+    algoId: number;
+    params?: Pair[];
+  };
+
+  type fileAlgoGetPresignedParams = {
     filename: string;
+  };
+
+  type GetAlgoReply = {
+    base: BaseReply;
+    algos: Algo[];
   };
 
   type GetAllGraphReply = {

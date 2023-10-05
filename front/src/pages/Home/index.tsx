@@ -6,7 +6,6 @@ import {
     ProColumns,
     ProFormDependency,
     ProFormGroup,
-    ProFormList,
     ProFormSelect,
     ProFormText,
     ProFormUploadButton,
@@ -14,15 +13,14 @@ import {
 } from '@ant-design/pro-components';
 import {Button, Form, message, Space, Typography} from 'antd';
 import React, {CSSProperties, useRef} from 'react';
-import ProCard from '@ant-design/pro-card';
-import {createGraph, createGroup, dropGraph, getAllGraph, updateGraph} from '@/services/graph/graph';
+import {createGraph, dropGraph, getAllGraph, updateGraph} from '@/services/graph/graph';
 import {useModel} from '@umijs/max';
-import {upload} from '@/utils/oss';
+import {uploadSource} from '@/utils/oss';
 import {splitGroupsGraph} from '@/models/global';
 
-const {Title, Text} = Typography;
+const {Title} = Typography;
 
-const HomePage: React.FC = (props) => {
+const HomePage: React.FC = () => {
     const ref = useRef<ActionType>();
     const {setGraphs, groups, setGroups} = useModel('global')
     // 创建图谱的drawer
@@ -83,7 +81,7 @@ const HomePage: React.FC = (props) => {
                                 return {
                                     name: n.name,
                                     desc: n.desc,
-                                    attr: n.attrs.map(a => {
+                                    attr: n.attrs?.map(a => {
                                         return {
                                             name: a.name,
                                             desc: a.desc,
@@ -98,7 +96,7 @@ const HomePage: React.FC = (props) => {
                                     name: n.name,
                                     desc: n.desc,
                                     isDirect: n.edgeDirection,
-                                    attr: n.attrs.map(a => {
+                                    attr: n.attrs?.map(a => {
                                         return {
                                             name: a.name,
                                             desc: a.desc,
@@ -131,7 +129,7 @@ const HomePage: React.FC = (props) => {
                 if (value[n.name] && value[n.name].length) {
                     nodeFiles.push({
                         key: n.id.toString(),
-                        value: await upload(value[n.name][0].originFileObj)
+                        value: await uploadSource(value[n.name][0].originFileObj)
                     })
                 }
             }
@@ -139,7 +137,7 @@ const HomePage: React.FC = (props) => {
                 if (value[n.name] && value[n.name].length) {
                     edgeFiles.push({
                         key: n.id.toString(),
-                        value: await upload(value[n.name][0].originFileObj)
+                        value: await uploadSource(value[n.name][0].originFileObj)
                     })
                 }
             }
@@ -161,7 +159,7 @@ const HomePage: React.FC = (props) => {
                 nodeItems.push(<ProFormUploadButton
                     max={1}
                     fieldProps={{
-                        customRequest: (option:any) => {
+                        customRequest: (option: any) => {
                             option.onSuccess()
                         }
                     }}
@@ -172,7 +170,7 @@ const HomePage: React.FC = (props) => {
             crtGroup.edgeTypeList.forEach(t => {
                 edgeItems.push(<ProFormUploadButton
                     fieldProps={{
-                        customRequest: (option:any) => {
+                        customRequest: (option: any) => {
                             option.onSuccess()
                         }
                     }}
@@ -210,238 +208,18 @@ const HomePage: React.FC = (props) => {
             </ProFormGroup>
         </DrawerForm>
     }
-    // 创建策略组的drawer
-    const getCreateGroupModal = () => {
-        // form提交处理函数
-        const handleCreateGroup = async (vs: FormData) => {
-            let edgeTypeList: Graph.Structure[] = [], nodeTypeList: Graph.Structure[] = []
-            for (let v of vs.entities) {
-                if (v.type === 'node') {
-                    nodeTypeList.push({
-                        id: 0,
-                        attrs: v.attrs,
-                        desc: v.desc,
-                        display: v.display,
-                        edgeDirection: false,
-                        name: v.name
-                    })
-                } else {
-                    edgeTypeList.push({
-                        id: 0,
-                        attrs: v.attrs,
-                        desc: v.desc,
-                        display: v.display,
-                        edgeDirection: v.direct,
-                        name: v.name
-                    })
-                }
-            }
-            return await createGroup({
-                name: vs.name,
-                desc: vs.desc,
-                edgeTypeList: edgeTypeList,
-                nodeTypeList: nodeTypeList
-            }).then(() => {
-                message.success('策略组创建成功！')
-                ref.current?.reload()
-                return true
-            }).catch(e => {
-                console.log(e)
-            })
-        }
-        type FormData = {
-            name: string, desc: string, entities: {
-                name: string, desc: string, type: string, display: string, direct: boolean,
-                attrs: { name: string, desc: string, type: number, primary: boolean }[]
-            }[]
-        }
-        const [form] = Form.useForm<FormData>()
-        return <DrawerForm<FormData>
-            title='新建策略组'
-            resize={{
-                maxWidth: window.innerWidth * 0.8,
-                minWidth: window.innerWidth * 0.6,
-            }}
-            form={form}
-            trigger={
-                <Button type='primary'>
-                    <PlusOutlined/>
-                    新建策略组
-                </Button>
-            }
-            autoFocusFirstInput
-            drawerProps={{
-                destroyOnClose: true,
-            }}
-            onFinish={handleCreateGroup}
-        >
-            <ProFormGroup title='策略组配置'>
-                <ProFormText name='name' label='名称' rules={[{required: true}]}/>
-                <ProFormText name='desc' label='描述' rules={[{required: true}]}/>
-            </ProFormGroup>
-            <ProFormList
-                label={(<Text strong>实体组配置</Text>)}
-                initialValue={[{
-                    name: 'node_default',
-                    desc: '默认节点',
-                    type: 'node',
-                    attrs: [{
-                        name: 'name',
-                        desc: '节点名称',
-                        type: 0,
-                        primary: true
-                    }, {
-                        name: 'desc',
-                        desc: '节点描述',
-                        type: 0
-                    }]
-                }, {
-                    name: 'edge_default',
-                    desc: '默认边',
-                    type: 'edge',
-                }]}
-                name='entities'
-                creatorButtonProps={{
-                    creatorButtonText: '添加一个实体'
-                }}
-                itemRender={({listDom, action}, {record}) => {
-                    return (
-                        <ProCard
-                            bordered
-                            extra={action}
-                            title={record?.name}
-                            style={{
-                                marginBlockEnd: 8,
-                            }}
-                        >
-                            {listDom}
-                        </ProCard>
-                    );
-                }}
-            >
-                <ProFormGroup>
-                    <ProFormText name='name' label='名称'/>
-                    <ProFormText name='desc' label='描述'/>
-                    <ProFormSelect
-                        initialValue={'node'}
-                        options={[
-                            {
-                                label: '节点',
-                                value: 'node'
-                            }, {
-                                label: '边',
-                                value: 'edge'
-                            }
-                        ]}
-                        name='type'
-                        label='实体类型'
-                    />
-                    <ProFormDependency key="d2" name={['type']}>
-                        {({type}) => {
-                            if (type === 'node') {
-                                return <ProFormSelect
-                                    initialValue={'color'}
-                                    options={[
-                                        {
-                                            label: '彩色节点',
-                                            value: 'color'
-                                        }, {
-                                            label: '图标节点',
-                                            value: 'icon'
-                                        }
-                                    ]}
-                                    name='display'
-                                    label='展示'
-                                />
-                            }
-                            if (type === 'edge') {
-                                return <Space size={"large"}>
-                                    <ProFormSelect
-                                        initialValue={true}
-                                        options={[
-                                            {
-                                                label: '有向',
-                                                value: true,
-                                            }, {
-                                                label: '无向',
-                                                value: false
-                                            }
-                                        ]}
-                                        name='direct'
-                                        label='方向'
-                                    />
-                                    <ProFormSelect
-                                        initialValue={'real'}
-                                        options={[
-                                            {
-                                                label: '实线',
-                                                value: 'real'
-                                            }, {
-                                                label: '虚线',
-                                                value: 'dash'
-                                            }
-                                        ]}
-                                        name='display'
-                                        label='展示'
-                                    />
-                                </Space>
-                            }
-                        }}
-                    </ProFormDependency>
-                </ProFormGroup>
-                <ProFormList
-                    creatorButtonProps={{
-                        creatorButtonText: '添加一个属性'
-                    }}
-                    name='attrs'
-                    label='属性'
-                    deleteIconProps={{
-                        tooltipText: '删除本行',
-                    }}
-                >
-                    <ProFormGroup key='group'>
-                        <ProFormText name='name' label='名称'/>
-                        <ProFormText name='desc' label='描述'/>
-                        <ProFormSelect
-                            initialValue={0}
-                            options={[
-                                {
-                                    label: '字符串',
-                                    value: 0
-                                }, {
-                                    label: '数值',
-                                    value: 1
-                                }
-                            ]}
-                            name='type'
-                            label='类型'
-                        />
-                        <ProFormSelect
-                            initialValue={false}
-                            options={[
-                                {
-                                    label: '是',
-                                    value: true
-                                }, {
-                                    label: '否',
-                                    value: false
-                                }
-                            ]}
-                            name='primary'
-                            label='主属性'
-                        />
-                    </ProFormGroup>
-                </ProFormList>
-            </ProFormList>
-        </DrawerForm>
-    }
+
+    const groupsEnum: any = {}
+    groups.forEach(g => groupsEnum[g.id] = {
+        text: g.name,
+    })
     // 表格列
     const columns: ProColumns<Graph.Graph>[] = [
         {
             title: '名称',
             dataIndex: 'name',
             copyable: true,
-            fixed: 'left'
+            fixed: 'left',
         },
         {
             title: '描述',
@@ -455,10 +233,12 @@ const HomePage: React.FC = (props) => {
             dataIndex: 'groupId',
             copyable: true,
             ellipsis: true,
+            valueType: 'select',
+            valueEnum: groupsEnum,
+            filters: true,
+            onFilter: true,
             hideInSearch: true,
-            render: (text, record, _, action) => {
-                return groups.find((g: Graph.Group) => g.id === record.groupId)?.name
-            },
+            tooltip: '对图中节点、边结构的一组定义'
         },
         {
             title: '节点',
@@ -485,6 +265,7 @@ const HomePage: React.FC = (props) => {
             filters: true,
             onFilter: true,
             valueType: 'select',
+            hideInSearch: true,
             valueEnum: {
                 2: {
                     text: '更新中',
@@ -604,14 +385,10 @@ const HomePage: React.FC = (props) => {
                         listsHeight: 400,
                     },
                 }}
-                pagination={{
-                    position: ['bottomCenter', 'bottomRight'],
-                    pageSize: 10,
-                }}
+                pagination={false}
                 dateFormatter='string'
                 headerTitle={<Title level={4} style={{margin: '0 0 0 0'}}>图谱列表</Title>}
                 toolBarRender={(action) => [
-                    getCreateGroupModal(),
                     getNewGraphModal(),
                 ]}
             />

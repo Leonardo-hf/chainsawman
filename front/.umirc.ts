@@ -3,7 +3,7 @@ import {defineConfig} from '@umijs/max';
 
 export default defineConfig({
     antd: {},
-    history: { type: 'hash' },
+    history: {type: 'hash'},
     hash: true,
     model: {},
     initialState: {},
@@ -68,6 +68,11 @@ export default defineConfig({
                     component: './Graph'
                 }
             ]
+        },
+        {
+            name: '策略组',
+            path: '/group',
+            component: './Group'
         },
         {
             name: '软件成分分析',

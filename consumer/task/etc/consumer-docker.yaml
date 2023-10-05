@@ -1,7 +1,6 @@
-AlgoRpc:
-  Endpoints:
-    - algo-svc:8081
-  Timeout: 86400000
+Algo:
+  Addr: "livy:8998"
+  SparkMasterUI: "spark://spark-proxy:8080"
 
 Nebula:
   Addr: "nebula-graphd-svc"
@@ -20,6 +19,7 @@ Minio:
   SecretAccessKey: minioadmin
   UseSSL: false
   SourceBucket: source
+  AlgoBucket: algo
   SourceExpired: 1
 
 TaskMq:

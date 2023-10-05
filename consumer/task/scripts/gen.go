@@ -84,7 +84,9 @@ func main() {
 			RelateSlicePointer: true,
 			GORMTag:            groupIDGormTag,
 		}))
-	//allModel := g.GenerateAllTable(fieldOpts...)
-	g.ApplyBasic(graphModel, taskModel, groupModel, nodeModel, edgeModel, nodeAttrModel, edgeAttrModel)
+	algoIDGormTag := field.NewGormTag()
+	algoIDGormTag.Set("foreignKey", "algoID")
+	algoModel := g.GenerateModel("algos")
+	g.ApplyBasic(graphModel, taskModel, groupModel, nodeModel, edgeModel, nodeAttrModel, edgeAttrModel, algoModel)
 	g.Execute()
 }

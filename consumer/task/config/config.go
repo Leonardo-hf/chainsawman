@@ -4,8 +4,7 @@ import (
 	"chainsawman/common"
 	"chainsawman/consumer/task/db"
 	"chainsawman/consumer/task/mq"
-	"chainsawman/consumer/task/types/rpc/algo"
-	"github.com/zeromicro/go-zero/zrpc"
+	"chainsawman/consumer/task/rpc"
 )
 
 type Config struct {
@@ -14,12 +13,12 @@ type Config struct {
 	Mysql  db.MysqlConfig
 	Minio  db.MinioConfig
 
+	Algo rpc.LivyConfig
+
 	TaskMq   mq.TaskMqConfig
 	TaskMqV2 mq.AsynqConfig
 
 	TaskMqEd string
-
-	AlgoRPC zrpc.RpcClientConf
 }
 
 var (
@@ -30,7 +29,7 @@ var (
 )
 
 var (
-	AlgoRPC algo.AlgoClient
+	AlgoService rpc.AlgoService
 )
 
 var TaskMq mq.TaskMq
@@ -41,8 +40,7 @@ func Init(c *Config) {
 	RedisClient = db.InitRedisClient(&c.Redis)
 	OSSClient = db.InitMinioClient(&c.Minio)
 
-	AlgoRPC = algo.NewAlgoClient(zrpc.MustNewClient(c.AlgoRPC).Conn())
-
+	AlgoService = rpc.InitLivyClient(&c.Algo)
 	if c.TaskMqEd == common.TaskMqEd {
 		TaskMq = mq.InitTaskMq(&c.TaskMq)
 	}

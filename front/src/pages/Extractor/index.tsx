@@ -1,4 +1,4 @@
-import {upload} from "@/utils/oss";
+import {uploadSource} from "@/utils/oss";
 import {InboxOutlined} from "@ant-design/icons";
 import {PageContainer} from "@ant-design/pro-components"
 import Graphin from "@antv/graphin";
@@ -28,7 +28,7 @@ const Extractor: React.FC = (props) => {
             message.error('必须上传一个包文件')
             return
         }
-        const fileId = await upload(fileList[0].originFileObj!)
+        const fileId = await uploadSource(fileList[0].originFileObj!)
         request('/api/util/parse', {
             timeout: 20000,
             method: 'get',

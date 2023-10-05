@@ -15,6 +15,7 @@ type MinioClientImpl struct {
 	client  *minio.Client
 	source  string
 	algo    string
+	lib     string
 	expired time.Duration
 }
 
@@ -26,6 +27,7 @@ type MinioConfig struct {
 	SourceExpired   int
 	URLExpired      int
 	SourceBucket    string
+	LibBucket       string
 	AlgoBucket      string
 }
 
@@ -37,21 +39,22 @@ func InitMinioClient(cfg *MinioConfig) OSSClient {
 		logx.Errorf("[OSS] minio connect fail, err=%v ", err)
 		panic(err)
 	}
-	bucket := cfg.SourceBucket
+	source := cfg.SourceBucket
 	c := &MinioClientImpl{
 		client:  m,
-		source:  bucket,
+		source:  source,
+		lib:     cfg.LibBucket,
 		algo:    cfg.AlgoBucket,
 		expired: time.Duration(cfg.URLExpired) * time.Second,
 	}
 	ctx := context.Background()
-	if ok, _ := m.BucketExists(ctx, bucket); !ok {
-		err = m.MakeBucket(ctx, bucket, minio.MakeBucketOptions{ObjectLocking: false})
+	if ok, _ := m.BucketExists(ctx, source); !ok {
+		err = m.MakeBucket(ctx, source, minio.MakeBucketOptions{ObjectLocking: false})
 		if err != nil {
 			logx.Errorf("[Graph] fail to create bucket in minio, err: %v", err)
 			panic(err)
 		}
-		err = m.SetBucketLifecycle(ctx, bucket, &lifecycle.Configuration{
+		err = m.SetBucketLifecycle(ctx, source, &lifecycle.Configuration{
 			Rules: []lifecycle.Rule{
 				{
 					ID:     "expire-source",
@@ -70,7 +73,7 @@ func InitMinioClient(cfg *MinioConfig) OSSClient {
 	return c
 }
 
-func (m *MinioClientImpl) PutPresignedURL(ctx context.Context, name string) (string, error) {
+func (m *MinioClientImpl) PutSourcePresignedURL(ctx context.Context, name string) (string, error) {
 	presignedURL, err := m.client.PresignedPutObject(ctx, m.source, name, m.expired)
 	if err != nil {
 		return "", err
@@ -78,7 +81,15 @@ func (m *MinioClientImpl) PutPresignedURL(ctx context.Context, name string) (str
 	return presignedURL.String(), nil
 }
 
-func (m *MinioClientImpl) GetPresignedURL(ctx context.Context, name string) (string, error) {
+func (m *MinioClientImpl) PutLibPresignedURL(ctx context.Context, name string) (string, error) {
+	presignedURL, err := m.client.PresignedPutObject(ctx, m.lib, name, m.expired)
+	if err != nil {
+		return "", err
+	}
+	return presignedURL.String(), nil
+}
+
+func (m *MinioClientImpl) GetAlgoPresignedURL(ctx context.Context, name string) (string, error) {
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=\"%v\"", name))
 	presignedURL, err := m.client.PresignedGetObject(ctx, m.algo, name, m.expired, reqParams)

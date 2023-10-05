@@ -29,6 +29,7 @@ func (r *Record) Put(key string, value string) {
 }
 
 func (r *Record) Get(key string) (string, error) {
+	key = strings.ToLower(key)
 	if v, ok := r.strMap[key]; ok {
 		return v, nil
 	}
@@ -36,10 +37,22 @@ func (r *Record) Get(key string) (string, error) {
 }
 
 func (r *Record) GetAsInt(key string) (int64, error) {
+	key = strings.ToLower(key)
 	if v, ok := r.strMap[key]; ok {
 		vInt, err := strconv.ParseInt(v, 10, 64)
 		if err == nil {
 			return vInt, nil
+		}
+	}
+	return 0, convErr(key)
+}
+
+func (r *Record) GetAsFloat64(key string) (float64, error) {
+	key = strings.ToLower(key)
+	if v, ok := r.strMap[key]; ok {
+		vFloat64, err := strconv.ParseFloat(v, 64)
+		if err == nil {
+			return vFloat64, nil
 		}
 	}
 	return 0, convErr(key)
@@ -75,7 +88,7 @@ func (c *csvParser) Next() (*Record, error) {
 		return nil, err
 	}
 	if err != nil || len(records) != len(c.titles) {
-		return nil, err
+		return nil, fmt.Errorf("line with wrong format, line: %v, err: %v", records, err)
 	}
 	r := &Record{make(map[string]string)}
 	for i, v := range records {

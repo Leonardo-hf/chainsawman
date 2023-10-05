@@ -5,6 +5,7 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/handler"
 	"chainsawman/consumer/task/model"
+	"github.com/google/uuid"
 	"os"
 	"strconv"
 	"time"
@@ -14,7 +15,6 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -29,18 +29,8 @@ func initHandleTable() {
 	handleTable[common.GraphNeighbors] = &handler.GetNeighbors{}
 	handleTable[common.GraphNodes] = &handler.GetNodes{}
 	handleTable[common.GraphCreate] = &handler.CreateGraph{}
-	handleTable[common.AlgoDegree] = &handler.AlgoDegree{}
-	handleTable[common.AlgoPagerank] = &handler.AlgoPageRank{}
-	handleTable[common.AlgoCloseness] = &handler.AlgoCloseness{}
-	handleTable[common.AlgoBetweenness] = &handler.AlgoBetweenness{}
-	handleTable[common.AlgoAvgCC] = &handler.AlgoAvgCC{}
-	handleTable[common.AlgoLouvain] = &handler.AlgoLouvain{}
-	//handleTable[common.AlgoComp] = &handler.AlgoComp{}
-	handleTable[common.AlgoQuantity] = &handler.AlgoQuantity{}
-	handleTable[common.AlgoDepth] = &handler.AlgoDepth{}
-	handleTable[common.AlgoIntegration] = &handler.AlgoBetweenness{}
-	handleTable[common.AlgoEcology] = &handler.AlgoEcology{}
-
+	handleTable[common.AlgoRank] = &handler.AlgoRank{}
+	handleTable[common.AlgoScore] = &handler.AlgoScore{}
 }
 
 func main() {
@@ -58,6 +48,13 @@ func main() {
 	config.Init(&c)
 	initHandleTable()
 	if c.IsTaskV2Enabled() {
+		reportError := func(ctx context.Context, task *asynq.Task, err error) {
+			retried, _ := asynq.GetRetryCount(ctx)
+			maxRetry, _ := asynq.GetMaxRetry(ctx)
+			if retried >= maxRetry {
+				logx.Errorf("retry exhausted for task %s: %w", task.Type, err)
+			}
+		}
 		srv := asynq.NewServer(
 			asynq.RedisClientOpt{Addr: c.TaskMq.Addr},
 			asynq.Config{
@@ -67,6 +64,7 @@ func main() {
 					common.PMedium: 3,
 					common.PLow:    1,
 				},
+				ErrorHandler: asynq.ErrorHandlerFunc(reportError),
 			},
 		)
 		mux := asynq.NewServeMux()

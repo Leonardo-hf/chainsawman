@@ -211,6 +211,24 @@ type Rank struct {
 	Score float64 `json:"score"`
 }
 
+type Algo struct {
+	Id       int64        `json:"id"`
+	Name     string       `json:"name"`
+	Desc     string       `json:"desc"`
+	IsCustom bool         `json:"isCustom"`
+	Type     int64        `json:"type"`
+	Params   []*AlgoParam `json:"params"`
+}
+
+type AlgoParam struct {
+	Key       string  `json:"key"`
+	KeyDesc   string  `json:"keyDesc"`
+	Type      int64   `json:"type"`
+	InitValue float64 `json:"initValue"`
+	Max       float64 `json:"max"`
+	Min       float64 `json:"min"`
+}
+
 type AlgoRankReply struct {
 	Base  *BaseReply `json:"base"`
 	Ranks []*Rank    `json:"ranks"`
@@ -222,33 +240,26 @@ type AlgoMetricReply struct {
 	Score float64    `json:"score"`
 }
 
-type AlgoRequest struct {
-	TaskID  string `form:"taskId,optional"`
-	GraphID int64  `form:"graphId"`
+type GetAlgoReply struct {
+	Base  *BaseReply `json:"base"`
+	Algos []*Algo    `json:"algos"`
 }
 
-type AlgoDegreeRequest struct {
-	TaskID  string `form:"taskId,optional"`
-	GraphID int64  `form:"graphId"`
+type DropAlgoRequest struct {
+	AlgoID int64 `json:"algoId"`
 }
 
-type AlgoPageRankRequest struct {
+type CreateAlgoRequest struct {
+	Algo       *Algo        `json:"algo"`
+	EntryPoint string       `json:"entryPoint"`
+	Jar        string       `json:"jar"`
+	JVMOpts    []*Pair      `json:"jvmOpts,optional"`
+	AlgoParams []*AlgoParam `json:"algoParams,optional"`
+}
+
+type ExecAlgoRequest struct {
 	TaskID  string  `form:"taskId,optional"`
 	GraphID int64   `form:"graphId"`
-	Iter    int64   `form:"iter,default=3"`
-	Prob    float64 `form:"prob,default=0.85"`
-}
-
-type AlgoVoteRankRequest struct {
-	TaskID  string `form:"taskId,optional"`
-	GraphID int64  `form:"graphId"`
-	Iter    int64  `form:"iter,default=100"`
-}
-
-type AlgoLouvainRequest struct {
-	TaskID       string  `form:"taskId,optional"`
-	GraphID      int64   `form:"graphId"`
-	MaxIter      int64   `form:"maxIter,default=10"`
-	InternalIter int64   `form:"internalIter,default=5"`
-	Tol          float64 `form:"tol,default=0.5"`
+	AlgoID  int64   `form:"algoId"`
+	Params  []*Pair `form:"params,optional"`
 }

@@ -30,7 +30,8 @@ func InitTaskMqV2(cfg *AsynqConfig) TaskMq {
 func (a *AsynqImpl) enqueue(ctx context.Context, idf string, task *model.KVTask) (*asynq.TaskInfo, error) {
 	t := common.TaskIdf(idf)
 	content, _ := proto.Marshal(task)
-	return a.client.EnqueueContext(ctx, asynq.NewTask(idf, content), asynq.MaxRetry(3), asynq.Queue(t.Queue))
+	// TODO: maxRetry
+	return a.client.EnqueueContext(ctx, asynq.NewTask(idf, content), asynq.MaxRetry(0), asynq.Queue(t.Queue))
 }
 
 func (a *AsynqImpl) ProduceTaskMsg(ctx context.Context, task *model.KVTask) (string, error) {

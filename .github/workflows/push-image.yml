@@ -16,11 +16,6 @@ jobs:
     steps:
       - name: Check out thr repo
         uses: actions/checkout@v3
-      - name: Setup Environment -- Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
       - name: Set Environment -- Go
         uses: actions/setup-go@v4
         with:
@@ -66,20 +61,3 @@ jobs:
           push: true
           file: front/front.Dockerfile
           tags: applerodite/chs-front:latest
-      - name: Build Jar for algo
-        run: |
-          cd algo
-          mvn --batch-mode --update-snapshots package -DskipTests=true -Dmaven.javadoc.skip=true
-      - name: Build and push Docker image -- algo
-        uses: docker/build-push-action@v4
-        with:
-          context: algo/target/docker/
-          push: true
-          tags: applerodite/chs-algo:latest
-      - name: Build and push Docker image -- spark
-        uses: docker/build-push-action@v4
-        with:
-          context: algo/target/docker/
-          push: true
-          tags: applerodite/chs-spark:latest
-          file: dockerfiles/myspark.Dockerfile

@@ -2,13 +2,37 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 平均聚类系数 GET /api/graph/algo/avgCC */
-export async function algoAvgCC(
+/** 创建算法 POST /api/graph/algo/algo/create */
+export async function algoCreate(body: Graph.CreateAlgoRequest, options?: { [key: string]: any }) {
+  return request<Graph.BaseReply>('/api/graph/algo/algo/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 删除算法 POST /api/graph/algo/algo/drop */
+export async function algoDrop(body: Graph.DropAlgoRequest, options?: { [key: string]: any }) {
+  return request<Graph.BaseReply>('/api/graph/algo/algo/drop', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 执行排序算法 GET /api/graph/algo/algo/exec/rank */
+export async function algoExecRank(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoAvgCCParams,
+  params: Graph.algoExecRankParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.AlgoMetricReply>('/api/graph/algo/avgCC', {
+  return request<Graph.AlgoRankReply>('/api/graph/algo/algo/exec/rank', {
     method: 'GET',
     params: {
       ...params,
@@ -17,13 +41,13 @@ export async function algoAvgCC(
   });
 }
 
-/** Betweenness算法 GET /api/graph/algo/betweenness */
-export async function algoBetweenness(
+/** 执行指标算法 GET /api/graph/algo/algo/exec/score */
+export async function algoExecScore(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoBetweennessParams,
+  params: Graph.algoExecScoreParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/betweenness', {
+  return request<Graph.AlgoMetricReply>('/api/graph/algo/algo/exec/score', {
     method: 'GET',
     params: {
       ...params,
@@ -32,134 +56,10 @@ export async function algoBetweenness(
   });
 }
 
-/** Closeness算法 GET /api/graph/algo/closeness */
-export async function algoCloseness(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoClosenessParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/closeness', {
+/** 查询算法 GET /api/graph/algo/algo/getAll */
+export async function algoGetAll(options?: { [key: string]: any }) {
+  return request<Graph.GetAlgoReply>('/api/graph/algo/algo/getAll', {
     method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** 度中心度算法 GET /api/graph/algo/degree */
-export async function algoDegree(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoDegreeParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/degree', {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** Depth算法 GET /api/graph/algo/depth */
-export async function algoDepth(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoDepthParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/depth', {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** Ecology算法 GET /api/graph/algo/ecology */
-export async function algoEcology(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoEcologyParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/ecology', {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** Integration算法 GET /api/graph/algo/integration */
-export async function algoIntegration(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoIntegrationParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/integration', {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** Louvain聚类算法 GET /api/graph/algo/louvain */
-export async function algoLouvain(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoLouvainParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/louvain', {
-    method: 'GET',
-    params: {
-      // maxIter has a default value: 10
-      maxIter: '10',
-      // internalIter has a default value: 5
-      internalIter: '5',
-      // tol has a default value: 0.5
-      tol: '0.5',
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** PageRank算法 GET /api/graph/algo/pr */
-export async function algoPageRank(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoPageRankParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/pr', {
-    method: 'GET',
-    params: {
-      // iter has a default value: 3
-      iter: '3',
-      // prob has a default value: 0.85
-      prob: '0.85',
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** Quantity算法 GET /api/graph/algo/quantity */
-export async function algoQuantity(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoQuantityParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/quantity', {
-    method: 'GET',
-    params: {
-      // iter has a default value: 100
-      iter: '100',
-      ...params,
-    },
     ...(options || {}),
   });
 }
@@ -208,13 +108,13 @@ export async function dropGraph(body: Graph.DropGraphRequest, options?: { [key: 
   });
 }
 
-/** 获得文件下载链接 GET /api/graph/file/get */
-export async function fileGetPresigned(
+/** 获得文件下载链接 GET /api/graph/file/get/algo */
+export async function fileAlgoGetPresigned(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.fileGetPresignedParams,
+  params: Graph.fileAlgoGetPresignedParams,
   options?: { [key: string]: any },
 ) {
-  return request<Graph.PresignedReply>('/api/graph/file/get', {
+  return request<Graph.PresignedReply>('/api/graph/file/get/algo', {
     method: 'GET',
     params: {
       ...params,
@@ -223,9 +123,17 @@ export async function fileGetPresigned(
   });
 }
 
-/** 获得文件上传链接 GET /api/graph/file/put */
-export async function filePutPresigned(options?: { [key: string]: any }) {
-  return request<Graph.PresignedReply>('/api/graph/file/put', {
+/** 获得算法库文件上传链接 GET /api/graph/file/put/lib */
+export async function fileLibPutPresigned(options?: { [key: string]: any }) {
+  return request<Graph.PresignedReply>('/api/graph/file/put/lib', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 获得图源文件上传链接 GET /api/graph/file/put/source */
+export async function fileSourcePutPresigned(options?: { [key: string]: any }) {
+  return request<Graph.PresignedReply>('/api/graph/file/put/source', {
     method: 'GET',
     ...(options || {}),
   });

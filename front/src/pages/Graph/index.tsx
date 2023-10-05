@@ -4,8 +4,9 @@ import {Button, Card, Col, Divider, InputNumber, message, Row, Space, Spin, Tag,
 import React, {SetStateAction, useEffect, useState} from 'react';
 import {connect, useModel} from '@@/exports';
 import {formatDate, formatNumber, getRandomColor} from '@/utils/format';
-import {Algo, algos, AlgoType, AlgoTypeMap, getAlgoTypeDesc, ParamType} from './_algo';
-import {dropGraph, dropTask, getGraphTasks, getMatchNodes} from '@/services/graph/graph';
+import {AlgoType, AlgoTypeMap, getAlgoTypeDesc} from './_algo';
+import {ParamType} from "@/constants";
+import {algoExecRank, algoExecScore, dropGraph, dropTask, getGraphTasks, getMatchNodes} from '@/services/graph/graph';
 import {getTaskTypeDesc, TaskTypeMap} from './_task';
 import MetricTable from '@/components/MetricTable';
 import RankTable from '@/components/RankTable';
@@ -38,7 +39,8 @@ const Graph: React.FC<Props> = (props) => {
     const [graphLayout, setGraphLayout] = useState<string>('graphin-force')
     const [tab, setTab] = useState<string>('attr')
     const [gid, setGID] = useState<string>(getGraphName(graph.id))
-
+    const {initialState} = useModel('@@initialState')
+    const {algos} = initialState
     const graphinRef = React.createRef(), taskListRef = React.createRef()
     const graphDetail = findByGid(details, gid)
 
@@ -396,15 +398,29 @@ const Graph: React.FC<Props> = (props) => {
                         description: {},
                     }}/>
             case 'algo':
-                const getAlgoTag = (type: AlgoType) => {
+                const getAlgoTag = (type: number) => {
                     const desc = getAlgoTypeDesc(type)
                     return <Tag color={desc.color}>{desc.text}</Tag>
                 }
-                const getAlgoContent = (algo: Algo) => {
+                const getAlgoContent = (algo: Graph.Algo) => {
                     const onFinish = async (params: any) => {
-                        return await algo.action({
+                        const pairs: Graph.Pair[] = []
+                        for (let k in params) {
+                            pairs.push({key: k, value: params[k]})
+                        }
+                        let method: any
+                        switch (algo.type) {
+                            case AlgoType.rank:
+                            case AlgoType.cluster:
+                                method = algoExecRank
+                                break
+                            case AlgoType.metrics:
+                                method = algoExecScore
+                        }
+                        return await method({
                             graphId: id,
-                            ...params
+                            algoId: algo.id,
+                            params: pairs
                         }).then(() => {
                             message.success('算法已提交')
                             setExtKeysAlgo([])
@@ -412,8 +428,15 @@ const Graph: React.FC<Props> = (props) => {
                             return true
                         })
                     }
+                    // 设置算法的初始值
+                    const initValues: any = {}
+                    algo.params.forEach(p => {
+                        if (p.initValue) {
+                            initValues[p.key] = p.initValue
+                        }
+                    })
                     return <Space direction={'vertical'}>
-                        <Text type={'secondary'}>{algo.description}</Text>
+                        <Text type={'secondary'}>{algo.desc}</Text>
                         <Divider/>
                         <ProForm
                             onFinish={onFinish}
@@ -423,40 +446,25 @@ const Graph: React.FC<Props> = (props) => {
                                     submitText: '执行',
                                 }
                             }}
-                            initialValues={{
-                                // pagerank
-                                iter: 3,
-                                prob: 0.85,
-                                // louvain
-                                maxIter: 10,
-                                internalIter: 5,
-                                tol: 0.3,
-                            }}
+                            initialValues={initValues}
                         >{
-                            algo.params.map(p => {
+                            algo.params?.map(p => {
                                 switch (p.type) {
                                     case ParamType.Int:
-                                        return <ProFormDigit name={p.field} fieldProps={{precision: 0}}
-                                                             label={p.text} max={p.max} min={p.min}/>
+                                        return <ProFormDigit name={p.key} fieldProps={{precision: 0}}
+                                                             label={p.keyDesc} max={p.max} min={p.min}/>
                                     case ParamType.Double:
-                                        return <ProFormDigit name={p.field} fieldProps={{precision: 4, step: 1e-4}}
-                                                             label={p.text} max={p.max} min={p.min}/>
+                                        return <ProFormDigit name={p.key} fieldProps={{precision: 4, step: 1e-4}}
+                                                             label={p.keyDesc} max={p.max} min={p.min}/>
                                 }
                             })
                         }
                         </ProForm>
                     </Space>
                 }
-                return <ProList<Algo>
+                return <ProList<Graph.Algo>
                     key='algoProList'
                     rowKey={(row, index) => row.id}
-                    toolBarRender={() => {
-                        return [
-                            <Button key='3' type='primary'>
-                                新建
-                            </Button>,
-                        ];
-                    }}
                     style={{
                         height: '80vh',
                         overflowY: 'scroll',
@@ -473,14 +481,15 @@ const Graph: React.FC<Props> = (props) => {
                     request={
                         async (params = {time: Date.now()}) => {
                             return {
-                                data: algos.filter(a => !params.subTitle || a.type == params.subTitle),
+                                data: algos.filter((a: Graph.Algo) => !params.subTitle || a.type == params.subTitle),
                                 success: true,
                                 total: algos.length
                             }
                         }}
                     metas={{
                         title: {
-                            search: false
+                            dataIndex: "name",
+                            search: false,
                         },
                         subTitle: {
                             title: '类别',
@@ -514,7 +523,6 @@ const Graph: React.FC<Props> = (props) => {
                                 return <MetricTable score={res.score}/>
                             }
                             if (res?.ranks) {
-                                console.log(res)
                                 return <RankTable file={res.file} rows={
                                     res.ranks.map((r: { tag: string, node: Graph.Node; score: any; }) => {
                                         let node = r.tag + '(' + r.node.id + ','

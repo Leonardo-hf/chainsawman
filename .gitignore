@@ -1,20 +1,29 @@
 .idea
 
-file/storage
-
 front/.idea
 front/node_modules
 front/package-lock.json
 front/*.iml
 front/src/.umi
+front/mock
 
-algo/target
 algo/.idea
-algo/dependency-reduced-pom.xml
+algo/betweenness/target
+algo/closeness/target
+algo/clusteringCoefficient/target
+algo/common/target
+algo/degree/target
+algo/depth/target
+algo/ecology/target
+algo/louvain/target
+algo/pagerank/target
+algo/voterank/target
 
 dockerfiles/minio/
 dockerfiles/mysql/data
 dockerfiles/mysql/mysql-files
 dockerfiles/nebula/
 dockerfiles/redis/data
-dockerfiles/spark/
+dockerfiles/spark/share
+dockerfiles/spark/jar/common-latest-jar-with-dependencies.jar
+dockerfiles/livy/data

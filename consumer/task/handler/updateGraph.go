@@ -8,12 +8,16 @@ import (
 	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/jsonx"
+	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"strconv"
 )
 
 type UpdateGraph struct {
 }
+
+// 期望为：一次最多在内存中存入 100M 数据
+const maxInsertNum = 100000
 
 // TODO: 更新
 func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
@@ -28,76 +32,14 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	// TODO: 是否存在占用过多内存的问题？
+	// XLS/XLSX 最大行数有限，尽管需要全部读入内存，但不会造成问题，CSV 则可能过大，但可以流式读取，分批插入
 	numNode, numEdge := 0, 0
-	nodeMap := make(map[int64]*common.Record)
-	nodeTypeList := make([]int64, 0)
-	nodeRecordList := make([][]*common.Record, 0)
-	// 读所有节点文件, 暂存节点数据
-	for _, nodeType := range req.NodeFileList {
-		t, nodeFileId := nodeType.Key, nodeType.Value
-		tid, _ := strconv.ParseInt(t, 10, 64)
-		file, err := config.OSSClient.Fetch(ctx, nodeFileId)
-		if err != nil {
-			return "", err
-		}
-		records, err := handle(file)
-		if err != nil {
-			return "", err
-		}
-		for _, r := range records {
-			nodeID, err := r.GetAsInt(common.KeyID)
-			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of nodes needs `id`")
-			}
-			r.Put(common.KeyDeg, common.DefaultDeg)
-			nodeMap[nodeID] = r
-		}
-		// 合计节点数目
-		numNode += len(records)
-		nodeTypeList = append(nodeTypeList, tid)
-		nodeRecordList = append(nodeRecordList, records)
-	}
 	// 读所有边文件
+	degMap := make(map[int64]int64)
 	for _, edgeType := range req.EdgeFileList {
+		// 确认边类型
 		t, edgeFileId := edgeType.Key, edgeType.Value
 		tid, _ := strconv.ParseInt(t, 10, 64)
-		file, err := config.OSSClient.Fetch(ctx, edgeFileId)
-		if err != nil {
-			return "", err
-		}
-		records, err := handle(file)
-		edgeRecords := make([]*common.Record, 0)
-		if err != nil {
-			return "", err
-		}
-		// 如果边的两端节点不存在，则舍弃该边
-		// 两端节点度数+1
-		for _, r := range records {
-			src, err := r.GetAsInt(common.KeySrc)
-			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of edges needs `source`")
-			}
-			tgt, err := r.GetAsInt(common.KeyTgt)
-			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of edges needs `target`")
-			}
-			var ok bool
-			var srcRecord, tgtRecord *common.Record
-			if srcRecord, ok = nodeMap[src]; !ok {
-				continue
-			}
-			if tgtRecord, ok = nodeMap[tgt]; !ok {
-				continue
-			}
-			edgeRecords = append(edgeRecords, r)
-			v, _ := srcRecord.GetAsInt(common.KeyDeg)
-			srcRecord.Put(common.KeyDeg, strconv.FormatInt(v+1, 10))
-			v, _ = tgtRecord.GetAsInt(common.KeyDeg)
-			tgtRecord.Put(common.KeyDeg, strconv.FormatInt(v+1, 10))
-		}
-		// 合计边数目
-		numEdge += len(edgeRecords)
-		// 直接插入边，nebula先插入边，再插入顶点
 		var edge *model.Edge
 		for _, e := range group.Edges {
 			if e.ID == tid {
@@ -108,14 +50,69 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		if edge == nil {
 			return "", fmt.Errorf("no such edge type")
 		}
+		// 获取文件
+		file, err := config.OSSClient.FetchSource(ctx, edgeFileId)
+		if err != nil {
+			return "", err
+		}
+		// 解析文件
+		parser, err := common.NewExcelParser(file)
+		if err != nil {
+			return "", err
+		}
+		edgeRecords := make([]*common.Record, 0)
+		for {
+			r, err := parser.Next()
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				logx.Errorf("[Consumer] parse csv fail, err: %v", err)
+				continue
+			}
+			src, err := r.GetAsInt(common.KeySrc)
+			if err != nil {
+				return "", fmt.Errorf("update graph fail, source files of edges needs `source`")
+			}
+			tgt, err := r.GetAsInt(common.KeyTgt)
+			if err != nil {
+				return "", fmt.Errorf("update graph fail, source files of edges needs `target`")
+			}
+			if d, ok := degMap[src]; ok {
+				degMap[src] = d + 1
+			} else {
+				degMap[src] = 0
+			}
+			if d, ok := degMap[tgt]; ok {
+				degMap[tgt] = d + 1
+			} else {
+				degMap[tgt] = 0
+			}
+			edgeRecords = append(edgeRecords, r)
+			if len(edgeRecords) > maxInsertNum {
+				// 直接插入边，nebula先插入边，再插入顶点
+				_, err = config.NebulaClient.MultiInsertEdges(req.GraphID, edge, edgeRecords)
+				if err != nil {
+					return "", err
+				}
+				// 合计边数目
+				numEdge += len(edgeRecords)
+				// 清零
+				edgeRecords = make([]*common.Record, 0)
+			}
+		}
+		// 插入剩余边
 		_, err = config.NebulaClient.MultiInsertEdges(req.GraphID, edge, edgeRecords)
 		if err != nil {
 			return "", err
 		}
+		// 合计剩余边数目
+		numEdge += len(edgeRecords)
 	}
-
-	// 插入节点
-	for i, tid := range nodeTypeList {
+	// 读所有节点文件
+	for _, nodeType := range req.NodeFileList {
+		// 确认节点类型
+		t, nodeFileId := nodeType.Key, nodeType.Value
+		tid, _ := strconv.ParseInt(t, 10, 64)
 		var node *model.Node
 		for _, n := range group.Nodes {
 			if n.ID == tid {
@@ -126,12 +123,54 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		if node == nil {
 			return "", fmt.Errorf("no such node type")
 		}
-		_, err = config.NebulaClient.MultiInsertNodes(req.GraphID, node, nodeRecordList[i])
+		// 获得文件流
+		file, err := config.OSSClient.FetchSource(ctx, nodeFileId)
 		if err != nil {
 			return "", err
 		}
+		// 解析文件
+		parser, err := common.NewExcelParser(file)
+		if err != nil {
+			return "", err
+		}
+		nodeRecords := make([]*common.Record, 0)
+		for {
+			r, err := parser.Next()
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				logx.Errorf("[Consumer] parse csv fail, err: %v", err)
+				continue
+			}
+			nodeID, err := r.GetAsInt(common.KeyID)
+			if err != nil {
+				return "", fmt.Errorf("update graph fail, source files of nodes needs `id`")
+			}
+			r.Put(common.KeyDeg, common.DefaultDeg)
+			if d, ok := degMap[nodeID]; ok {
+				r.Put(common.KeyDeg, strconv.FormatInt(d, 10))
+			}
+			nodeRecords = append(nodeRecords, r)
+			if len(nodeRecords) > maxInsertNum {
+				// 插入节点
+				_, err = config.NebulaClient.MultiInsertNodes(req.GraphID, node, nodeRecords)
+				if err != nil {
+					return "", err
+				}
+				// 合计节点数目
+				numNode += len(nodeRecords)
+				// 清零
+				nodeRecords = make([]*common.Record, 0)
+			}
+		}
+		// 插入剩余节点
+		_, err = config.NebulaClient.MultiInsertNodes(req.GraphID, node, nodeRecords)
+		if err != nil {
+			return "", err
+		}
+		// 合计剩余节点数目
+		numNode += len(nodeRecords)
 	}
-
 	// 更新图状态
 	_, err = config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
 		ID:      req.GraphID,
@@ -156,23 +195,4 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		},
 	}
 	return jsonx.MarshalToString(resp)
-}
-
-func handle(content io.Reader) ([]*common.Record, error) {
-	parser, err := common.NewExcelParser(content)
-	if err != nil {
-		return nil, err
-	}
-	var records []*common.Record
-	for {
-		record, err := parser.Next()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			continue
-			//return nil, err
-		}
-		records = append(records, record)
-	}
-	return records, nil
 }

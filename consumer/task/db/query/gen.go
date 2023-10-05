@@ -17,6 +17,7 @@ import (
 
 var (
 	Q         = new(Query)
+	Algo      *algo
 	Edge      *edge
 	EdgesAttr *edgesAttr
 	Graph     *graph
@@ -28,6 +29,7 @@ var (
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Algo = &Q.Algo
 	Edge = &Q.Edge
 	EdgesAttr = &Q.EdgesAttr
 	Graph = &Q.Graph
@@ -40,6 +42,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:        db,
+		Algo:      newAlgo(db, opts...),
 		Edge:      newEdge(db, opts...),
 		EdgesAttr: newEdgesAttr(db, opts...),
 		Graph:     newGraph(db, opts...),
@@ -53,6 +56,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db *gorm.DB
 
+	Algo      algo
 	Edge      edge
 	EdgesAttr edgesAttr
 	Graph     graph
@@ -67,6 +71,7 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:        db,
+		Algo:      q.Algo.clone(db),
 		Edge:      q.Edge.clone(db),
 		EdgesAttr: q.EdgesAttr.clone(db),
 		Graph:     q.Graph.clone(db),
@@ -88,6 +93,7 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:        db,
+		Algo:      q.Algo.replaceDB(db),
 		Edge:      q.Edge.replaceDB(db),
 		EdgesAttr: q.EdgesAttr.replaceDB(db),
 		Graph:     q.Graph.replaceDB(db),
@@ -99,6 +105,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
+	Algo      IAlgoDo
 	Edge      IEdgeDo
 	EdgesAttr IEdgesAttrDo
 	Graph     IGraphDo
@@ -110,6 +117,7 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
+		Algo:      q.Algo.WithContext(ctx),
 		Edge:      q.Edge.WithContext(ctx),
 		EdgesAttr: q.EdgesAttr.WithContext(ctx),
 		Graph:     q.Graph.WithContext(ctx),
