@@ -1,25 +1,11 @@
 declare namespace Graph {
   type Algo = {
-    id: number;
+    id?: number;
     name: string;
     desc: string;
     isCustom: boolean;
     type: number;
-    params: AlgoParam[];
-  };
-
-  type algoExecRankParams = {
-    taskId?: string;
-    graphId: number;
-    algoId: number;
-    params?: any;
-  };
-
-  type algoExecScoreParams = {
-    taskId?: string;
-    graphId: number;
-    algoId: number;
-    params?: any;
+    params?: AlgoParam[];
   };
 
   type AlgoMetricReply = {
@@ -31,9 +17,9 @@ declare namespace Graph {
     key: string;
     keyDesc: string;
     type: number;
-    initValue: number;
-    max: number;
-    min: number;
+    initValue?: number;
+    max?: number;
+    min?: number;
   };
 
   type AlgoRankReply = {
@@ -61,8 +47,6 @@ declare namespace Graph {
     algo: Algo;
     entryPoint: string;
     jar: string;
-    jvmOpts?: Pair[];
-    algoParams?: AlgoParam[];
   };
 
   type CreateGraphRequest = {

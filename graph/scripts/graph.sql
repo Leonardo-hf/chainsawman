@@ -80,7 +80,7 @@ create table if not exists graph.edges
     groupID int                  not null,
     name    varchar(255)         not null,
     `desc`  text                 null,
-    direct  tinyint(1) default 0 not null,
+    direct  tinyint(1) default 1 not null,
     display varchar(255)         null,
     constraint edges_groups_id_fk
         foreign key (groupID) references `groups` (id)
@@ -170,13 +170,15 @@ create table if not exists graph.algos_param
             on update cascade on delete cascade
 );
 
-INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`, `max`)
 VALUES (2, "iter", "迭代次数", 2, 3, 1, 100);
-INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`, `max`)
 VALUES (2, "prob", "阻尼系数", 0, 0.85, 0.1, 1);
-INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`, `max`)
 VALUES (6, "maxIter", "外部迭代次数", 2, 10, 1, 100);
-INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`, `max`)
 VALUES (6, "internalIter", "内部迭代次数", 2, 5, 1, 50);
-INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `max`, `min`)
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`, `max`)
 VALUES (6, "tol", "最小增加量", 0, 0.3, 0.1, 1);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`)
+VALUES (7, "iter", "迭代次数", 2, 100, 1);

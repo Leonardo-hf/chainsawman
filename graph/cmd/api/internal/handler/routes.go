@@ -105,12 +105,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: algoDropHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodGet,
+				Method:  http.MethodPost,
 				Path:    "/algo/exec/rank",
 				Handler: algoExecRankHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodGet,
+				Method:  http.MethodPost,
 				Path:    "/algo/exec/score",
 				Handler: algoExecScoreHandler(serverCtx),
 			},

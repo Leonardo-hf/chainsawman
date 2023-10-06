@@ -1,3 +1,6 @@
+import {Tag} from "antd";
+import React from "react";
+
 export const TaskTypeMap = {
     0: {
         text: '未完成',
@@ -15,5 +18,6 @@ export enum TaskType {
 }
 
 export function getTaskTypeDesc(status: TaskType) {
-    return TaskTypeMap[status]
+    const s = TaskTypeMap[status]
+    return <Tag color={s.color}>{s.text}</Tag>
 }

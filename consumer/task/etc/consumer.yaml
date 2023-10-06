@@ -1,6 +1,6 @@
 Algo:
-  Addr: "127.0.0.1:8998"
-  SparkMasterUI: "127.0.0.1:8080"
+  Addr: "http://127.0.0.1:8998"
+  SparkMasterUI: "http://127.0.0.1:8080"
 
 Nebula:
   Addr: "127.0.0.1"

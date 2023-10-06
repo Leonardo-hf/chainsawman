@@ -2,7 +2,6 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 	"github.com/3-shake/livy-go"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"net/http"
@@ -28,7 +27,7 @@ func InitLivyClient(cfg *LivyConfig) AlgoService {
 
 func (l *livyClient) SubmitAlgo(jar string, entryPoint string, args map[string]interface{}) (string, error) {
 	argsJSON, err := jsonx.MarshalToString(args)
-	argsJSON = fmt.Sprintf("{%v}", strings.Replace(argsJSON[1:len(argsJSON)-1], "\"", "\\\"", -1))
+	//argsJSON = fmt.Sprintf("{%v}", strings.Replace(argsJSON[1:len(argsJSON)-1], "\"", "\\\"", -1))
 	if err != nil {
 		return "", err
 	}

@@ -261,21 +261,6 @@ services:
       - spark-proxy
       - spark-worker1
       - spark-worker2
-  algo-svc:
-    image: applerodite/chs-algo:latest                           # 镜像"applerodite/chs-algo:latest"
-    container_name: algo-svc
-    restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
-      TZ: Asia/Shanghai
-      LANG: en_US.UTF-8
-      CHS_ENV: "pre"
-    depends_on:
-      - minio-svc
-      - mysql-svc
-      - nebula-graphd-svc
-      - spark-proxy
-    ports:
-      - "8081"
   task1:
     image: applerodite/chs-task:latest                           # 镜像"applerodite/chs-task:latest"
     container_name: task1
@@ -293,7 +278,7 @@ services:
       - minio-svc
       - mysql-svc
       - nebula-graphd-svc
-      - algo-svc
+      - livy
   task2:
     image: applerodite/chs-task:latest                           # 镜像"applerodite/chs-task:latest"
     container_name: task2
@@ -311,7 +296,7 @@ services:
       - minio-svc
       - mysql-svc
       - nebula-graphd-svc
-      - algo-svc
+      - livy
   graph-svc:
     image: applerodite/chs-graph:latest                          # 镜像"applerodite/chs-graph:latest"
     container_name: graph-svc
@@ -324,7 +309,6 @@ services:
       - minio-svc
       - mysql-svc
       - nebula-graphd-svc
-      - algo-svc
       - task1
       - task2
     ports:

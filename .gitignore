@@ -19,7 +19,9 @@ algo/louvain/target
 algo/pagerank/target
 algo/voterank/target
 
-dockerfiles/minio/
+dockerfiles/minio/config
+dockerfiles/minio/data
+dockerfiles/minio/minio
 dockerfiles/mysql/data
 dockerfiles/mysql/mysql-files
 dockerfiles/nebula/

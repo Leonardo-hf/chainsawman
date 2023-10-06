@@ -88,7 +88,10 @@ func main() {
 
 func handle(ctx context.Context, task *model.KVTask, h handler.Handler) error {
 	res, err := h.Handle(task)
-	if err != nil {
+	if err == config.DelayTaskErr {
+		logx.Infof("[Task] %v", err)
+		return nil
+	} else if err != nil {
 		fmt.Println(err)
 		return err
 	}

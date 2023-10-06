@@ -70,7 +70,7 @@
       }
     },
     "/api/graph/algo/algo/exec/rank": {
-      "get": {
+      "post": {
         "summary": "执行排序算法",
         "operationId": "algoExecRank",
         "responses": {
@@ -83,31 +83,12 @@
         },
         "parameters": [
           {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
+            "name": "body",
+            "in": "body",
             "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "algoId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "params",
-            "in": "query",
-            "required": false,
-            "type": "invalid",
-            "format": "UNKNOWN"
+            "schema": {
+              "$ref": "#/definitions/ExecAlgoRequest"
+            }
           }
         ],
         "tags": [
@@ -116,7 +97,7 @@
       }
     },
     "/api/graph/algo/algo/exec/score": {
-      "get": {
+      "post": {
         "summary": "执行指标算法",
         "operationId": "algoExecScore",
         "responses": {
@@ -129,31 +110,12 @@
         },
         "parameters": [
           {
-            "name": "taskId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "graphId",
-            "in": "query",
+            "name": "body",
+            "in": "body",
             "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "algoId",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "params",
-            "in": "query",
-            "required": false,
-            "type": "invalid",
-            "format": "UNKNOWN"
+            "schema": {
+              "$ref": "#/definitions/ExecAlgoRequest"
+            }
           }
         ],
         "tags": [
@@ -663,12 +625,10 @@
       },
       "title": "Algo",
       "required": [
-        "id",
         "name",
         "desc",
         "isCustom",
-        "type",
-        "params"
+        "type"
       ]
     },
     "AlgoMetricReply": {
@@ -718,10 +678,7 @@
       "required": [
         "key",
         "keyDesc",
-        "type",
-        "initValue",
-        "max",
-        "min"
+        "type"
       ]
     },
     "AlgoRankReply": {
@@ -814,18 +771,6 @@
         },
         "jar": {
           "type": "string"
-        },
-        "jvmOpts": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Pair"
-          }
-        },
-        "algoParams": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/AlgoParam"
-          }
         }
       },
       "title": "CreateAlgoRequest",

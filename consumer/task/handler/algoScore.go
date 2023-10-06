@@ -112,13 +112,7 @@ func (h *AlgoScore) Handle(task *model.KVTask) (string, error) {
 		backoffCfg.MaxElapsedTime = 365 * 24 * time.Hour
 		backoffCfg.MaxInterval = 10 * time.Minute
 		_ = backoff.Retry(op, backoffCfg)
+		logx.Infof("[Task] finish task, idf=%v", task.Idf)
 	}()
-	resp := &types.AlgoMetricReply{
-		Base: &types.BaseReply{
-			TaskID:     taskID,
-			TaskStatus: int64(model.KVTask_New),
-		},
-	}
-	return jsonx.MarshalToString(resp)
-
+	return "", config.DelayTaskErr
 }

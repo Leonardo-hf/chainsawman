@@ -28,7 +28,7 @@ func NewAlgoCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AlgoCr
 
 func (l *AlgoCreateLogic) AlgoCreate(req *types.CreateAlgoRequest) (resp *types.BaseReply, err error) {
 	params := make([]*model.AlgosParam, 0)
-	for _, p := range req.AlgoParams {
+	for _, p := range req.Algo.Params {
 		params = append(params, &model.AlgosParam{
 			FieldName: p.Key,
 			FieldDesc: p.KeyDesc,

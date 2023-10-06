@@ -4,8 +4,7 @@ import {Button, Card, Col, Divider, InputNumber, message, Row, Space, Spin, Tag,
 import React, {SetStateAction, useEffect, useState} from 'react';
 import {connect, useModel} from '@@/exports';
 import {formatDate, formatNumber, getRandomColor} from '@/utils/format';
-import {AlgoType, AlgoTypeMap, getAlgoTypeDesc} from './_algo';
-import {ParamType} from "@/constants";
+import {ParamType, AlgoType, AlgoTypeMap, getAlgoTypeDesc} from "@/constants";
 import {algoExecRank, algoExecScore, dropGraph, dropTask, getGraphTasks, getMatchNodes} from '@/services/graph/graph';
 import {getTaskTypeDesc, TaskTypeMap} from './_task';
 import MetricTable from '@/components/MetricTable';
@@ -398,15 +397,11 @@ const Graph: React.FC<Props> = (props) => {
                         description: {},
                     }}/>
             case 'algo':
-                const getAlgoTag = (type: number) => {
-                    const desc = getAlgoTypeDesc(type)
-                    return <Tag color={desc.color}>{desc.text}</Tag>
-                }
                 const getAlgoContent = (algo: Graph.Algo) => {
                     const onFinish = async (params: any) => {
                         const pairs: Graph.Pair[] = []
                         for (let k in params) {
-                            pairs.push({key: k, value: params[k]})
+                            pairs.push({key: k, value: params[k].toString()})
                         }
                         let method: any
                         switch (algo.type) {
@@ -430,7 +425,7 @@ const Graph: React.FC<Props> = (props) => {
                     }
                     // 设置算法的初始值
                     const initValues: any = {}
-                    algo.params.forEach(p => {
+                    algo.params?.forEach(p => {
                         if (p.initValue) {
                             initValues[p.key] = p.initValue
                         }
@@ -452,10 +447,14 @@ const Graph: React.FC<Props> = (props) => {
                                 switch (p.type) {
                                     case ParamType.Int:
                                         return <ProFormDigit name={p.key} fieldProps={{precision: 0}}
-                                                             label={p.keyDesc} max={p.max} min={p.min}/>
+                                                             label={p.keyDesc}
+                                                             max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
+                                                             min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
                                     case ParamType.Double:
                                         return <ProFormDigit name={p.key} fieldProps={{precision: 4, step: 1e-4}}
-                                                             label={p.keyDesc} max={p.max} min={p.min}/>
+                                                             label={p.keyDesc}
+                                                             max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
+                                                             min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
                                 }
                             })
                         }
@@ -464,7 +463,7 @@ const Graph: React.FC<Props> = (props) => {
                 }
                 return <ProList<Graph.Algo>
                     key='algoProList'
-                    rowKey={(row, index) => row.id}
+                    rowKey={(row, index) => row.id!}
                     style={{
                         height: '80vh',
                         overflowY: 'scroll',
@@ -495,7 +494,7 @@ const Graph: React.FC<Props> = (props) => {
                             title: '类别',
                             render: (_, row) => {
                                 return <Space size={0}>
-                                    {getAlgoTag(row.type)}
+                                    {getAlgoTypeDesc(row.type)}
                                 </Space>
                             },
                             valueType: 'select',
@@ -508,10 +507,6 @@ const Graph: React.FC<Props> = (props) => {
                     }}
                 />
             case 'task':
-                const getTaskTag = (status: number) => {
-                    const s = getTaskTypeDesc(status)
-                    return <Tag color={s.color}>{s.text}</Tag>
-                }
                 const getTaskContent = (task: Graph.Task) => {
                     const getTaskResult = (sres: string) => {
                         try {
@@ -582,7 +577,7 @@ const Graph: React.FC<Props> = (props) => {
                             title: '类别',
                             render: (_, row) => {
                                 return <Space size={0}>
-                                    {getTaskTag(row.status)}
+                                    {getTaskTypeDesc(row.status)}
                                 </Space>
                             },
                             valueType: 'select',

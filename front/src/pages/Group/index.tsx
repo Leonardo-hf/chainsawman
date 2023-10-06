@@ -351,7 +351,7 @@ const Group: React.FC = () => {
                             description="将移除该组及组下所有图谱"
                             icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
                             onConfirm={() => {
-                                dropGroup({groupId: g.id})
+                                dropGroup({groupId: g.id}).then(_ => window.location.reload())
                             }}
                         >
                             <Button danger>Delete</Button>

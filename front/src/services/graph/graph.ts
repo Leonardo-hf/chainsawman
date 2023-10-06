@@ -26,32 +26,26 @@ export async function algoDrop(body: Graph.DropAlgoRequest, options?: { [key: st
   });
 }
 
-/** 执行排序算法 GET /api/graph/algo/algo/exec/rank */
-export async function algoExecRank(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoExecRankParams,
-  options?: { [key: string]: any },
-) {
+/** 执行排序算法 POST /api/graph/algo/algo/exec/rank */
+export async function algoExecRank(body: Graph.ExecAlgoRequest, options?: { [key: string]: any }) {
   return request<Graph.AlgoRankReply>('/api/graph/algo/algo/exec/rank', {
-    method: 'GET',
-    params: {
-      ...params,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }
 
-/** 执行指标算法 GET /api/graph/algo/algo/exec/score */
-export async function algoExecScore(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.algoExecScoreParams,
-  options?: { [key: string]: any },
-) {
+/** 执行指标算法 POST /api/graph/algo/algo/exec/score */
+export async function algoExecScore(body: Graph.ExecAlgoRequest, options?: { [key: string]: any }) {
   return request<Graph.AlgoMetricReply>('/api/graph/algo/algo/exec/score', {
-    method: 'GET',
-    params: {
-      ...params,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }

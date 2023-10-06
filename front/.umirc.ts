@@ -75,6 +75,11 @@ export default defineConfig({
             component: './Group'
         },
         {
+            name: '算法',
+            path: '/algo',
+            component: './Algo'
+        },
+        {
             name: '软件成分分析',
             path: '/util/extractor',
             component: './Extractor'

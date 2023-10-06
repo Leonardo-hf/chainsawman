@@ -1,6 +1,6 @@
 Algo:
-  Addr: "livy:8998"
-  SparkMasterUI: "spark://spark-proxy:8080"
+  Addr: "http://livy:8998"
+  SparkMasterUI: "http://spark-proxy:8080"
 
 Nebula:
   Addr: "nebula-graphd-svc"

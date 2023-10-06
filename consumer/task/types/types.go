@@ -212,21 +212,21 @@ type Rank struct {
 }
 
 type Algo struct {
-	Id       int64        `json:"id"`
+	Id       int64        `json:"id,optional"`
 	Name     string       `json:"name"`
 	Desc     string       `json:"desc"`
 	IsCustom bool         `json:"isCustom"`
 	Type     int64        `json:"type"`
-	Params   []*AlgoParam `json:"params"`
+	Params   []*AlgoParam `json:"params,optional"`
 }
 
 type AlgoParam struct {
 	Key       string  `json:"key"`
 	KeyDesc   string  `json:"keyDesc"`
 	Type      int64   `json:"type"`
-	InitValue float64 `json:"initValue"`
-	Max       float64 `json:"max"`
-	Min       float64 `json:"min"`
+	InitValue float64 `json:"initValue,optional"`
+	Max       float64 `json:"max,optional"`
+	Min       float64 `json:"min,optional"`
 }
 
 type AlgoRankReply struct {
@@ -250,16 +250,14 @@ type DropAlgoRequest struct {
 }
 
 type CreateAlgoRequest struct {
-	Algo       *Algo        `json:"algo"`
-	EntryPoint string       `json:"entryPoint"`
-	Jar        string       `json:"jar"`
-	JVMOpts    []*Pair      `json:"jvmOpts,optional"`
-	AlgoParams []*AlgoParam `json:"algoParams,optional"`
+	Algo       *Algo  `json:"algo"`
+	EntryPoint string `json:"entryPoint"`
+	Jar        string `json:"jar"`
 }
 
 type ExecAlgoRequest struct {
-	TaskID  string  `form:"taskId,optional"`
-	GraphID int64   `form:"graphId"`
-	AlgoID  int64   `form:"algoId"`
-	Params  []*Pair `form:"params,optional"`
+	TaskID  string  `json:"taskId,optional"`
+	GraphID int64   `json:"graphId"`
+	AlgoID  int64   `json:"algoId"`
+	Params  []*Pair `json:"params,optional"`
 }
