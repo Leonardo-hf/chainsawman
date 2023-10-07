@@ -19,16 +19,16 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	svc := &ServiceContext{
-		Config: c,
-		//NebulaClient: db.InitNebulaClient(&c.Nebula),
-		RedisClient: db.InitRedisClient(&c.Redis),
-		MysqlClient: db.InitMysqlClient(&c.Mysql),
-		//OSSClient:    db.InitMinioClient(&c.Minio),
+		Config:       c,
+		NebulaClient: db.InitNebulaClient(&c.Nebula),
+		RedisClient:  db.InitRedisClient(&c.Redis),
+		MysqlClient:  db.InitMysqlClient(&c.Mysql),
+		OSSClient:    db.InitMinioClient(&c.Minio),
 	}
-	//if c.IsTaskV2Enabled() {
-	//	svc.TaskMq = mq.InitTaskMqV2(&c.TaskMqV2)
-	//} else {
-	//	svc.TaskMq = mq.InitTaskMq(&c.TaskMq)
-	//}
+	if c.IsTaskV2Enabled() {
+		svc.TaskMq = mq.InitTaskMqV2(&c.TaskMqV2)
+	} else {
+		svc.TaskMq = mq.InitTaskMq(&c.TaskMq)
+	}
 	return svc
 }
