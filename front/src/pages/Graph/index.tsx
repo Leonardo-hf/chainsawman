@@ -10,9 +10,10 @@ import {getTaskTypeDesc, TaskTypeMap} from './_task';
 import MetricTable from '@/components/MetricTable';
 import RankTable from '@/components/RankTable';
 import {history} from 'umi';
-import {findByGid, getGraphName, isSubGraph} from '@/models/graph';
+import {EdgeData, findByGid, getGraphName, isSubGraph, NodeData} from '@/models/graph';
 import LayoutSelector from "@/components/LayoutSelector";
 import {layouts, layoutsConfig} from "@/pages/Graph/_layout";
+import {data} from "@umijs/utils/compiled/cheerio/lib/api/attributes";
 
 
 const {Text} = Typography;
@@ -39,6 +40,7 @@ const Graph: React.FC<Props> = (props) => {
     const [tab, setTab] = useState<string>('attr')
     const [gid, setGID] = useState<string>(getGraphName(graph.id))
     const {initialState} = useModel('@@initialState')
+    // @ts-ignore
     const {algos} = initialState
     const graphinRef = React.createRef(), taskListRef = React.createRef()
     const graphDetail = findByGid(details, gid)
@@ -64,6 +66,7 @@ const Graph: React.FC<Props> = (props) => {
 
     const timerManager: NodeJS.Timer[] = []
     const {groups} = useModel('global')
+    const group: Graph.Group = groups.find((g: Graph.Group) => g.id === graph.groupId)!
     const {id, name} = graph
     // 判断是否为子图
     const isSub = isSubGraph(gid)
@@ -83,7 +86,8 @@ const Graph: React.FC<Props> = (props) => {
                         top: renderTop,
                         max: renderMax,
                     },
-                    timer: timer
+                    timer: timer,
+                    group: group,
                 }).then((taskStatus: number) => {
                     if (taskStatus) {
                         clearInterval(timer)
@@ -107,6 +111,7 @@ const Graph: React.FC<Props> = (props) => {
                         nodeId: renderSrcNode!.id,
                         direction: renderDirection,
                         max: renderMax,
+                        group: group,
                     },
                     timer: timer
                 }).then((taskStatus: number) => {
@@ -141,70 +146,17 @@ const Graph: React.FC<Props> = (props) => {
     // 图谱布局
     const layout = layoutsConfig.find(item => item.type === graphLayout)
     // 数据准备
-    const nodes: any[] = []
-    const edges: any[] = []
-    const data = {
-        nodes: nodes,
-        edges: edges,
+    let data = {
+        nodes: [],
+        edges: [],
     }
     // 如果数据准备好，则加载数据
     if (!loading) {
-        const group: Graph.Group = groups.find((g: Graph.Group) => g.id === graph.groupId)!
-        const data = findByGid(details, gid)
-        // 设置节点数据
-        data.nodes.forEach((n: { tag: string; attrs: Graph.Pair[]; id: number; deg: number }) => {
-            const tag = n.tag
-            const nodeType = group.nodeTypeList.find(nt => nt.name === tag)!
-            // TODO：display
-            const display = nodeType.display
-            const labelAttr = nodeType.attrs?.find(a => a.primary)
-            let v = ''
-            if (labelAttr) {
-                v = n.attrs.find(a => a.key === labelAttr.name)!.value
-            }
-            const node = {
-                id: n.id.toString(),
-                style: {
-                    keyshape: {
-                        size: Math.floor((Math.log(n.deg + 1) + 1) * 10),
-                        fill: getRandomColor()
-                    },
-                    label: {
-                        value: v
-                    }
-                }
-            }
-            nodes.push(node)
-        })
-        // 设置边数据
-        data.edges.forEach((n: { tag: string; attrs: Graph.Pair[]; source: number; target: number }) => {
-            const tag = n.tag
-            const edgeType = group.edgeTypeList.find(nt => nt.name === tag)!
-            const display = edgeType.display
-            const labelAttr = edgeType.attrs?.find(a => a.primary)
-            let v = ''
-            if (labelAttr) {
-                v = n.attrs.find(a => a.key === labelAttr.name)!.value
-            }
-            let edge: any = {
-                source: n.source.toString(),
-                target: n.target.toString(),
-                style: {
-                    label: {
-                        value: v
-                    }
-                }
-            }
-            if (display === 'dash') {
-                edge.style = {
-                    ...edge.style,
-                    keyshape: {
-                        lineDash: [4, 4],
-                    }
-                }
-            }
-            edges.push(edge)
-        })
+        const graphData = findByGid(details, gid)
+        data = {
+            nodes: graphData.nodes.map((n: NodeData) => n.style),
+            edges: graphData.edges.map((e: EdgeData) => e.style),
+        }
     }
     const resetGraph = () => {
         // 重置图谱点击
@@ -337,11 +289,11 @@ const Graph: React.FC<Props> = (props) => {
                         },
                         {
                             title: '当前节点数',
-                            description: nodes.length
+                            description: data.nodes.length
                         },
                         {
                             title: '当前边数',
-                            description: edges.length
+                            description: data.edges.length
                         },
                         {
                             title: <Tooltip title={'图谱展示节点上限'}><span>最大节点数</span></Tooltip>,

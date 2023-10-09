@@ -146,11 +146,11 @@ VALUES (5, "average clustering coefficient", "平均聚类系数。描图中的�
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
 VALUES (6, "louvain", "一种基于模块度的社区发现算法。其基本思想是网络中节点尝试遍历所有邻居的社区标签，并选择最大化模块度增量的社区标签。", 1, "s3a://lib/louvain-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
-VALUES (7, "quantity", "广度排序算法，使用基于邻居意见的Voterank算法", 0, "s3a://lib/quantity-latest.jar", "applerodite.Main");
+VALUES (7, "quantity", "广度排序算法，使用基于邻居意见的Voterank算法", 0, "s3a://lib/voterank-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
 VALUES (8, "depth", "深度排序算法，基于节点在图谱中的应用层级", 0, "s3a://lib/depth-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
-VALUES (9, "integration", "集成度排序算法，基于桥梁作用的betweenness++", 0, "s3a://lib/integration-latest.jar", "applerodite.Main");
+VALUES (9, "integration", "集成度排序算法，基于桥梁作用的betweenness++", 0, "s3a://lib/betweenness-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
 VALUES (10, "ecology", "子图稳定性排序算法，基于最小渗流的collective influence算法", 0, "s3a://lib/ecology-latest.jar", "applerodite.Main");
 

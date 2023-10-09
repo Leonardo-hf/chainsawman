@@ -18,6 +18,8 @@ export function splitGroupsGraph(g: Graph.Group[]) {
         graphs = [...graphs, ...g.graphs]
         groups.push(g)
     })
+    graphs = graphs.sort((a, b) => b.id - a.id)
+    groups = groups.sort((a, b) => a.name > b.name ? 0 : 1)
     return {graphs, groups}
 }
 

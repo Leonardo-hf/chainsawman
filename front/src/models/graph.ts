@@ -1,4 +1,7 @@
 import {getGraph, getNeighbors} from "@/services/graph/graph";
+import {getRandomColor} from "@/utils/format";
+import {useModel} from "@@/exports";
+import {sum} from "@antfu/utils";
 
 
 export const getGraphName = function (graphID: number, tgtNodeID: number | undefined = undefined) {
@@ -26,7 +29,7 @@ export default {
     state: [],
     effects: {
         // @ts-ignore
-        * queryGraph({payload, timer}, {call, put}) {
+        * queryGraph({payload, timer, group}, {call, put}) {
             const data: Graph.GetGraphDetailReply = yield call(getGraph, payload)
             yield put(
                 {
@@ -34,6 +37,7 @@ export default {
                     payload: {
                         gid: getGraphName(payload.graphId),
                         timer: timer,
+                        group: group,
                         ...data
                     }
                 })
@@ -41,7 +45,7 @@ export default {
         },
 
         // @ts-ignore
-        * queryNeighbors({payload, timer}, {call, put}) {
+        * queryNeighbors({payload, timer, group}, {call, put}) {
             const data: Graph.GetGraphDetailReply = yield call(getNeighbors, payload);
             yield put(
                 {
@@ -49,6 +53,7 @@ export default {
                     payload: {
                         gid: getGraphName(payload.graphId, payload.nodeId),
                         timer: timer,
+                        group: group,
                         ...data
                     }
                 })
@@ -68,26 +73,78 @@ export default {
         },
         // @ts-ignore
         add(state, {payload}) {
-            const nodes: { id: number; tag: string; attrs: Graph.Pair[]; deg: number }[] = [],
-                edges: { source: number; target: number; tag: string; attrs: Graph.Pair[]; }[] = []
+            const nodes: NodeData[] = [],
+                edges: EdgeData[] = []
             const nState = [...state]
             payload.nodePacks?.forEach((np: Graph.NodePack) => {
+                // TODO：display
+                const avgDeg = sum(np.nodes.map(n => n.deg)) / (np.nodes.length + 1)
+                const nodeType = payload.group.nodeTypeList.find((nt: Graph.Structure) => nt.name == np.tag)!
+                const display = nodeType.display
+                const labelAttr = nodeType.attrs?.find((a: Graph.Attr) => a.primary)
                 np.nodes.forEach(n => {
+                    let label = ''
+                    if (labelAttr && n.deg > avgDeg) {
+                        label = n.attrs.find(a => a.key === labelAttr.name)!.value
+                        if (label.length >= 10) {
+                            label = label.substring(0, 10) + '...'
+                        }
+                    }
                     nodes.push({
                         id: n.id,
                         tag: np.tag,
                         attrs: n.attrs,
-                        deg: n.deg
+                        deg: n.deg,
+                        style: {
+                            id: n.id.toString(),
+                            style: {
+                                keyshape: {
+                                    size: Math.floor((Math.log(n.deg + 1) + 1) * 10),
+                                    fill: getRandomColor()
+                                },
+                                label: {
+                                    value: label
+                                }
+                            }
+                        }
                     })
                 })
             })
-            payload.edgePacks?.forEach((np: Graph.EdgePack) => {
-                np.edges.forEach(n => {
+            payload.edgePacks?.forEach((ep: Graph.EdgePack) => {
+                const edgeType = payload.group.edgeTypeList.find((et: Graph.Structure) => et.name === ep.tag)!
+                const display = edgeType.display
+                const labelAttr = edgeType.attrs?.find((a: Graph.Attr) => a.primary)
+                ep.edges.forEach(e => {
+                    let label = ''
+                    if (labelAttr) {
+                        label = e.attrs.find(a => a.key === labelAttr.name)!.value
+                        if (label.length >= 10) {
+                            label = label.substring(0, 10) + '...'
+                        }
+                    }
+                    const edgeStyle: any = {
+                        source: e.source.toString(),
+                        target: e.target.toString(),
+                        style: {
+                            label: {
+                                value: label
+                            }
+                        }
+                    }
+                    if (display === 'dash') {
+                        edgeStyle.style = {
+                            ...edgeStyle.style,
+                            keyshape: {
+                                lineDash: [4, 4],
+                            }
+                        }
+                    }
                     edges.push({
-                        source: n.source,
-                        target: n.target,
-                        tag: np.tag,
-                        attrs: n.attrs
+                        source: e.source,
+                        target: e.target,
+                        tag: ep.tag,
+                        attrs: e.attrs,
+                        style: edgeStyle
                     })
                 })
             })
@@ -110,3 +167,6 @@ export default {
         },
     },
 }
+
+export type NodeData = { id: number; tag: string; attrs: Graph.Pair[]; deg: number; style: any }
+export type EdgeData = { source: number; target: number; tag: string; attrs: Graph.Pair[]; style: any }
