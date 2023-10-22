@@ -25,6 +25,11 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 	return &MysqlClientImpl{}
 }
 
+func (c *MysqlClientImpl) GetGraphSizeByID(ctx context.Context, id int64) (*model.Graph, error) {
+	g := query.Graph
+	return g.WithContext(ctx).Where(g.ID.Eq(id)).First()
+}
+
 func (c *MysqlClientImpl) HasTaskByID(ctx context.Context, id int64) (bool, error) {
 	t := query.Task
 	cnt, err := t.WithContext(ctx).Where(t.ID.Eq(id)).Count()

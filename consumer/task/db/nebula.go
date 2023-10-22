@@ -30,4 +30,6 @@ type NebulaClient interface {
 	GoFromTopNodes(graph int64, top int64, direction string, max int64) (map[string][]*types.Edge, error)
 
 	DropGraph(graph int64) error
+
+	MultiIncNodesDeg(graph int64, degMap map[int64]int64) (int, error)
 }

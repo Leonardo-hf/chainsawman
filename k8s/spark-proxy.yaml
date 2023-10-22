@@ -29,6 +29,8 @@ spec:
               value: "no"
             - name: SPARK_SSL_ENABLED
               value: "no"
+            - name: CHS_ENV
+              value: "pre"
           ports:
             - containerPort: 8080
               name: ui
@@ -81,9 +83,9 @@ spec:
             - name: SPARK_MASTER_URL
               value: "spark://spark-proxy:7077"
             - name: SPARK_WORKER_MEMORY
-              value: "1G"
+              value: "4G"
             - name: SPARK_WORKER_CORES
-              value: "1"
+              value: "2"
             - name: SPARK_RPC_AUTHENTICATION_ENABLED
               value: "no"
             - name: SPARK_RPC_ENCRYPTION_ENABLED
@@ -92,3 +94,5 @@ spec:
               value: "no"
             - name: SPARK_SSL_ENABLED
               value: "no"
+            - name: CHS_ENV
+              value: "pre"

@@ -19,14 +19,13 @@ create table if not exists graph.groups
 );
 
 INSERT INTO graph.groups(name, `desc`)
-VALUES ("group_default", "默认分组");
+VALUES ("default", "默认图谱");
 
 create table if not exists graph.graphs
 (
     id         int auto_increment
         primary key,
     name       varchar(255)       not null,
-    `desc`     text               null,
     status     int      default 0 not null,
     numNode    int      default 0 not null,
     numEdge    int      default 0 not null,
@@ -52,7 +51,7 @@ create table if not exists graph.nodes
 );
 
 INSERT INTO graph.nodes(groupID, name, `desc`)
-VALUES (1, "node_default", "标准节点");
+VALUES (1, "default", "标准节点");
 
 create table if not exists graph.nodes_attr
 (
@@ -88,7 +87,7 @@ create table if not exists graph.edges
 );
 
 INSERT INTO graph.edges(groupID, name, `desc`)
-VALUES (1, "edge_default", "标准边");
+VALUES (1, "default", "标准边");
 create table if not exists graph.edges_attr
 (
     id        int auto_increment
@@ -142,17 +141,17 @@ VALUES (3, "betweenness", "中介中心性用于衡量一个顶点出现在其�
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
 VALUES (4, "closeness", "接近中心性反映在网络中某一节点与其他节点之间的接近程度。", 0, "s3a://lib/closeness-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
-VALUES (5, "average clustering coefficient", "平均聚类系数。描图中的节点与其相连节点之间的聚集程度。", 2, "s3a://lib/clusteringCoefficient-latest.jar", "applerodite.Main");
+VALUES (5, "average clustering coefficient", "平均聚类系数。描述图中的节点与其相连节点之间的聚集程度。", 2, "s3a://lib/clusteringCoefficient-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
 VALUES (6, "louvain", "一种基于模块度的社区发现算法。其基本思想是网络中节点尝试遍历所有邻居的社区标签，并选择最大化模块度增量的社区标签。", 1, "s3a://lib/louvain-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
-VALUES (7, "quantity", "广度排序算法，使用基于邻居意见的Voterank算法", 0, "s3a://lib/voterank-latest.jar", "applerodite.Main");
+VALUES (7, "quantity", "广度排序算法，基于假设：节点入度越大越重要。使用邻居意见的Voterank算法衡量节点的相对入度", 0, "s3a://lib/voterank-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
-VALUES (8, "depth", "深度排序算法，基于节点在图谱中的应用层级", 0, "s3a://lib/depth-latest.jar", "applerodite.Main");
+VALUES (8, "depth", "深度排序算法，基于假设：在更多路径中处于头部的节点更重要。使用改进的closeness算法衡量节点在头部的程度", 0, "s3a://lib/depth-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
-VALUES (9, "integration", "集成度排序算法，基于桥梁作用的betweenness++", 0, "s3a://lib/betweenness-latest.jar", "applerodite.Main");
+VALUES (9, "integration", "中介度排序算法，基于假设：在更多路径中处于中部的节点更重要。使用改进的betweenness算法衡量节点中介的程度", 0, "s3a://lib/betweenness-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, type, jarPath, mainClass)
-VALUES (10, "ecology", "子图稳定性排序算法，基于最小渗流的collective influence算法", 0, "s3a://lib/ecology-latest.jar", "applerodite.Main");
+VALUES (10, "ecology", "子图稳定性排序算法，基于假设：具有高稳定性的衍生子图的节点更重要。使用基于最小渗流的collective influence算法计算子图稳定性", 0, "s3a://lib/ecology-latest.jar", "applerodite.Main");
 
 create table if not exists graph.algos_param
 (
@@ -181,4 +180,4 @@ VALUES (6, "internalIter", "内部迭代次数", 2, 5, 1, 50);
 INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`, `max`)
 VALUES (6, "tol", "最小增加量", 0, 0.3, 0.1, 1);
 INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`)
-VALUES (7, "iter", "迭代次数", 2, 100, 1);
+VALUES (7, "iter", "迭代次数", 2, 1, 100);

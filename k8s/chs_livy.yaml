@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: livy-config
+  namespace: default
+  labels:
+    app: livy-deploy
+data:
+  livy.conf: |-
+    livy.server.host = 0.0.0.0
+    livy.server.port = 8998
+    livy.spark.master = spark://spark-proxy:7077
+    livy.spark.deploy-mode = cluster
+    livy.server.session.timeout-check = true
+    livy.server.session.timeout-check.skip-busy = false
+    livy.server.session.timeout = 5m
+    livy.server.session.state-retain.sec = 60s
+  livy-env.sh: |-
+    export SPARK_HOME=/opt/bitnami/spark/
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livy-deploy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: livy-deploy
+  template:
+    metadata:
+      labels:
+        app: livy-deploy
+    spec:
+      containers:
+        - image: applerodite/chs-livy:latest
+          imagePullPolicy: Always
+          name: livy-deploy
+          ports:
+            - containerPort: 8998
+          env:
+            - name: CHS_ENV
+              value: "pre"
+          volumeMounts:
+            - name: config
+              mountPath: /opt/bitnami/livy/conf/livy.conf
+              subPath: livy.conf
+            - name: env
+              mountPath: /opt/bitnami/livy/conf/livy-env.sh
+              subPath: livy-env.sh
+      volumes:
+        - name: config
+          configMap:
+            name: livy-config
+---
+#Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: livy
+  namespace: default
+spec:
+  selector:
+    app: livy-deploy
+  type: ClusterIP
+  ports:
+    - port: 8998
+      protocol: TCP
+      targetPort: 8998

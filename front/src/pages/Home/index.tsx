@@ -222,13 +222,6 @@ const HomePage: React.FC = () => {
             fixed: 'left',
         },
         {
-            title: '描述',
-            dataIndex: 'desc',
-            copyable: true,
-            ellipsis: true,
-            hideInSearch: true
-        },
-        {
             title: '组',
             dataIndex: 'groupId',
             copyable: true,

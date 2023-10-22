@@ -68,7 +68,7 @@ func (c *MysqlClientImpl) DropTaskByID(ctx context.Context, id int64) (int64, er
 
 func (c *MysqlClientImpl) GetGraphByID(ctx context.Context, id int64) (*model.Graph, error) {
 	g := query.Graph
-	return g.WithContext(ctx).Where(g.ID.Eq(id)).First()
+	return g.WithContext(ctx).Select(g.NumNode, g.NumEdge).Where(g.ID.Eq(id)).First()
 }
 
 func (c *MysqlClientImpl) GetGraphByGroupID(ctx context.Context, groupID int64) ([]*model.Graph, error) {

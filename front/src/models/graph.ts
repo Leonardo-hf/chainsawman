@@ -1,6 +1,5 @@
 import {getGraph, getNeighbors} from "@/services/graph/graph";
 import {getRandomColor} from "@/utils/format";
-import {useModel} from "@@/exports";
 import {sum} from "@antfu/utils";
 
 
@@ -78,10 +77,13 @@ export default {
             const nState = [...state]
             payload.nodePacks?.forEach((np: Graph.NodePack) => {
                 // TODO：display
-                const avgDeg = sum(np.nodes.map(n => n.deg)) / (np.nodes.length + 1)
+                // 取4分位+节点展示label
+                const avgDeg = sum(np.nodes.map(n => n.deg)) / (np.nodes.length + 1) / 2
                 const nodeType = payload.group.nodeTypeList.find((nt: Graph.Structure) => nt.name == np.tag)!
                 const display = nodeType.display
                 const labelAttr = nodeType.attrs?.find((a: Graph.Attr) => a.primary)
+                // 为每一类型的节点设置一种颜色
+                const color = getRandomColor()
                 np.nodes.forEach(n => {
                     let label = ''
                     if (labelAttr && n.deg > avgDeg) {
@@ -95,12 +97,14 @@ export default {
                         tag: np.tag,
                         attrs: n.attrs,
                         deg: n.deg,
+                        type: 'graphin-circle',
                         style: {
+                            tag: np.tag,
                             id: n.id.toString(),
                             style: {
                                 keyshape: {
                                     size: Math.floor((Math.log(n.deg + 1) + 1) * 10),
-                                    fill: getRandomColor()
+                                    fill: color
                                 },
                                 label: {
                                     value: label
@@ -168,5 +172,5 @@ export default {
     },
 }
 
-export type NodeData = { id: number; tag: string; attrs: Graph.Pair[]; deg: number; style: any }
+export type NodeData = { id: number; tag: string; attrs: Graph.Pair[]; deg: number; style: any; type: string }
 export type EdgeData = { source: number; target: number; tag: string; attrs: Graph.Pair[]; style: any }

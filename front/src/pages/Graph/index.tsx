@@ -1,5 +1,5 @@
 import {PageContainer, ProForm, ProFormDigit, ProFormSelect, ProList, QueryFilter} from '@ant-design/pro-components';
-import Graphin, {Behaviors} from '@antv/graphin';
+import Graphin, {Behaviors, LegendChildrenProps, Components} from '@antv/graphin';
 import {Button, Card, Col, Divider, InputNumber, message, Row, Space, Spin, Tag, Tooltip, Typography} from 'antd';
 import React, {SetStateAction, useEffect, useState} from 'react';
 import {connect, useModel} from '@@/exports';
@@ -13,9 +13,8 @@ import {history} from 'umi';
 import {EdgeData, findByGid, getGraphName, isSubGraph, NodeData} from '@/models/graph';
 import LayoutSelector from "@/components/LayoutSelector";
 import {layouts, layoutsConfig} from "@/pages/Graph/_layout";
-import {data} from "@umijs/utils/compiled/cheerio/lib/api/attributes";
 
-
+const {Legend} = Components;
 const {Text} = Typography;
 const {Hoverable} = Behaviors;
 
@@ -581,6 +580,11 @@ const Graph: React.FC<Props> = (props) => {
                                  containerStyle={{height: '80vh'}}
                             // @ts-ignore
                                  ref={graphinRef}>
+                            <Legend bindType="node" sortKey="tag">
+                                {(renderProps: LegendChildrenProps) => {
+                                    return <Legend.Node {...renderProps}/>
+                                }}
+                            </Legend>
                             <Hoverable bindType='node'/>
                             <Hoverable bindType='edge'/>
                         </Graphin>

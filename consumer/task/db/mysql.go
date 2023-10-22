@@ -6,6 +6,8 @@ import (
 )
 
 type MysqlClient interface {
+	GetGraphSizeByID(ctx context.Context, id int64) (*model.Graph, error)
+
 	GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error)
 
 	GetGroupByID(ctx context.Context, id int64) (*model.Group, error)

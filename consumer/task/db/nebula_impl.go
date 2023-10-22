@@ -135,7 +135,6 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, node *model.Node, recor
 			i++
 			attrs := make([]string, len(node.NodeAttrs)+1)
 			id, _ := r.Get(common.KeyID)
-			deg, _ := r.Get(common.KeyDeg)
 			for q, attr := range node.NodeAttrs {
 				v, err := r.Get(attr.Name)
 				if err != nil {
@@ -147,7 +146,7 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, node *model.Node, recor
 					attrs[q] = fmt.Sprintf("\"%v\"", v)
 				}
 			}
-			attrs[len(attrs)-1] = deg
+			attrs[len(attrs)-1] = common.DefaultDeg
 			values = append(values, fmt.Sprintf(vstat, id, strings.Join(attrs, ",")))
 		}
 		s := fmt.Sprintf(stat, strings.Join(values, ","))
@@ -156,11 +155,33 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, node *model.Node, recor
 			return i, err
 		}
 		if !res.IsSucceed() {
-			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat)
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), s)
 		}
 		logx.Infof("[NEBULA] insert %v-th nodes: %v", i, records[i-1])
 	}
 	return len(records), nil
+}
+
+func (n *NebulaClientImpl) MultiIncNodesDeg(graph int64, degMap map[int64]int64) (int, error) {
+	session, err := n.getSession()
+	if err != nil {
+		return 0, err
+	}
+	defer func() { session.Release() }()
+	stat := "USE G%v;UPDATE VERTEX ON base %v SET deg = deg + %v;"
+	logx.Infof("[NEBULA] inc nodes deg start, cnt = %v", len(degMap))
+	for id, d := range degMap {
+		s := fmt.Sprintf(stat, graph, id, d)
+		res, err := session.Execute(s)
+		if err != nil {
+			return 0, err
+		}
+		if !res.IsSucceed() {
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), s)
+		}
+	}
+	logx.Infof("[NEBULA] inc nodes deg fin, cnt = %v", len(degMap))
+	return len(degMap), nil
 }
 
 func (n *NebulaClientImpl) InsertEdge(graph int64, edge *model.Edge, record *common.Record) (int, error) {
@@ -212,7 +233,7 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edge *model.Edge, recor
 			return i, err
 		}
 		if !res.IsSucceed() {
-			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat)
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), s)
 		}
 		logx.Infof("[NEBULA] insert %v-th edge: %v", i, records[i-1])
 	}

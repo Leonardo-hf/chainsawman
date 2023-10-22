@@ -19,7 +19,6 @@ type UpdateGraph struct {
 // 期望为：一次最多在内存中存入 100M 数据
 const maxInsertNum = 100000
 
-// TODO: 更新
 func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	params, taskID := task.Params, task.Id
 	req := &types.UpdateGraphRequest{}
@@ -31,7 +30,6 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// TODO: 是否存在占用过多内存的问题？
 	// XLS/XLSX 最大行数有限，尽管需要全部读入内存，但不会造成问题，CSV 则可能过大，但可以流式读取，分批插入
 	numNode, numEdge := 0, 0
 	// 读所有边文件
@@ -60,6 +58,9 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		if !(parser.HasColumn(common.KeySrc) && parser.HasColumn(common.KeyTgt)) {
+			return "", fmt.Errorf("update graph fail, source files of nodes needs `source` & `target`")
+		}
 		edgeRecords := make([]*common.Record, 0)
 		for {
 			r, err := parser.Next()
@@ -71,11 +72,11 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 			}
 			src, err := r.GetAsInt(common.KeySrc)
 			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of edges needs `source`")
+				return "", err
 			}
 			tgt, err := r.GetAsInt(common.KeyTgt)
 			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of edges needs `target`")
+				return "", err
 			}
 			if d, ok := degMap[src]; ok {
 				degMap[src] = d + 1
@@ -133,6 +134,9 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		if !parser.HasColumn(common.KeyID) {
+			return "", fmt.Errorf("update graph fail, source files of nodes needs `id`")
+		}
 		nodeRecords := make([]*common.Record, 0)
 		for {
 			r, err := parser.Next()
@@ -141,14 +145,6 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 			} else if err != nil {
 				logx.Errorf("[Consumer] parse csv fail, err: %v", err)
 				continue
-			}
-			nodeID, err := r.GetAsInt(common.KeyID)
-			if err != nil {
-				return "", fmt.Errorf("update graph fail, source files of nodes needs `id`")
-			}
-			r.Put(common.KeyDeg, common.DefaultDeg)
-			if d, ok := degMap[nodeID]; ok {
-				r.Put(common.KeyDeg, strconv.FormatInt(d, 10))
 			}
 			nodeRecords = append(nodeRecords, r)
 			if len(nodeRecords) > maxInsertNum {
@@ -171,12 +167,21 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		// 合计剩余节点数目
 		numNode += len(nodeRecords)
 	}
-	// 更新图状态
+	// 更新节点度数
+	_, err = config.NebulaClient.MultiIncNodesDeg(req.GraphID, degMap)
+	// 查询图原始大小，更新图大小
+	size, err := config.MysqlClient.GetGraphSizeByID(ctx, req.GraphID)
+	size.NumNode += int64(numNode)
+	size.NumEdge += int64(numEdge)
+
+	if err != nil {
+		return "", err
+	}
 	_, err = config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
 		ID:      req.GraphID,
 		Status:  common.GraphStatusOK,
-		NumNode: int64(numNode),
-		NumEdge: int64(numEdge),
+		NumNode: size.NumNode,
+		NumEdge: size.NumEdge,
 	})
 	if err != nil {
 		return "", err
@@ -190,8 +195,8 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		Graph: &types.Graph{
 			Id:      req.GraphID,
 			GroupID: group.ID,
-			NumNode: int64(numNode),
-			NumEdge: int64(numEdge),
+			NumNode: size.NumNode,
+			NumEdge: size.NumEdge,
 		},
 	}
 	return jsonx.MarshalToString(resp)

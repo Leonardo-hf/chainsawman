@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go.uber.org/multierr"
 	"io"
+	"k8s.io/utils/strings/slices"
 	"os"
 	"strconv"
 	"strings"
@@ -59,6 +60,7 @@ func (r *Record) GetAsFloat64(key string) (float64, error) {
 }
 
 type ExcelParser interface {
+	HasColumn(col string) bool
 	Next() (*Record, error)
 }
 
@@ -80,6 +82,10 @@ func initCSVParser(file io.Reader) (*csvParser, error) {
 		return nil, err
 	}
 	return parser, nil
+}
+
+func (c *csvParser) HasColumn(col string) bool {
+	return slices.Contains(c.titles, col)
 }
 
 func (c *csvParser) Next() (*Record, error) {
@@ -123,6 +129,10 @@ func initXLSParser(content io.Reader) (*xlsParser, error) {
 	return parser, nil
 }
 
+func (c *xlsParser) HasColumn(col string) bool {
+	return slices.Contains(c.titles, col)
+}
+
 func (c *xlsParser) Next() (*Record, error) {
 	if c.index >= int(c.reader.MaxRow) {
 		return nil, io.EOF
@@ -140,6 +150,10 @@ type xlsxParser struct {
 	titles []string
 	index  int
 	reader *xlsx.Sheet
+}
+
+func (c *xlsxParser) HasColumn(col string) bool {
+	return slices.Contains(c.titles, col)
 }
 
 func initXLSXParser(content io.Reader) (*xlsxParser, error) {

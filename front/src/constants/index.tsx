@@ -1,8 +1,6 @@
 import {Tag} from "antd";
 import React from "react";
 
-export const DEFAULT_NAME = 'Umi Mew';
-
 export enum ParamType {
     String,
     Double,
@@ -33,31 +31,32 @@ export const ParamTypeOptions = [
 export const AlgoOptions = [
     {
         label: '中心度算法',
-        text: '中心度算法',
         color: 'blue',
         value: AlgoType.rank,
-        status: AlgoType.rank
     },
     {
-        label: '模块化算法',
-        text: '模块化算法',
+        label: '聚类算法',
         color: 'purple',
         value: AlgoType.cluster,
-        status: AlgoType.cluster
 
     },
     {
-        label: '指标算法',
-        text: '指标算法',
+        label: '网络结构特征',
         color: 'green',
         value: AlgoType.metrics,
-        status: AlgoType.metrics
-
     },
 ]
 
+AlgoOptions.map((o: any) => {
+    return {
+        ...o,
+        text: o.label,
+        status: o.value
+    }
+})
+
 export const AlgoTypeMap: any = {}
-AlgoOptions.forEach(o => AlgoTypeMap[o.status] = o)
+AlgoOptions.forEach((o: any) => AlgoTypeMap[o.status] = o)
 
 
 export function getAlgoTypeDesc(type: AlgoType) {
