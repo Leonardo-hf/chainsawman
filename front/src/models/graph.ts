@@ -75,10 +75,12 @@ export default {
             const nodes: NodeData[] = [],
                 edges: EdgeData[] = []
             const nState = [...state]
+            // TODO: 过滤有不存在的节点的边
+            const nodeSet = new Set()
             payload.nodePacks?.forEach((np: Graph.NodePack) => {
                 // TODO：display
-                // 取4分位+节点展示label
-                const avgDeg = sum(np.nodes.map(n => n.deg)) / (np.nodes.length + 1) / 2
+                // 选取33%节点展示label
+                const border = np.nodes.map(n => n.deg).sort()[Math.floor(np.nodes.length * 2 / 3)]
                 const nodeType = payload.group.nodeTypeList.find((nt: Graph.Structure) => nt.name == np.tag)!
                 const display = nodeType.display
                 const labelAttr = nodeType.attrs?.find((a: Graph.Attr) => a.primary)
@@ -86,12 +88,13 @@ export default {
                 const color = getRandomColor()
                 np.nodes.forEach(n => {
                     let label = ''
-                    if (labelAttr && n.deg > avgDeg) {
+                    if (labelAttr && n.deg >= border) {
                         label = n.attrs.find(a => a.key === labelAttr.name)!.value
-                        if (label.length >= 10) {
-                            label = label.substring(0, 10) + '...'
-                        }
+                        // if (label.length >= 10) {
+                        //     label = label.substring(0, 10) + '...'
+                        // }
                     }
+                    nodeSet.add(n.id)
                     nodes.push({
                         id: n.id,
                         tag: np.tag,
@@ -115,16 +118,20 @@ export default {
                 })
             })
             payload.edgePacks?.forEach((ep: Graph.EdgePack) => {
+                // TODO: 过滤有不存在的节点的边
                 const edgeType = payload.group.edgeTypeList.find((et: Graph.Structure) => et.name === ep.tag)!
                 const display = edgeType.display
                 const labelAttr = edgeType.attrs?.find((a: Graph.Attr) => a.primary)
                 ep.edges.forEach(e => {
+                    if (!nodeSet.has(e.source) || !nodeSet.has(e.target)) {
+                        return
+                    }
                     let label = ''
                     if (labelAttr) {
                         label = e.attrs.find(a => a.key === labelAttr.name)!.value
-                        if (label.length >= 10) {
-                            label = label.substring(0, 10) + '...'
-                        }
+                        // if (label.length >= 10) {
+                        //     label = label.substring(0, 10) + '...'
+                        // }
                     }
                     const edgeStyle: any = {
                         source: e.source.toString(),

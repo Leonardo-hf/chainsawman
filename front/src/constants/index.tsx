@@ -28,7 +28,7 @@ export const ParamTypeOptions = [
     }
 ]
 
-export const AlgoOptions = [
+export let AlgoOptions = [
     {
         label: '中心度算法',
         color: 'blue',
@@ -38,7 +38,6 @@ export const AlgoOptions = [
         label: '聚类算法',
         color: 'purple',
         value: AlgoType.cluster,
-
     },
     {
         label: '网络结构特征',
@@ -47,7 +46,7 @@ export const AlgoOptions = [
     },
 ]
 
-AlgoOptions.map((o: any) => {
+AlgoOptions = AlgoOptions.map((o: any) => {
     return {
         ...o,
         text: o.label,

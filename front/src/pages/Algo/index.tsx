@@ -9,7 +9,7 @@ import {
 } from "@ant-design/pro-components";
 import {Button, Divider, Form, message, Popconfirm, Space, Typography} from "antd";
 import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
-import {algoCreate, algoDrop, algoExecRank, algoExecScore, createGroup, dropGroup} from "@/services/graph/graph";
+import {algoCreate, algoDrop} from "@/services/graph/graph";
 import React, {Key, useState} from "react";
 import ProCard from "@ant-design/pro-card";
 import {useModel} from "@@/exports";
