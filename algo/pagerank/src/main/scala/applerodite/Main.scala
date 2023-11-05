@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_RANK
+import applerodite.config.AlgoConstants.SCHEMA_DEFAULT
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -26,7 +26,7 @@ object Main {
 
     val spark = ClientConfig.spark
 
-    val df = spark.sqlContext.createDataFrame(PageRank.run(graph, iter, prob).vertices.map(r => Row.apply(r._1, r._2)), SCHEMA_RANK).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(PageRank.run(graph, iter, prob).vertices.map(r => Row.apply(r._1, r._2)), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

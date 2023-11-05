@@ -39,7 +39,6 @@ func (l *CreateGraphLogic) CreateGraph(req *types.CreateGraphRequest) (resp *typ
 	}
 	graph := &model.Graph{
 		Name:    req.Graph,
-		Desc:    req.Desc,
 		GroupID: req.GroupID,
 		Status:  common.GraphStatusInit,
 	}

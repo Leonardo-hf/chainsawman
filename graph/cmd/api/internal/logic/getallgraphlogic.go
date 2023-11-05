@@ -5,7 +5,6 @@ import (
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
 	"context"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -80,6 +79,7 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.GetAllGraphReply, err erro
 			Id:           group.ID,
 			Name:         group.Name,
 			Desc:         group.Desc,
+			ParentID:     group.ParentID,
 			NodeTypeList: nodes,
 			EdgeTypeList: edges,
 			Graphs:       make([]*types.Graph, 0),
@@ -92,7 +92,6 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.GetAllGraphReply, err erro
 			Status:   g.Status,
 			GroupID:  g.GroupID,
 			Name:     g.Name,
-			Desc:     g.Desc,
 			NumNode:  g.NumNode,
 			NumEdge:  g.NumEdge,
 			CreatAt:  g.CreateTime.UnixMilli(),

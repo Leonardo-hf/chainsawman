@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_RANK
+import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SOFTWARE}
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -16,23 +16,22 @@ object Main {
     val json = JSON.parseObject(args.apply(0))
     val graphID: String = json.getString("graphID")
     val target: String = json.getString("target")
-    val edgeTags: Seq[String] = json.getJSONArray("edgeTags").toArray().map(a => a.toString)
 
-    val graph: Graph[None.type, Double] = ClientConfig.graphClient.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
 
     val spark = ClientConfig.spark
 
     if (graph.numVertices == 0) {
       val df = spark.sqlContext
-        .createDataFrame(spark.sparkContext.parallelize(List.apply(Row.apply("", 0))
-        ), SCHEMA_RANK).sort(AlgoConstants.SCORE_COL)
+        .createDataFrame(spark.sparkContext.parallelize(List.apply(Row.apply(0, "", "", 0))
+        ), SCHEMA_SOFTWARE).sort(AlgoConstants.SCORE_COL)
       ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
       return
     }
     if (graph.numVertices == 1) {
       val df = spark.sqlContext
-        .createDataFrame(spark.sparkContext.parallelize(graph.vertices.map(v => Row.apply(v._1, 0)).collect()
-        ), SCHEMA_RANK).sort(AlgoConstants.SCORE_COL)
+        .createDataFrame(spark.sparkContext.parallelize(graph.vertices.map(v => Row.apply(v._1, v._2.Artifact, v._2.Version, 0)).collect()
+        ), SCHEMA_SOFTWARE).sort(AlgoConstants.SCORE_COL)
       ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
       return
     }
@@ -90,7 +89,13 @@ object Main {
         }
       }, (a, b) => (a._1 + b._1, a._2 + b._2, a._3 + b._3))
 
-    val df = spark.sqlContext.createDataFrame(vsGraph.vertices.map(v => Row.apply(v._1, v._2._5)), SCHEMA_RANK).orderBy(desc(AlgoConstants.SCORE_COL))
+    val res = vsGraph.outerJoinVertices(graph.vertices) {
+      (_, vd, release) => {
+        (vd._5, release)
+      }
+    }
+
+    val df = spark.sqlContext.createDataFrame(res.vertices.map(v => Row.apply(v._1, v._2._2.get.Artifact, v._2._2.get.Version, v._2._1)), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

@@ -5,6 +5,8 @@ export enum ParamType {
     String,
     Double,
     Int,
+    StringList,
+    DoubleList
 }
 
 export enum AlgoType {
@@ -25,6 +27,14 @@ export const ParamTypeOptions = [
     {
         label: '整数',
         value: ParamType.Int
+    },
+    {
+        label: '字符串列表',
+        value: ParamType.StringList
+    },
+    {
+        label: '浮点数列表',
+        value: ParamType.DoubleList
     }
 ]
 

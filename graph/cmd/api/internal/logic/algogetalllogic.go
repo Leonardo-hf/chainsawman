@@ -47,6 +47,7 @@ func (l *AlgoGetAllLogic) AlgoGetAll() (resp *types.GetAlgoReply, err error) {
 			Id:       a.ID,
 			Name:     a.Name,
 			Desc:     a.Desc,
+			GroupId:  a.GroupID,
 			IsCustom: common.Int642Bool(a.IsCustom),
 			Params:   params,
 			Type:     a.Type,

@@ -1,22 +1,25 @@
 package applerodite.dao
 
-import com.typesafe.config.Config
 import io.minio.{BucketExistsArgs, MakeBucketArgs, MinioClient, PutObjectArgs}
 
 import java.io.ByteArrayInputStream
 
+
 object MinioClientImpl extends OSSClient {
+
+  case class MinioConfig(endpoint: String, user: String, passwd: String, bucket: String)
+
   var minioClient: MinioClient = _
 
   var bucket: String = _
 
-  def Init(config: Config): OSSClient = {
+  def Init(config: MinioConfig): OSSClient = {
     minioClient =
       MinioClient.builder()
-        .endpoint(config.getString("url"))
-        .credentials(config.getString("user"), config.getString("password"))
+        .endpoint(config.endpoint)
+        .credentials(config.user, config.passwd)
         .build()
-    bucket = config.getString("bucket")
+    bucket = config.bucket
     if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
       minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build())
     }

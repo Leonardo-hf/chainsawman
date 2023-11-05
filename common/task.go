@@ -7,8 +7,7 @@ const (
 	GraphNodes     = "graph:nodes"
 	GraphNeighbors = "graph:neighbors"
 
-	AlgoRank  = "algo:rank"
-	AlgoScore = "algo:score"
+	AlgoExec = "algo:exec"
 )
 
 const (
@@ -52,11 +51,7 @@ var taskAttrMap = map[string]*TaskAttr{
 		Queue:      PHigh,
 		Persistent: false,
 	},
-	AlgoRank: {
-		Queue:      PLow,
-		Persistent: true,
-	},
-	AlgoScore: {
+	AlgoExec: {
 		Queue:      PLow,
 		Persistent: true,
 	},

@@ -29,7 +29,6 @@ func newGraph(db *gorm.DB, opts ...gen.DOOption) graph {
 	_graph.ALL = field.NewAsterisk(tableName)
 	_graph.ID = field.NewInt64(tableName, "id")
 	_graph.Name = field.NewString(tableName, "name")
-	_graph.Desc = field.NewString(tableName, "desc")
 	_graph.Status = field.NewInt64(tableName, "status")
 	_graph.NumNode = field.NewInt64(tableName, "numNode")
 	_graph.NumEdge = field.NewInt64(tableName, "numEdge")
@@ -48,7 +47,6 @@ type graph struct {
 	ALL        field.Asterisk
 	ID         field.Int64
 	Name       field.String
-	Desc       field.String
 	Status     field.Int64
 	NumNode    field.Int64
 	NumEdge    field.Int64
@@ -73,7 +71,6 @@ func (g *graph) updateTableName(table string) *graph {
 	g.ALL = field.NewAsterisk(table)
 	g.ID = field.NewInt64(table, "id")
 	g.Name = field.NewString(table, "name")
-	g.Desc = field.NewString(table, "desc")
 	g.Status = field.NewInt64(table, "status")
 	g.NumNode = field.NewInt64(table, "numNode")
 	g.NumEdge = field.NewInt64(table, "numEdge")
@@ -96,10 +93,9 @@ func (g *graph) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *graph) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 9)
+	g.fieldMap = make(map[string]field.Expr, 8)
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["name"] = g.Name
-	g.fieldMap["desc"] = g.Desc
 	g.fieldMap["status"] = g.Status
 	g.fieldMap["numNode"] = g.NumNode
 	g.fieldMap["numEdge"] = g.NumEdge

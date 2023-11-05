@@ -312,7 +312,7 @@ services:
       - task1
       - task2
     ports:
-      - "8888"
+      - "30130:8888"
   sca-svc:
     image: applerodite/chs-sca:latest                            # 镜像"applerodite/chs-sca:latest"
     container_name: sca-svc

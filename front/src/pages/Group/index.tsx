@@ -14,6 +14,7 @@ import {ParamType} from "@/constants";
 import {createGroup, dropGroup} from "@/services/graph/graph";
 import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import ProCard from "@ant-design/pro-card";
+import {genGroupOptions, TreeNodeGroup} from "@/models/global";
 
 const {Text} = Typography;
 
@@ -71,7 +72,7 @@ const Group: React.FC = () => {
             </ProDescriptions.Item>)
     }
 
-    const getGroupDesc = (group: Graph.Group) => {
+    const getGroupDesc = (group: TreeNodeGroup) => {
         return <ProDescriptions key={group.id} column={1}>
             <ProDescriptions.Item label={'描述'} valueType={'text'}>{group.desc}</ProDescriptions.Item>
             {
@@ -132,7 +133,8 @@ const Group: React.FC = () => {
                 name: vs.name,
                 desc: vs.desc,
                 edgeTypeList: edgeTypeList,
-                nodeTypeList: nodeTypeList
+                nodeTypeList: nodeTypeList,
+                parentId: vs.parentId ? vs.parentId : 0
             }).then(() => {
                 message.success('策略组创建成功！')
                 window.location.reload()
@@ -142,7 +144,7 @@ const Group: React.FC = () => {
             })
         }
         type FormData = {
-            name: string, desc: string, entities: {
+            name: string, desc: string, parentId: number, entities: {
                 name: string, desc: string, type: string, display: string, direct: boolean,
                 attrs: { name: string, desc: string, type: number, primary: boolean }[]
             }[]
@@ -170,6 +172,7 @@ const Group: React.FC = () => {
             <ProFormGroup title='策略组配置'>
                 <ProFormText name='name' label='名称' rules={[{required: true}]}/>
                 <ProFormText name='desc' label='描述' rules={[{required: true}]}/>
+                <ProFormSelect name='parentId' label='父策略组' options={genGroupOptions(groups)}/>
             </ProFormGroup>
             <ProFormList
                 label={(<Text strong>实体组配置</Text>)}
@@ -329,7 +332,7 @@ const Group: React.FC = () => {
     }
 
     return <PageContainer>
-        <ProList<Graph.Group>
+        <ProList<TreeNodeGroup>
             rowKey="id"
             headerTitle="策略组"
             toolBarRender={() => {
@@ -354,7 +357,7 @@ const Group: React.FC = () => {
                                 dropGroup({groupId: g.id}).then(_ => window.location.reload())
                             }}
                         >
-                            <Button danger>Delete</Button>
+                            <Button danger>删除</Button>
                         </Popconfirm>
                     },
                 },

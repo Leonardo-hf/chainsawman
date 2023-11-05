@@ -30,6 +30,7 @@ func newGroup(db *gorm.DB, opts ...gen.DOOption) group {
 	_group.ID = field.NewInt64(tableName, "id")
 	_group.Name = field.NewString(tableName, "name")
 	_group.Desc = field.NewString(tableName, "desc")
+	_group.ParentID = field.NewInt64(tableName, "parentId")
 	_group.Nodes = groupHasManyNodes{
 		db: db.Session(&gorm.Session{}),
 
@@ -60,11 +61,12 @@ func newGroup(db *gorm.DB, opts ...gen.DOOption) group {
 type group struct {
 	groupDo
 
-	ALL   field.Asterisk
-	ID    field.Int64
-	Name  field.String
-	Desc  field.String
-	Nodes groupHasManyNodes
+	ALL      field.Asterisk
+	ID       field.Int64
+	Name     field.String
+	Desc     field.String
+	ParentID field.Int64 // 标识父策略组，子策略组继承父策略组的全部节点与边缘
+	Nodes    groupHasManyNodes
 
 	Edges groupHasManyEdges
 
@@ -86,6 +88,7 @@ func (g *group) updateTableName(table string) *group {
 	g.ID = field.NewInt64(table, "id")
 	g.Name = field.NewString(table, "name")
 	g.Desc = field.NewString(table, "desc")
+	g.ParentID = field.NewInt64(table, "parentId")
 
 	g.fillFieldMap()
 
@@ -102,10 +105,11 @@ func (g *group) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *group) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 5)
+	g.fieldMap = make(map[string]field.Expr, 6)
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["name"] = g.Name
 	g.fieldMap["desc"] = g.Desc
+	g.fieldMap["parentId"] = g.ParentID
 
 }
 

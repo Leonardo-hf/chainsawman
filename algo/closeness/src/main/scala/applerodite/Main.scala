@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_RANK
+import applerodite.config.AlgoConstants.SCHEMA_DEFAULT
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -61,7 +61,7 @@ object Main {
       Row(vertex._1, (dstNum - 1) / dstDistanceSum)
     })
 
-    val df = spark.sqlContext.createDataFrame(closenessRDD, SCHEMA_RANK).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(closenessRDD, SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

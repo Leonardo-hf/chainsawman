@@ -1,5 +1,5 @@
 import {getGraph, getNeighbors} from "@/services/graph/graph";
-import {getRandomColor} from "@/utils/format";
+import {getNRandomColor, getRandomColor} from "@/utils/format";
 import {sum} from "@antfu/utils";
 
 
@@ -77,6 +77,7 @@ export default {
             const nState = [...state]
             // TODO: 过滤有不存在的节点的边
             const nodeSet = new Set()
+            const colors = getNRandomColor(payload.nodePacks?.length)
             payload.nodePacks?.forEach((np: Graph.NodePack) => {
                 // TODO：display
                 // 选取33%节点展示label
@@ -85,7 +86,7 @@ export default {
                 const display = nodeType.display
                 const labelAttr = nodeType.attrs?.find((a: Graph.Attr) => a.primary)
                 // 为每一类型的节点设置一种颜色
-                const color = getRandomColor()
+                const color = colors.pop()
                 np.nodes.forEach(n => {
                     let label = ''
                     if (labelAttr && n.deg >= border) {
@@ -106,8 +107,8 @@ export default {
                             id: n.id.toString(),
                             style: {
                                 keyshape: {
-                                    size: Math.floor((Math.log(n.deg + 1) + 1) * 10),
-                                    fill: color
+                                    size: Math.floor((Math.log(n.deg + 1) + 2) * 10),
+                                    fill: color,
                                 },
                                 label: {
                                     value: label

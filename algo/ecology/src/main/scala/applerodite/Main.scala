@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_RANK
+import applerodite.config.AlgoConstants.SCHEMA_DEFAULT
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -12,7 +12,7 @@ import scala.collection.mutable.ListBuffer
 
 object Main {
 
-  def setCI(g: Graph[Int, Double], r: Int): Graph[Int, Double] = {
+  def setCI(g: Graph[Int, None.type], r: Int): Graph[Int, None.type] = {
     // 准备入度
     var cGraph = g.outerJoinVertices(g.inDegrees) {
       (_, _, deg) => (0, deg.getOrElse(0), ListBuffer[List[(VertexId, Int)]]())
@@ -54,16 +54,16 @@ object Main {
     val json = JSON.parseObject(args.apply(0))
     val graphID: String = json.getString("graphID")
     val target: String = json.getString("target")
-    val edgeTags: Seq[String] = json.getJSONArray("edgeTags").toArray().map(a => a.toString)
 
-    val graph: Graph[None.type, Double] = ClientConfig.graphClient.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
 
     val spark = ClientConfig.spark
 
     val r = 2
     val res = ListBuffer[Row]()
-    val vids = graph.vertices.map(v => v._1).collect()
-    for (vid <- vids) {
+    val vertices = graph.vertices
+    for (vertex <- vertices) {
+      val vid = vertex._1
       var score: Double = 0.0
       // 获得vid相关子图
       var vGraph = graph.mapVertices((v, _) => {
@@ -93,10 +93,10 @@ object Main {
         vGraph = vGraph.subgraph(epred = e => e.srcId != maxVertex && e.dstId != maxVertex)
         vGraph = setCI(vGraph, r)
       }
-      res.append(Row.apply(vid, score))
+      res.append(Row.apply(vid, vertex._2.Artifact, vertex._2.Version, score))
     }
 
-    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_RANK).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

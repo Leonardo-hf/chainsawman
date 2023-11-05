@@ -11,13 +11,14 @@ ENV PATH="$HADOOP_HOME/hadoop/sbin:$HADOOP_HOME/bin:$PATH"
 
 WORKDIR /opt
 
-RUN apt-get update && apt-get install -y openssh-server && apt-get install -y curl
+RUN apt-get update && apt-get install -y openssh-server
+#&& apt-get install -y curl
 
 RUN ssh-keygen -t rsa -f /root/.ssh/id_rsa -P '' && \
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
-#COPY ./hadoop/hadoop-3.3.2.tar.gz /opt/
-RUN curl -OL https://archive.apache.org/dist/hadoop/common/hadoop-3.3.2/hadoop-3.3.2.tar.gz
+COPY ./hadoop/hadoop-3.3.2.tar.gz /opt/
+#RUN curl -OL https://archive.apache.org/dist/hadoop/common/hadoop-3.3.2/hadoop-3.3.2.tar.gz
 RUN tar -xzvf /opt/hadoop-3.3.2.tar.gz && \
   mv hadoop-3.3.2 hadoop && \
   rm -rf /opt/hadoop-3.3.2.tar.gz && \

@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_RANK
+import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SOFTWARE}
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -21,8 +21,7 @@ object Main {
     val graphID: String = json.getString("graphID")
     val target: String = json.getString("target")
     var iter: Int = json.getIntValue("iter")
-    val edgeTags: Seq[String] = json.getJSONArray("edgeTags").toArray().map(a => a.toString)
-    val graph: Graph[None.type, Double] = ClientConfig.graphClient.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
 
     val spark = ClientConfig.spark
 
@@ -42,13 +41,14 @@ object Main {
         if (addVertices.isEmpty()) {
           loop.break()
         }
-        val (maxVertex, score) = addVertices.max()(Ordering.by[(VertexId, Double), Double](_._2))
-        res.append(Row.apply(maxVertex, score))
-        cal.add(maxVertex)
-        vGraph = vGraph.joinVertices(graph.edges.filter(e => e.dstId == maxVertex).map[(VertexId, Double)](e => (e.srcId, -f))) {
+        val (maxVertexId, score) = addVertices.max()(Ordering.by[(VertexId, Double), Double](_._2))
+        val maxVertex = graph.vertices.filter(v => v._1 == maxVertexId).collect().apply(0)
+        res.append(Row.apply(maxVertexId, maxVertex._2.Artifact, maxVertex._2.Version, score))
+        cal.add(maxVertexId)
+        vGraph = vGraph.joinVertices(graph.edges.filter(e => e.dstId == maxVertexId).map[(VertexId, Double)](e => (e.srcId, -f))) {
           (_, oldScore, change) => oldScore + change
         }.mapVertices((vid, score) => {
-          if (vid == maxVertex || score < 0) {
+          if (vid == maxVertexId || score < 0) {
             0
           } else {
             score
@@ -57,7 +57,7 @@ object Main {
       }
     }
 
-    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_RANK).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_SOFTWARE).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

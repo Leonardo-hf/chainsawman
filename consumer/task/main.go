@@ -29,8 +29,7 @@ func initHandleTable() {
 	handleTable[common.GraphNeighbors] = &handler.GetNeighbors{}
 	handleTable[common.GraphNodes] = &handler.GetNodes{}
 	handleTable[common.GraphCreate] = &handler.CreateGraph{}
-	handleTable[common.AlgoRank] = &handler.AlgoRank{}
-	handleTable[common.AlgoScore] = &handler.AlgoScore{}
+	handleTable[common.AlgoExec] = &handler.AlgoExec{}
 }
 
 func main() {

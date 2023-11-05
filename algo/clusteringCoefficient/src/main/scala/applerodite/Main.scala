@@ -1,8 +1,12 @@
 package applerodite
 
-import applerodite.config.ClientConfig
+import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SCORE}
+import applerodite.config.{AlgoConstants, ClientConfig}
+import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
 import org.apache.spark.graphx.Graph
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.functions.desc
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -25,7 +29,9 @@ object Main {
     if (triangleNum != 0)
       score = (closedTriangleNum / triangleNum * 1.0).formatted("%.6f").toDouble
 
-    ClientConfig.ossClient.upload(name = target, content = score.toString)
+    val res = List(Row.apply(score))
+    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_SCORE).orderBy(desc(AlgoConstants.SCORE_COL))
+    ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }
 }

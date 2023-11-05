@@ -55,7 +55,6 @@ func (h *CreateGraph) Handle(task *model.KVTask) (string, error) {
 		},
 		Graph: &types.Graph{
 			Name:    req.Graph,
-			Desc:    req.Desc,
 			Id:      req.GraphID,
 			GroupID: req.GroupID,
 		}})

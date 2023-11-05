@@ -77,6 +77,7 @@ type (
 		Id           int64        `json:"id"`
 		Name         string       `json:"name"`
 		Desc         string       `json:"desc"`
+		ParentID     int64        `json:"parentId"`
 		NodeTypeList []*Structure `json:"nodeTypeList"`
 		EdgeTypeList []*Structure `json:"edgeTypeList"`
 		Graphs       []*Graph     `json:"graphs"`
@@ -118,7 +119,6 @@ type (
 		GraphID int64  `json:"graphId,optional"`
 
 		Graph   string `json:"graph"`
-		Desc    string `json:"desc,optional"`
 		GroupID int64  `json:"groupId"`
 	}
 
@@ -148,9 +148,20 @@ type (
 		Keywords string `form:"keywords"`
 	}
 
+	GetMatchNodesByTagRequest {
+		GraphID  int64  `form:"graphId"`
+		Keywords string `form:"keywords"`
+		NodeID   int64  `form:"nodeId"`
+	}
+
 	GetMatchNodesReply {
 		Base           *BaseReply        `json:"base"`
 		MatchNodePacks []*MatchNodePacks `json:"matchNodePacks"`
+	}
+
+	GetMatchNodesByTagReply {
+		Base       *BaseReply   `json:"base"`
+		MatchNodes []*MatchNode `json:"matchNodes"`
 	}
 
 	GetNodesReply {
@@ -158,9 +169,15 @@ type (
 		NodePacks []*NodePack `json:"nodePacks"`
 	}
 
+	GetNodesByTagReply {
+		Base  *BaseReply `json:"base"`
+		Nodes []*Node    `json:"nodes"`
+	}
+
 	CreateGroupRequest {
 		Name         string       `json:"name"`
 		Desc         string       `json:"desc"`
+		ParentID     int64        `json:"parentId"`
 		NodeTypeList []*Structure `json:"nodeTypeList"`
 		EdgeTypeList []*Structure `json:"edgeTypeList"`
 	}
@@ -212,16 +229,11 @@ type (
 )
 
 type (
-	Rank {
-		Tag   string  `json:"tag"`
-		Node  *Node   `json:"node"`
-		Score float64 `json:"score"`
-	}
-
 	Algo {
 		Id       int64        `json:"id,optional"`
 		Name     string       `json:"name"`
 		Desc     string       `json:"desc"`
+		GroupId  int64        `json:"groupId"`
 		IsCustom bool         `json:"isCustom"`
 		Type     int64        `json:"type"`
 		Params   []*AlgoParam `json:"params,optional"`
@@ -236,15 +248,9 @@ type (
 		Min       float64 `json:"min,optional"`
 	}
 
-	AlgoRankReply {
-		Base  *BaseReply `json:"base"`
-		Ranks []*Rank    `json:"ranks"`
-		File  string     `json:"file"`
-	}
-
-	AlgoMetricReply {
-		Base  *BaseReply `json:"base"`
-		Score float64    `json:"score"`
+	AlgoReply {
+		Base *BaseReply `json:"base"`
+		File string     `json:"file"`
 	}
 
 	GetAlgoReply {
@@ -262,11 +268,19 @@ type (
 		Jar        string `json:"jar"`
 	}
 
+	Param {
+		Key       string   `json:"key"`
+		Type      int64    `json:"type"`
+		Value     string   `json:"value,optional"`
+		ListValue []string `json:"listValue,optional"`
+		AlgoValue string   `json:"algoValue,optional"`
+	}
+
 	ExecAlgoRequest {
-		TaskID  string  `json:"taskId,optional"`
-		GraphID int64   `json:"graphId"`
-		AlgoID  int64   `json:"algoId"`
-		Params  []*Pair `json:"params,optional"`
+		TaskID  string   `json:"taskId,optional"`
+		GraphID int64    `json:"graphId"`
+		AlgoID  int64    `json:"algoId"`
+		Params  []*Param `json:"params,optional"`
 	}
 )
 
@@ -314,6 +328,10 @@ service graph {
 	@handler getMatchNodes
 	get /node/getMatch (GetMatchNodesRequest) returns (GetMatchNodesReply)
 	
+	@doc "获得匹配节点"
+	@handler getMatchNodesByTag
+	get /node/getMatchByTag (GetMatchNodesByTagRequest) returns (GetMatchNodesByTagReply)
+	
 	@doc "获取节点信息及邻居节点"
 	@handler getNeighbors
 	get /node/nbr (GetNeighborsRequest) returns (GetGraphDetailReply)
@@ -348,13 +366,9 @@ service graph {
 	@handler algoDrop
 	post /algo/drop (DropAlgoRequest) returns (BaseReply)
 	
-	@doc "执行排序算法"
-	@handler algoExecRank
-	post /algo/exec/rank (ExecAlgoRequest) returns (AlgoRankReply)
-	
-	@doc "执行指标算法"
-	@handler algoExecScore
-	post /algo/exec/score (ExecAlgoRequest) returns (AlgoMetricReply)
+	@doc "执行算法"
+	@handler algoExec
+	post /algo/exec (ExecAlgoRequest) returns (AlgoReply)
 }
 
 @server(

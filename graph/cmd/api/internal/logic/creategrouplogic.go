@@ -27,8 +27,9 @@ func NewCreateGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 
 func (l *CreateGroupLogic) CreateGroup(req *types.CreateGroupRequest) (resp *types.GroupInfoReply, err error) {
 	group := &model.Group{
-		Name: req.Name,
-		Desc: req.Desc,
+		Name:     req.Name,
+		Desc:     req.Desc,
+		ParentID: req.ParentID,
 	}
 	nodes := make([]*model.Node, 0)
 	for _, n := range req.NodeTypeList {

@@ -4,7 +4,8 @@ import {RunTimeLayoutConfig} from "@umijs/max";
 import Graph from "./pages/Graph"
 
 import {algoGetAll, getAllGraph} from "./services/graph/graph";
-import {setInit, splitGroupsGraph} from "@/models/global";
+import {setInit, parseGroups} from "@/models/global";
+import {message} from "antd";
 
 let newRoutes: any[] = []
 
@@ -14,28 +15,44 @@ export function render(oldRender: () => void) {
         const gs = data.groups
         if (gs) {
             // 初始化图与组信息
-            const {graphs, groups} = splitGroupsGraph(gs)
+            const {graphs, groups} = parseGroups(gs)
             setInit(graphs, groups)
             // 生成路由
-            gs.forEach((g) => {
-                newRoutes.push({
-                    path: '/graph/' + g.id,
-                    name: g.name,
-                    children: g.graphs.map(graph => {
-                        return {
-                            path: '/graph/' + g.id + '/' + graph.id,
-                            name: graph.name,
-                            element: <Graph graph={graph} key={graph.id}/>,
-                        }
-                    })
+            const rootRoute = {
+                path: '/graph',
+                children: []
+            }
+            const routeMap: any = {1: rootRoute}
+            const groupsQueue = [1]
+            while (groupsQueue.length > 0) {
+                const parentId = groupsQueue.shift()!
+                const parentRoute = routeMap[parentId]
+                groups.filter(g => g.parentId === parentId).forEach(g => {
+                    const p = parentRoute.path + '/' + g.id
+                    const crtRoute = {
+                        path: p,
+                        name: g.desc,
+                        children: graphs.filter(graph => graph.group.id === g.id).map(graph => {
+                            return {
+                                path: p + '/s/' + graph.id,
+                                name: graph.name,
+                                element: <Graph graph={graph} key={graph.id}/>,
+                            }
+                        })
+                    }
+                    parentRoute.children.push(crtRoute)
+                    routeMap[g.id] = crtRoute
+                    groupsQueue.push(g.id)
                 })
-            })
+            }
+            newRoutes.push(...rootRoute.children)
         }
         oldRender()
     })
 }
 
 
+// @ts-ignore
 export function patchClientRoutes({routes}) {
     // TODO: 这个是直接根据路由的序号找的，扩展性差
     let menu = routes[0].children[2]
@@ -56,6 +73,12 @@ export async function getInitialState(): Promise<{ algos: Graph.Algo[] }> {
 
 export const request: RequestConfig = {
     timeout: 10 * 1000,
+    responseInterceptors: [
+        [(response) => response, (error: Error) => {
+            message.error(error.message)
+            return Promise.reject(error)
+        }],
+    ]
 }
 
 

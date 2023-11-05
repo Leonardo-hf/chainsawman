@@ -69,42 +69,15 @@
         ]
       }
     },
-    "/api/graph/algo/algo/exec/rank": {
+    "/api/graph/algo/algo/exec": {
       "post": {
-        "summary": "执行排序算法",
-        "operationId": "algoExecRank",
+        "summary": "执行算法",
+        "operationId": "algoExec",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/AlgoRankReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ExecAlgoRequest"
-            }
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/algo/algo/exec/score": {
-      "post": {
-        "summary": "执行指标算法",
-        "operationId": "algoExecScore",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/AlgoMetricReply"
+              "$ref": "#/definitions/AlgoReply"
             }
           }
         },
@@ -460,6 +433,45 @@
         ]
       }
     },
+    "/api/graph/node/getMatchByTag": {
+      "get": {
+        "summary": "获得匹配节点",
+        "operationId": "getMatchNodesByTag",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetMatchNodesByTagReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "keywords",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "nodeId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/node/nbr": {
       "get": {
         "summary": "获取节点信息及邻居节点",
@@ -608,6 +620,10 @@
         "desc": {
           "type": "string"
         },
+        "groupId": {
+          "type": "integer",
+          "format": "int64"
+        },
         "isCustom": {
           "type": "boolean",
           "format": "boolean"
@@ -627,25 +643,9 @@
       "required": [
         "name",
         "desc",
+        "groupId",
         "isCustom",
         "type"
-      ]
-    },
-    "AlgoMetricReply": {
-      "type": "object",
-      "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
-        },
-        "score": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "title": "AlgoMetricReply",
-      "required": [
-        "base",
-        "score"
       ]
     },
     "AlgoParam": {
@@ -681,26 +681,19 @@
         "type"
       ]
     },
-    "AlgoRankReply": {
+    "AlgoReply": {
       "type": "object",
       "properties": {
         "base": {
           "$ref": "#/definitions/BaseReply"
         },
-        "ranks": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Rank"
-          }
-        },
         "file": {
           "type": "string"
         }
       },
-      "title": "AlgoRankReply",
+      "title": "AlgoReply",
       "required": [
         "base",
-        "ranks",
         "file"
       ]
     },
@@ -793,9 +786,6 @@
         "graph": {
           "type": "string"
         },
-        "desc": {
-          "type": "string"
-        },
         "groupId": {
           "type": "integer",
           "format": "int64"
@@ -816,6 +806,10 @@
         "desc": {
           "type": "string"
         },
+        "parentId": {
+          "type": "integer",
+          "format": "int64"
+        },
         "nodeTypeList": {
           "type": "array",
           "items": {
@@ -833,6 +827,7 @@
       "required": [
         "name",
         "desc",
+        "parentId",
         "nodeTypeList",
         "edgeTypeList"
       ]
@@ -946,7 +941,7 @@
         "params": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Pair"
+            "$ref": "#/definitions/Param"
           }
         }
       },
@@ -1059,6 +1054,47 @@
         "name"
       ]
     },
+    "GetMatchNodesByTagReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "matchNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MatchNode"
+          }
+        }
+      },
+      "title": "GetMatchNodesByTagReply",
+      "required": [
+        "base",
+        "matchNodes"
+      ]
+    },
+    "GetMatchNodesByTagRequest": {
+      "type": "object",
+      "properties": {
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "keywords": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "GetMatchNodesByTagRequest",
+      "required": [
+        "graphId",
+        "keywords",
+        "nodeId"
+      ]
+    },
     "GetMatchNodesReply": {
       "type": "object",
       "properties": {
@@ -1124,6 +1160,25 @@
         "nodeId",
         "direction",
         "max"
+      ]
+    },
+    "GetNodesByTagReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        }
+      },
+      "title": "GetNodesByTagReply",
+      "required": [
+        "base",
+        "nodes"
       ]
     },
     "GetNodesReply": {
@@ -1273,6 +1328,10 @@
         "desc": {
           "type": "string"
         },
+        "parentId": {
+          "type": "integer",
+          "format": "int64"
+        },
         "nodeTypeList": {
           "type": "array",
           "items": {
@@ -1297,6 +1356,7 @@
         "id",
         "name",
         "desc",
+        "parentId",
         "nodeTypeList",
         "edgeTypeList",
         "graphs"
@@ -1414,6 +1474,35 @@
         "value"
       ]
     },
+    "Param": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "value": {
+          "type": "string"
+        },
+        "listValue": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "algoValue": {
+          "type": "string"
+        }
+      },
+      "title": "Param",
+      "required": [
+        "key",
+        "type"
+      ]
+    },
     "PresignedReply": {
       "type": "object",
       "properties": {
@@ -1440,27 +1529,6 @@
       "title": "PresignedRequest",
       "required": [
         "filename"
-      ]
-    },
-    "Rank": {
-      "type": "object",
-      "properties": {
-        "tag": {
-          "type": "string"
-        },
-        "node": {
-          "$ref": "#/definitions/Node"
-        },
-        "score": {
-          "type": "number",
-          "format": "double"
-        }
-      },
-      "title": "Rank",
-      "required": [
-        "tag",
-        "node",
-        "score"
       ]
     },
     "Structure": {

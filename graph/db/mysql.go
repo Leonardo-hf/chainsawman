@@ -33,6 +33,8 @@ type MysqlClient interface {
 
 	GetAllGroups(ctx context.Context) ([]*model.Group, error)
 
+	GetNodeByID(ctx context.Context, id int64) (*model.Node, error)
+
 	InsertGroup(ctx context.Context, group *model.Group) error
 
 	GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error)

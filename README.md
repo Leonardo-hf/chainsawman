@@ -30,6 +30,7 @@ use go-zero, graphin, nebula and spark graphx to build an extended visual system
   * a default datasource for python requirements updated daily
 * use openfass to deploy consumers
 * format data interface
-* replace redis with abase
+* may replace redis with abase in future
 * Mysql 存在慢查询问题
 * nebula 需要全文索引
+* 父策略组

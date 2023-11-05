@@ -67,6 +67,9 @@ func (n *NebulaClientImpl) CreateGraph(graph int64, group *model.Group) error {
 		attrNames := make([]string, len(node.NodeAttrs))
 		s := "CREATE TAG IF NOT EXISTS %v(%v);"
 		for i, attr := range node.NodeAttrs {
+			if common.Int642Bool(attr.Primary) {
+				stat += fmt.Sprintf("CREATE TAG INDEX IF NOT EXISTS %v_tag_index on %v(%v(10));", node.Name, node.Name, attr.Name)
+			}
 			attrNames[i] = fmt.Sprintf("`%v` %v", attr.Name, common.Type2String(attr.Type))
 		}
 		s = fmt.Sprintf(s, node.Name, strings.Join(attrNames, ","))
@@ -140,7 +143,7 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, node *model.Node, recor
 				if err != nil {
 					return 0, err
 				}
-				if attr.Type == 1 {
+				if attr.Type == 1 || attr.Type == 2 {
 					attrs[q] = v
 				} else {
 					attrs[q] = fmt.Sprintf("\"%v\"", v)
@@ -215,7 +218,7 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edge *model.Edge, recor
 				if err != nil {
 					return 0, err
 				}
-				if attr.Type == 1 {
+				if attr.Type == 1 || attr.Type == 2 {
 					attrs[q] = v
 				} else {
 					attrs[q] = fmt.Sprintf("\"%v\"", v)

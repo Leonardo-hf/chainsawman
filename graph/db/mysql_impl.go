@@ -110,6 +110,11 @@ func (c *MysqlClientImpl) GetAllGroups(ctx context.Context) ([]*model.Group, err
 	return gr.WithContext(ctx).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).Find()
 }
 
+func (c *MysqlClientImpl) GetNodeByID(ctx context.Context, id int64) (*model.Node, error) {
+	n := query.Node
+	return n.WithContext(ctx).Where(n.ID.Eq(id)).Preload(n.NodeAttrs).First()
+}
+
 func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error) {
 	g := query.Graph
 	graph, err := g.WithContext(ctx).Where(g.ID.Eq(id)).First()
@@ -122,7 +127,7 @@ func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*mod
 
 func (c *MysqlClientImpl) GetAllAlgo(ctx context.Context) ([]*model.Algo, error) {
 	a := query.Algo
-	return a.WithContext(ctx).Select(a.ID, a.Desc, a.IsCustom, a.Name, a.Type).Preload(a.Params).Find()
+	return a.WithContext(ctx).Select(a.ID, a.Desc, a.IsCustom, a.GroupID, a.Name, a.Type).Preload(a.Params).Find()
 }
 
 func (c *MysqlClientImpl) DropAlgoByID(ctx context.Context, id int64) (int64, error) {

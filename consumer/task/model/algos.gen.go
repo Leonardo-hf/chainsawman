@@ -11,10 +11,11 @@ type Algo struct {
 	ID        int64  `gorm:"column:id;type:int;primaryKey;autoIncrement:true" json:"id"`
 	Name      string `gorm:"column:name;type:varchar(255);not null" json:"name"`
 	Desc      string `gorm:"column:desc;type:text" json:"desc"`
-	Type      int64  `gorm:"column:type;type:int;not null" json:"type"`
+	GroupID   int64  `gorm:"column:groupId;type:int;default:1;comment:约束算法应用于某个策略组的图谱，此外：\n0......应用于全部策略组" json:"groupId"`
 	JarPath   string `gorm:"column:jarPath;type:varchar(255)" json:"jarPath"`
 	MainClass string `gorm:"column:mainClass;type:varchar(255)" json:"mainClass"`
-	IsCustom  int64  `gorm:"column:isCustom;type:tinyint" json:"isCustom"`
+	IsCustom  int64  `gorm:"column:isCustom;type:tinyint;comment:是否是自定义算法" json:"isCustom"`
+	Type      int64  `gorm:"column:type;type:int;not null;comment:算法类型：\n1......中心度算法，\n2......聚类算法，\n3......网络结构特征" json:"type"`
 }
 
 // TableName Algo's table name

@@ -30,10 +30,11 @@ func newAlgo(db *gorm.DB, opts ...gen.DOOption) algo {
 	_algo.ID = field.NewInt64(tableName, "id")
 	_algo.Name = field.NewString(tableName, "name")
 	_algo.Desc = field.NewString(tableName, "desc")
-	_algo.Type = field.NewInt64(tableName, "type")
+	_algo.GroupID = field.NewInt64(tableName, "groupId")
 	_algo.JarPath = field.NewString(tableName, "jarPath")
 	_algo.MainClass = field.NewString(tableName, "mainClass")
 	_algo.IsCustom = field.NewInt64(tableName, "isCustom")
+	_algo.Type = field.NewInt64(tableName, "type")
 
 	_algo.fillFieldMap()
 
@@ -43,14 +44,25 @@ func newAlgo(db *gorm.DB, opts ...gen.DOOption) algo {
 type algo struct {
 	algoDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	Name      field.String
-	Desc      field.String
-	Type      field.Int64
+	ALL  field.Asterisk
+	ID   field.Int64
+	Name field.String
+	Desc field.String
+	/*
+		约束算法应用于某个策略组的图谱，此外：
+		0......应用于全部策略组
+	*/
+	GroupID   field.Int64
 	JarPath   field.String
 	MainClass field.String
-	IsCustom  field.Int64
+	IsCustom  field.Int64 // 是否是自定义算法
+	/*
+		算法类型：
+		1......中心度算法，
+		2......聚类算法，
+		3......网络结构特征
+	*/
+	Type field.Int64
 
 	fieldMap map[string]field.Expr
 }
@@ -70,10 +82,11 @@ func (a *algo) updateTableName(table string) *algo {
 	a.ID = field.NewInt64(table, "id")
 	a.Name = field.NewString(table, "name")
 	a.Desc = field.NewString(table, "desc")
-	a.Type = field.NewInt64(table, "type")
+	a.GroupID = field.NewInt64(table, "groupId")
 	a.JarPath = field.NewString(table, "jarPath")
 	a.MainClass = field.NewString(table, "mainClass")
 	a.IsCustom = field.NewInt64(table, "isCustom")
+	a.Type = field.NewInt64(table, "type")
 
 	a.fillFieldMap()
 
@@ -90,14 +103,15 @@ func (a *algo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *algo) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 7)
+	a.fieldMap = make(map[string]field.Expr, 8)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["name"] = a.Name
 	a.fieldMap["desc"] = a.Desc
-	a.fieldMap["type"] = a.Type
+	a.fieldMap["groupId"] = a.GroupID
 	a.fieldMap["jarPath"] = a.JarPath
 	a.fieldMap["mainClass"] = a.MainClass
 	a.fieldMap["isCustom"] = a.IsCustom
+	a.fieldMap["type"] = a.Type
 }
 
 func (a algo) clone(db *gorm.DB) algo {

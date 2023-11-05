@@ -80,6 +80,11 @@ export default defineConfig({
             component: './Algo'
         },
         {
+            name: '卡脖子风险分析',
+            path: '/util/strangle',
+            component: './Strangle'
+        },
+        {
             name: '软件成分分析',
             path: '/util/extractor',
             component: './Extractor'

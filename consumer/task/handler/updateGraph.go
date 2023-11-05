@@ -171,12 +171,12 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	_, err = config.NebulaClient.MultiIncNodesDeg(req.GraphID, degMap)
 	// 查询图原始大小，更新图大小
 	size, err := config.MysqlClient.GetGraphSizeByID(ctx, req.GraphID)
-	size.NumNode += int64(numNode)
-	size.NumEdge += int64(numEdge)
-
 	if err != nil {
 		return "", err
 	}
+	size.NumNode += int64(numNode)
+	size.NumEdge += int64(numEdge)
+
 	_, err = config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
 		ID:      req.GraphID,
 		Status:  common.GraphStatusOK,

@@ -2,7 +2,7 @@ import {
     ApartmentOutlined,
     AppstoreFilled,
     BranchesOutlined,
-    ChromeFilled, CopyrightCircleFilled,
+    CopyrightCircleFilled,
     ShareAltOutlined,
     TrademarkCircleFilled
 } from "@ant-design/icons";

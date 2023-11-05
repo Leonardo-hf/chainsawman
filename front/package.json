@@ -18,7 +18,8 @@
     "@antv/graphin": "^2.7.13",
     "@umijs/max": "^4.0.61",
     "@umijs/max-plugin-openapi": "^2.0.3",
-    "antd": "^5.8.6"
+    "antd": "^5.8.6",
+    "react-papaparse": "^4.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

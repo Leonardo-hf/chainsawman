@@ -19,6 +19,7 @@
         <module>clusteringCoefficient</module>
         <module>louvain</module>
         <module>common</module>
+        <module>strangleRisk</module>
     </modules>
 
     <properties>

@@ -7,8 +7,8 @@ import {
     ProFormText, ProFormUploadButton,
     ProList
 } from "@ant-design/pro-components";
-import {Button, Divider, Form, message, Popconfirm, Space, Typography} from "antd";
-import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
+import {Button, Divider, Form, message, Popconfirm, Space, Tag, Typography} from "antd";
+import {CloseOutlined, PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import {algoCreate, algoDrop} from "@/services/graph/graph";
 import React, {Key, useState} from "react";
 import ProCard from "@ant-design/pro-card";
@@ -23,6 +23,7 @@ import {
     ParamTypeOptions
 } from "@/constants";
 import {uploadLib} from "@/utils/oss";
+import {genGroupOptions} from "@/models/global";
 
 const {Text} = Typography;
 
@@ -32,6 +33,7 @@ const Algo: React.FC = (props) => {
     const {initialState} = useModel('@@initialState')
     //@ts-ignore
     const {algos} = initialState
+    const {groups} = useModel('global')
 
     // 创建策略组的drawer
     const getCreateAlgoModal = () => {
@@ -46,6 +48,7 @@ const Algo: React.FC = (props) => {
                     name: vs.name,
                     desc: vs.desc,
                     type: vs.type,
+                    groupId: vs.groupId,
                     params: vs.params.map(p => {
                         return {
                             key: p.key,
@@ -66,7 +69,7 @@ const Algo: React.FC = (props) => {
             })
         }
         type FormData = {
-            name: string, desc: string, type: AlgoType,
+            name: string, desc: string, type: AlgoType, groupId: number,
             entryPoint: string, jar: any,
             params: { key: string, keyDesc: string, type: ParamType, initValue: number, range: number[] }[]
         }
@@ -96,9 +99,11 @@ const Algo: React.FC = (props) => {
                 <ProFormSelect
                     initialValue={AlgoType.rank}
                     options={AlgoOptions}
+                    rules={[{required: true}]}
                     name='type'
                     label='算法分类'
                 />
+                <ProFormSelect name='groupId' style={{width: '100%'}} label='适用策略组' options={genGroupOptions(groups)}/>
             </ProFormGroup>
             <ProFormGroup title='算法实现'>
                 <ProFormText name='entryPoint' label='入口类' rules={[{required: true}]}/>
@@ -143,7 +148,7 @@ const Algo: React.FC = (props) => {
                         label='类型'
                     />
                     <ProFormDependency name={['type']}>
-                        {({type}) => type && <Space size={"large"}>
+                        {({type}) => type == ParamType.Int || type == ParamType.Double && <Space size={"large"}>
                             <ProFormDigitRange name='range' fieldProps={getPrecise(type)} label='范围'/>
                             <ProFormDigit name='initValue' fieldProps={getPrecise(type)} label='默认值'/>
                         </Space>
@@ -172,7 +177,7 @@ const Algo: React.FC = (props) => {
                         <ProDescriptions dataSource={p}>
                             <ProDescriptions.Item dataIndex={'key'} label='key' valueType={'text'}/>
                             <ProDescriptions.Item dataIndex={'keyDesc'} label='名称' valueType={'text'}/>
-                            <ProDescriptions.Item dataIndex={'type'} label='类型' valueEnum={AlgoType}/>
+                            <ProDescriptions.Item dataIndex={'type'} label='类型' valueEnum={ParamType}/>
                             {p.initValue &&
                             <ProDescriptions.Item dataIndex={'initValue'} label='默认值' valueType={'text'}/>}
                             {p.max && <ProDescriptions.Item dataIndex={'max'} label='最大值' valueType={'text'}/>}
@@ -216,6 +221,8 @@ const Algo: React.FC = (props) => {
                     render: (_, row) => {
                         return <Space size={0}>
                             {getAlgoTypeDesc(row.type)}
+                            <Tag
+                                color='#EE9A00'>{row.groupId === 1 ? '通用' : groups.find(g => g.id === row.groupId)!.desc}</Tag>
                         </Space>
                     },
                     valueType: 'select',
@@ -234,7 +241,7 @@ const Algo: React.FC = (props) => {
                                 algoDrop({algoId: a.id!}).then(_ => window.location.reload())
                             }}
                         >
-                            <Button danger>Delete</Button>
+                            <Button danger>删除</Button>
                         </Popconfirm>
                     },
                 },

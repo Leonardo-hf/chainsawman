@@ -78,6 +78,7 @@ type Group struct {
 	Id           int64        `json:"id"`
 	Name         string       `json:"name"`
 	Desc         string       `json:"desc"`
+	ParentID     int64        `json:"parentId"`
 	NodeTypeList []*Structure `json:"nodeTypeList"`
 	EdgeTypeList []*Structure `json:"edgeTypeList"`
 	Graphs       []*Graph     `json:"graphs"`
@@ -117,7 +118,6 @@ type CreateGraphRequest struct {
 	TaskID  string `json:"taskId,optional"`
 	GraphID int64  `json:"graphId,optional"`
 	Graph   string `json:"graph"`
-	Desc    string `json:"desc,optional"`
 	GroupID int64  `json:"groupId"`
 }
 
@@ -147,9 +147,20 @@ type GetMatchNodesRequest struct {
 	Keywords string `form:"keywords"`
 }
 
+type GetMatchNodesByTagRequest struct {
+	GraphID  int64  `form:"graphId"`
+	Keywords string `form:"keywords"`
+	NodeID   int64  `form:"nodeId"`
+}
+
 type GetMatchNodesReply struct {
 	Base           *BaseReply        `json:"base"`
 	MatchNodePacks []*MatchNodePacks `json:"matchNodePacks"`
+}
+
+type GetMatchNodesByTagReply struct {
+	Base       *BaseReply   `json:"base"`
+	MatchNodes []*MatchNode `json:"matchNodes"`
 }
 
 type GetNodesReply struct {
@@ -157,9 +168,15 @@ type GetNodesReply struct {
 	NodePacks []*NodePack `json:"nodePacks"`
 }
 
+type GetNodesByTagReply struct {
+	Base  *BaseReply `json:"base"`
+	Nodes []*Node    `json:"nodes"`
+}
+
 type CreateGroupRequest struct {
 	Name         string       `json:"name"`
 	Desc         string       `json:"desc"`
+	ParentID     int64        `json:"parentId"`
 	NodeTypeList []*Structure `json:"nodeTypeList"`
 	EdgeTypeList []*Structure `json:"edgeTypeList"`
 }
@@ -205,16 +222,11 @@ type DropTaskRequest struct {
 	TaskID string `json:"taskId,optional"`
 }
 
-type Rank struct {
-	Tag   string  `json:"tag"`
-	Node  *Node   `json:"node"`
-	Score float64 `json:"score"`
-}
-
 type Algo struct {
 	Id       int64        `json:"id,optional"`
 	Name     string       `json:"name"`
 	Desc     string       `json:"desc"`
+	GroupId  int64        `json:"groupId"`
 	IsCustom bool         `json:"isCustom"`
 	Type     int64        `json:"type"`
 	Params   []*AlgoParam `json:"params,optional"`
@@ -229,15 +241,9 @@ type AlgoParam struct {
 	Min       float64 `json:"min,optional"`
 }
 
-type AlgoRankReply struct {
-	Base  *BaseReply `json:"base"`
-	Ranks []*Rank    `json:"ranks"`
-	File  string     `json:"file"`
-}
-
-type AlgoMetricReply struct {
-	Base  *BaseReply `json:"base"`
-	Score float64    `json:"score"`
+type AlgoReply struct {
+	Base *BaseReply `json:"base"`
+	File string     `json:"file"`
 }
 
 type GetAlgoReply struct {
@@ -255,9 +261,17 @@ type CreateAlgoRequest struct {
 	Jar        string `json:"jar"`
 }
 
+type Param struct {
+	Key       string   `json:"key"`
+	Type      int64    `json:"type"`
+	Value     string   `json:"value,optional"`
+	ListValue []string `json:"listValue,optional"`
+	AlgoValue string   `json:"algoValue,optional"`
+}
+
 type ExecAlgoRequest struct {
-	TaskID  string  `json:"taskId,optional"`
-	GraphID int64   `json:"graphId"`
-	AlgoID  int64   `json:"algoId"`
-	Params  []*Pair `json:"params,optional"`
+	TaskID  string   `json:"taskId,optional"`
+	GraphID int64    `json:"graphId"`
+	AlgoID  int64    `json:"algoId"`
+	Params  []*Param `json:"params,optional"`
 }

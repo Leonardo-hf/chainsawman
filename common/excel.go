@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"go.uber.org/multierr"
 	"io"
-	"k8s.io/utils/strings/slices"
 	"os"
 	"strconv"
 	"strings"
@@ -59,6 +58,14 @@ func (r *Record) GetAsFloat64(key string) (float64, error) {
 	return 0, convErr(key)
 }
 
+func (r *Record) Keys() []string {
+	keys := make([]string, 0)
+	for k := range r.strMap {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 type ExcelParser interface {
 	HasColumn(col string) bool
 	Next() (*Record, error)
@@ -85,7 +92,12 @@ func initCSVParser(file io.Reader) (*csvParser, error) {
 }
 
 func (c *csvParser) HasColumn(col string) bool {
-	return slices.Contains(c.titles, col)
+	for _, t := range c.titles {
+		if t == col {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *csvParser) Next() (*Record, error) {
@@ -130,7 +142,12 @@ func initXLSParser(content io.Reader) (*xlsParser, error) {
 }
 
 func (c *xlsParser) HasColumn(col string) bool {
-	return slices.Contains(c.titles, col)
+	for _, t := range c.titles {
+		if t == col {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *xlsParser) Next() (*Record, error) {
@@ -153,7 +170,12 @@ type xlsxParser struct {
 }
 
 func (c *xlsxParser) HasColumn(col string) bool {
-	return slices.Contains(c.titles, col)
+	for _, t := range c.titles {
+		if t == col {
+			return true
+		}
+	}
+	return false
 }
 
 func initXLSXParser(content io.Reader) (*xlsxParser, error) {

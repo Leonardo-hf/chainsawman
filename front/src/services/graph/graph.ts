@@ -26,21 +26,9 @@ export async function algoDrop(body: Graph.DropAlgoRequest, options?: { [key: st
   });
 }
 
-/** 执行排序算法 POST /api/graph/algo/algo/exec/rank */
-export async function algoExecRank(body: Graph.ExecAlgoRequest, options?: { [key: string]: any }) {
-  return request<Graph.AlgoRankReply>('/api/graph/algo/algo/exec/rank', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 执行指标算法 POST /api/graph/algo/algo/exec/score */
-export async function algoExecScore(body: Graph.ExecAlgoRequest, options?: { [key: string]: any }) {
-  return request<Graph.AlgoMetricReply>('/api/graph/algo/algo/exec/score', {
+/** 执行算法 POST /api/graph/algo/algo/exec */
+export async function algoExec(body: Graph.ExecAlgoRequest, options?: { [key: string]: any }) {
+  return request<Graph.AlgoReply>('/api/graph/algo/algo/exec', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -205,6 +193,21 @@ export async function getMatchNodes(
   options?: { [key: string]: any },
 ) {
   return request<Graph.GetMatchNodesReply>('/api/graph/node/getMatch', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 获得匹配节点 GET /api/graph/node/getMatchByTag */
+export async function getMatchNodesByTag(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getMatchNodesByTagParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GetMatchNodesByTagReply>('/api/graph/node/getMatchByTag', {
     method: 'GET',
     params: {
       ...params,

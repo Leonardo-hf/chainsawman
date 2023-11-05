@@ -14,7 +14,6 @@ const TableNameGraph = "graphs"
 type Graph struct {
 	ID         int64     `gorm:"column:id;type:int;primaryKey;autoIncrement:true" json:"id"`
 	Name       string    `gorm:"column:name;type:varchar(255);not null" json:"name"`
-	Desc       string    `gorm:"column:desc;type:text" json:"desc"`
 	Status     int64     `gorm:"column:status;type:int;not null" json:"status"`
 	NumNode    int64     `gorm:"column:numNode;type:int;not null" json:"numNode"`
 	NumEdge    int64     `gorm:"column:numEdge;type:int;not null" json:"numEdge"`

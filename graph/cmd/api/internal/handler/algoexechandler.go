@@ -9,7 +9,7 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func algoExecRankHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func algoExecHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.ExecAlgoRequest
 		if err := httpx.Parse(r, &req); err != nil {
@@ -17,8 +17,8 @@ func algoExecRankHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewAlgoExecRankLogic(r.Context(), svcCtx)
-		resp, err := l.AlgoExecRank(&req)
+		l := logic.NewAlgoExecLogic(r.Context(), svcCtx)
+		resp, err := l.AlgoExec(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

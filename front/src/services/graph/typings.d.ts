@@ -3,14 +3,10 @@ declare namespace Graph {
     id?: number;
     name: string;
     desc: string;
+    groupId: number;
     isCustom: boolean;
     type: number;
     params?: AlgoParam[];
-  };
-
-  type AlgoMetricReply = {
-    base: BaseReply;
-    score: number;
   };
 
   type AlgoParam = {
@@ -22,9 +18,8 @@ declare namespace Graph {
     min?: number;
   };
 
-  type AlgoRankReply = {
+  type AlgoReply = {
     base: BaseReply;
-    ranks: Rank[];
     file: string;
   };
 
@@ -53,13 +48,13 @@ declare namespace Graph {
     taskId?: string;
     graphId?: number;
     graph: string;
-    desc?: string;
     groupId: number;
   };
 
   type CreateGroupRequest = {
     name: string;
     desc: string;
+    parentId: number;
     nodeTypeList: Structure[];
     edgeTypeList: Structure[];
   };
@@ -95,7 +90,7 @@ declare namespace Graph {
     taskId?: string;
     graphId: number;
     algoId: number;
-    params?: Pair[];
+    params?: Param[];
   };
 
   type fileAlgoGetPresignedParams = {
@@ -144,6 +139,23 @@ declare namespace Graph {
     graphId: number;
   };
 
+  type getMatchNodesByTagParams = {
+    graphId: number;
+    keywords: string;
+    nodeId: number;
+  };
+
+  type GetMatchNodesByTagReply = {
+    base: BaseReply;
+    matchNodes: MatchNode[];
+  };
+
+  type GetMatchNodesByTagRequest = {
+    graphId: number;
+    keywords: string;
+    nodeId: number;
+  };
+
   type getMatchNodesParams = {
     graphId: number;
     keywords: string;
@@ -173,6 +185,11 @@ declare namespace Graph {
     nodeId: number;
     direction: string;
     max: number;
+  };
+
+  type GetNodesByTagReply = {
+    base: BaseReply;
+    nodes: Node[];
   };
 
   type getNodesParams = {
@@ -220,6 +237,7 @@ declare namespace Graph {
     id: number;
     name: string;
     desc: string;
+    parentId: number;
     nodeTypeList: Structure[];
     edgeTypeList: Structure[];
     graphs: Graph[];
@@ -256,6 +274,14 @@ declare namespace Graph {
     value: string;
   };
 
+  type Param = {
+    key: string;
+    type: number;
+    value?: string;
+    listValue?: string[];
+    algoValue?: string;
+  };
+
   type PresignedReply = {
     url: string;
     filename: string;
@@ -263,12 +289,6 @@ declare namespace Graph {
 
   type PresignedRequest = {
     filename: string;
-  };
-
-  type Rank = {
-    tag: string;
-    node: Node;
-    score: number;
   };
 
   type Structure = {

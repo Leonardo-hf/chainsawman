@@ -18,6 +18,7 @@ algo/ecology/target
 algo/louvain/target
 algo/pagerank/target
 algo/voterank/target
+algo/strangleRisk/target
 
 dockerfiles/minio/config
 dockerfiles/minio/data

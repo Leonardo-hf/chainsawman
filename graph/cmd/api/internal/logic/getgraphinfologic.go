@@ -35,7 +35,6 @@ func (l *GetGraphInfoLogic) GetGraphInfo(req *types.GetGraphInfoRequest) (resp *
 			Status:   graph.Status,
 			GroupID:  graph.GroupID,
 			Name:     graph.Name,
-			Desc:     graph.Desc,
 			NumNode:  graph.NumNode,
 			NumEdge:  graph.NumEdge,
 			CreatAt:  graph.CreateTime.UnixMilli(),

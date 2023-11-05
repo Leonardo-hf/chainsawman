@@ -64,6 +64,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/node/getMatchByTag",
+				Handler: getMatchNodesByTagHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/node/nbr",
 				Handler: getNeighborsHandler(serverCtx),
 			},
@@ -106,13 +111,8 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/algo/exec/rank",
-				Handler: algoExecRankHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/algo/exec/score",
-				Handler: algoExecScoreHandler(serverCtx),
+				Path:    "/algo/exec",
+				Handler: algoExecHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/graph/algo"),

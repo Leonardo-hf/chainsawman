@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_RANK
+import applerodite.config.AlgoConstants.SCHEMA_DEFAULT
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -190,19 +190,24 @@ object Main {
     val json = JSON.parseObject(args.apply(0))
     val graphID: String = json.getString("graphID")
     val target: String = json.getString("target")
-    val edgeTags: Seq[String] = json.getJSONArray("edgeTags").toArray().map(a => a.toString)
 
-    val graph: Graph[None.type, Double] = ClientConfig.graphClient.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
+
+    val graphForBC = Graph.fromEdges(graph.edges.mapValues(_ => 1.0), None)
 
     val spark = ClientConfig.spark
 
-    val initBCgraph = createBetweenGraph(graph, k = 3)
+    val initBCgraph = createBetweenGraph(graphForBC, k = 3)
     val vertexBCGraph = initBCgraph.mapVertices((id, attr) => {
       (id, betweennessCentralityForUnweightedGraph(id, attr))
     })
-    val BCGraph = aggregateBetweennessScores(vertexBCGraph)
+    val BCGraph = aggregateBetweennessScores(vertexBCGraph).outerJoinVertices(graph.vertices) {
+      (_, score, release) => {
+        (score, release)
+      }
+    }
 
-    val df = spark.sqlContext.createDataFrame(BCGraph.vertices.map(r => Row.apply(r._1, r._2)), SCHEMA_RANK).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(BCGraph.vertices.map(r => Row.apply(r._1, r._2._2.get.Artifact, r._2._2.get.Artifact, r._2._1)), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

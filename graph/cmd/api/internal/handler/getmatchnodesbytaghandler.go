@@ -9,16 +9,16 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func algoExecScoreHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func getMatchNodesByTagHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.ExecAlgoRequest
+		var req types.GetMatchNodesByTagRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := logic.NewAlgoExecScoreLogic(r.Context(), svcCtx)
-		resp, err := l.AlgoExecScore(&req)
+		l := logic.NewGetMatchNodesByTagLogic(r.Context(), svcCtx)
+		resp, err := l.GetMatchNodesByTag(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

@@ -16,7 +16,7 @@ import React, {CSSProperties, useRef} from 'react';
 import {createGraph, dropGraph, getAllGraph, updateGraph} from '@/services/graph/graph';
 import {useModel} from '@umijs/max';
 import {uploadSource} from '@/utils/oss';
-import {splitGroupsGraph} from '@/models/global';
+import {GraphRef2Group, parseGroups, TreeNodeGroup} from '@/models/global';
 
 const {Title} = Typography;
 
@@ -27,8 +27,8 @@ const HomePage: React.FC = () => {
     const getNewGraphModal = () => {
         // form提交处理函数
         const handleCreateGraph = async (value: Graph.CreateGraphRequest) => {
-            const {graph, desc, groupId} = value;
-            return await createGraph({groupId: groupId, graph: graph, desc: desc})
+            const {graph, groupId} = value;
+            return await createGraph({groupId: groupId, graph: graph})
                 .then(() => {
                     message.success('图谱创建中...')
                     ref.current?.reload()
@@ -58,11 +58,10 @@ const HomePage: React.FC = () => {
             onFinish={handleCreateGraph}
         >
             <ProFormText name='graph' label='名称' rules={[{required: true}]}/>
-            <ProFormText name='desc' label='描述' rules={[{required: true}]}/>
             <ProFormSelect
                 options={groups.map(g => {
                     return {
-                        label: g.name,
+                        label: g.desc,
                         value: g.id
                     }
                 })}
@@ -116,16 +115,15 @@ const HomePage: React.FC = () => {
         </DrawerForm>
     }
     // 更新图谱的drawer
-    const getUpdateGraphModal = (graphId: number, groupId: number, extraStyle: React.CSSProperties | undefined) => {
-        const crtGroup = groups.find(gr => gr.id === groupId)
-        if (!crtGroup) {
+    const getUpdateGraphModal = (graphId: number, group: TreeNodeGroup, extraStyle: React.CSSProperties | undefined) => {
+        if (!group) {
             return <DrawerForm trigger={<a style={extraStyle}>更新</a>}/>
         }
         // form提交处理函数
         const handleUpdateGraph = async (value: any) => {
             let nodeFiles = [], edgeFiles = []
             // 读取当前组各个可能上传的文件
-            for (const n of crtGroup.nodeTypeList) {
+            for (const n of group.nodeTypeList) {
                 if (value[n.name] && value[n.name].length) {
                     nodeFiles.push({
                         key: n.id.toString(),
@@ -133,7 +131,7 @@ const HomePage: React.FC = () => {
                     })
                 }
             }
-            for (const n of crtGroup.edgeTypeList) {
+            for (const n of group.edgeTypeList) {
                 if (value[n.name] && value[n.name].length) {
                     edgeFiles.push({
                         key: n.id.toString(),
@@ -152,7 +150,7 @@ const HomePage: React.FC = () => {
         }
 
         // 为当前组各个可能上传的文件生成上传栏
-        const getUploadFormItem = (crtGroup: Graph.Group) => {
+        const getUploadFormItem = (crtGroup: TreeNodeGroup) => {
             let nodeItems: JSX.Element[] = []
             let edgeItems: JSX.Element[] = []
             crtGroup.nodeTypeList.forEach(t => {
@@ -181,7 +179,7 @@ const HomePage: React.FC = () => {
             })
             return {nodeItems, edgeItems}
         }
-        const {nodeItems, edgeItems} = getUploadFormItem(crtGroup)
+        const {nodeItems, edgeItems} = getUploadFormItem(group)
         return <DrawerForm
             title='更新图谱'
             resize={{
@@ -213,8 +211,19 @@ const HomePage: React.FC = () => {
     groups.forEach(g => groupsEnum[g.id] = {
         text: g.name,
     })
+
+    const getGraphRoute = (g: GraphRef2Group) => {
+        let href = '/#/graph'
+        let group = g.group
+        let groupHref: string = group.id.toString()
+        while (group.parentId > 1) {
+            group = group.parentGroup!
+            groupHref = group.id + '/' + groupHref
+        }
+        return href + '/' + groupHref + '/s/' + g.id
+    }
     // 表格列
-    const columns: ProColumns<Graph.Graph>[] = [
+    const columns: ProColumns<GraphRef2Group>[] = [
         {
             title: '名称',
             dataIndex: 'name',
@@ -223,7 +232,6 @@ const HomePage: React.FC = () => {
         },
         {
             title: '组',
-            dataIndex: 'groupId',
             copyable: true,
             ellipsis: true,
             valueType: 'select',
@@ -231,7 +239,8 @@ const HomePage: React.FC = () => {
             filters: true,
             onFilter: true,
             hideInSearch: true,
-            tooltip: '对图中节点、边结构的一组定义'
+            tooltip: '对图中节点、边结构的一组定义',
+            render: (_,d)=>d.group.desc
         },
         {
             title: '节点',
@@ -304,10 +313,10 @@ const HomePage: React.FC = () => {
                     color: 'grey'
                 } : undefined
                 return <Space>
-                    <a href={'/#/graph/' + record.groupId + '/' + record.id} style={disable}>
+                    <a href={getGraphRoute(record)} style={disable}>
                         查看
                     </a>
-                    {getUpdateGraphModal(record.id, record.groupId, disable)}
+                    {getUpdateGraphModal(record.id, record.group, disable)}
                     <a style={disable} onClick={() => {
                         dropGraph({
                             graphId: record.id
@@ -330,7 +339,7 @@ const HomePage: React.FC = () => {
                 if (!res.groups) {
                     return []
                 }
-                const {graphs, groups} = splitGroupsGraph(res.groups)
+                const {graphs, groups} = parseGroups(res.groups)
                 // TODO: 可能反复触发重新渲染？
                 setGroups(groups)
                 setGraphs(graphs)
@@ -346,12 +355,12 @@ const HomePage: React.FC = () => {
 
     return (
         <PageContainer>
-            <ProTable<Graph.Graph>
+            <ProTable<GraphRef2Group>
                 key='graphList'
                 columns={columns}
                 cardBordered
                 actionRef={ref}
-                request={async (params, sort, filter) => {
+                request={async (params) => {
                     console.log('reload home')
                     const keyword = params.name ? params.name : ''
                     // 查询最新的图与组信息并更新
@@ -381,7 +390,7 @@ const HomePage: React.FC = () => {
                 pagination={false}
                 dateFormatter='string'
                 headerTitle={<Title level={4} style={{margin: '0 0 0 0'}}>图谱列表</Title>}
-                toolBarRender={(action) => [
+                toolBarRender={() => [
                     getNewGraphModal(),
                 ]}
             />

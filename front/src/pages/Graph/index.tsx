@@ -1,25 +1,45 @@
 import {PageContainer, ProForm, ProFormDigit, ProFormSelect, ProList, QueryFilter} from '@ant-design/pro-components';
-import Graphin, {Behaviors, LegendChildrenProps, Components} from '@antv/graphin';
-import {Button, Card, Col, Divider, InputNumber, message, Row, Space, Spin, Tag, Tooltip, Typography} from 'antd';
+import Graphin, {Behaviors, Components, LegendChildrenProps} from '@antv/graphin';
+import {
+    Button,
+    Card,
+    Col,
+    Divider,
+    InputNumber,
+    message,
+    Popconfirm,
+    Row,
+    Space,
+    Spin,
+    Tooltip,
+    Typography
+} from 'antd';
 import React, {SetStateAction, useEffect, useState} from 'react';
 import {connect, useModel} from '@@/exports';
-import {formatDate, formatNumber, getRandomColor} from '@/utils/format';
-import {ParamType, AlgoType, AlgoTypeMap, getAlgoTypeDesc} from "@/constants";
-import {algoExecRank, algoExecScore, dropGraph, dropTask, getGraphTasks, getMatchNodes} from '@/services/graph/graph';
+import {formatDate, formatNumber} from '@/utils/format';
+import {AlgoTypeMap, getAlgoTypeDesc, ParamType} from "@/constants";
+import {algoExec, dropGraph, dropTask, getGraphTasks, getMatchNodes} from '@/services/graph/graph';
 import {getTaskTypeDesc, TaskTypeMap} from './_task';
-import MetricTable from '@/components/MetricTable';
 import RankTable from '@/components/RankTable';
 import {history} from 'umi';
 import {EdgeData, findByGid, getGraphName, isSubGraph, NodeData} from '@/models/graph';
 import LayoutSelector from "@/components/LayoutSelector";
 import {layouts, layoutsConfig} from "@/pages/Graph/_layout";
+import {
+    CloseOutlined,
+    FileImageOutlined,
+    QuestionCircleOutlined,
+    SearchOutlined,
+    UndoOutlined
+} from "@ant-design/icons";
+import {GraphRef2Group, TreeNodeGroup} from "@/models/global";
 
 const {Legend} = Components;
 const {Text} = Typography;
 const {Hoverable} = Behaviors;
 
 type Props = {
-    graph: Graph.Graph,
+    graph: GraphRef2Group,
     details: any,
     dispatch: any
 }
@@ -64,8 +84,7 @@ const Graph: React.FC<Props> = (props) => {
     }, [graphDetail])
 
     const timerManager: NodeJS.Timer[] = []
-    const {groups} = useModel('global')
-    const group: Graph.Group = groups.find((g: Graph.Group) => g.id === graph.groupId)!
+    const group: TreeNodeGroup = graph.group
     const {id, name} = graph
     // 判断是否为子图
     const isSub = isSubGraph(gid)
@@ -110,9 +129,9 @@ const Graph: React.FC<Props> = (props) => {
                         nodeId: renderSrcNode!.id,
                         direction: renderDirection,
                         max: renderMax,
-                        group: group,
                     },
-                    timer: timer
+                    timer: timer,
+                    group: group,
                 }).then((taskStatus: number) => {
                     if (taskStatus) {
                         clearInterval(timer)
@@ -175,31 +194,34 @@ const Graph: React.FC<Props> = (props) => {
         timerManager.length = 0
     }
     const getSearch = () => {
-        return <QueryFilter span={6}
-                            submitter={{
-                                searchConfig: {
-                                    submitText: '查询子节点',
-                                },
-                                resetButtonProps: {
-                                    style: {
-                                        display: 'none',
-                                    },
-                                },
-                            }}
-                            onFinish={
-                                async (v) => {
-                                    // 清除原有的子节点查询记录
-                                    dispatch({
-                                        type: 'graph/clearSubGraph',
-                                        payload: id
-                                    })
-                                    const src = JSON.parse(v.src)
-                                    console.log(v)
-                                    setGID(getGraphName(id, src.id))
-                                    setRenderDirection(v.direct)
-                                    setRenderSrcNode(src)
-                                }
-                            } disabled={loading}>
+        return <QueryFilter
+            submitter={{
+                submitButtonProps: {
+                    icon: <SearchOutlined/>
+                },
+                searchConfig: {
+                    submitText: '查询',
+                },
+                resetButtonProps: {
+                    style: {
+                        display: 'none',
+                    },
+                },
+            }}
+            onFinish={
+                async (v) => {
+                    // 清除原有的子节点查询记录
+                    dispatch({
+                        type: 'graph/clearSubGraph',
+                        payload: id
+                    })
+                    const src = JSON.parse(v.src)
+                    console.log(v)
+                    setGID(getGraphName(id, src.id))
+                    setRenderDirection(v.direct)
+                    setRenderSrcNode(src)
+                }
+            } disabled={loading}>
             <ProFormSelect label='目标节点' name='src' rules={[{required: true}]}
                            showSearch
                            debounceTime={300}
@@ -270,7 +292,7 @@ const Graph: React.FC<Props> = (props) => {
                                 title: a.key,
                                 description: a.value,
                             }
-                        })
+                        }).sort((a, b) => a.title < b.title ? 0 : 1)
                     ]
                 } else {
                     dataSource = [
@@ -301,19 +323,29 @@ const Graph: React.FC<Props> = (props) => {
                         },
                         {
                             title: '操作',
-                            description: <Button danger type='primary' onClick={() => {
-                                dropGraph({
-                                    graphId: id
-                                }).then(res => {
-                                    message.success('删除图`' + name + '`成功')
-                                    history.push('/')
-                                })
-                            }
-                            }>删除图谱</Button>
+                            description:
+                                <Space size='large'>
+                                    <Button icon={<UndoOutlined/>} type='primary' onClick={resetGraph}>重置</Button>
+                                    <Popconfirm
+                                        title={'确认删除图' + name + '?'}
+                                        icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
+                                        onConfirm={() => {
+                                            dropGraph({
+                                                graphId: id
+                                            }).then(() => {
+                                                message.success('删除图`' + name + '`成功')
+                                                history.push('/')
+                                                window.location.reload()
+                                            })
+                                        }}
+                                    >
+                                        <Button icon={<CloseOutlined/>} type='primary' danger>删除</Button>
+                                    </Popconfirm>
+                                </Space>
                         },
                         {
                             title: '导出',
-                            description: <Button type='primary' onClick={() => {
+                            description: <Button icon={<FileImageOutlined/>} type='primary' onClick={() => {
                                 // @ts-ignore
                                 graphinRef.current.graph.downloadFullImage()
                             }}>
@@ -350,22 +382,24 @@ const Graph: React.FC<Props> = (props) => {
             case 'algo':
                 const getAlgoContent = (algo: Graph.Algo) => {
                     const onFinish = async (params: any) => {
-                        const pairs: Graph.Pair[] = []
+                        //TODO:DELETE
+                        console.log(params)
+                        const pairs: Graph.Param[] = []
                         for (let k in params) {
-                            pairs.push({key: k, value: params[k].toString()})
+                            const type = algo.params!.find(p => p.key === k)!.type
+                            switch (type) {
+                                case ParamType.Int:
+                                case ParamType.Double:
+                                    pairs.push({type: type, key: k, value: params[k].toString()})
+                                    break
+                                case ParamType.StringList:
+                                case ParamType.DoubleList:
+                                    pairs.push({type: type, key: k, listValue: params[k].toString()})
+                            }
                         }
-                        let method: any
-                        switch (algo.type) {
-                            case AlgoType.rank:
-                            case AlgoType.cluster:
-                                method = algoExecRank
-                                break
-                            case AlgoType.metrics:
-                                method = algoExecScore
-                        }
-                        return await method({
+                        return await algoExec({
                             graphId: id,
-                            algoId: algo.id,
+                            algoId: algo.id!,
                             params: pairs
                         }).then(() => {
                             message.success('算法已提交')
@@ -381,6 +415,9 @@ const Graph: React.FC<Props> = (props) => {
                             initValues[p.key] = p.initValue
                         }
                     })
+                    const getAlgoParamLabel = (p: Graph.AlgoParam) => <Tooltip title={p.keyDesc}>
+                        <span>{p.key}</span>
+                    </Tooltip>
                     return <Space direction={'vertical'}>
                         <Text type={'secondary'}>{algo.desc}</Text>
                         <Divider/>
@@ -395,26 +432,30 @@ const Graph: React.FC<Props> = (props) => {
                             initialValues={initValues}
                         >{
                             algo.params?.map(p => {
-                                switch (p.type) {
-                                    case ParamType.Int:
-                                        return <ProFormDigit name={p.key} fieldProps={{precision: 0}}
-                                                             label={p.keyDesc}
-                                                             max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
-                                                             min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
-                                    case ParamType.Double:
-                                        return <ProFormDigit name={p.key} fieldProps={{precision: 4, step: 1e-4}}
-                                                             label={p.keyDesc}
-                                                             max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
-                                                             min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
+                                    switch (p.type) {
+                                        case ParamType.Int:
+                                            return <ProFormDigit name={p.key} fieldProps={{precision: 0}}
+                                                                 label={getAlgoParamLabel(p)}
+                                                                 max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
+                                                                 min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
+                                        case ParamType.Double:
+                                            return <ProFormDigit name={p.key} fieldProps={{precision: 4, step: 1e-4}}
+                                                                 label={getAlgoParamLabel(p)}
+                                                                 max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
+                                                                 min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
+                                        case ParamType.StringList:
+                                        case ParamType.DoubleList:
+                                            return <ProFormSelect name={p.key} label={getAlgoParamLabel(p)}
+                                                                  fieldProps={{mode: "tags"}}/>
+                                    }
                                 }
-                            })
-                        }
+                            )}
                         </ProForm>
                     </Space>
                 }
                 return <ProList<Graph.Algo>
                     key='algoProList'
-                    rowKey={(row, index) => row.id!}
+                    rowKey={(row) => row.id!}
                     style={{
                         height: '80vh',
                         overflowY: 'scroll',
@@ -465,23 +506,7 @@ const Graph: React.FC<Props> = (props) => {
                                 return
                             }
                             const res = JSON.parse(sres)
-                            if (res?.score) {
-                                return <MetricTable score={res.score}/>
-                            }
-                            if (res?.ranks) {
-                                return <RankTable file={res.file} rows={
-                                    res.ranks.map((r: { tag: string, node: Graph.Node; score: any; }) => {
-                                        let node = r.tag + '(' + r.node.id + ','
-                                        for (let p of r.node.attrs) {
-                                            node = node + p.key + "=" + p.value + ','
-                                        }
-                                        node = node.substring(0, node.length - 1) + ')'
-                                        return {
-                                            node: node,
-                                            rank: r.score,
-                                        }
-                                    })}/>
-                            }
+                            return <RankTable file={res.file}/>
                         } catch (e) {
                             console.log(e)
                             return
@@ -498,7 +523,7 @@ const Graph: React.FC<Props> = (props) => {
                     style={{
                         height: '80vh',
                         overflowY: 'scroll',
-                        overflowX: 'hidden'
+                        overflowX: 'scroll'
                     }}
                     expandable={{
                         expandedRowKeys: extKeysTask, onExpandedRowsChange: (expandedKeys) => {
@@ -566,13 +591,10 @@ const Graph: React.FC<Props> = (props) => {
                     style={{height: '100%'}}
                     bodyStyle={{padding: '0 0 0 0'}}
                     extra={
-                        <Space>
-                            <Button danger type={'primary'} onClick={resetGraph}>重置图谱</Button>
-                            <LayoutSelector options={layouts} value={graphLayout}
-                                            onChange={(value: SetStateAction<string>) => {
-                                                setGraphLayout(value)
-                                            }}/>
-                        </Space>
+                        <LayoutSelector options={layouts} value={graphLayout}
+                                        onChange={(value: SetStateAction<string>) => {
+                                            setGraphLayout(value)
+                                        }}/>
                     }
                 >
                     <Spin spinning={loading}>
