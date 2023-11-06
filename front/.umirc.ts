@@ -12,7 +12,7 @@ export default defineConfig({
     },
     proxy: {
         '/api/graph': {
-            'target': 'http://127.0.0.1:8888/',
+            'target': 'http://127.0.0.1:30130/',
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },

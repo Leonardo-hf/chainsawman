@@ -13,7 +13,7 @@ type Edge struct {
 	Name      string       `gorm:"column:name;type:varchar(255);not null" json:"name"`
 	Desc      string       `gorm:"column:desc;type:text" json:"desc"`
 	Direct    int64        `gorm:"column:direct;type:tinyint(1);not null;default:1" json:"direct"`
-	Display   string       `gorm:"column:display;type:varchar(255)" json:"display"`
+	Display   string       `gorm:"column:display;type:varchar(255);default:real" json:"display"`
 	EdgeAttrs []*EdgesAttr `gorm:"foreignKey:edgeID" json:"edge_attrs"`
 }
 

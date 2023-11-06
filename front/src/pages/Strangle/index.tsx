@@ -1,6 +1,6 @@
-import {PageContainer, ProForm, ProFormDependency, ProFormSelect} from "@ant-design/pro-components"
+import {PageContainer, ProForm, ProFormDependency, ProFormGroup, ProFormSelect} from "@ant-design/pro-components"
 import {Divider, message, Space, Tooltip} from "antd"
-import {algoExec, getMatchNodesByTag} from "@/services/graph/graph";
+import {algoExec, getGraphTasks, getMatchNodesByTag} from "@/services/graph/graph";
 import React, {useState} from "react";
 import {useModel} from "@@/exports";
 import {isAlgoIllegal} from "@/models/global";
@@ -69,6 +69,11 @@ const Strangle: React.FC = (props) => {
         setLastTimer(timer)
     }
 
+    // const genAlgoFileList = async (graphId: number) => {
+    //     const tasks = await getGraphTasks({graphId: graphId})
+    //     return tasks.tasks.filter(t=>t.)
+    // }
+
     return <PageContainer>
         <Space direction={"vertical"} style={{width: '100%'}}>
             <ProForm<FormData>
@@ -80,53 +85,54 @@ const Strangle: React.FC = (props) => {
                         submitText: '执行',
                     }
                 }}
-
             >
                 <ProFormSelect rules={[{required: true}]} label='图谱' name={'graphId'} options={graphOptions}/>
-                <ProFormDependency name={['graphId']}>
+                <ProFormDependency name={['graphId']} >
                     {({graphId}) =>
-                        <ProFormSelect
-                            label={
-                                <Tooltip title={libraries.keyDesc}>
-                                    <span>{libraries.key}</span>
-                                </Tooltip>
-                            }
-                            disabled={!graphId}
-                            name={'libraries'}
-                            rules={[{required: true}]}
-                            showSearch
-                            debounceTime={300}
-                            fieldProps={{
-                                filterOption: () => {
-                                    return true
-                                },
-                                mode: "multiple",
-                                allowClear: true
-                            }}
-                            request={async (v) => {
-                                let packs: any[] = []
-                                if (!v.keyWords) {
-                                    return packs
+                            <ProFormSelect
+                                label={
+                                    <Tooltip title={libraries.keyDesc}>
+                                        <span>{libraries.key}</span>
+                                    </Tooltip>
                                 }
-                                await getMatchNodesByTag({
-                                    graphId: graphId,
-                                    keywords: v.keyWords,
-                                    nodeId: 4,
-                                }).then(res => {
-                                    packs.push({
-                                        label: "library",
-                                        options: res.matchNodes.map(m => {
-                                            return {
-                                                label: m.primaryAttr,
-                                                value: m.primaryAttr
-                                            }
+                                disabled={!graphId}
+                                name={'libraries'}
+                                rules={[{required: true}]}
+                                showSearch
+                                debounceTime={300}
+                                fieldProps={{
+                                    filterOption: () => {
+                                        return true
+                                    },
+                                    mode: "multiple",
+                                    allowClear: true
+                                }}
+                                request={async (v) => {
+                                    let packs: any[] = []
+                                    if (!v.keyWords) {
+                                        return packs
+                                    }
+                                    await getMatchNodesByTag({
+                                        graphId: graphId,
+                                        keywords: v.keyWords,
+                                        nodeId: 4,
+                                    }).then(res => {
+                                        packs.push({
+                                            label: "library",
+                                            options: res.matchNodes.map(m => {
+                                                return {
+                                                    label: m.primaryAttr,
+                                                    value: m.primaryAttr
+                                                }
+                                            })
                                         })
                                     })
-                                })
-                                return packs
-                            }}/>
+                                    return packs
+                                }}/>
                     }
                 </ProFormDependency>
+                {/*<ProFormSelect name={'algoFile'} label={'从算法结果获取库'} options={genAlgoFileList(graphId)}/>*/}
+                {/*<ProFormDependency name={['algoFile']}></ProFormDependency>*/}
             </ProForm>
             <Divider/>
             {

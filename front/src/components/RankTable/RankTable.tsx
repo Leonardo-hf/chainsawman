@@ -1,5 +1,5 @@
 import {ProColumns, ProTable} from '@ant-design/pro-components';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import Loading from "@ant-design/pro-card/es/components/Loading";
 import {getPreviewURL} from "@/utils/oss";
 import {readRemoteFile} from "react-papaparse";
@@ -17,15 +17,18 @@ const RankTable: React.FC<Props> = (props) => {
     const [headers, setHeaders] = useState<ProColumns[]>([])
     const [rows, setRows] = useState<any[]>([])
     const [finish, setFinish] = useState<boolean>(false)
+    // 指向 rows 的 ref，用于在 step() 回调中更新 rows
+    const rowsRef = useRef<any[]>(rows)
     if (!fileURL) {
         getPreviewURL(file).then(url => setFileURL(url))
-    } else if (rows.length === 0) {
+    } else if (!finish && rows.length === 0) {
         readRemoteFile(fileURL, {
             download: true,
             header: true,
             step: (results, parser) => {
                 console.log(results)
-                if (!headers.length) {
+                // 第一次读取时，设置 headers
+                if (rowsRef.current.length === 0) {
                     console.log(results.meta.fields)
                     setHeaders(results.meta.fields!.map((f: string) => {
                         return {
@@ -36,8 +39,10 @@ const RankTable: React.FC<Props> = (props) => {
                         }
                     }))
                 }
-                setRows([...rows, results.data])
-                if (rows.length % 10 === 0) {
+                rowsRef.current = [...rowsRef.current, results.data]
+                setRows(rowsRef.current)
+
+                if (rowsRef.current.length % 10 === 0) {
                     parser.pause()
                     const nextPreview = new Promise<Parser>(function (resolve) {
                         resolve(parser)
@@ -50,7 +55,7 @@ const RankTable: React.FC<Props> = (props) => {
             }
         })
     }
-    console.log(rows)
+
     return <ProTable
         rowKey='node'
         dataSource={rows}

@@ -47,7 +47,7 @@ create table if not exists graph.nodes
     groupID int          not null,
     name    varchar(255) not null,
     `desc`  text         null,
-    display varchar(255) null,
+    display varchar(255) default 'color' null,
     constraint nodes_groups_id_fk
         foreign key (groupID) references `groups` (id)
             on update cascade on delete cascade
@@ -116,7 +116,7 @@ create table if not exists graph.edges
     name    varchar(255)         not null,
     `desc`  text                 null,
     direct  tinyint(1) default 1 not null,
-    display varchar(255)         null,
+    display varchar(255) default 'real' null,
     constraint edges_groups_id_fk
         foreign key (groupID) references `groups` (id)
             on update cascade on delete cascade

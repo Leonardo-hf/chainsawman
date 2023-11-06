@@ -242,8 +242,9 @@ type AlgoParam struct {
 }
 
 type AlgoReply struct {
-	Base *BaseReply `json:"base"`
-	File string     `json:"file"`
+	Base   *BaseReply `json:"base"`
+	AlgoID int64      `json:"algoId"`
+	File   string     `json:"file"`
 }
 
 type GetAlgoReply struct {

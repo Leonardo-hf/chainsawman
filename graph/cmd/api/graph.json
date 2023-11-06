@@ -687,6 +687,10 @@
         "base": {
           "$ref": "#/definitions/BaseReply"
         },
+        "algoId": {
+          "type": "integer",
+          "format": "int64"
+        },
         "file": {
           "type": "string"
         }
@@ -694,6 +698,7 @@
       "title": "AlgoReply",
       "required": [
         "base",
+        "algoId",
         "file"
       ]
     },

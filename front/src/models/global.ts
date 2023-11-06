@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {RootGroupID} from "@/constants";
 
 
 let init_graphs: GraphRef2Group[] = []
@@ -49,7 +50,7 @@ export function parseGroups(g: Graph.Group[]) {
     // 寻找每个组的父策略组
     groups.forEach(g => g.parentGroup = groups.find(g2 => g2.id === g.parentId))
     // 滤除根策略组，对结果排序
-    groups = groups.filter(g => g.id !== 1).sort((a, b) => a.name > b.name ? 0 : 1)
+    groups = groups.filter(g => g.id !== RootGroupID).sort((a, b) => a.name > b.name ? 0 : 1)
     graphs = graphs.sort((a, b) => b.id - a.id)
     return {graphs, groups}
 }
@@ -71,8 +72,8 @@ export function isAlgoIllegal(g: GraphRef2Group, a: Graph.Algo) {
 
 // 生成策略组列表（Options）
 export function genGroupOptions(gs: TreeNodeGroup[]) {
-    return [{label: '通用', value: '1'}, ...gs.map(g => {
-        if (g.parentId > 1) {
+    return [{label: '通用', value: RootGroupID}, ...gs.map(g => {
+        if (g.parentId > RootGroupID) {
             return {
                 label: g.desc + ' -> ' + g.parentGroup!.desc!,
                 value: g.id

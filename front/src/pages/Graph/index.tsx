@@ -500,19 +500,20 @@ const Graph: React.FC<Props> = (props) => {
                 />
             case 'task':
                 const getTaskContent = (task: Graph.Task) => {
-                    const getTaskResult = (sres: string) => {
-                        try {
-                            if (!sres) {
-                                return
-                            }
-                            const res = JSON.parse(sres)
-                            return <RankTable file={res.file}/>
-                        } catch (e) {
-                            console.log(e)
+                    const sres = task.res
+                    try {
+                        if (!sres) {
                             return
                         }
+                        const res = JSON.parse(sres)
+                        return <Space direction={"vertical"}>
+                            <Text>{algos.find((a: Graph.Algo) => a.id === res.algoId)?.name}</Text>
+                            <RankTable file={res.file}/>
+                        </Space>
+                    } catch (e) {
+                        console.log(e)
+                        return
                     }
-                    return getTaskResult(task.res)
                 }
                 return <ProList<Graph.Task>
                     key='taskProList'

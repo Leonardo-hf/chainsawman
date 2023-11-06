@@ -12,7 +12,7 @@ type Node struct {
 	GroupID   int64        `gorm:"column:groupID;type:int;not null" json:"groupID"`
 	Name      string       `gorm:"column:name;type:varchar(255);not null" json:"name"`
 	Desc      string       `gorm:"column:desc;type:text" json:"desc"`
-	Display   string       `gorm:"column:display;type:varchar(255)" json:"display"`
+	Display   string       `gorm:"column:display;type:varchar(255);default:color" json:"display"`
 	NodeAttrs []*NodesAttr `gorm:"foreignKey:nodeID" json:"node_attrs"`
 }
 

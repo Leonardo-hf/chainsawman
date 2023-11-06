@@ -59,7 +59,8 @@ func (h *AlgoExec) Handle(task *model.KVTask) (string, error) {
 				TaskID:     taskID,
 				TaskStatus: int64(model.KVTask_Finished),
 			},
-			File: fileName,
+			File:   fileName,
+			AlgoID: req.AlgoID,
 		})
 		return res
 	})

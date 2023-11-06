@@ -81,3 +81,5 @@ export const getPrecise = (t: ParamType) => {
             return {precision: 4, step: 1e-4}
     }
 }
+
+export const RootGroupID = 1

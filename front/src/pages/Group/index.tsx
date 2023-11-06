@@ -7,10 +7,10 @@ import {
     ProList
 } from "@ant-design/pro-components"
 import {useModel} from "@@/exports";
-import {Badge, Button, Form, message, Popconfirm, Space, Typography} from "antd";
+import {Badge, Button, Form, message, Popconfirm, Space, Tooltip, Typography} from "antd";
 import React, {useState} from "react";
 import type {Key} from 'react';
-import {ParamType} from "@/constants";
+import {ParamType, ParamTypeOptions, RootGroupID} from "@/constants";
 import {createGroup, dropGroup} from "@/services/graph/graph";
 import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import ProCard from "@ant-design/pro-card";
@@ -108,6 +108,7 @@ const Group: React.FC = () => {
         // form提交处理函数
         const handleCreateGroup = async (vs: FormData) => {
             let edgeTypeList: Graph.Structure[] = [], nodeTypeList: Graph.Structure[] = []
+            // 插入新建的节点和边
             for (let v of vs.entities) {
                 if (v.type === 'node') {
                     nodeTypeList.push({
@@ -129,12 +130,19 @@ const Group: React.FC = () => {
                     })
                 }
             }
+            // 插入继承自父策略组的节点和边
+            let parentGroup = groups.find(g=>g.id == vs.parentId)
+            while (parentGroup?.id !== RootGroupID){
+                nodeTypeList.push(...parentGroup!.nodeTypeList)
+                edgeTypeList.push(...parentGroup!.edgeTypeList)
+                parentGroup = parentGroup!.parentGroup
+            }
             return await createGroup({
                 name: vs.name,
                 desc: vs.desc,
                 edgeTypeList: edgeTypeList,
                 nodeTypeList: nodeTypeList,
-                parentId: vs.parentId ? vs.parentId : 0
+                parentId: vs.parentId ? vs.parentId : RootGroupID
             }).then(() => {
                 message.success('策略组创建成功！')
                 window.location.reload()
@@ -172,27 +180,28 @@ const Group: React.FC = () => {
             <ProFormGroup title='策略组配置'>
                 <ProFormText name='name' label='名称' rules={[{required: true}]}/>
                 <ProFormText name='desc' label='描述' rules={[{required: true}]}/>
-                <ProFormSelect name='parentId' label='父策略组' options={genGroupOptions(groups)}/>
+                <ProFormSelect name='parentId' label={<Tooltip title={'子策略组将继承父策略组的全部节点与边'}><span>父策略组</span></Tooltip>}
+                               options={genGroupOptions(groups)} initialValue={1}/>
             </ProFormGroup>
             <ProFormList
                 label={(<Text strong>实体组配置</Text>)}
                 initialValue={[{
-                    name: 'node_default',
-                    desc: '默认节点',
+                    name: 'normal',
+                    desc: '标准节点',
                     type: 'node',
                     attrs: [{
                         name: 'name',
-                        desc: '节点名称',
+                        desc: '名称',
                         type: 0,
                         primary: true
                     }, {
                         name: 'desc',
-                        desc: '节点描述',
+                        desc: '描述',
                         type: 0
                     }]
                 }, {
-                    name: 'edge_default',
-                    desc: '默认边',
+                    name: 'normal',
+                    desc: '标准边',
                     type: 'edge',
                 }]}
                 name='entities'
@@ -299,15 +308,7 @@ const Group: React.FC = () => {
                         <ProFormText name='desc' label='描述'/>
                         <ProFormSelect
                             initialValue={0}
-                            options={[
-                                {
-                                    label: '字符串',
-                                    value: 0
-                                }, {
-                                    label: '数值',
-                                    value: 1
-                                }
-                            ]}
+                            options={ParamTypeOptions}
                             name='type'
                             label='类型'
                         />
@@ -323,7 +324,8 @@ const Group: React.FC = () => {
                                 }
                             ]}
                             name='primary'
-                            label='主属性'
+                            label={<Tooltip title={'节点或边的主属性将建立查询索引，被用于标志、搜索及展示该节点或边。建议使用可以区分不同节点或边的属性作为主属性'}>
+                                <span>主属性</span></Tooltip>}
                         />
                     </ProFormGroup>
                 </ProFormList>
@@ -351,7 +353,7 @@ const Group: React.FC = () => {
                     render: (_, g) => {
                         return <Popconfirm
                             title="确认删除？"
-                            description="将移除该组及组下所有图谱"
+                            description="将移除该策略组、及其所有子策略组及组下所有图谱"
                             icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
                             onConfirm={() => {
                                 dropGroup({groupId: g.id}).then(_ => window.location.reload())

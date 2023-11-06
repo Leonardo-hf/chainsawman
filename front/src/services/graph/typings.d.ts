@@ -20,6 +20,7 @@ declare namespace Graph {
 
   type AlgoReply = {
     base: BaseReply;
+    algoName: number;
     file: string;
   };
 
