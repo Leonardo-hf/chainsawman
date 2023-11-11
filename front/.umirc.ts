@@ -12,7 +12,7 @@ export default defineConfig({
     },
     proxy: {
         '/api/graph': {
-            'target': 'http://127.0.0.1:30130/',
+            'target': 'http://127.0.0.1:8000/',
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },
@@ -78,6 +78,11 @@ export default defineConfig({
             name: '算法',
             path: '/algo',
             component: './Algo'
+        },
+        {
+            name: '高影响力软件识别',
+            path: '/util/impact',
+            component: './Impact'
         },
         {
             name: '卡脖子风险分析',

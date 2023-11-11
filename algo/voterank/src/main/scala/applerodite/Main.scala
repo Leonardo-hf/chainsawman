@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SOFTWARE}
+import applerodite.config.AlgoConstants.SCHEMA_SOFTWARE
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -8,7 +8,7 @@ import org.apache.spark.graphx.{Graph, TripletFields, VertexId}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions._
 
-import scala.collection.mutable
+import scala.collection.{breakOut, mutable}
 import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks
 
@@ -22,6 +22,7 @@ object Main {
     val target: String = json.getString("target")
     var iter: Int = json.getIntValue("iter")
     val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
+    graph.cache()
 
     val spark = ClientConfig.spark
 
@@ -33,9 +34,12 @@ object Main {
     }
     val cal = mutable.Set[VertexId]()
     var vGraph = graph.mapVertices((_, _) => 1.0)
+    var preVGraph: Graph[Double, None.type] = null
+    vGraph.cache()
     val loop = new Breaks
     loop.breakable {
       while (iter > 0 && res.length < graph.numVertices) {
+        preVGraph = vGraph
         iter = iter - 1
         val addVertices = vGraph.aggregateMessages[Double](t => t.sendToDst(t.srcAttr), _ + _, TripletFields.Src).filter(vid => !cal.contains(vid._1))
         if (addVertices.isEmpty()) {
@@ -54,6 +58,9 @@ object Main {
             score
           }
         })
+        vGraph.cache()
+        preVGraph.unpersistVertices(blocking = false)
+        preVGraph.edges.unpersist(blocking = false)
       }
     }
 

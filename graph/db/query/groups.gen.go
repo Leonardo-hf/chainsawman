@@ -30,7 +30,13 @@ func newGroup(db *gorm.DB, opts ...gen.DOOption) group {
 	_group.ID = field.NewInt64(tableName, "id")
 	_group.Name = field.NewString(tableName, "name")
 	_group.Desc = field.NewString(tableName, "desc")
-	_group.ParentID = field.NewInt64(tableName, "parentId")
+	_group.ParentID = field.NewInt64(tableName, "parentID")
+	_group.Child = groupHasOneChild{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Child", "model.Group"),
+	}
+
 	_group.Nodes = groupHasManyNodes{
 		db: db.Session(&gorm.Session{}),
 
@@ -66,7 +72,9 @@ type group struct {
 	Name     field.String
 	Desc     field.String
 	ParentID field.Int64 // 标识父策略组，子策略组继承父策略组的全部节点与边缘
-	Nodes    groupHasManyNodes
+	Child    groupHasOneChild
+
+	Nodes groupHasManyNodes
 
 	Edges groupHasManyEdges
 
@@ -88,7 +96,7 @@ func (g *group) updateTableName(table string) *group {
 	g.ID = field.NewInt64(table, "id")
 	g.Name = field.NewString(table, "name")
 	g.Desc = field.NewString(table, "desc")
-	g.ParentID = field.NewInt64(table, "parentId")
+	g.ParentID = field.NewInt64(table, "parentID")
 
 	g.fillFieldMap()
 
@@ -105,11 +113,11 @@ func (g *group) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *group) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 6)
+	g.fieldMap = make(map[string]field.Expr, 7)
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["name"] = g.Name
 	g.fieldMap["desc"] = g.Desc
-	g.fieldMap["parentId"] = g.ParentID
+	g.fieldMap["parentID"] = g.ParentID
 
 }
 
@@ -121,6 +129,77 @@ func (g group) clone(db *gorm.DB) group {
 func (g group) replaceDB(db *gorm.DB) group {
 	g.groupDo.ReplaceDB(db)
 	return g
+}
+
+type groupHasOneChild struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a groupHasOneChild) Where(conds ...field.Expr) *groupHasOneChild {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a groupHasOneChild) WithContext(ctx context.Context) *groupHasOneChild {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a groupHasOneChild) Session(session *gorm.Session) *groupHasOneChild {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a groupHasOneChild) Model(m *model.Group) *groupHasOneChildTx {
+	return &groupHasOneChildTx{a.db.Model(m).Association(a.Name())}
+}
+
+type groupHasOneChildTx struct{ tx *gorm.Association }
+
+func (a groupHasOneChildTx) Find() (result *model.Group, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a groupHasOneChildTx) Append(values ...*model.Group) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a groupHasOneChildTx) Replace(values ...*model.Group) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a groupHasOneChildTx) Delete(values ...*model.Group) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a groupHasOneChildTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a groupHasOneChildTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type groupHasManyNodes struct {

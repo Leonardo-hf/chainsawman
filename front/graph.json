@@ -1497,9 +1497,6 @@
           "items": {
             "type": "string"
           }
-        },
-        "algoValue": {
-          "type": "string"
         }
       },
       "title": "Param",

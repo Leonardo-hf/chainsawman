@@ -267,7 +267,6 @@ type Param struct {
 	Type      int64    `json:"type"`
 	Value     string   `json:"value,optional"`
 	ListValue []string `json:"listValue,optional"`
-	AlgoValue string   `json:"algoValue,optional"`
 }
 
 type ExecAlgoRequest struct {

@@ -10,6 +10,7 @@ import org.apache.spark.graphx.{Edge, Graph}
 import org.apache.spark.sql.Encoder
 
 import java.util
+import scala.collection.mutable.ListBuffer
 
 object NebulaClientImpl extends GraphClient {
 
@@ -47,7 +48,14 @@ object NebulaClientImpl extends GraphClient {
     Option.apply(res)
   }
 
-  override def loadInitGraph(graphName: String, edgeTags: Seq[String], hasWeight: Boolean): Graph[None.type, Double] = {
+  override def loadInitGraph(graphName: String, hasWeight: Boolean): Graph[None.type, Double] = {
+    val res = gql(graphName, "show tags;")
+    val edgeTags = ListBuffer[String]()
+    if (res.isDefined) {
+      for (i <- 0 until res.get.rowsSize()) {
+        edgeTags.append(res.get.rowValues(i).get("Name").asString())
+      }
+    }
     val edges = edgeTags.map(et => {
       val nebulaReadEdgesConfig: ReadNebulaConfig = ReadNebulaConfig
         .builder()
@@ -61,9 +69,9 @@ object NebulaClientImpl extends GraphClient {
       dataSet
         .map(row => {
           if (hasWeight) {
-            Edge(row.getLong(0), row.getLong(1), row.getDouble(2))
+            Edge(row.getString(0).toLong, row.getString(1).toLong, row.getString(2).toDouble)
           } else {
-            Edge(row.getLong(0), row.getLong(1), 1.0)
+            Edge(row.getString(0).toLong, row.getString(1).toLong, 1.0)
           }
         })(encoder).rdd
     }).reduce((e1, e2) => e1.union(e2))
@@ -83,7 +91,7 @@ object NebulaClientImpl extends GraphClient {
     implicit val edgeEncoder: Encoder[Edge[None.type]] = org.apache.spark.sql.Encoders.kryo[Edge[None.type]]
     val edgesRDD = edges
       .map(row => {
-        Edge(row.getLong(0), row.getLong(1), None)
+        Edge(row.getString(0).toLong, row.getString(1).toLong, None)
       })(edgeEncoder).rdd
     val nebulaReadReleaseConfig: ReadNebulaConfig = ReadNebulaConfig
       .builder()
@@ -95,7 +103,7 @@ object NebulaClientImpl extends GraphClient {
       .build()
     val nodes = ClientConfig.spark.read.nebula(connectorConfig, nebulaReadReleaseConfig).loadVerticesToDF()
     implicit val nodeEncoder: Encoder[(VertexID, Release)] = org.apache.spark.sql.Encoders.kryo[(VertexID, Release)]
-    val nodesRDD = nodes.map(row => (row.getLong(0), Release(row.getString(1), row.getString(2))))(nodeEncoder).rdd
+    val nodesRDD = nodes.map(row => (row.getString(0).toLong, Release(row.getString(1), row.getString(2))))(nodeEncoder).rdd
     Graph(nodesRDD, edgesRDD)
   }
 }

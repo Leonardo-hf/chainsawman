@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"github.com/zeromicro/go-zero/core/logx"
-	"io"
 	"strconv"
 	"time"
 )
@@ -34,18 +33,8 @@ func (h *AlgoExec) Handle(task *model.KVTask) (string, error) {
 	}
 	// 生成文件名称
 	fileName := fmt.Sprintf("%v-%v-%v", req.GraphID, req.AlgoID, uuid.New().String())
-	// 查 edgeTags
-	group, err := config.MysqlClient.GetGroupByGraphId(ctx, req.GraphID)
-	if err != nil {
-		return "", err
-	}
-	edgeTags := make([]string, len(group.Edges))
-	for i, e := range group.Edges {
-		edgeTags[i] = e.Name
-	}
 	execParams := params2Map(req.Params)
 	execParams["graphID"] = fmt.Sprintf("G%v", req.GraphID)
-	execParams["edgeTags"] = edgeTags
 	execParams["target"] = fileName
 	// 提交任务，要防止重复提交任务
 	appID, err := config.AlgoService.SubmitAlgo(execCfg.JarPath, execCfg.MainClass, execParams)
@@ -77,29 +66,6 @@ func params2Map(params []*types.Param) map[string]interface{} {
 		case common.TypeDoubleList, common.TypeStringList:
 			m[p.Key] = p.ListValue
 			break
-		case common.TypeRankAlgo, common.TypeScoreAlgo:
-			v := make([]map[string]string, 0)
-			content, err := config.OSSClient.FetchAlgo(context.Background(), p.AlgoValue)
-			if err != nil {
-				logx.ErrorStack(err)
-			}
-			parser, err := common.NewExcelParser(content)
-			if err != nil {
-				logx.ErrorStack(err)
-			}
-			for {
-				r, err := parser.Next()
-				if err == io.EOF {
-					break
-				}
-				vi := make(map[string]string)
-				for _, f := range r.Keys() {
-					s, _ := r.Get(f)
-					vi[f] = s
-				}
-				v = append(v, vi)
-			}
-			m[p.Key] = v
 		}
 	}
 	return m

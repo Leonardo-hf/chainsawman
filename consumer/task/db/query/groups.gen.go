@@ -30,7 +30,7 @@ func newGroup(db *gorm.DB, opts ...gen.DOOption) group {
 	_group.ID = field.NewInt64(tableName, "id")
 	_group.Name = field.NewString(tableName, "name")
 	_group.Desc = field.NewString(tableName, "desc")
-	_group.ParentID = field.NewInt64(tableName, "parentId")
+	_group.ParentID = field.NewInt64(tableName, "parentID")
 	_group.Nodes = groupHasManyNodes{
 		db: db.Session(&gorm.Session{}),
 
@@ -88,7 +88,7 @@ func (g *group) updateTableName(table string) *group {
 	g.ID = field.NewInt64(table, "id")
 	g.Name = field.NewString(table, "name")
 	g.Desc = field.NewString(table, "desc")
-	g.ParentID = field.NewInt64(table, "parentId")
+	g.ParentID = field.NewInt64(table, "parentID")
 
 	g.fillFieldMap()
 
@@ -109,7 +109,7 @@ func (g *group) fillFieldMap() {
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["name"] = g.Name
 	g.fieldMap["desc"] = g.Desc
-	g.fieldMap["parentId"] = g.ParentID
+	g.fieldMap["parentID"] = g.ParentID
 
 }
 

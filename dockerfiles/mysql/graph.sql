@@ -16,10 +16,13 @@ create table if not exists graph.`groups`
         primary key,
     name     varchar(255)  not null,
     `desc`   text          null,
-    parentId int default 1 null comment '标识父策略组，子策略组继承父策略组的全部节点与边缘'
+    parentId int default 1 null comment '标识父策略组，子策略组继承父策略组的全部节点与边缘',
+    constraint groups_groups_id_fk
+        foreign key (parentId) references `groups` (id)
+            on update cascade on delete cascade
 );
 
-INSERT INTO graph.`groups`(id, name, `desc`, parentId) VALUES (1, "root", "根分组", 0);
+INSERT INTO graph.`groups`(id, name, `desc`, parentId) VALUES (1, "root", "根分组", null);
 INSERT INTO graph.`groups`(id, name, `desc`) VALUES (2, "normal", "标准图谱");
 INSERT INTO graph.`groups`(id, name, `desc`) VALUES (3, "software", "软件依赖图谱");
 INSERT INTO graph.`groups`(id, name, `desc`, parentId) VALUES (4, "strangle", "卡脖子软件识别", 3);
@@ -205,12 +208,19 @@ VALUES (7, "quantity", "广度排序算法，基于假设：节点入度越大�
 INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
 VALUES (8, "depth", "深度排序算法，基于假设：在更多路径中处于头部的节点更重要。使用改进的closeness算法衡量节点在头部的程度", 3, 0, "s3a://lib/depth-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
-VALUES (9, "integration", "中介度排序算法，基于假设：在更多路径中处于中部的节点更重要。使用改进的betweenness算法衡量节点中介的程度", 3, 0, "s3a://lib/betweenness-latest.jar", "applerodite.Main");
+VALUES (9, "proxy", "中介度排序算法，基于假设：在更多路径中处于中部的节点更重要。使用改进的betweenness算法衡量节点中介的程度", 3, 0, "s3a://lib/proxy-latest.jar", "applerodite.Main");
 INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
-VALUES (10, "ecology", "子图稳定性排序算法，基于假设：具有高稳定性的衍生子图的节点更重要。使用基于最小渗流的collective influence算法计算子图稳定性", 3, 0, "s3a://lib/ecology-latest.jar", "applerodite.Main");
+VALUES (10, "stable", "子图稳定性排序算法，基于假设：具有高稳定性的衍生子图的节点更重要。使用基于最小渗流的collective influence算法计算子图稳定性", 3, 0, "s3a://lib/ecology-latest.jar", "applerodite.Main");
 
 INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
 VALUES (11, "strangle risk", "识别软件卡脖子风险，基于假设：软件开发中，中国开发者及维护者占比越低，卡脖子风险越高", 4, 0, "s3a://lib/strangleRisk-latest.jar", "applerodite.Main");
+
+INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
+VALUES (12, "comprehensive impact", "识别综合的软件卡脖子风险，对广度、深度、中介度和子图稳定性算法进行加权综合", 3, 0, "s3a://lib/comprehensive-latest.jar", "applerodite.Main");
+
+INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
+VALUES (13, "strangle risk on high impact", "基于高影响力软件识别算法获得高影响力软件名单并识别综合的卡脖子风险", 4, 0, "s3a://lib/strangleRiskOnImpact-latest.jar", "applerodite.Main");
+
 
 create table if not exists graph.algos_param
 (
@@ -240,5 +250,12 @@ INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue
 VALUES (6, "tol", "最小增加量", 0, 0.3, 0.1, 1);
 INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, initValue, `min`)
 VALUES (7, "iter", "迭代次数", 2, 1, 100);
-INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType)
-VALUES (11, "libraries", "待识别卡脖子风险的软件列表", 3);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`)
+VALUES (11, "libraries", "待识别卡脖子风险的软件列表", 3, 1);
+
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`)
+VALUES (12, "weights", "影响力算法权重", 3, 1);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`)
+VALUES (13, "impactWeights", "影响力算法权重", 4, 1);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`)
+VALUES (13, "strangleWeights", "卡脖子风险算法权重", 4, 1);

@@ -353,7 +353,7 @@ const Group: React.FC = () => {
                     render: (_, g) => {
                         return <Popconfirm
                             title="确认删除？"
-                            description="将移除该策略组、及其所有子策略组及组下所有图谱"
+                            description="将移除该策略组及组下所有图谱"
                             icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
                             onConfirm={() => {
                                 dropGroup({groupId: g.id}).then(_ => window.location.reload())

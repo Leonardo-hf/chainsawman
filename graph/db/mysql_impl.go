@@ -72,8 +72,21 @@ func (c *MysqlClientImpl) GetGraphByID(ctx context.Context, id int64) (*model.Gr
 }
 
 func (c *MysqlClientImpl) GetGraphByGroupID(ctx context.Context, groupID int64) ([]*model.Graph, error) {
+	gr := query.Group
+	group, err := gr.WithContext(ctx).Where(gr.ID.Eq(groupID)).Select(gr.ID).Preload(gr.Child).First()
+	if err != nil {
+		return nil, err
+	}
+	groupIds := make([]int64, 0)
+	for {
+		groupIds = append(groupIds, group.ID)
+		if group.Child == nil {
+			break
+		}
+		group = group.Child
+	}
 	g := query.Graph
-	return g.WithContext(ctx).Where(g.GroupID.Eq(groupID)).Find()
+	return g.WithContext(ctx).Where(g.GroupID.In(groupIds...)).Find()
 }
 
 func (c *MysqlClientImpl) GetGraphByName(ctx context.Context, name string) (*model.Graph, error) {

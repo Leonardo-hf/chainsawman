@@ -5,7 +5,6 @@ import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
 import com.vesoft.nebula.client.graph.data.ResultSet
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 import scala.collection.mutable.ListBuffer
@@ -13,7 +12,7 @@ import scala.collection.mutable.ListBuffer
 object Main {
   val SCHEMA_STRANGLE: StructType = StructType(
     List(
-      StructField("library", StringType, nullable = false),
+      StructField(AlgoConstants.ARTIFACT_COL, StringType, nullable = false),
       StructField("s1", StringType, nullable = false),
       StructField("s2", StringType, nullable = false),
       StructField(AlgoConstants.SCORE_COL, StringType, nullable = false)
@@ -62,7 +61,7 @@ object Main {
       var china = 0L
       for (i <- 0 until res.rowsSize()) {
         val country = res.rowValues(i).get("u").asNode().properties("developer").get("location").asString()
-        if (country != "None") {
+        if (country.nonEmpty && country != "None") {
           known += 1
         }
         if (country == "China") {
@@ -89,7 +88,7 @@ object Main {
       Row.apply(s, f"$score1%.4f", f"$score2%.4f", f"${(1 - score1) * (1 - score2) * 100}%.2f" + "%")
     })
 
-    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_STRANGLE).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_STRANGLE)
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

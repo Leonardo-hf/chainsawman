@@ -81,9 +81,13 @@ func main() {
 		RelateSlicePointer: true,
 		GORMTag:            edgeIDGormTag,
 	}))
+	groupModel := g.GenerateModel("groups")
 	groupIDGormTag := field.NewGormTag()
 	groupIDGormTag.Set("foreignKey", "groupID")
-	groupModel := g.GenerateModel("groups",
+	groupParentIDGormTag := field.NewGormTag()
+	groupParentIDGormTag.Set("foreignKey", "parentID")
+	groupModel = g.GenerateModel("groups",
+		gen.FieldRelate(field.HasOne, "Child", groupModel, &field.RelateConfig{RelatePointer: true, GORMTag: groupParentIDGormTag}),
 		gen.FieldRelate(field.HasMany, "Nodes", nodeModel, &field.RelateConfig{
 			RelateSlicePointer: true,
 			GORMTag:            groupIDGormTag,

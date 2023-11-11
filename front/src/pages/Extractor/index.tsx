@@ -10,12 +10,11 @@ import Dragger from "antd/es/upload/Dragger";
 import {useState} from "react";
 import {extractors, getExtractor} from "./_extractor";
 
-const Extractor: React.FC = (props) => {
+const Extractor: React.FC = () => {
     const [language, setLanguage] = useState('java')
     const [visual, setVisual] = useState(['tree'])
     const [fileList, setFileList] = useState<UploadFile[]>([])
     const [p, setPackage] = useState()
-    const [dependencies, setDependencies] = useState([])
     const [treeData, setTreeData] = useState<DataNode[]>([])
     const [graphData, setGraphData] = useState<any>([])
     const visualOptions = [
@@ -47,7 +46,6 @@ const Extractor: React.FC = (props) => {
             message.success('解析成功')
             // 接受依赖解析结果
             setPackage(res.package)
-            setDependencies(res.dependencies)
             setTreeData(getTreeData(res.package, res.dependencies))
             setGraphData(getGraphData(res.package, res.dependencies))
             // 清理上传框

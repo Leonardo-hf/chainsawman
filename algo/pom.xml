@@ -9,17 +9,23 @@
     <version>latest</version>
     <packaging>pom</packaging>
     <modules>
-        <module>voterank</module>
+        <module>common</module>
+        <!--> 算法 <-->
         <module>degree</module>
         <module>pagerank</module>
         <module>betweenness</module>
         <module>closeness</module>
-        <module>depth</module>
-        <module>ecology</module>
         <module>clusteringCoefficient</module>
         <module>louvain</module>
-        <module>common</module>
+        <!--> 软件影响力算法 <-->
+        <module>voterank</module>
+        <module>depth</module>
+        <module>proxy</module>
+        <module>ecology</module>
+        <module>comprehensive</module>
+        <!--> 卡脖子软件算法 <-->
         <module>strangleRisk</module>
+        <module>strangleRiskOnImpact</module>
     </modules>
 
     <properties>

@@ -20,7 +20,7 @@ declare namespace Graph {
 
   type AlgoReply = {
     base: BaseReply;
-    algoName: number;
+    algoId: number;
     file: string;
   };
 
@@ -239,6 +239,7 @@ declare namespace Graph {
     name: string;
     desc: string;
     parentId: number;
+    deleted: boolean;
     nodeTypeList: Structure[];
     edgeTypeList: Structure[];
     graphs: Graph[];
@@ -280,7 +281,6 @@ declare namespace Graph {
     type: number;
     value?: string;
     listValue?: string[];
-    algoValue?: string;
   };
 
   type PresignedReply = {

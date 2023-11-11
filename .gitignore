@@ -1,5 +1,3 @@
-.idea
-
 front/.idea
 front/node_modules
 front/package-lock.json
@@ -7,18 +5,8 @@ front/*.iml
 front/src/.umi
 front/mock
 
-algo/.idea
-algo/betweenness/target
-algo/closeness/target
-algo/clusteringCoefficient/target
-algo/common/target
-algo/degree/target
-algo/depth/target
-algo/ecology/target
-algo/louvain/target
-algo/pagerank/target
-algo/voterank/target
-algo/strangleRisk/target
+**/.idea
+algo/**/target
 
 dockerfiles/minio/config
 dockerfiles/minio/data
@@ -31,4 +19,4 @@ dockerfiles/spark/share
 dockerfiles/spark/jar/common-latest-jar-with-dependencies.jar
 dockerfiles/livy/data
 
-__pycache__
+**/__pycache__

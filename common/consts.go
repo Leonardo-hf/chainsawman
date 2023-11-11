@@ -12,8 +12,6 @@ const (
 	TypeInt        = 2
 	TypeStringList = 3
 	TypeDoubleList = 4
-	TypeRankAlgo   = 5
-	TypeScoreAlgo  = 6
 )
 
 func Type2String(t int64) string {

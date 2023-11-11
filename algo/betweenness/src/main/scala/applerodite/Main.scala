@@ -191,7 +191,7 @@ object Main {
     val graphID: String = json.getString("graphID")
     val target: String = json.getString("target")
 
-    val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
+    val graph = ClientConfig.graphClient.loadInitGraph(graphID, hasWeight = false)
 
     val graphForBC = Graph.fromEdges(graph.edges.mapValues(_ => 1.0), None)
 
@@ -201,13 +201,9 @@ object Main {
     val vertexBCGraph = initBCgraph.mapVertices((id, attr) => {
       (id, betweennessCentralityForUnweightedGraph(id, attr))
     })
-    val BCGraph = aggregateBetweennessScores(vertexBCGraph).outerJoinVertices(graph.vertices) {
-      (_, score, release) => {
-        (score, release)
-      }
-    }
+    val BCGraph = aggregateBetweennessScores(vertexBCGraph)
 
-    val df = spark.sqlContext.createDataFrame(BCGraph.vertices.map(r => Row.apply(r._1, r._2._2.get.Artifact, r._2._2.get.Artifact, r._2._1)), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(BCGraph.vertices.map(r => Row.apply(r._1, r._2)), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }

@@ -135,7 +135,7 @@ const Algo: React.FC = (props) => {
                         >
                             {listDom}
                         </ProCard>
-                    );
+                    )
                 }}
             >
                 <ProFormGroup>
@@ -222,7 +222,7 @@ const Algo: React.FC = (props) => {
                         return <Space size={0}>
                             {getAlgoTypeDesc(row.type)}
                             <Tag
-                                color='#EE9A00'>{row.groupId === 1 ? '通用' : groups.find(g => g.id === row.groupId)!.desc}</Tag>
+                                color='#FFA54F'>{row.groupId === 1 ? '通用' : groups.find(g => g.id === row.groupId)!.desc}</Tag>
                         </Space>
                     },
                     valueType: 'select',

@@ -307,13 +307,12 @@ object Main {
     val json = JSON.parseObject(args.apply(0))
     val graphID: String = json.getString("graphID")
     val target: String = json.getString("target")
-    val edgeTags: Seq[String] = json.getJSONArray("edgeTags").toArray().map(a => a.toString)
 
     val internalIter: Int = json.getIntValue("internalIter")
     val maxIter: Int = json.getIntValue("maxIter")
     val tol: Double = json.getDoubleValue("tol")
 
-    val graph: Graph[None.type, Double] = ClientConfig.graphClient.loadInitGraph(graphID, edgeTags, hasWeight = false)
+    val graph: Graph[None.type, Double] = ClientConfig.graphClient.loadInitGraph(graphID, hasWeight = false)
 
     val spark = ClientConfig.spark
 

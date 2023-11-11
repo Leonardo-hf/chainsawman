@@ -1,9 +1,0 @@
-Nebula:
-  Addr: "127.0.0.1"
-  Port: 9669
-  Username: "root"
-  Passwd: "nebula"
-ImportMq:
-  Addr: "localhost:6379"
-  Topic: "import"
-  Group: "import_consumers"

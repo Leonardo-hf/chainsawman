@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_DEFAULT
+import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SOFTWARE}
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -56,6 +56,7 @@ object Main {
     val target: String = json.getString("target")
 
     val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
+    graph.cache()
 
     val spark = ClientConfig.spark
 
@@ -66,6 +67,7 @@ object Main {
       val vid = vertex._1
       var score: Double = 0.0
       // 获得vid相关子图
+      var preVGraph: Graph[Int, None.type ] = null
       var vGraph = graph.mapVertices((v, _) => {
         if (vid == v) {
           1
@@ -73,6 +75,9 @@ object Main {
           0
         }
       })
+      vGraph.cache()
+
+      preVGraph = vGraph
       vGraph = Pregel(vGraph, initialMsg = 0, maxIterations = Int.MaxValue, activeDirection = EdgeDirection.In)(
         (_, attr, msg) => Math.max(attr, msg),
         edge => {
@@ -85,18 +90,35 @@ object Main {
         (a, b) => math.max(a, b)
       ).subgraph(vpred = (_, s) => s == 1)
 
+      vGraph.cache()
+      preVGraph.unpersistVertices(blocking = false)
+      preVGraph.edges.unpersist(blocking = false)
+      preVGraph = vGraph
+
       vGraph = setCI(vGraph, r)
 
+      vGraph.cache()
+      preVGraph.unpersistVertices(blocking = false)
+      preVGraph.edges.unpersist(blocking = false)
+
       while (math.pow(vGraph.vertices.map(v => v._2).sum() / vGraph.inDegrees.map(d => d._2).sum(), 1.0 / (r + 1)) > 1) {
+        preVGraph = vGraph
         val (maxVertex, _) = vGraph.vertices.max()(Ordering.by[(VertexId, Int), Double](_._2))
         score += 1.0
         vGraph = vGraph.subgraph(epred = e => e.srcId != maxVertex && e.dstId != maxVertex)
+        vGraph.cache()
+        preVGraph.unpersistVertices(blocking = false)
+        preVGraph.edges.unpersist(blocking = false)
+        preVGraph = vGraph
         vGraph = setCI(vGraph, r)
+        vGraph.cache()
+        preVGraph.unpersistVertices(blocking = false)
+        preVGraph.edges.unpersist(blocking = false)
       }
       res.append(Row.apply(vid, vertex._2.Artifact, vertex._2.Version, score))
     }
 
-    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
+    val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_SOFTWARE).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.close()
   }
