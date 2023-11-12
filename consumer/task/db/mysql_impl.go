@@ -57,11 +57,10 @@ func (c *MysqlClientImpl) UpdateGraphByID(ctx context.Context, graph *model.Grap
 
 func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error) {
 	g := query.Graph
-	graph, err := g.WithContext(ctx).Where(g.ID.Eq(id)).First()
-	if err != nil {
-		return nil, err
-	}
-	return c.GetGroupByID(ctx, graph.GroupID)
+	gr := query.Group
+	sub := g.WithContext(ctx).Select(g.GroupID).Where(g.ID.Eq(id))
+	group, err := gr.WithContext(ctx).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).Where(gr.Columns(gr.ID).Eq(sub)).First()
+	return group, err
 }
 
 func (c *MysqlClientImpl) GetGroupByID(ctx context.Context, id int64) (*model.Group, error) {

@@ -73,20 +73,23 @@ func (c *MysqlClientImpl) GetGraphByID(ctx context.Context, id int64) (*model.Gr
 
 func (c *MysqlClientImpl) GetGraphByGroupID(ctx context.Context, groupID int64) ([]*model.Graph, error) {
 	gr := query.Group
-	group, err := gr.WithContext(ctx).Where(gr.ID.Eq(groupID)).Select(gr.ID).Preload(gr.Child).First()
+	g := query.Graph
+	graphs, err := g.WithContext(ctx).Where(g.GroupID.Eq(groupID)).Find()
 	if err != nil {
 		return nil, err
 	}
-	groupIds := make([]int64, 0)
-	for {
-		groupIds = append(groupIds, group.ID)
-		if group.Child == nil {
-			break
-		}
-		group = group.Child
+	children, err := gr.WithContext(ctx).Where(gr.ParentID.Eq(groupID)).Select(gr.ID).Find()
+	if err != nil {
+		return nil, err
 	}
-	g := query.Graph
-	return g.WithContext(ctx).Where(g.GroupID.In(groupIds...)).Find()
+	for _, child := range children {
+		childGraphs, err := c.GetGraphByGroupID(ctx, child.ID)
+		if err != nil {
+			return nil, err
+		}
+		graphs = append(graphs, childGraphs...)
+	}
+	return graphs, nil
 }
 
 func (c *MysqlClientImpl) GetGraphByName(ctx context.Context, name string) (*model.Graph, error) {
@@ -130,12 +133,10 @@ func (c *MysqlClientImpl) GetNodeByID(ctx context.Context, id int64) (*model.Nod
 
 func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error) {
 	g := query.Graph
-	graph, err := g.WithContext(ctx).Where(g.ID.Eq(id)).First()
-	if err != nil {
-		return nil, err
-	}
 	gr := query.Group
-	return gr.WithContext(ctx).Where(gr.ID.Eq(graph.GroupID)).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).First()
+	sub := g.WithContext(ctx).Select(g.GroupID).Where(g.ID.Eq(id))
+	group, err := gr.WithContext(ctx).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).Where(gr.Columns(gr.ID).Eq(sub)).First()
+	return group, err
 }
 
 func (c *MysqlClientImpl) GetAllAlgo(ctx context.Context) ([]*model.Algo, error) {
