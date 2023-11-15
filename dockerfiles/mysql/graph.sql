@@ -16,16 +16,16 @@ create table if not exists graph.`groups`
         primary key,
     name     varchar(255)  not null,
     `desc`   text          null,
-    parentId int default 1 null comment '标识父策略组，子策略组继承父策略组的全部节点与边缘',
+    parentID int default 1 null comment '标识父策略组，子策略组继承父策略组的全部节点与边缘',
     constraint groups_groups_id_fk
-        foreign key (parentId) references `groups` (id)
+        foreign key (parentID) references `groups` (id)
             on update cascade on delete cascade
 );
 
-INSERT INTO graph.`groups`(id, name, `desc`, parentId) VALUES (1, "root", "根分组", null);
+INSERT INTO graph.`groups`(id, name, `desc`, parentID) VALUES (1, "root", "根分组", null);
 INSERT INTO graph.`groups`(id, name, `desc`) VALUES (2, "normal", "标准图谱");
 INSERT INTO graph.`groups`(id, name, `desc`) VALUES (3, "software", "软件依赖图谱");
-INSERT INTO graph.`groups`(id, name, `desc`, parentId) VALUES (4, "strangle", "卡脖子软件识别", 3);
+INSERT INTO graph.`groups`(id, name, `desc`, parentID) VALUES (4, "strangle", "卡脖子软件识别", 3);
 
 create table if not exists graph.graphs
 (
