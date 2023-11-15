@@ -6,7 +6,7 @@ import {
     ProFormRadio,
     ProFormSelect,
 } from "@ant-design/pro-components"
-import {Button, message, Steps, theme} from "antd"
+import {Button, message, Spin, Steps, theme} from "antd"
 import {algoExec, getMatchNodesByTag} from "@/services/graph/graph";
 import React, {useRef, useState} from "react";
 import {useModel} from "@@/exports";
@@ -14,7 +14,6 @@ import {isAlgoIllegal} from "@/models/global";
 import ProCard from "@ant-design/pro-card";
 import RankTable from "@/components/RankTable";
 import {AlgoCountryStrangle, AlgoMulStrangleId} from "@/constants/sp";
-import Loading from "@ant-design/pro-card/es/components/Loading";
 import InputWeights from "@/components/InputWeights";
 import {getWeights} from "@/components/InputWeights/InputWeights";
 
@@ -43,9 +42,19 @@ const Strangle: React.FC = () => {
         }
     })
 
+    type Source = number
+    const sourceManual: Source = 0, sourceImpact: Source = 1
+    const sourceOptions = [{
+        label: '人工录入',
+        value: sourceManual
+    }, {
+        label: '高影响力软件',
+        value: sourceImpact
+    }]
+
     // 算法表单相关
     type FormData = {
-        single: boolean,
+        source: Source,
         graphId: number,
         libraries: string[],
         weightsOnImpact: number[],
@@ -70,7 +79,7 @@ const Strangle: React.FC = () => {
             params: [],
             algoId: 0
         }
-        if (params.single) {
+        if (params.source === sourceManual) {
             req.algoId = algoSingle.id!
             req.params!.push({
                 key: libraries.key,
@@ -124,14 +133,6 @@ const Strangle: React.FC = () => {
         padding: 16
     }
     const getStep1 = () => {
-        const sourceManual = 0, sourceImpact = 1
-        const sourceOptions = [{
-            label: '人工录入',
-            value: sourceManual
-        }, {
-            label: '高影响力软件',
-            value: sourceImpact
-        }]
         return <div style={{display: current === 0 ? '' : 'none'}}>
             <ProFormSelect rules={[{required: true}]} label={'图谱'} name={'graphId'}
                            options={graphOptions}/>
@@ -250,8 +251,8 @@ const Strangle: React.FC = () => {
             }
             {/*step3 获得识别结果*/}
             {
-                current === steps.length - 1 && <ProCard title={'预览'}>
-                    {lastFileName ? <RankTable file={lastFileName}/> : <Loading/>}
+                current === steps.length - 1 && <ProCard title={'预览'} loading={!lastFileName}>
+                    {lastFileName && <RankTable file={lastFileName}/>}
                 </ProCard>
             }
         </div>

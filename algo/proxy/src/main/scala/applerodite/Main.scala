@@ -209,6 +209,6 @@ object Main {
 
     val df = spark.sqlContext.createDataFrame(BCGraph.vertices.map(r => Row.apply(r._1, r._2._2.get.Artifact, r._2._2.get.Artifact, r._2._1)), SCHEMA_SOFTWARE).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
-    spark.close()
+    spark.stop()
   }
 }

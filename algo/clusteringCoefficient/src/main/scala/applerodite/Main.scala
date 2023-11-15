@@ -31,6 +31,6 @@ object Main {
     val res = List(Row.apply(score))
     val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_SCORE).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
-    spark.close()
+    spark.stop()
   }
 }

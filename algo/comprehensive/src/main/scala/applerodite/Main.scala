@@ -66,6 +66,6 @@ object Main {
     res = res.map(r => Row.apply(r.get(0), r.get(1), r.get(2), getDouble(r, 3) + getDouble(r, 4) + getDouble(r, 5) + getDouble(r, 6)))(RowEncoder(SCHEMA_SOFTWARE))
     val df = res.orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
-    spark.close()
+    spark.stop()
   }
 }

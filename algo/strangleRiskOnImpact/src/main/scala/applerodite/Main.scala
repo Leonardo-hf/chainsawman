@@ -97,6 +97,6 @@ object Main {
     // 加权平均
     strangleRisks = strangleRisks.map(r => Row.apply(r.get(0), weights2.indices.map(i => getDouble(r, i + 1) * weights2.apply(i)).sum))(RowEncoder(SCHEMA_STRANGLE))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(strangleRisks))
-    spark.close()
+    spark.stop()
   }
 }

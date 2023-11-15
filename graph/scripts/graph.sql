@@ -253,8 +253,8 @@ VALUES (7, "iter", "迭代次数", 2, 1, 100);
 INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`)
 VALUES (11, "libraries", "待识别卡脖子风险的软件列表", 3, 1);
 
-INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`)
-VALUES (12, "weights", "影响力算法权重", 3, 1);
+INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`, `max`)
+VALUES (12, "weights", "影响力算法权重", 4, 4, 4);
 INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`, `max`)
 VALUES (13, "impactWeights", "影响力算法权重", 4, 4, 4);
 INSERT INTO graph.algos_param(algoID, fieldName, fieldDesc, fieldType, `min`, `max`)

@@ -333,6 +333,6 @@ object Main {
 
     val df = spark.sqlContext.createDataFrame(CommUtil.getCommunities(louvainG), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
-    spark.close()
+    spark.stop()
   }
 }

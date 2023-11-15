@@ -97,6 +97,6 @@ object Main {
 
     val df = spark.sqlContext.createDataFrame(res.vertices.map(v => Row.apply(v._1, v._2._2.get.Artifact, v._2._2.get.Version, v._2._1)), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
-    spark.close()
+    spark.stop()
   }
 }
