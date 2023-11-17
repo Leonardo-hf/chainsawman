@@ -45,6 +45,7 @@ object NebulaClientImpl extends GraphClient {
     if (!res.isSucceeded) {
       println("#### " + res.getErrorMessage)
     }
+    sessionPool.close()
     Option.apply(res)
   }
 
