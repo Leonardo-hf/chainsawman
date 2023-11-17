@@ -210,7 +210,7 @@ type Task struct {
 }
 
 type GetTasksRequest struct {
-	GraphID int64 `form:"graphId"`
+	GraphID int64 `form:"graphId,optional"`
 }
 
 type GetTasksReply struct {

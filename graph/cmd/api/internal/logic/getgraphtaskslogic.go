@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"chainsawman/graph/model"
 	"context"
 	"strconv"
 
@@ -25,7 +26,12 @@ func NewGetGraphTasksLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetGraphTasksLogic) GetGraphTasks(req *types.GetTasksRequest) (resp *types.GetTasksReply, err error) {
-	tasks, err := l.svcCtx.MysqlClient.GetTasksByGraph(l.ctx, req.GraphID)
+	var tasks []*model.Task
+	if req.GraphID == 0 {
+		tasks, err = l.svcCtx.MysqlClient.GetTasks(l.ctx)
+	} else {
+		tasks, err = l.svcCtx.MysqlClient.GetTasksByGraph(l.ctx, req.GraphID)
+	}
 	if err != nil {
 		return nil, err
 	}

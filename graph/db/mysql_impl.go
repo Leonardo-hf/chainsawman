@@ -43,6 +43,11 @@ func (c *MysqlClientImpl) GetTasksByGraph(ctx context.Context, graphID int64) ([
 	return t.WithContext(ctx).Where(t.GraphID.Eq(graphID)).Find()
 }
 
+func (c *MysqlClientImpl) GetTasks(ctx context.Context) ([]*model.Task, error) {
+	t := query.Task
+	return t.WithContext(ctx).Find()
+}
+
 func (c *MysqlClientImpl) GetTaskByID(ctx context.Context, id int64) (*model.Task, error) {
 	t := query.Task
 	return t.WithContext(ctx).Where(t.ID.Eq(id)).First()

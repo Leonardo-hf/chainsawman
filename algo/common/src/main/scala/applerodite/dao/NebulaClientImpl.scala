@@ -49,7 +49,7 @@ object NebulaClientImpl extends GraphClient {
   }
 
   override def loadInitGraph(graphName: String, hasWeight: Boolean): Graph[None.type, Double] = {
-    val res = gql(graphName, "show tags;")
+    val res = gql(graphName, "show edges;")
     val edgeTags = ListBuffer[String]()
     if (res.isDefined) {
       for (i <- 0 until res.get.rowsSize()) {

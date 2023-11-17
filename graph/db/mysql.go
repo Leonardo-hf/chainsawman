@@ -31,6 +31,8 @@ type MysqlClient interface {
 
 	GetTasksByGraph(ctx context.Context, graphID int64) ([]*model.Task, error)
 
+	GetTasks(ctx context.Context) ([]*model.Task, error)
+
 	GetAllGroups(ctx context.Context) ([]*model.Group, error)
 
 	GetNodeByID(ctx context.Context, id int64) (*model.Node, error)

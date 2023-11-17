@@ -568,7 +568,7 @@
           {
             "name": "graphId",
             "in": "query",
-            "required": true,
+            "required": false,
             "type": "integer",
             "format": "int64"
           }
@@ -1248,10 +1248,7 @@
           "format": "int64"
         }
       },
-      "title": "GetTasksRequest",
-      "required": [
-        "graphId"
-      ]
+      "title": "GetTasksRequest"
     },
     "Graph": {
       "type": "object",

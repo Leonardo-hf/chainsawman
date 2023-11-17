@@ -137,7 +137,7 @@ declare namespace Graph {
   };
 
   type getGraphTasksParams = {
-    graphId: number;
+    graphId?: number;
   };
 
   type getMatchNodesByTagParams = {
@@ -214,7 +214,7 @@ declare namespace Graph {
   };
 
   type GetTasksRequest = {
-    graphId: number;
+    graphId?: number;
   };
 
   type Graph = {
@@ -239,7 +239,6 @@ declare namespace Graph {
     name: string;
     desc: string;
     parentId: number;
-    deleted: boolean;
     nodeTypeList: Structure[];
     edgeTypeList: Structure[];
     graphs: Graph[];

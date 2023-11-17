@@ -10,7 +10,7 @@ import {useModel} from "@@/exports";
 import {Badge, Button, Form, message, Popconfirm, Space, Tooltip, Typography} from "antd";
 import React, {useState} from "react";
 import type {Key} from 'react';
-import {ParamType, ParamTypeOptions, RootGroupID} from "@/constants";
+import {ParamTypeOptions, RootGroupID} from "@/constants";
 import {createGroup, dropGroup} from "@/services/graph/graph";
 import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import ProCard from "@ant-design/pro-card";
@@ -65,9 +65,9 @@ const Group: React.FC = () => {
                                  style={{paddingBottom: 0}}>
                     <ProDescriptions.Item dataIndex={'name'} label={getAttrBadge(a.primary)}
                                           valueType={'text'}/>
-                    <ProDescriptions.Item dataIndex={'desc'} label={'属性描述'} valueType={'text'}/>
-                    <ProDescriptions.Item dataIndex={'type'} label={'属性类型'}
-                                          valueEnum={ParamType}/>
+                    <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'}/>
+                    <ProDescriptions.Item label={'类型'}
+                                          render={(_, t)=>ParamTypeOptions[t['type']].label}/>
                 </ProDescriptions>
             </ProDescriptions.Item>)
     }
@@ -81,7 +81,7 @@ const Group: React.FC = () => {
                         <ProDescriptions dataSource={n} key={n.id} column={3}>
                             <ProDescriptions.Item dataIndex={'name'} label={getNodeBadge(n.display)}
                                                   valueType={'text'}/>
-                            <ProDescriptions.Item dataIndex={'desc'} label={'节点描述'} valueType={'text'} span={2}/>
+                            <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'} span={2}/>
                             {getAttrsDesc(n.attrs)}
                         </ProDescriptions>
                     </ProDescriptions.Item>
@@ -93,7 +93,7 @@ const Group: React.FC = () => {
                         <ProDescriptions dataSource={e} key={e.id} column={3}>
                             <ProDescriptions.Item dataIndex={'name'} label={getEdgeBadge(e.edgeDirection, e.display)}
                                                   valueType={'text'}/>
-                            <ProDescriptions.Item dataIndex={'desc'} label={'边之描述'} valueType={'text'} span={2}/>
+                            <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'} span={2}/>
                             {getAttrsDesc(e.attrs)}
                         </ProDescriptions>
                     }

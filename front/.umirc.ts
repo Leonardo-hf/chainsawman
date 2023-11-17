@@ -75,9 +75,14 @@ export default defineConfig({
             component: './Group'
         },
         {
-            name: '算法',
+            name: '图算法',
             path: '/algo',
             component: './Algo'
+        },
+        {
+            name: '图计算',
+            path: '/exec',
+            component: './AlgoExec'
         },
         {
             name: '高影响力软件识别',
@@ -85,7 +90,7 @@ export default defineConfig({
             component: './Impact'
         },
         {
-            name: '卡脖子风险分析',
+            name: '卡脖子软件识别',
             path: '/util/strangle',
             component: './Strangle'
         },

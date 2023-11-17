@@ -10,7 +10,9 @@ import org.apache.spark.sql.functions._
 
 object Main {
   def main(args: Array[String]): Unit = {
+    val spark = ClientConfig.spark
     if (args.length < 1) {
+      spark.stop()
       return
     }
     val json = JSON.parseObject(args.apply(0))
@@ -18,8 +20,6 @@ object Main {
     val target: String = json.getString("target")
 
     val graph: Graph[None.type, Double] = ClientConfig.graphClient.loadInitGraph(graphID, hasWeight = false)
-
-    val spark = ClientConfig.spark
 
     val df = spark.sqlContext.createDataFrame(graph.degrees.map(r => Row.apply(r._1, r._2.toDouble)), SCHEMA_DEFAULT).orderBy(desc(AlgoConstants.SCORE_COL))
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))

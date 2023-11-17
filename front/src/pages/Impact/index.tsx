@@ -1,7 +1,7 @@
 import {
     PageContainer,
-    ProForm,
-    ProFormInstance,
+    ProForm, ProFormDependency,
+    ProFormInstance, ProFormRadio,
     ProFormSelect
 } from "@ant-design/pro-components"
 import {Button, message, Steps, theme} from "antd"
@@ -11,7 +11,7 @@ import {useModel} from "@@/exports";
 import {isAlgoIllegal} from "@/models/global";
 import ProCard from "@ant-design/pro-card";
 import RankTable from "@/components/RankTable";
-import {AlgoMulImpactId} from "@/constants/sp";
+import {AlgoImpactIds, AlgoMulImpactId, getParamFormItem, getParamFormValue} from "@/constants/sp";
 import {getWeights} from "@/components/InputWeights/InputWeights";
 import InputWeights from "@/components/InputWeights";
 import Loading from "@ant-design/pro-card/es/components/Loading";
@@ -20,14 +20,13 @@ const Impact: React.FC = () => {
     const {initialState} = useModel('@@initialState')
     //@ts-ignore
     const {algos} = initialState
-    const algo: Graph.Algo = algos.find((a: Graph.Algo) => a.id === AlgoMulImpactId)
-    const weights = algo.params![0]
+    const mulAlgo: Graph.Algo = algos.find((a: Graph.Algo) => a.id === AlgoMulImpactId)
 
     const {graphs} = useModel('global')
     const [lastTaskId, setLastTaskId] = useState<string>()
     const [lastFileName, setLastFileName] = useState<string>()
     const [lastTimer, setLastTimer] = useState<NodeJS.Timer>()
-    const graphOptions = graphs.filter(g => isAlgoIllegal(g, algo)).map(g => {
+    const graphOptions = graphs.filter(g => isAlgoIllegal(g, mulAlgo)).map(g => {
         return {
             label: g.name,
             value: g.id
@@ -36,7 +35,7 @@ const Impact: React.FC = () => {
 
     type FormData = {
         graphId: number,
-        weights: number[],
+        algoSelect: Graph.Algo,
     }
 
     const impact = async () => {
@@ -53,12 +52,8 @@ const Impact: React.FC = () => {
         }
         const req: Graph.ExecAlgoRequest = {
             graphId: params.graphId,
-            params: [{
-                key: weights.key,
-                type: weights.type,
-                listValue: getWeights(params.weights)
-            }],
-            algoId: algo.id!
+            algoId: params.algoSelect.id!,
+            params: getParamFormValue(params, algos.find((a: Graph.Algo) => a.id === params.algoSelect.id))
         }
         return await algoExec(req).then((res) => {
             message.success('算法已提交')
@@ -91,19 +86,36 @@ const Impact: React.FC = () => {
         padding: 16
     }
     const getStep1 = () => {
+        const algoSelect = AlgoImpactIds.map(id => {
+            const a = algos.find((a: Graph.Algo) => a.id === id)!
+            return {
+                label: a.name,
+                value: a
+            }
+        }).concat({label: mulAlgo.name, value: mulAlgo})
         return <div style={{display: current === 0 ? '' : 'none'}}>
             <ProFormSelect rules={[{required: true}]} label={'图谱'} name={'graphId'}
                            options={graphOptions}/>
-            <InputWeights headers={['广度', '深度', '中介度', '稳定性']} innerProps={{
-                name: 'weightsOnImpact',
-                label: '影响力算法权重',
-                rules: [{required: true}]
-            }}/>
+            <ProFormRadio.Group rules={[{required: true}]} label={'算法'} name={'algoSelect'}
+                                options={algoSelect} initialValue={mulAlgo}/>
+            <ProFormDependency name={['algoSelect']}>
+                {({algoSelect}) => {
+                    if (algoSelect.id === mulAlgo.id) {
+                        return <InputWeights headers={['广度', '深度', '中介度', '稳定性']} innerProps={{
+                            name: 'weightsOnImpact',
+                            label: '影响力算法权重',
+                            rules: [{required: true}]
+                        }}/>
+                    } else {
+                        return getParamFormItem(algoSelect)
+                    }
+                }}
+            </ProFormDependency>
         </div>
     }
 
     // 提交算法后轮询算法结果
-    if (current === steps.length - 1 && !lastTimer) {
+    if (current === steps.length - 1 && lastTaskId && !lastTimer) {
         const timer = setInterval(() => {
             const params: Graph.ExecAlgoRequest = {algoId: 0, graphId: 0, taskId: lastTaskId}
             algoExec(params).then((res) => {
@@ -121,7 +133,6 @@ const Impact: React.FC = () => {
     }
 
     const formRef = useRef<ProFormInstance>()
-
     return <PageContainer>
 
         <Steps current={current} items={items}/>
@@ -150,7 +161,7 @@ const Impact: React.FC = () => {
             }
             {/*step2 获得高影响力软件*/}
             {
-                current === steps.length - 1 && <ProCard title={'预览'}>
+                current === steps.length - 1 && <ProCard title={'预览'} loading={!lastFileName}>
                     {lastFileName ? <RankTable file={lastFileName}/> : <Loading/>}
                 </ProCard>
             }

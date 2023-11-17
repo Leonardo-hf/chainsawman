@@ -177,7 +177,7 @@ const Algo: React.FC = (props) => {
                         <ProDescriptions dataSource={p}>
                             <ProDescriptions.Item dataIndex={'key'} label='key' valueType={'text'}/>
                             <ProDescriptions.Item dataIndex={'keyDesc'} label='名称' valueType={'text'}/>
-                            <ProDescriptions.Item dataIndex={'type'} label='类型' valueEnum={ParamType}/>
+                            <ProDescriptions.Item label='类型' render={(_, t)=>ParamTypeOptions[t['type']].label}/>
                             {p.initValue &&
                             <ProDescriptions.Item dataIndex={'initValue'} label='默认值' valueType={'text'}/>}
                             {p.max && <ProDescriptions.Item dataIndex={'max'} label='最大值' valueType={'text'}/>}

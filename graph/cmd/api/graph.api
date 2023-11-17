@@ -215,7 +215,7 @@ type (
 	}
 
 	GetTasksRequest {
-		GraphID int64 `form:"graphId"`
+		GraphID int64 `form:"graphId,optional"`
 	}
 
 	GetTasksReply {

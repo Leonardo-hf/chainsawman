@@ -86,4 +86,4 @@
 
   > use full text index to make query nodes quicker
 
-* 考虑一种统一的 schema/dataframe 定义，约束算法的输入和输出，task 执行算法时传入 dataframe url。加入聚合层，即读入算法的结果，将结果聚合并输出为其他算法的输入，例如：读入软件影响力算法的结果，加权平均得到排名前列的 artifact，交付卡脖子风险识别。支持按批执行算法。
+* 

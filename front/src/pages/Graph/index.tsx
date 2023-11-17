@@ -152,14 +152,14 @@ const Graph: React.FC<Props> = (props) => {
             key: 'attr',
             tab: '属性',
         },
-        {
-            key: 'algo',
-            tab: '算法',
-        },
-        {
-            key: 'task',
-            tab: '任务',
-        },
+        // {
+        //     key: 'algo',
+        //     tab: '算法',
+        // },
+        // {
+        //     key: 'task',
+        //     tab: '任务',
+        // },
     ]
     // 图谱布局
     const layout = layoutsConfig.find(item => item.type === graphLayout)
@@ -379,209 +379,209 @@ const Graph: React.FC<Props> = (props) => {
                         title: {},
                         description: {},
                     }}/>
-            case 'algo':
-                const getAlgoContent = (algo: Graph.Algo) => {
-                    const onFinish = async (params: any) => {
-                        //TODO:DELETE
-                        console.log(params)
-                        const pairs: Graph.Param[] = []
-                        for (let k in params) {
-                            const type = algo.params!.find(p => p.key === k)!.type
-                            switch (type) {
-                                case ParamType.Int:
-                                case ParamType.Double:
-                                    pairs.push({type: type, key: k, value: params[k].toString()})
-                                    break
-                                case ParamType.StringList:
-                                case ParamType.DoubleList:
-                                    pairs.push({type: type, key: k, listValue: params[k].toString()})
-                            }
-                        }
-                        return await algoExec({
-                            graphId: id,
-                            algoId: algo.id!,
-                            params: pairs
-                        }).then(() => {
-                            message.success('算法已提交')
-                            setExtKeysAlgo([])
-                            setTab('task')
-                            return true
-                        })
-                    }
-                    // 设置算法的初始值
-                    const initValues: any = {}
-                    algo.params?.forEach(p => {
-                        if (p.initValue) {
-                            initValues[p.key] = p.initValue
-                        }
-                    })
-                    const getAlgoParamLabel = (p: Graph.AlgoParam) => <Tooltip title={p.keyDesc}>
-                        <span>{p.key}</span>
-                    </Tooltip>
-                    return <Space direction={'vertical'}>
-                        <Text type={'secondary'}>{algo.desc}</Text>
-                        <Divider/>
-                        <ProForm
-                            onFinish={onFinish}
-                            submitter={{
-                                searchConfig: {
-                                    resetText: '重置',
-                                    submitText: '执行',
-                                }
-                            }}
-                            initialValues={initValues}
-                        >{
-                            algo.params?.map(p => {
-                                    switch (p.type) {
-                                        case ParamType.Int:
-                                            return <ProFormDigit name={p.key} fieldProps={{precision: 0}}
-                                                                 label={getAlgoParamLabel(p)}
-                                                                 max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
-                                                                 min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
-                                        case ParamType.Double:
-                                            return <ProFormDigit name={p.key} fieldProps={{precision: 4, step: 1e-4}}
-                                                                 label={getAlgoParamLabel(p)}
-                                                                 max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
-                                                                 min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
-                                        case ParamType.StringList:
-                                        case ParamType.DoubleList:
-                                            return <ProFormSelect name={p.key} label={getAlgoParamLabel(p)}
-                                                                  fieldProps={{mode: "tags"}}/>
-                                    }
-                                }
-                            )}
-                        </ProForm>
-                    </Space>
-                }
-                return <ProList<Graph.Algo>
-                    key='algoProList'
-                    rowKey={(row) => row.id!}
-                    style={{
-                        height: '80vh',
-                        overflowY: 'scroll',
-                    }}
-                    expandable={{
-                        expandedRowKeys: extKeysAlgo, onExpandedRowsChange: (expandedKeys) => {
-                            // @ts-ignore
-                            setExtKeysAlgo(expandedKeys)
-                        }
-                    }}
-                    search={{
-                        filterType: 'light',
-                    }}
-                    request={
-                        async (params = {time: Date.now()}) => {
-                            return {
-                                data: algos.filter((a: Graph.Algo) => !params.subTitle || a.type == params.subTitle),
-                                success: true,
-                                total: algos.length
-                            }
-                        }}
-                    metas={{
-                        title: {
-                            dataIndex: "name",
-                            search: false,
-                        },
-                        subTitle: {
-                            title: '类别',
-                            render: (_, row) => {
-                                return <Space size={0}>
-                                    {getAlgoTypeDesc(row.type)}
-                                </Space>
-                            },
-                            valueType: 'select',
-                            valueEnum: AlgoTypeMap,
-                        },
-                        description: {
-                            search: false,
-                            render: (_, row) => getAlgoContent(row)
-                        },
-                    }}
-                />
-            case 'task':
-                const getTaskContent = (task: Graph.Task) => {
-                    const sres = task.res
-                    try {
-                        if (!sres) {
-                            return
-                        }
-                        const res = JSON.parse(sres)
-                        return <Space direction={"vertical"}>
-                            <Text>{algos.find((a: Graph.Algo) => a.id === res.algoId)?.name}</Text>
-                            <RankTable file={res.file}/>
-                        </Space>
-                    } catch (e) {
-                        console.log(e)
-                        return
-                    }
-                }
-                return <ProList<Graph.Task>
-                    key='taskProList'
-                    itemLayout='vertical'
-                    // @ts-ignore
-                    actionRef={taskListRef}
-                    rowKey='id'
-                    style={{
-                        height: '80vh',
-                        overflowY: 'scroll',
-                        overflowX: 'scroll'
-                    }}
-                    expandable={{
-                        expandedRowKeys: extKeysTask, onExpandedRowsChange: (expandedKeys) => {
-                            // @ts-ignore
-                            setExtKeysTask(expandedKeys)
-                        }
-                    }}
-                    search={{
-                        filterType: 'light',
-                    }}
-                    request={async (params = {time: Date.now()}) => {
-                        const tasks = await getGraphTasks({
-                            graphId: id
-                        })
-                        return {
-                            data: tasks.tasks?.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
-                            success: true,
-                            total: tasks.tasks.length
-                        }
-                    }}
-                    metas={{
-                        title: {
-                            search: false,
-                            render: (_, row) => <Text>{row.idf}</Text>
-                        },
-                        subTitle: {
-                            title: '类别',
-                            render: (_, row) => {
-                                return <Space size={0}>
-                                    {getTaskTypeDesc(row.status)}
-                                </Space>
-                            },
-                            valueType: 'select',
-                            valueEnum: TaskTypeMap,
-                        },
-                        extra: {
-                            render: (_: any, row: { createTime: number; id: any; status: any; }) => {
-                                return <Space direction={'vertical'}>
-                                    <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
-                                    <a style={{float: 'right'}} onClick={() => {
-                                        dropTask({
-                                            taskId: row.id
-                                        }).then(() => {
-                                            // @ts-ignore
-                                            taskListRef.current?.reload()
-                                        })
-                                    }}>{row.status ? '删除' : '终止'}</a>
-                                </Space>
-                            },
-                            search: false,
-                        },
-                        content: {
-                            search: false,
-                            render: (_, row) => getTaskContent(row)
-                        },
-                    }}
-                />
+            // case 'algo':
+            //     const getAlgoContent = (algo: Graph.Algo) => {
+            //         const onFinish = async (params: any) => {
+            //             //TODO:DELETE
+            //             console.log(params)
+            //             const pairs: Graph.Param[] = []
+            //             for (let k in params) {
+            //                 const type = algo.params!.find(p => p.key === k)!.type
+            //                 switch (type) {
+            //                     case ParamType.Int:
+            //                     case ParamType.Double:
+            //                         pairs.push({type: type, key: k, value: params[k].toString()})
+            //                         break
+            //                     case ParamType.StringList:
+            //                     case ParamType.DoubleList:
+            //                         pairs.push({type: type, key: k, listValue: params[k].toString()})
+            //                 }
+            //             }
+            //             return await algoExec({
+            //                 graphId: id,
+            //                 algoId: algo.id!,
+            //                 params: pairs
+            //             }).then(() => {
+            //                 message.success('算法已提交')
+            //                 setExtKeysAlgo([])
+            //                 setTab('task')
+            //                 return true
+            //             })
+            //         }
+            //         // 设置算法的初始值
+            //         const initValues: any = {}
+            //         algo.params?.forEach(p => {
+            //             if (p.initValue) {
+            //                 initValues[p.key] = p.initValue
+            //             }
+            //         })
+            //         const getAlgoParamLabel = (p: Graph.AlgoParam) => <Tooltip title={p.keyDesc}>
+            //             <span>{p.key}</span>
+            //         </Tooltip>
+            //         return <Space direction={'vertical'}>
+            //             <Text type={'secondary'}>{algo.desc}</Text>
+            //             <Divider/>
+            //             <ProForm
+            //                 onFinish={onFinish}
+            //                 submitter={{
+            //                     searchConfig: {
+            //                         resetText: '重置',
+            //                         submitText: '执行',
+            //                     }
+            //                 }}
+            //                 initialValues={initValues}
+            //             >{
+            //                 algo.params?.map(p => {
+            //                         switch (p.type) {
+            //                             case ParamType.Int:
+            //                                 return <ProFormDigit name={p.key} fieldProps={{precision: 0}}
+            //                                                      label={getAlgoParamLabel(p)}
+            //                                                      max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
+            //                                                      min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
+            //                             case ParamType.Double:
+            //                                 return <ProFormDigit name={p.key} fieldProps={{precision: 4, step: 1e-4}}
+            //                                                      label={getAlgoParamLabel(p)}
+            //                                                      max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
+            //                                                      min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
+            //                             case ParamType.StringList:
+            //                             case ParamType.DoubleList:
+            //                                 return <ProFormSelect name={p.key} label={getAlgoParamLabel(p)}
+            //                                                       fieldProps={{mode: "tags"}}/>
+            //                         }
+            //                     }
+            //                 )}
+            //             </ProForm>
+            //         </Space>
+            //     }
+            //     return <ProList<Graph.Algo>
+            //         key='algoProList'
+            //         rowKey={(row) => row.id!}
+            //         style={{
+            //             height: '80vh',
+            //             overflowY: 'scroll',
+            //         }}
+            //         expandable={{
+            //             expandedRowKeys: extKeysAlgo, onExpandedRowsChange: (expandedKeys) => {
+            //                 // @ts-ignore
+            //                 setExtKeysAlgo(expandedKeys)
+            //             }
+            //         }}
+            //         search={{
+            //             filterType: 'light',
+            //         }}
+            //         request={
+            //             async (params = {time: Date.now()}) => {
+            //                 return {
+            //                     data: algos.filter((a: Graph.Algo) => !params.subTitle || a.type == params.subTitle),
+            //                     success: true,
+            //                     total: algos.length
+            //                 }
+            //             }}
+            //         metas={{
+            //             title: {
+            //                 dataIndex: "name",
+            //                 search: false,
+            //             },
+            //             subTitle: {
+            //                 title: '类别',
+            //                 render: (_, row) => {
+            //                     return <Space size={0}>
+            //                         {getAlgoTypeDesc(row.type)}
+            //                     </Space>
+            //                 },
+            //                 valueType: 'select',
+            //                 valueEnum: AlgoTypeMap,
+            //             },
+            //             description: {
+            //                 search: false,
+            //                 render: (_, row) => getAlgoContent(row)
+            //             },
+            //         }}
+            //     />
+            // case 'task':
+            //     const getTaskContent = (task: Graph.Task) => {
+            //         const sres = task.res
+            //         try {
+            //             if (!sres) {
+            //                 return
+            //             }
+            //             const res = JSON.parse(sres)
+            //             return <Space direction={"vertical"}>
+            //                 <Text>{algos.find((a: Graph.Algo) => a.id === res.algoId)?.name}</Text>
+            //                 <RankTable file={res.file}/>
+            //             </Space>
+            //         } catch (e) {
+            //             console.log(e)
+            //             return
+            //         }
+            //     }
+            //     return <ProList<Graph.Task>
+            //         key='taskProList'
+            //         itemLayout='vertical'
+            //         // @ts-ignore
+            //         actionRef={taskListRef}
+            //         rowKey='id'
+            //         style={{
+            //             height: '80vh',
+            //             overflowY: 'scroll',
+            //             overflowX: 'scroll'
+            //         }}
+            //         expandable={{
+            //             expandedRowKeys: extKeysTask, onExpandedRowsChange: (expandedKeys) => {
+            //                 // @ts-ignore
+            //                 setExtKeysTask(expandedKeys)
+            //             }
+            //         }}
+            //         search={{
+            //             filterType: 'light',
+            //         }}
+            //         request={async (params = {time: Date.now()}) => {
+            //             const tasks = await getGraphTasks({
+            //                 graphId: id
+            //             })
+            //             return {
+            //                 data: tasks.tasks?.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
+            //                 success: true,
+            //                 total: tasks.tasks.length
+            //             }
+            //         }}
+            //         metas={{
+            //             title: {
+            //                 search: false,
+            //                 render: (_, row) => <Text>{row.idf}</Text>
+            //             },
+            //             subTitle: {
+            //                 title: '类别',
+            //                 render: (_, row) => {
+            //                     return <Space size={0}>
+            //                         {getTaskTypeDesc(row.status)}
+            //                     </Space>
+            //                 },
+            //                 valueType: 'select',
+            //                 valueEnum: TaskTypeMap,
+            //             },
+            //             extra: {
+            //                 render: (_: any, row: { createTime: number; id: any; status: any; }) => {
+            //                     return <Space direction={'vertical'}>
+            //                         <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
+            //                         <a style={{float: 'right'}} onClick={() => {
+            //                             dropTask({
+            //                                 taskId: row.id
+            //                             }).then(() => {
+            //                                 // @ts-ignore
+            //                                 taskListRef.current?.reload()
+            //                             })
+            //                         }}>{row.status ? '删除' : '终止'}</a>
+            //                     </Space>
+            //                 },
+            //                 search: false,
+            //             },
+            //             content: {
+            //                 search: false,
+            //                 render: (_, row) => getTaskContent(row)
+            //             },
+            //         }}
+            //     />
         }
     }
     return <PageContainer header={{title: ''}} content={
