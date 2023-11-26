@@ -68,7 +68,9 @@ func (n *NebulaClientImpl) CreateGraph(graph int64, group *model.Group) error {
 		s := "CREATE TAG IF NOT EXISTS %v(%v);"
 		for i, attr := range node.NodeAttrs {
 			if common.Int642Bool(attr.Primary) {
-				stat += fmt.Sprintf("CREATE TAG INDEX IF NOT EXISTS %v_tag_index on %v(%v(10));", node.Name, node.Name, attr.Name)
+				// 主属性只能是 string
+				attr.Type = common.TypeString
+				s += fmt.Sprintf("CREATE TAG INDEX IF NOT EXISTS %v_tag_index on %v(%v(10));", node.Name, node.Name, attr.Name)
 			}
 			attrNames[i] = fmt.Sprintf("`%v` %v", attr.Name, common.Type2String(attr.Type))
 		}
