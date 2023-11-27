@@ -17,5 +17,6 @@ message KVTask {
   enum Status{
     New = 0;
     Finished = 1;
+    Err = 2;
   }
 }

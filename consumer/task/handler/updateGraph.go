@@ -22,10 +22,20 @@ const maxInsertNum = 100000
 func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	params, taskID := task.Params, task.Id
 	req := &types.UpdateGraphRequest{}
-	if err := jsonx.UnmarshalFromString(params, req); err != nil {
-		return "", err
-	}
+	_ = jsonx.UnmarshalFromString(params, req)
 	ctx := context.Background()
+	var size *model.Graph
+	defer func() {
+		_, err := config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
+			ID:      req.GraphID,
+			Status:  common.GraphStatusOK,
+			NumNode: size.NumNode,
+			NumEdge: size.NumEdge,
+		})
+		if err != nil {
+			logx.Errorf("[Task] fail to resume graph status, err: %v", err)
+		}
+	}()
 	group, err := config.MysqlClient.GetGroupByGraphId(ctx, req.GraphID)
 	if err != nil {
 		return "", err
@@ -170,22 +180,12 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	// 更新节点度数
 	_, err = config.NebulaClient.MultiIncNodesDeg(req.GraphID, degMap)
 	// 查询图原始大小，更新图大小
-	size, err := config.MysqlClient.GetGraphSizeByID(ctx, req.GraphID)
+	size, err = config.MysqlClient.GetGraphSizeByID(ctx, req.GraphID)
 	if err != nil {
 		return "", err
 	}
 	size.NumNode += int64(numNode)
 	size.NumEdge += int64(numEdge)
-
-	_, err = config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
-		ID:      req.GraphID,
-		Status:  common.GraphStatusOK,
-		NumNode: size.NumNode,
-		NumEdge: size.NumEdge,
-	})
-	if err != nil {
-		return "", err
-	}
 
 	resp := &types.GraphInfoReply{
 		Base: &types.BaseReply{

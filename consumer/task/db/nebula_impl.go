@@ -173,17 +173,35 @@ func (n *NebulaClientImpl) MultiIncNodesDeg(graph int64, degMap map[int64]int64)
 		return 0, err
 	}
 	defer func() { session.Release() }()
-	stat := "USE G%v;UPDATE VERTEX ON base %v SET deg = deg + %v;"
-	logx.Infof("[NEBULA] inc nodes deg start, cnt = %v", len(degMap))
+	stat := fmt.Sprintf("USE G%v;", graph)
+	u := "UPDATE VERTEX ON base %v SET deg = deg + %v;"
+	cnt := 0
+	update := ""
 	for id, d := range degMap {
-		s := fmt.Sprintf(stat, graph, id, d)
-		res, err := session.Execute(s)
+		update += fmt.Sprintf(u, id, d)
+		cnt += 1
+		if cnt == n.Batch {
+			res, err := session.Execute(stat + update)
+			if err != nil {
+				return 0, err
+			}
+			if !res.IsSucceed() {
+				return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat+update)
+			}
+			logx.Infof("[NEBULA] inc nodes deg, batch = %v", cnt)
+			cnt = 0
+			update = ""
+		}
+	}
+	if cnt > 0 {
+		res, err := session.Execute(stat + update)
 		if err != nil {
 			return 0, err
 		}
 		if !res.IsSucceed() {
-			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), s)
+			return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat+update)
 		}
+		logx.Infof("[NEBULA] inc nodes deg, batch = %v", cnt)
 	}
 	logx.Infof("[NEBULA] inc nodes deg fin, cnt = %v", len(degMap))
 	return len(degMap), nil

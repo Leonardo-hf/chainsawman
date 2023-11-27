@@ -128,12 +128,13 @@ create table if not exists graph.edges
 INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (1, 2, "normal", "标准边");
 
 INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (2, 3, "depend", "依赖");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (3, 3, "belong2", "属于");
 
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (3, 4, "depend", "依赖");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (4, 4, "maintain", "维护");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (5, 4, "contribute", "贡献");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (6, 4, "host", "主持");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (7, 4, "belong2", "属于");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (4, 4, "depend", "依赖");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (5, 4, "maintain", "维护");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (6, 4, "contribute", "贡献");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (7, 4, "host", "主持");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (8, 4, "belong2", "属于");
 
 
 create table if not exists graph.edges_attr
@@ -150,7 +151,7 @@ create table if not exists graph.edges_attr
             on update cascade on delete cascade
 );
 
-INSERT INTO graph.edges_attr(edgeID, name, `desc`, type, `primary`) VALUES(5, "commits", "贡献量", 2, 1);
+INSERT INTO graph.edges_attr(edgeID, name, `desc`, type, `primary`) VALUES(6, "commits", "贡献量", 2, 1);
 
 create table if not exists graph.tasks
 (

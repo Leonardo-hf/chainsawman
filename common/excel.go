@@ -16,7 +16,7 @@ import (
 )
 
 var convErr = func(column string) error {
-	return fmt.Errorf("[Excel] cannot find or parse target column, err = %v", column)
+	return fmt.Errorf("cannot find or parse target column, err = %v", column)
 }
 
 type strMap map[string]string
@@ -228,5 +228,5 @@ func NewExcelParser(content io.Reader) (ExcelParser, error) {
 	} else {
 		return p, nil
 	}
-	return nil, fmt.Errorf("[Excel] only suppot csv, xls and xlsx, err=%v", merr)
+	return nil, fmt.Errorf("only suppot csv, xls and xlsx, err=%v", merr)
 }

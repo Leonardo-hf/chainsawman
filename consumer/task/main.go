@@ -51,7 +51,21 @@ func main() {
 			retried, _ := asynq.GetRetryCount(ctx)
 			maxRetry, _ := asynq.GetMaxRetry(ctx)
 			if retried >= maxRetry {
-				logx.Errorf("retry exhausted for task %s: %w", task.Type, err)
+				// 任务执行失败，写入任务状态
+				t := &model.KVTask{}
+				_ = proto.Unmarshal(task.Payload(), t)
+				t.Status = model.KVTask_Err
+				t.UpdateTime = time.Now().UTC().Unix()
+				_ = config.RedisClient.UpsertTask(ctx, t)
+				if common.TaskIdf(t.Idf).Persistent {
+					taskIDInt, _ := strconv.ParseInt(t.Id, 10, 64)
+					_, err := config.MysqlClient.UpdateTaskByID(ctx, &model.Task{
+						ID:     taskIDInt,
+						Status: int64(t.Status),
+					})
+					logx.Errorf("[Task] fail to save task %s res, err: %v", task.Type(), err)
+				}
+				logx.Errorf("[Task] retry exhausted for task %s, err: %v", task.Type(), err)
 			}
 		}
 		srv := asynq.NewServer(

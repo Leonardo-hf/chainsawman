@@ -4,7 +4,7 @@ import {RunTimeLayoutConfig} from "@umijs/max";
 import Graph from "./pages/Graph"
 
 import {algoGetAll, getAllGraph} from "./services/graph/graph";
-import {setInit, parseGroups} from "@/models/global";
+import {parseGroups, setInit} from "@/models/global";
 import {message} from "antd";
 
 let newRoutes: any[] = []
