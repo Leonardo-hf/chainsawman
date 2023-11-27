@@ -24,7 +24,7 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	req := &types.UpdateGraphRequest{}
 	_ = jsonx.UnmarshalFromString(params, req)
 	ctx := context.Background()
-	var size *model.Graph
+	size := &model.Graph{}
 	defer func() {
 		_, err := config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
 			ID:      req.GraphID,
@@ -179,6 +179,9 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	}
 	// 更新节点度数
 	_, err = config.NebulaClient.MultiIncNodesDeg(req.GraphID, degMap)
+	if err != nil {
+		return "", err
+	}
 	// 查询图原始大小，更新图大小
 	size, err = config.MysqlClient.GetGraphSizeByID(ctx, req.GraphID)
 	if err != nil {
