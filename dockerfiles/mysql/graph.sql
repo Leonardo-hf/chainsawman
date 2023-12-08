@@ -85,6 +85,8 @@ INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (1, "
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (2, "artifact", "工件", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (2, "desc", "说明", 0, 0);
+INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (2, "topic", "主题", 0, 0);
+
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (3, "idf", "标志符", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (3, "artifact", "工件", 0, 0);
@@ -93,6 +95,7 @@ INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (3, "
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (4, "artifact", "工件", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (4, "desc", "说明", 0, 0);
+INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (4, "topic", "主题", 0, 0);
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (5, "idf", "标志符", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (5, "artifact", "工件", 0, 0);
@@ -128,12 +131,13 @@ create table if not exists graph.edges
 INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (1, 2, "normal", "标准边");
 
 INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (2, 3, "depend", "依赖");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (3, 3, "belong2", "属于");
 
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (3, 4, "depend", "依赖");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (4, 4, "maintain", "维护");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (5, 4, "contribute", "贡献");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (6, 4, "host", "主持");
-INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (7, 4, "belong2", "属于");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (4, 4, "depend", "依赖");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (5, 4, "maintain", "维护");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (6, 4, "contribute", "贡献");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (7, 4, "host", "主持");
+INSERT INTO graph.edges(id, groupID, name, `desc`) VALUES (8, 4, "belong2", "属于");
 
 
 create table if not exists graph.edges_attr
@@ -150,7 +154,7 @@ create table if not exists graph.edges_attr
             on update cascade on delete cascade
 );
 
-INSERT INTO graph.edges_attr(edgeID, name, `desc`, type, `primary`) VALUES(5, "commits", "贡献量", 2, 1);
+INSERT INTO graph.edges_attr(edgeID, name, `desc`, type, `primary`) VALUES(6, "commits", "贡献量", 2, 1);
 
 create table if not exists graph.tasks
 (
@@ -221,6 +225,8 @@ VALUES (12, "comprehensive impact", "识别综合的软件卡脖子风险，对�
 INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
 VALUES (13, "strangle risk on high impact", "基于高影响力软件识别算法获得高影响力软件名单并识别综合的卡脖子风险", 4, 0, "s3a://lib/strangleRiskOnImpact-latest.jar", "applerodite.Main");
 
+INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
+VALUES (14, "hhi", "软件领域垄断程度", 3, 2, "s3a://lib/hhi-latest.jar", "applerodite.Main");
 
 create table if not exists graph.algos_param
 (

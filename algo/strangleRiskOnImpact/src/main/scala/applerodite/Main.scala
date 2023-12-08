@@ -7,7 +7,7 @@ import applerodite.util.CSVUtil
 import com.alibaba.fastjson.{JSON, JSONObject}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{Dataset, Encoders, Row}
 
 import scala.collection.mutable.ListBuffer
 
@@ -37,21 +37,20 @@ object Main {
         var df = algo.apply(i).main(param).limit(limit)
         // 变成正值
         var min = df.collect().map(r => r.getDouble(3)).min
-        if (min < 0) {
-          min = -min + 1
-        } else {
-          min = 1
-        }
+        min = math.max(1, -min + 1)
         val rowEncoder = RowEncoder(df.schema)
+        // 分数取对数
         df = df.map(r => Row.apply(r.get(0), r.get(1), r.get(2), math.log(r.getDouble(3) + min) / math.log(2)))(rowEncoder)
-        val dfList = df.collect()
-        val v = dfList.map(r => r.getDouble(3)).sum / dfList.length
-        df = df.map(r => Row.apply(r.get(0), r.get(1), r.get(2), r.getDouble(3) * weights.apply(i) / v))(rowEncoder)
+        // (score - min) / max
+        val dfList = df.map(r => r.getDouble(3))(Encoders.scalaDouble).collect()
+        val maxScore = dfList.max
+        val minScore = dfList.min
+        df = df.map(r => Row.apply(r.get(0), r.get(1), r.get(2), (r.getDouble(3) - minScore) / maxScore * weights.apply(i)))(rowEncoder)
         res = res.join(df, Seq(NODE_ID_COL, ARTIFACT_COL, VERSION_COL), joinType = "left_outer")
       }
     }
     // 求和
-    res = res.map(r => Row.apply(r.get(0), r.get(1), r.get(2), getDouble(r, 3) + getDouble(r, 4) + getDouble(r, 5) + getDouble(r, 6)))(RowEncoder(SCHEMA_SOFTWARE))
+    res = res.map(r => Row.apply(r.get(0), r.get(1), r.get(2), (3 until 7).map(i => getDouble(r, i)).sum))(RowEncoder(SCHEMA_SOFTWARE))
     res.printSchema()
     res.orderBy(desc(AlgoConstants.SCORE_COL)).select(ARTIFACT_COL).distinct().collect().map(r => r.getString(0))
   }

@@ -40,7 +40,6 @@ services:
       - "./mysql/my.cnf:/etc/mysql/conf.d/my.cnf"                # mysql配置文件
       - "./mysql/graph.sql:/docker-entrypoint-initdb.d/g.sql"    # 数据库初始化SQL
       - "./mysql/data:/var/lib/mysql"                            # 持久化数据库文件
-      - "./mysql/mysql-files:/var/lib/mysql-files"
     environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
@@ -270,7 +269,7 @@ services:
         limits:
           cpus: "2.00"
           memory: 2G
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+    environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
       CHS_ENV: "docker-compose"
@@ -279,6 +278,7 @@ services:
       - mysql-svc
       - nebula-graphd-svc
       - livy
+      - redis-svc
   task2:
     image: applerodite/chs-task:latest                           # 镜像"applerodite/chs-task:latest"
     container_name: task2
@@ -297,11 +297,12 @@ services:
       - mysql-svc
       - nebula-graphd-svc
       - livy
+      - redis-svc
   graph-svc:
     image: applerodite/chs-graph:latest                          # 镜像"applerodite/chs-graph:latest"
     container_name: graph-svc
     restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+    environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
       CHS_ENV: "pre"
@@ -309,6 +310,7 @@ services:
       - minio-svc
       - mysql-svc
       - nebula-graphd-svc
+      - redis-svc
       - task1
       - task2
     ports:
@@ -317,7 +319,7 @@ services:
     image: applerodite/chs-sca:latest                            # 镜像"applerodite/chs-sca:latest"
     container_name: sca-svc
     restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+    environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
       FLASK_CHS_ENV: "pre"
@@ -329,7 +331,7 @@ services:
     image: applerodite/chs-front:latest                          # 镜像"applerodite/chs-front:latest"
     container_name: front
     restart: unless-stopped                                      # 指定容器退出后的重启策略为始终重启，但是不考虑在Docker守护进程启动时就已经停止了的容器
-    environment:                                                 # 设置环境变量,相当于docker run命令中的-e
+    environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai
       LANG: en_US.UTF-8
       CHS_ENV: "pre"

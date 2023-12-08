@@ -24,6 +24,7 @@
         <module>ecology</module>
         <module>comprehensive</module>
         <!--> 卡脖子软件算法 <-->
+        <module>hhi</module>
         <module>strangleRisk</module>
         <module>strangleRiskOnImpact</module>
     </modules>

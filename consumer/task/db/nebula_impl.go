@@ -180,7 +180,8 @@ func (n *NebulaClientImpl) MultiIncNodesDeg(graph int64, degMap map[int64]int64)
 	for id, d := range degMap {
 		update += fmt.Sprintf(u, id, d)
 		cnt += 1
-		if cnt == n.Batch {
+		//TODO: 增加 batch size
+		if cnt == 100 {
 			res, err := session.Execute(stat + update)
 			if err != nil {
 				return 0, err

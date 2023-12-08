@@ -7,7 +7,7 @@ Nebula:
   Port: 9669
   Username: "root"
   Passwd: "nebula"
-  Batch: 1000
+  Batch: 512
 Redis:
   Addr: "localhost:6379"
   Expired: 3600

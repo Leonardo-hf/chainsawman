@@ -91,12 +91,12 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 			if d, ok := degMap[src]; ok {
 				degMap[src] = d + 1
 			} else {
-				degMap[src] = 0
+				degMap[src] = 1
 			}
 			if d, ok := degMap[tgt]; ok {
 				degMap[tgt] = d + 1
 			} else {
-				degMap[tgt] = 0
+				degMap[tgt] = 1
 			}
 			edgeRecords = append(edgeRecords, r)
 			if len(edgeRecords) > maxInsertNum {

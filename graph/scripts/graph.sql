@@ -85,6 +85,8 @@ INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (1, "
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (2, "artifact", "工件", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (2, "desc", "说明", 0, 0);
+INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (2, "topic", "主题", 0, 0);
+
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (3, "idf", "标志符", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (3, "artifact", "工件", 0, 0);
@@ -93,6 +95,7 @@ INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (3, "
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (4, "artifact", "工件", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (4, "desc", "说明", 0, 0);
+INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (4, "topic", "主题", 0, 0);
 
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (5, "idf", "标志符", 0, 1);
 INSERT INTO graph.nodes_attr(nodeID, name, `desc`, type, `primary`) VALUES (5, "artifact", "工件", 0, 0);
@@ -222,6 +225,8 @@ VALUES (12, "comprehensive impact", "识别综合的软件卡脖子风险，对�
 INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
 VALUES (13, "strangle risk on high impact", "基于高影响力软件识别算法获得高影响力软件名单并识别综合的卡脖子风险", 4, 0, "s3a://lib/strangleRiskOnImpact-latest.jar", "applerodite.Main");
 
+INSERT INTO graph.algos(id, name, `desc`, groupId, type, jarPath, mainClass)
+VALUES (14, "hhi", "软件领域垄断程度", 3, 2, "s3a://lib/hhi-latest.jar", "applerodite.Main");
 
 create table if not exists graph.algos_param
 (
