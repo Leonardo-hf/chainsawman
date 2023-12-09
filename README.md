@@ -78,12 +78,10 @@
 
   > validate data interface of graph
 
-* Mysql 存在慢查询问题
+* Mysql 存在慢查询问题，可能是外键设置过多的原因
 
   > solve problems of slow query in mysql
 
 * nebula 可能需要全文索引
 
   > use full text index to make query nodes quicker
-
-* 

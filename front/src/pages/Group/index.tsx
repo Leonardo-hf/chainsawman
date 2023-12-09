@@ -103,7 +103,7 @@ const Group: React.FC = () => {
         </ProDescriptions>
     }
 
-    // 创建策略组的drawer
+    // 创建图结构的drawer
     const getCreateGroupModal = () => {
         // form提交处理函数
         const handleCreateGroup = async (vs: FormData) => {
@@ -130,7 +130,7 @@ const Group: React.FC = () => {
                     })
                 }
             }
-            // 插入继承自父策略组的节点和边
+            // 插入继承自父图结构的节点和边
             let parentGroup = groups.find(g=>g.id == vs.parentId)
             while (parentGroup?.id !== RootGroupID){
                 nodeTypeList.push(...parentGroup!.nodeTypeList)
@@ -144,7 +144,7 @@ const Group: React.FC = () => {
                 nodeTypeList: nodeTypeList,
                 parentId: vs.parentId ? vs.parentId : RootGroupID
             }).then(() => {
-                message.success('策略组创建成功！')
+                message.success('图结构创建成功！')
                 window.location.reload()
                 return true
             }).catch(e => {
@@ -159,7 +159,7 @@ const Group: React.FC = () => {
         }
         const [form] = Form.useForm<FormData>()
         return <DrawerForm<FormData>
-            title='新建策略组'
+            title='新建图结构'
             resize={{
                 maxWidth: window.innerWidth * 0.8,
                 minWidth: window.innerWidth * 0.6,
@@ -168,7 +168,7 @@ const Group: React.FC = () => {
             trigger={
                 <Button type='primary'>
                     <PlusOutlined/>
-                    新建策略组
+                    新建图结构
                 </Button>
             }
             autoFocusFirstInput
@@ -177,10 +177,10 @@ const Group: React.FC = () => {
             }}
             onFinish={handleCreateGroup}
         >
-            <ProFormGroup title='策略组配置'>
+            <ProFormGroup title='图结构配置'>
                 <ProFormText name='name' label='名称' rules={[{required: true}]}/>
                 <ProFormText name='desc' label='描述' rules={[{required: true}]}/>
-                <ProFormSelect name='parentId' label={<Tooltip title={'子策略组将继承父策略组的全部节点与边'}><span>父策略组</span></Tooltip>}
+                <ProFormSelect name='parentId' label={<Tooltip title={'子图结构将继承父图结构的全部节点与边'}><span>父图结构</span></Tooltip>}
                                options={genGroupOptions(groups)} initialValue={1}/>
             </ProFormGroup>
             <ProFormList
@@ -336,7 +336,7 @@ const Group: React.FC = () => {
     return <PageContainer>
         <ProList<TreeNodeGroup>
             rowKey="id"
-            headerTitle="策略组"
+            headerTitle="图结构"
             toolBarRender={() => {
                 return [
                     getCreateGroupModal(),
@@ -353,7 +353,7 @@ const Group: React.FC = () => {
                     render: (_, g) => {
                         return <Popconfirm
                             title="确认删除？"
-                            description="将移除该策略组及组下所有图谱"
+                            description="将移除应用该图结构及子结构的所有图谱"
                             icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
                             onConfirm={() => {
                                 dropGroup({groupId: g.id}).then(_ => window.location.reload())

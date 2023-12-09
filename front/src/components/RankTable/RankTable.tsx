@@ -8,10 +8,13 @@ import {Space} from "antd";
 
 interface Props {
     file: string
+    pageSize?: number
 }
 
 const RankTable: React.FC<Props> = (props) => {
     const {file} = props;
+    const pageSize = props.pageSize ? props.pageSize : 10
+
     const [fileURL, setFileURL] = useState<string>()
     const [next, setNext] = useState<Promise<Parser>>()
     const [headers, setHeaders] = useState<ProColumns[]>([])
@@ -26,7 +29,6 @@ const RankTable: React.FC<Props> = (props) => {
             download: true,
             header: true,
             step: (results, parser) => {
-                console.log(results)
                 // 第一次读取时，设置 headers
                 if (rowsRef.current.length === 0) {
                     console.log(results.meta.fields)
@@ -39,10 +41,12 @@ const RankTable: React.FC<Props> = (props) => {
                         }
                     }))
                 }
-                rowsRef.current = [...rowsRef.current, results.data]
-                setRows(rowsRef.current)
+                if (!results.errors.length) {
+                    rowsRef.current = [...rowsRef.current, results.data]
+                    setRows(rowsRef.current)
+                }
 
-                if (rowsRef.current.length % 10 === 0) {
+                if (rowsRef.current.length % pageSize === 0) {
                     parser.pause()
                     const nextPreview = new Promise<Parser>(function (resolve) {
                         resolve(parser)

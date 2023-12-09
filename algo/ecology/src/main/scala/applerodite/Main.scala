@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SOFTWARE}
+import applerodite.config.AlgoConstants.SCHEMA_SOFTWARE
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
@@ -13,8 +13,8 @@ import scala.collection.mutable.ListBuffer
 object Main {
 
   def setCI(g: Graph[Int, None.type], r: Int): Graph[Int, None.type] = {
-    // 准备入度
-    var cGraph = g.outerJoinVertices(g.inDegrees) {
+    // 准备度数
+    var cGraph = g.outerJoinVertices(g.degrees) {
       (_, _, deg) => (0, deg.getOrElse(0), ListBuffer[List[(VertexId, Int)]]())
     }
 
@@ -59,63 +59,22 @@ object Main {
     graph.cache()
 
     val spark = ClientConfig.spark
-
-    val r = 2
+    val r = 3
     val res = ListBuffer[Row]()
-    val vertices = graph.vertices
-    for (vertex <- vertices) {
-      val vid = vertex._1
-      var score: Double = 0.0
-      // 获得vid相关子图
-      var preVGraph: Graph[Int, None.type ] = null
-      var vGraph = graph.mapVertices((v, _) => {
-        if (vid == v) {
-          1
-        } else {
-          0
-        }
-      })
-      vGraph.cache()
 
+    var preVGraph: Graph[Int, None.type] = null
+    var vGraph = setCI(graph.mapVertices((_, _) => 0), r)
+    vGraph.cache()
+
+    while (math.pow(vGraph.vertices.map(v => v._2).sum() / vGraph.degrees.map(d => d._2).sum(), 1.0 / (r + 1)) > 1) {
       preVGraph = vGraph
-      vGraph = Pregel(vGraph, initialMsg = 0, maxIterations = Int.MaxValue, activeDirection = EdgeDirection.In)(
-        (_, attr, msg) => Math.max(attr, msg),
-        edge => {
-          if (edge.dstAttr > edge.srcAttr) {
-            Iterator((edge.srcId, edge.dstAttr))
-          } else {
-            Iterator.empty
-          }
-        },
-        (a, b) => math.max(a, b)
-      ).subgraph(vpred = (_, s) => s == 1)
-
+      val (maxVertex, score) = vGraph.vertices.max()(Ordering.by[(VertexId, Int), Double](_._2))
+      val meta = graph.vertices.filter(v => v._1 == maxVertex).first()._2
+      res.append(Row.apply(maxVertex, meta.Artifact, meta.Version, score))
+      vGraph = setCI(vGraph.subgraph(epred = e => e.srcId != maxVertex && e.dstId != maxVertex), r)
       vGraph.cache()
       preVGraph.unpersistVertices(blocking = false)
       preVGraph.edges.unpersist(blocking = false)
-      preVGraph = vGraph
-
-      vGraph = setCI(vGraph, r)
-
-      vGraph.cache()
-      preVGraph.unpersistVertices(blocking = false)
-      preVGraph.edges.unpersist(blocking = false)
-
-      while (math.pow(vGraph.vertices.map(v => v._2).sum() / vGraph.inDegrees.map(d => d._2).sum(), 1.0 / (r + 1)) > 1) {
-        preVGraph = vGraph
-        val (maxVertex, _) = vGraph.vertices.max()(Ordering.by[(VertexId, Int), Double](_._2))
-        score += 1.0
-        vGraph = vGraph.subgraph(epred = e => e.srcId != maxVertex && e.dstId != maxVertex)
-        vGraph.cache()
-        preVGraph.unpersistVertices(blocking = false)
-        preVGraph.edges.unpersist(blocking = false)
-        preVGraph = vGraph
-        vGraph = setCI(vGraph, r)
-        vGraph.cache()
-        preVGraph.unpersistVertices(blocking = false)
-        preVGraph.edges.unpersist(blocking = false)
-      }
-      res.append(Row.apply(vid, vertex._2.Artifact, vertex._2.Version, score))
     }
 
     val df = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(res), SCHEMA_SOFTWARE).orderBy(desc(AlgoConstants.SCORE_COL))

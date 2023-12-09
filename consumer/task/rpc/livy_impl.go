@@ -27,7 +27,6 @@ func InitLivyClient(cfg *LivyConfig) AlgoService {
 
 func (l *livyClient) SubmitAlgo(jar string, entryPoint string, args map[string]interface{}) (string, error) {
 	argsJSON, err := jsonx.MarshalToString(args)
-	//argsJSON = fmt.Sprintf("{%v}", strings.Replace(argsJSON[1:len(argsJSON)-1], "\"", "\\\"", -1))
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +35,12 @@ func (l *livyClient) SubmitAlgo(jar string, entryPoint string, args map[string]i
 		ClassName: entryPoint,
 		Args:      []string{argsJSON},
 		Conf: map[string]string{
-			"spark.driver.extraJavaOptions": "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
+			"spark.executor.extraJavaOptions": "-Dfile.encoding=utf-8",
+			"spark.driver.extraJavaOptions": "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED " +
+				"--add-opens=java.base/java.nio=ALL-UNNAMED " +
+				"--add-opens=java.base/java.util=ALL-UNNAMED " +
+				"--add-opens=java.base/sun.nio.ch=ALL-UNNAMED " +
+				"-Dfile.encoding=utf-8",
 		},
 	})
 	res, err := batch.Do()

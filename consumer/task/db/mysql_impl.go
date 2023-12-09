@@ -25,11 +25,6 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 	return &MysqlClientImpl{}
 }
 
-func (c *MysqlClientImpl) GetGraphSizeByID(ctx context.Context, id int64) (*model.Graph, error) {
-	g := query.Graph
-	return g.WithContext(ctx).Where(g.ID.Eq(id)).First()
-}
-
 func (c *MysqlClientImpl) HasTaskByID(ctx context.Context, id int64) (bool, error) {
 	t := query.Task
 	cnt, err := t.WithContext(ctx).Where(t.ID.Eq(id)).Count()
@@ -49,8 +44,8 @@ func (c *MysqlClientImpl) UpdateGraphByID(ctx context.Context, graph *model.Grap
 	g := query.Graph
 	ret, err := g.WithContext(ctx).Where(g.ID.Eq(graph.ID)).Updates(map[string]interface{}{
 		"status":  graph.Status,
-		"numNode": graph.NumNode,
-		"numEdge": graph.NumEdge,
+		"numNode": gorm.Expr("numNode + ?", graph.NumNode),
+		"numEdge": gorm.Expr("numEdge + ?", graph.NumEdge),
 	})
 	return ret.RowsAffected, err
 }

@@ -67,7 +67,7 @@ const HomePage: React.FC = () => {
                 })}
                 rules={[{required: true}]}
                 name='groupId'
-                label='策略组'
+                label='图结构'
             />
             <ProFormDependency name={["groupId"]} key="d1">
                 {({groupId}) => {

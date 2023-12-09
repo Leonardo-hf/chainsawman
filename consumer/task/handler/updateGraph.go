@@ -24,13 +24,13 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	req := &types.UpdateGraphRequest{}
 	_ = jsonx.UnmarshalFromString(params, req)
 	ctx := context.Background()
-	size := &model.Graph{}
+	numNode, numEdge := 0, 0
 	defer func() {
 		_, err := config.MysqlClient.UpdateGraphByID(ctx, &model.Graph{
 			ID:      req.GraphID,
 			Status:  common.GraphStatusOK,
-			NumNode: size.NumNode,
-			NumEdge: size.NumEdge,
+			NumNode: int64(numNode),
+			NumEdge: int64(numEdge),
 		})
 		if err != nil {
 			logx.Errorf("[Task] fail to resume graph status, err: %v", err)
@@ -41,7 +41,6 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	// XLS/XLSX 最大行数有限，尽管需要全部读入内存，但不会造成问题，CSV 则可能过大，但可以流式读取，分批插入
-	numNode, numEdge := 0, 0
 	// 读所有边文件
 	degMap := make(map[int64]int64)
 	for _, edgeType := range req.EdgeFileList {
@@ -182,14 +181,6 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// 查询图原始大小，更新图大小
-	size, err = config.MysqlClient.GetGraphSizeByID(ctx, req.GraphID)
-	if err != nil {
-		return "", err
-	}
-	size.NumNode += int64(numNode)
-	size.NumEdge += int64(numEdge)
-
 	resp := &types.GraphInfoReply{
 		Base: &types.BaseReply{
 			TaskID:     taskID,
@@ -198,8 +189,8 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		Graph: &types.Graph{
 			Id:      req.GraphID,
 			GroupID: group.ID,
-			NumNode: size.NumNode,
-			NumEdge: size.NumEdge,
+			NumNode: int64(numNode),
+			NumEdge: int64(numEdge),
 		},
 	}
 	return jsonx.MarshalToString(resp)

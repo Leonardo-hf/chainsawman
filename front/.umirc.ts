@@ -70,7 +70,7 @@ export default defineConfig({
             ]
         },
         {
-            name: '策略组',
+            name: '图结构',
             path: '/group',
             component: './Group'
         },

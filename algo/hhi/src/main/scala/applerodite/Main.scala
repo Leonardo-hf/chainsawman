@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON
 import org.apache.spark.graphx.{Edge, Graph, VertexRDD}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 object Main {
 
@@ -50,10 +50,12 @@ object Main {
       hhi = graph.outerJoinVertices(graph.degrees) {
         (_, t, d) => (t, d.getOrElse(0))
       }.vertices.map(v => v._2).groupBy(vd => vd._1).map(vds =>
-        Row.apply(vds._1, f"${100 * vds._2.map(vd => math.pow(vd._2, 2)).sum / math.pow(vds._2.map(vd => vd._2).sum, 2)}%.2f" + "%")
+        (vds._1, 100 * vds._2.map(vd => math.pow(vd._2, 2)).sum / math.pow(vds._2.map(vd => vd._2).sum, 2))
+      ).sortBy(r => r._2, ascending = false).map(r =>
+        Row.apply(r._1, f"${r._2}%.2f" + "%")
       )
     }
-    val df = spark.sqlContext.createDataFrame(hhi, SCHEMA_HHI).orderBy(AlgoConstants.SCORE_COL)
+    val df = spark.sqlContext.createDataFrame(hhi, SCHEMA_HHI)
     ClientConfig.ossClient.upload(name = target, content = CSVUtil.df2CSV(df))
     spark.stop()
   }
