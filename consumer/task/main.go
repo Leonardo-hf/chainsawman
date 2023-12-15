@@ -7,7 +7,6 @@ import (
 	"chainsawman/consumer/task/model"
 	"github.com/google/uuid"
 	"os"
-	"strconv"
 	"time"
 
 	"context"
@@ -29,7 +28,6 @@ func initHandleTable() {
 	handleTable[common.GraphNeighbors] = &handler.GetNeighbors{}
 	handleTable[common.GraphNodes] = &handler.GetNodes{}
 	handleTable[common.GraphCreate] = &handler.CreateGraph{}
-	handleTable[common.AlgoExec] = &handler.AlgoExec{}
 }
 
 func main() {
@@ -57,14 +55,6 @@ func main() {
 				t.Status = model.KVTask_Err
 				t.UpdateTime = time.Now().UTC().Unix()
 				_ = config.RedisClient.UpsertTask(ctx, t)
-				if common.TaskIdf(t.Idf).Persistent {
-					taskIDInt, _ := strconv.ParseInt(t.Id, 10, 64)
-					_, err := config.MysqlClient.UpdateTaskByID(ctx, &model.Task{
-						ID:     taskIDInt,
-						Status: int64(t.Status),
-					})
-					logx.Errorf("[Task] fail to save task %s res, err: %v", task.Type(), err)
-				}
 				logx.Errorf("[Task] retry exhausted for task %s, err: %v", task.Type(), err)
 			}
 		}
@@ -114,14 +104,6 @@ func handle(ctx context.Context, task *model.KVTask, h handler.Handler) error {
 	task.UpdateTime = time.Now().UTC().Unix()
 	if err = config.RedisClient.UpsertTask(ctx, task); err != nil {
 		return err
-	}
-	if common.TaskIdf(task.Idf).Persistent {
-		taskIDInt, _ := strconv.ParseInt(task.Id, 10, 64)
-		_, err = config.MysqlClient.UpdateTaskByID(ctx, &model.Task{
-			ID:     taskIDInt,
-			Status: int64(task.Status),
-			Result: res,
-		})
 	}
 	return err
 }

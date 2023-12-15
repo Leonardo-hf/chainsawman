@@ -40,12 +40,11 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.GetAllGraphReply, err erro
 		nodes, edges := make([]*types.Structure, 0), make([]*types.Structure, 0)
 		for _, n := range group.Nodes {
 			nodeAttrs := make([]*types.Attr, 0)
-			for _, a := range n.NodeAttrs {
+			for _, a := range n.Attrs {
 				nodeAttrs = append(nodeAttrs, &types.Attr{
-					Name:    a.Name,
-					Desc:    a.Desc,
-					Type:    a.Type,
-					Primary: common.Int642Bool(a.Primary),
+					Name: a.Name,
+					Desc: a.Desc,
+					Type: a.Type,
 				})
 			}
 			nodes = append(nodes, &types.Structure{
@@ -58,12 +57,11 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.GetAllGraphReply, err erro
 		}
 		for _, n := range group.Edges {
 			edgeAttrs := make([]*types.Attr, 0)
-			for _, a := range n.EdgeAttrs {
+			for _, a := range n.Attrs {
 				edgeAttrs = append(edgeAttrs, &types.Attr{
-					Name:    a.Name,
-					Desc:    a.Desc,
-					Type:    a.Type,
-					Primary: common.Int642Bool(a.Primary),
+					Name: a.Name,
+					Desc: a.Desc,
+					Type: a.Type,
 				})
 			}
 			edges = append(edges, &types.Structure{

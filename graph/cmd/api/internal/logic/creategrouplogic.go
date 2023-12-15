@@ -33,40 +33,38 @@ func (l *CreateGroupLogic) CreateGroup(req *types.CreateGroupRequest) (resp *typ
 	}
 	nodes := make([]*model.Node, 0)
 	for _, n := range req.NodeTypeList {
-		nodeAttrs := make([]*model.NodesAttr, 0)
+		nodeAttrs := make([]*model.NodeAttr, 0)
 		for _, a := range n.Attrs {
-			nodeAttrs = append(nodeAttrs, &model.NodesAttr{
-				Name:    a.Name,
-				Desc:    a.Desc,
-				Type:    a.Type,
-				Primary: common.Bool2Int64(a.Primary),
+			nodeAttrs = append(nodeAttrs, &model.NodeAttr{
+				Name: a.Name,
+				Desc: a.Desc,
+				Type: a.Type,
 			})
 		}
 		nodes = append(nodes, &model.Node{
-			Name:      n.Name,
-			Desc:      n.Desc,
-			Display:   n.Display,
-			NodeAttrs: nodeAttrs,
+			Name:    n.Name,
+			Desc:    n.Desc,
+			Display: n.Display,
+			Attrs:   nodeAttrs,
 		})
 	}
 	group.Nodes = nodes
 	edges := make([]*model.Edge, 0)
 	for _, n := range req.EdgeTypeList {
-		edgeAttrs := make([]*model.EdgesAttr, 0)
+		edgeAttrs := make([]*model.EdgeAttr, 0)
 		for _, a := range n.Attrs {
-			edgeAttrs = append(edgeAttrs, &model.EdgesAttr{
-				Name:    a.Name,
-				Desc:    a.Desc,
-				Type:    a.Type,
-				Primary: common.Bool2Int64(a.Primary),
+			edgeAttrs = append(edgeAttrs, &model.EdgeAttr{
+				Name: a.Name,
+				Desc: a.Desc,
+				Type: a.Type,
 			})
 		}
 		edges = append(edges, &model.Edge{
-			Name:      n.Name,
-			Desc:      n.Desc,
-			Display:   n.Display,
-			Direct:    common.Bool2Int64(n.EdgeDirection),
-			EdgeAttrs: edgeAttrs,
+			Name:    n.Name,
+			Desc:    n.Desc,
+			Display: n.Display,
+			Direct:  common.Bool2Int64(n.EdgeDirection),
+			Attrs:   edgeAttrs,
 		})
 	}
 	group.Edges = edges

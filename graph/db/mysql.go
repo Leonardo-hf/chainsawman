@@ -7,17 +7,21 @@ import (
 
 // MysqlClient
 type MysqlClient interface {
-	InsertTask(ctx context.Context, task *model.Task) error
+	InsertAlgoTask(ctx context.Context, exec *model.Exec) error
 
-	UpdateTaskTIDByID(ctx context.Context, id int64, tid string) (int64, error)
+	GetAlgoTasks(ctx context.Context) ([]*model.Exec, error)
 
-	GetTaskByID(ctx context.Context, id int64) (*model.Task, error)
+	GetAlgoTasksByGraphId(ctx context.Context, id int64) ([]*model.Exec, error)
+
+	GetAlgoTaskByID(ctx context.Context, id int64) (*model.Exec, error)
+
+	DropAlgoTaskByID(ctx context.Context, id int64) (int64, error)
+
+	UpdateAlgoTaskTIDByID(ctx context.Context, id int64, tid string) (int64, error)
 
 	InsertGraph(ctx context.Context, graph *model.Graph) error
 
 	DropGraphByID(ctx context.Context, id int64) (int64, error)
-
-	DropTaskByID(ctx context.Context, id int64) (int64, error)
 
 	GetGraphByID(ctx context.Context, id int64) (*model.Graph, error)
 
@@ -28,10 +32,6 @@ type MysqlClient interface {
 	GetAllGraph(ctx context.Context) ([]*model.Graph, error)
 
 	GetGraphByGroupID(ctx context.Context, groupID int64) ([]*model.Graph, error)
-
-	GetTasksByGraph(ctx context.Context, graphID int64) ([]*model.Task, error)
-
-	GetTasks(ctx context.Context) ([]*model.Task, error)
 
 	GetAllGroups(ctx context.Context) ([]*model.Group, error)
 
@@ -44,6 +44,8 @@ type MysqlClient interface {
 	DropGroupByID(ctx context.Context, id int64) (int64, error)
 
 	GetAllAlgo(ctx context.Context) ([]*model.Algo, error)
+
+	GetAlgoExecCfgByID(ctx context.Context, id int64) (*model.Algo, error)
 
 	InsertAlgo(ctx context.Context, algo *model.Algo) error
 

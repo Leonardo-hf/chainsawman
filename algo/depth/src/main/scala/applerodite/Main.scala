@@ -4,7 +4,7 @@ import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SOFTWARE}
 import applerodite.config.{AlgoConstants, ClientConfig}
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
-import org.apache.spark.graphx.{EdgeDirection, Graph, Pregel}
+import org.apache.spark.graphx.{EdgeDirection, Pregel}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions._
 

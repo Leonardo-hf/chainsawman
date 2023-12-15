@@ -80,22 +80,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/task/getAll",
-				Handler: getGraphTasksHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/drop",
-				Handler: dropTaskHandler(serverCtx),
-			},
-		},
-		rest.WithPrefix("/api/graph/task"),
-	)
-
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
 				Path:    "/algo/getAll",
 				Handler: algoGetAllHandler(serverCtx),
 			},
@@ -113,6 +97,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/algo/exec",
 				Handler: algoExecHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/task/getAll",
+				Handler: getAlgoTaskHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/drop",
+				Handler: dropAlgoTaskHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/graph/algo"),

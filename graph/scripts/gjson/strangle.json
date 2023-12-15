@@ -1,0 +1,103 @@
+{
+  "name": "strangle",
+  "desc": "卡脖子软件识别",
+  "extends": "software",
+  "nodes": [
+    {
+      "name": "organization",
+      "desc": "开发团队",
+      "primary": "artifact",
+      "attrs": [
+        {
+          "name": "name",
+          "desc": "名称",
+          "type": 0
+        },
+        {
+          "name": "home",
+          "desc": "主页",
+          "type": 0
+        }
+      ]
+    },
+    {
+      "name": "developer",
+      "desc": "开发者",
+      "primary": "idf",
+      "attrs": [
+        {
+          "name": "name",
+          "desc": "用户名",
+          "type": 0
+        },
+        {
+          "name": "avator",
+          "desc": "头像",
+          "type": 0
+        },
+        {
+          "name": "blog",
+          "desc": "博客",
+          "type": 0
+        },
+        {
+          "name": "email",
+          "desc": "邮箱",
+          "type": 0
+        },
+        {
+          "name": "location",
+          "desc": "常住地",
+          "type": 0
+        },
+        {
+          "name": "company",
+          "desc": "公司",
+          "type": 0
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "name": "maintain",
+      "desc": "维护",
+      "direct": 1
+    },
+    {
+      "name": "contribute",
+      "desc": "贡献",
+      "primary": "commits",
+      "direct": 1,
+      "attrs": [
+        {
+        "name": "commits",
+        "desc": "贡献量",
+        "type": 2
+      }]
+    },
+    {
+      "name": "host",
+      "desc": "主持",
+      "direct": 1
+    }
+  ],
+  "algos": [
+    {
+      "name": "Team Diversity",
+      "desc": "团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。",
+      "detail": "团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。",
+      "tag": "软件风险",
+      "jarPath": "s3a://lib/diversity-latest.jar",
+      "mainClass": "applerodite.Main",
+      "params": [
+        {
+          "name": "libraries",
+          "desc": "待识别卡脖子风险的软件列表",
+          "type": 3,
+          "min": "1"
+        }
+      ]
+    }
+  ]
+}

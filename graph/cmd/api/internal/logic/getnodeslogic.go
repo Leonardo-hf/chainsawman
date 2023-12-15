@@ -36,7 +36,7 @@ func (l *GetNodesLogic) GetNodes(req *types.GetNodesRequest) (resp *types.GetNod
 	idf := common.GraphNodes
 	if req.TaskID != "" {
 		// 任务已经提交过
-		if err = util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp); err != nil {
+		if err = util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp); err != nil {
 			return nil, err
 		}
 		return resp, nil

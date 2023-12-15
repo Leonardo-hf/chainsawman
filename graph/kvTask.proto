@@ -10,9 +10,6 @@ message KVTask {
   string result = 4;
   int64 graphID = 5;
   string idf = 6;
-  int64 createTime = 7;
-  int64 updateTime = 8;
-  string Tid = 9;
 
   enum Status{
     New = 0;

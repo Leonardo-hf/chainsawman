@@ -57,25 +57,25 @@ func main() {
 
 	fieldOpts := []gen.ModelOpt{autoUpdateTimeField, autoCreateTimeField}
 
-	graphModel := g.GenerateModel("graphs", fieldOpts...)
-	taskModel := g.GenerateModel("tasks", fieldOpts...)
-	nodeAttrModel := g.GenerateModel("nodes_attr")
-	edgeAttrModel := g.GenerateModel("edges_attr")
+	graphModel := g.GenerateModel("graph", fieldOpts...)
+	taskModel := g.GenerateModel("exec", fieldOpts...)
+	nodeAttrModel := g.GenerateModel("nodeAttr")
+	edgeAttrModel := g.GenerateModel("edgeAttr")
 	nodeIDGormTag := field.NewGormTag()
 	nodeIDGormTag.Set("foreignKey", "nodeID")
-	nodeModel := g.GenerateModel("nodes", gen.FieldRelate(field.HasMany, "NodeAttrs", nodeAttrModel, &field.RelateConfig{
+	nodeModel := g.GenerateModel("node", gen.FieldRelate(field.HasMany, "Attrs", nodeAttrModel, &field.RelateConfig{
 		RelateSlicePointer: true,
 		GORMTag:            nodeIDGormTag,
 	}))
 	edgeIDGormTag := field.NewGormTag()
 	edgeIDGormTag.Set("foreignKey", "edgeID")
-	edgeModel := g.GenerateModel("edges", gen.FieldRelate(field.HasMany, "EdgeAttrs", edgeAttrModel, &field.RelateConfig{
+	edgeModel := g.GenerateModel("edge", gen.FieldRelate(field.HasMany, "Attrs", edgeAttrModel, &field.RelateConfig{
 		RelateSlicePointer: true,
 		GORMTag:            edgeIDGormTag,
 	}))
 	groupIDGormTag := field.NewGormTag()
 	groupIDGormTag.Set("foreignKey", "groupID")
-	groupModel := g.GenerateModel("groups",
+	groupModel := g.GenerateModel("group",
 		gen.FieldRelate(field.HasMany, "Nodes", nodeModel, &field.RelateConfig{
 			RelateSlicePointer: true,
 			GORMTag:            groupIDGormTag,
@@ -86,7 +86,7 @@ func main() {
 		}))
 	algoIDGormTag := field.NewGormTag()
 	algoIDGormTag.Set("foreignKey", "algoID")
-	algoModel := g.GenerateModel("algos")
+	algoModel := g.GenerateModel("algo")
 	g.ApplyBasic(graphModel, taskModel, groupModel, nodeModel, edgeModel, nodeAttrModel, edgeAttrModel, algoModel)
 	g.Execute()
 }

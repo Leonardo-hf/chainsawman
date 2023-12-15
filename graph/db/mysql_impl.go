@@ -24,33 +24,38 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 	return &MysqlClientImpl{}
 }
 
-func (c *MysqlClientImpl) InsertTask(ctx context.Context, task *model.Task) error {
-	t := query.Task
-	task.Status = 0
-	return t.WithContext(ctx).Select(t.Idf, t.Params, t.GraphID).Create(task)
+func (c *MysqlClientImpl) InsertAlgoTask(ctx context.Context, exec *model.Exec) error {
+	e := query.Exec
+	return e.WithContext(ctx).Save(exec)
 }
 
-func (c *MysqlClientImpl) UpdateTaskTIDByID(ctx context.Context, id int64, tid string) (int64, error) {
-	t := query.Task
+func (c *MysqlClientImpl) GetAlgoTaskByID(ctx context.Context, graphID int64) (*model.Exec, error) {
+	t := query.Exec
+	return t.WithContext(ctx).Where(t.GraphID.Eq(graphID)).First()
+}
+
+func (c *MysqlClientImpl) DropAlgoTaskByID(ctx context.Context, id int64) (int64, error) {
+	g := query.Exec
+	res, err := g.WithContext(ctx).Where(g.ID.Eq(id)).Delete()
+	return res.RowsAffected, err
+}
+
+func (c *MysqlClientImpl) GetAlgoTasks(ctx context.Context) ([]*model.Exec, error) {
+	t := query.Exec
+	return t.WithContext(ctx).Find()
+}
+
+func (c *MysqlClientImpl) GetAlgoTasksByGraphId(ctx context.Context, id int64) ([]*model.Exec, error) {
+	t := query.Exec
+	return t.WithContext(ctx).Where(t.GraphID.Eq(id)).Find()
+}
+
+func (c *MysqlClientImpl) UpdateAlgoTaskTIDByID(ctx context.Context, id int64, tid string) (int64, error) {
+	t := query.Exec
 	info, err := t.WithContext(ctx).Where(t.ID.Eq(id)).Updates(map[string]interface{}{
 		"tid": tid,
 	})
 	return info.RowsAffected, err
-}
-
-func (c *MysqlClientImpl) GetTasksByGraph(ctx context.Context, graphID int64) ([]*model.Task, error) {
-	t := query.Task
-	return t.WithContext(ctx).Where(t.GraphID.Eq(graphID)).Find()
-}
-
-func (c *MysqlClientImpl) GetTasks(ctx context.Context) ([]*model.Task, error) {
-	t := query.Task
-	return t.WithContext(ctx).Find()
-}
-
-func (c *MysqlClientImpl) GetTaskByID(ctx context.Context, id int64) (*model.Task, error) {
-	t := query.Task
-	return t.WithContext(ctx).Where(t.ID.Eq(id)).First()
 }
 
 func (c *MysqlClientImpl) InsertGraph(ctx context.Context, graph *model.Graph) error {
@@ -61,12 +66,6 @@ func (c *MysqlClientImpl) InsertGraph(ctx context.Context, graph *model.Graph) e
 
 func (c *MysqlClientImpl) DropGraphByID(ctx context.Context, id int64) (int64, error) {
 	g := query.Graph
-	res, err := g.WithContext(ctx).Where(g.ID.Eq(id)).Delete()
-	return res.RowsAffected, err
-}
-
-func (c *MysqlClientImpl) DropTaskByID(ctx context.Context, id int64) (int64, error) {
-	g := query.Task
 	res, err := g.WithContext(ctx).Where(g.ID.Eq(id)).Delete()
 	return res.RowsAffected, err
 }
@@ -128,25 +127,25 @@ func (c *MysqlClientImpl) DropGroupByID(ctx context.Context, id int64) (int64, e
 
 func (c *MysqlClientImpl) GetAllGroups(ctx context.Context) ([]*model.Group, error) {
 	gr := query.Group
-	return gr.WithContext(ctx).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).Find()
+	return gr.WithContext(ctx).Preload(gr.Nodes.Attrs).Preload(gr.Edges.Attrs).Find()
 }
 
 func (c *MysqlClientImpl) GetNodeByID(ctx context.Context, id int64) (*model.Node, error) {
 	n := query.Node
-	return n.WithContext(ctx).Where(n.ID.Eq(id)).Preload(n.NodeAttrs).First()
+	return n.WithContext(ctx).Where(n.ID.Eq(id)).Preload(n.Attrs).First()
 }
 
 func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*model.Group, error) {
 	g := query.Graph
 	gr := query.Group
 	sub := g.WithContext(ctx).Select(g.GroupID).Where(g.ID.Eq(id))
-	group, err := gr.WithContext(ctx).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).Where(gr.Columns(gr.ID).Eq(sub)).First()
+	group, err := gr.WithContext(ctx).Preload(gr.Nodes.Attrs).Preload(gr.Edges.Attrs).Where(gr.Columns(gr.ID).Eq(sub)).First()
 	return group, err
 }
 
 func (c *MysqlClientImpl) GetAllAlgo(ctx context.Context) ([]*model.Algo, error) {
 	a := query.Algo
-	return a.WithContext(ctx).Select(a.ID, a.Desc, a.IsCustom, a.GroupID, a.Name, a.Type).Preload(a.Params).Find()
+	return a.WithContext(ctx).Select(a.ID, a.Desc, a.GroupID, a.Name, a.Tag).Preload(a.Params).Find()
 }
 
 func (c *MysqlClientImpl) DropAlgoByID(ctx context.Context, id int64) (int64, error) {
@@ -158,4 +157,9 @@ func (c *MysqlClientImpl) DropAlgoByID(ctx context.Context, id int64) (int64, er
 func (c *MysqlClientImpl) InsertAlgo(ctx context.Context, algo *model.Algo) error {
 	a := query.Algo
 	return a.WithContext(ctx).Create(algo)
+}
+
+func (c *MysqlClientImpl) GetAlgoExecCfgByID(ctx context.Context, id int64) (*model.Algo, error) {
+	a := query.Algo
+	return a.WithContext(ctx).Select(a.MainClass, a.JarPath).Where(a.ID.Eq(id)).First()
 }

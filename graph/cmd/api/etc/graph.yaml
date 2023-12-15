@@ -31,3 +31,7 @@ TaskMq:
   Group: "task_consumers"
 TaskMqV2:
   Addr: "localhost:6379"
+
+Algo:
+  Addr: "http://127.0.0.1:8998"
+  SparkMasterUI: "http://127.0.0.1:8080"

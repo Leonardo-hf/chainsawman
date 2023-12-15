@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"chainsawman/common"
 	"chainsawman/graph/model"
 	"context"
 	"fmt"
@@ -27,21 +26,20 @@ func NewAlgoCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AlgoCr
 }
 
 func (l *AlgoCreateLogic) AlgoCreate(req *types.CreateAlgoRequest) (resp *types.BaseReply, err error) {
-	params := make([]*model.AlgosParam, 0)
+	params := make([]*model.AlgoParam, 0)
 	for _, p := range req.Algo.Params {
-		params = append(params, &model.AlgosParam{
-			FieldName: p.Key,
-			FieldDesc: p.KeyDesc,
-			FieldType: p.Type,
+		params = append(params, &model.AlgoParam{
+			Name: p.Key,
+			Desc: p.KeyDesc,
+			Type: p.Type,
 		})
 	}
 	err = l.svcCtx.MysqlClient.InsertAlgo(l.ctx, &model.Algo{
 		Name:      req.Algo.Name,
 		Desc:      req.Algo.Desc,
-		Type:      req.Algo.Type,
+		Tag:       req.Algo.Tag,
 		JarPath:   fmt.Sprintf("s3a://lib/%v", req.Jar),
 		MainClass: req.EntryPoint,
-		IsCustom:  common.Bool2Int64(true),
 		Params:    params,
 	})
 	return nil, err

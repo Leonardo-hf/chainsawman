@@ -113,6 +113,59 @@
         ]
       }
     },
+    "/api/graph/algo/drop": {
+      "post": {
+        "summary": "删除任务",
+        "operationId": "dropAlgoTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DropAlgoTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/task/getAll": {
+      "get": {
+        "summary": "获取图计算任务",
+        "operationId": "getAlgoTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetAlgoTasksReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "graphId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/create": {
       "post": {
         "summary": "新建图",
@@ -525,59 +578,6 @@
         ]
       }
     },
-    "/api/graph/task/drop": {
-      "post": {
-        "summary": "删除任务",
-        "operationId": "dropTask",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/BaseReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/DropTaskRequest"
-            }
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
-    "/api/graph/task/task/getAll": {
-      "get": {
-        "summary": "获取图计算任务",
-        "operationId": "getGraphTasks",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/GetTasksReply"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "graphId",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "graph"
-        ]
-      }
-    },
     "/api/graph/update": {
       "post": {
         "summary": "更新图",
@@ -624,13 +624,8 @@
           "type": "integer",
           "format": "int64"
         },
-        "isCustom": {
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "type": {
-          "type": "integer",
-          "format": "int64"
+        "tag": {
+          "type": "string"
         },
         "params": {
           "type": "array",
@@ -644,8 +639,7 @@
         "name",
         "desc",
         "groupId",
-        "isCustom",
-        "type"
+        "tag"
       ]
     },
     "AlgoParam": {
@@ -662,16 +656,13 @@
           "format": "int64"
         },
         "initValue": {
-          "type": "number",
-          "format": "double"
+          "type": "string"
         },
         "max": {
-          "type": "number",
-          "format": "double"
+          "type": "string"
         },
         "min": {
-          "type": "number",
-          "format": "double"
+          "type": "string"
         }
       },
       "title": "AlgoParam",
@@ -700,6 +691,46 @@
         "base",
         "algoId",
         "file"
+      ]
+    },
+    "AlgoTask": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "updateTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "req": {
+          "type": "string"
+        },
+        "algoId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "output": {
+          "type": "string"
+        }
+      },
+      "title": "AlgoTask",
+      "required": [
+        "id",
+        "createTime",
+        "updateTime",
+        "status",
+        "req",
+        "algoId",
+        "output"
       ]
     },
     "Attr": {
@@ -850,6 +881,19 @@
         "algoId"
       ]
     },
+    "DropAlgoTaskRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "DropAlgoTaskRequest",
+      "required": [
+        "id"
+      ]
+    },
     "DropGraphRequest": {
       "type": "object",
       "properties": {
@@ -875,15 +919,6 @@
       "required": [
         "groupId"
       ]
-    },
-    "DropTaskRequest": {
-      "type": "object",
-      "properties": {
-        "taskId": {
-          "type": "string"
-        }
-      },
-      "title": "DropTaskRequest"
     },
     "Edge": {
       "type": "object",
@@ -932,9 +967,6 @@
     "ExecAlgoRequest": {
       "type": "object",
       "properties": {
-        "taskId": {
-          "type": "string"
-        },
         "graphId": {
           "type": "integer",
           "format": "int64"
@@ -974,6 +1006,35 @@
         "base",
         "algos"
       ]
+    },
+    "GetAlgoTasksReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlgoTask"
+          }
+        }
+      },
+      "title": "GetAlgoTasksReply",
+      "required": [
+        "base",
+        "tasks"
+      ]
+    },
+    "GetAlgoTasksRequest": {
+      "type": "object",
+      "properties": {
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "GetAlgoTasksRequest"
     },
     "GetAllGraphReply": {
       "type": "object",
@@ -1220,35 +1281,6 @@
       "required": [
         "graphId"
       ]
-    },
-    "GetTasksReply": {
-      "type": "object",
-      "properties": {
-        "base": {
-          "$ref": "#/definitions/BaseReply"
-        },
-        "tasks": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Task"
-          }
-        }
-      },
-      "title": "GetTasksReply",
-      "required": [
-        "base",
-        "tasks"
-      ]
-    },
-    "GetTasksRequest": {
-      "type": "object",
-      "properties": {
-        "graphId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "GetTasksRequest"
     },
     "Graph": {
       "type": "object",
@@ -1564,45 +1596,6 @@
         "desc",
         "edgeDirection",
         "display"
-      ]
-    },
-    "Task": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "idf": {
-          "type": "string"
-        },
-        "createTime": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "updateTime": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "status": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "req": {
-          "type": "string"
-        },
-        "res": {
-          "type": "string"
-        }
-      },
-      "title": "Task",
-      "required": [
-        "id",
-        "idf",
-        "createTime",
-        "updateTime",
-        "status",
-        "req",
-        "res"
       ]
     },
     "UpdateGraphRequest": {

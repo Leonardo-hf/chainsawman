@@ -25,18 +25,9 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 	return &MysqlClientImpl{}
 }
 
-func (c *MysqlClientImpl) HasTaskByID(ctx context.Context, id int64) (bool, error) {
-	t := query.Task
-	cnt, err := t.WithContext(ctx).Where(t.ID.Eq(id)).Count()
-	return cnt == 1, err
-}
-
-func (c *MysqlClientImpl) UpdateTaskByID(ctx context.Context, task *model.Task) (int64, error) {
-	t := query.Task
-	info, err := t.WithContext(ctx).Where(t.ID.Eq(task.ID)).Updates(map[string]interface{}{
-		"status": task.Status,
-		"result": task.Result,
-	})
+func (c *MysqlClientImpl) UpdateAppIDByTaskID(ctx context.Context, exec *model.Exec) (int64, error) {
+	t := query.Exec
+	info, err := t.WithContext(ctx).Where(t.ID.Eq(exec.ID)).Update(t.AppID, exec.AppID)
 	return info.RowsAffected, err
 }
 
@@ -54,13 +45,13 @@ func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*mod
 	g := query.Graph
 	gr := query.Group
 	sub := g.WithContext(ctx).Select(g.GroupID).Where(g.ID.Eq(id))
-	group, err := gr.WithContext(ctx).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).Where(gr.Columns(gr.ID).Eq(sub)).First()
+	group, err := gr.WithContext(ctx).Preload(gr.Nodes.Attrs).Preload(gr.Edges.Attrs).Where(gr.Columns(gr.ID).Eq(sub)).First()
 	return group, err
 }
 
 func (c *MysqlClientImpl) GetGroupByID(ctx context.Context, id int64) (*model.Group, error) {
 	gr := query.Group
-	return gr.WithContext(ctx).Where(gr.ID.Eq(id)).Preload(gr.Nodes.NodeAttrs).Preload(gr.Edges.EdgeAttrs).First()
+	return gr.WithContext(ctx).Where(gr.ID.Eq(id)).Preload(gr.Nodes.Attrs).Preload(gr.Edges.Attrs).First()
 }
 
 func (c *MysqlClientImpl) GetAlgoExecCfgByID(ctx context.Context, id int64) (*model.Algo, error) {

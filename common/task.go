@@ -6,8 +6,6 @@ const (
 	GraphGet       = "graph:get"
 	GraphNodes     = "graph:nodes"
 	GraphNeighbors = "graph:neighbors"
-
-	AlgoExec = "algo:exec"
 )
 
 const (
@@ -22,8 +20,7 @@ const (
 )
 
 type TaskAttr struct {
-	Queue      string
-	Persistent bool
+	Queue string
 }
 
 func TaskIdf(idf string) *TaskAttr {
@@ -32,27 +29,18 @@ func TaskIdf(idf string) *TaskAttr {
 
 var taskAttrMap = map[string]*TaskAttr{
 	GraphCreate: {
-		Queue:      PMedium,
-		Persistent: false,
+		Queue: PMedium,
 	},
 	GraphUpdate: {
-		Queue:      PMedium,
-		Persistent: false,
+		Queue: PMedium,
 	},
 	GraphNodes: {
-		Queue:      PLow,
-		Persistent: false,
+		Queue: PLow,
 	},
 	GraphGet: {
-		Queue:      PHigh,
-		Persistent: false,
+		Queue: PHigh,
 	},
 	GraphNeighbors: {
-		Queue:      PHigh,
-		Persistent: false,
-	},
-	AlgoExec: {
-		Queue:      PLow,
-		Persistent: true,
+		Queue: PHigh,
 	},
 }

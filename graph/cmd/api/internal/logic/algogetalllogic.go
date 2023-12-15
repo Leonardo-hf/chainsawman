@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"chainsawman/common"
 	"context"
 	"sort"
 
@@ -35,22 +34,21 @@ func (l *AlgoGetAllLogic) AlgoGetAll() (resp *types.GetAlgoReply, err error) {
 		params := make([]*types.AlgoParam, 0)
 		for _, p := range a.Params {
 			params = append(params, &types.AlgoParam{
-				Key:       p.FieldName,
-				KeyDesc:   p.FieldDesc,
-				Type:      p.FieldType,
-				InitValue: p.InitValue,
+				Key:       p.Name,
+				KeyDesc:   p.Desc,
+				Type:      p.Type,
+				InitValue: p.Default,
 				Max:       p.Max,
 				Min:       p.Min,
 			})
 		}
 		sortAlgos = append(sortAlgos, &types.Algo{
-			Id:       a.ID,
-			Name:     a.Name,
-			Desc:     a.Desc,
-			GroupId:  a.GroupID,
-			IsCustom: common.Int642Bool(a.IsCustom),
-			Params:   params,
-			Type:     a.Type,
+			Id:      a.ID,
+			Name:    a.Name,
+			Desc:    a.Desc,
+			GroupId: a.GroupID,
+			Params:  params,
+			Tag:     a.Tag,
 		})
 	}
 	sort.Sort(sortAlgos)
@@ -66,7 +64,7 @@ func (a sortAlgo) Len() int {
 }
 
 func (a sortAlgo) Less(i int, j int) bool {
-	return a[i].Type < a[j].Type || (!a[i].IsCustom && a[j].IsCustom) || a[i].Id < a[j].Id
+	return a[i].Tag < a[j].Tag || a[i].Id < a[j].Id
 }
 
 func (a sortAlgo) Swap(i int, j int) {

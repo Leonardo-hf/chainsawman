@@ -199,46 +199,45 @@ type PresignedReply struct {
 	Filename string `json:"filename"`
 }
 
-type Task struct {
+type AlgoTask struct {
 	Id         string `json:"id"`
-	Idf        string `json:"idf"`
 	CreateTime int64  `json:"createTime"`
 	UpdateTime int64  `json:"updateTime"`
 	Status     int64  `json:"status"`
 	Req        string `json:"req"`
-	Res        string `json:"res"`
+	AlgoID     int64  `json:"algoId"`
+	Output     string `json:"output"`
 }
 
-type GetTasksRequest struct {
+type GetAlgoTasksRequest struct {
 	GraphID int64 `form:"graphId,optional"`
 }
 
-type GetTasksReply struct {
-	Base  *BaseReply `json:"base"`
-	Tasks []*Task    `json:"tasks"`
+type GetAlgoTasksReply struct {
+	Base  *BaseReply  `json:"base"`
+	Tasks []*AlgoTask `json:"tasks"`
 }
 
-type DropTaskRequest struct {
-	TaskID string `json:"taskId,optional"`
+type DropAlgoTaskRequest struct {
+	ID int64 `json:"id"`
 }
 
 type Algo struct {
-	Id       int64        `json:"id,optional"`
-	Name     string       `json:"name"`
-	Desc     string       `json:"desc"`
-	GroupId  int64        `json:"groupId"`
-	IsCustom bool         `json:"isCustom"`
-	Type     int64        `json:"type"`
-	Params   []*AlgoParam `json:"params,optional"`
+	Id      int64        `json:"id,optional"`
+	Name    string       `json:"name"`
+	Desc    string       `json:"desc"`
+	GroupId int64        `json:"groupId"`
+	Tag     string       `json:"tag"`
+	Params  []*AlgoParam `json:"params,optional"`
 }
 
 type AlgoParam struct {
-	Key       string  `json:"key"`
-	KeyDesc   string  `json:"keyDesc"`
-	Type      int64   `json:"type"`
-	InitValue float64 `json:"initValue,optional"`
-	Max       float64 `json:"max,optional"`
-	Min       float64 `json:"min,optional"`
+	Key       string `json:"key"`
+	KeyDesc   string `json:"keyDesc"`
+	Type      int64  `json:"type"`
+	InitValue string `json:"initValue,optional"`
+	Max       string `json:"max,optional"`
+	Min       string `json:"min,optional"`
 }
 
 type AlgoReply struct {
@@ -270,7 +269,6 @@ type Param struct {
 }
 
 type ExecAlgoRequest struct {
-	TaskID  string   `json:"taskId,optional"`
 	GraphID int64    `json:"graphId"`
 	AlgoID  int64    `json:"algoId"`
 	Params  []*Param `json:"params,optional"`

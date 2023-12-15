@@ -62,14 +62,7 @@ func (n *NebulaClientImpl) MatchNodesByTag(graph int64, keywords string, node *m
 	}
 	defer func() { session.Release() }()
 	matchNodes := make([]*MatchNode, 0)
-	primary := ""
-	// 检查节点类型的主属性
-	for _, attr := range node.NodeAttrs {
-		if common.Int642Bool(attr.Primary) {
-			primary = attr.Name
-			break
-		}
-	}
+	primary := node.Primary
 	// 如果没有主属性，则返回
 	if primary == "" {
 		return nil, noPrimaryErr

@@ -35,7 +35,7 @@ func (l *GetGraphLogic) GetGraph(req *types.GetGraphDetailRequest) (resp *types.
 	idf := common.GraphGet
 	if req.TaskID != "" {
 		// 任务已经提交过
-		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp)
+		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, resp)
 	}
 	// 任务没提交过，创建任务
 	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, idf, req)

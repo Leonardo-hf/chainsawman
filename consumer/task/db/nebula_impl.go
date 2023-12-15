@@ -64,23 +64,23 @@ func (n *NebulaClientImpl) CreateGraph(graph int64, group *model.Group) error {
 			"CREATE TAG INDEX IF NOT EXISTS deg_tag_index on %v();",
 		name, name, common.BaseTag, common.KeyDeg, common.BaseTag)
 	for _, node := range group.Nodes {
-		attrNames := make([]string, len(node.NodeAttrs))
+		attrNames := make([]string, len(node.Attrs))
 		s := "CREATE TAG IF NOT EXISTS %v(%v);"
-		for i, attr := range node.NodeAttrs {
-			if common.Int642Bool(attr.Primary) {
-				// 主属性只能是 string
+		for i, attr := range node.Attrs {
+			// 主属性只能是 string
+			if attr.Name == node.Primary {
 				attr.Type = common.TypeString
-				s += fmt.Sprintf("CREATE TAG INDEX IF NOT EXISTS %v_tag_index on %v(%v(10));", node.Name, node.Name, attr.Name)
 			}
 			attrNames[i] = fmt.Sprintf("`%v` %v", attr.Name, common.Type2String(attr.Type))
 		}
 		s = fmt.Sprintf(s, node.Name, strings.Join(attrNames, ","))
 		stat += s
+		s += fmt.Sprintf("CREATE TAG INDEX IF NOT EXISTS %v_tag_index on %v(%v(10));", node.Name, node.Name, node.Primary)
 	}
 	for _, edge := range group.Edges {
-		attrNames := make([]string, len(edge.EdgeAttrs))
+		attrNames := make([]string, len(edge.Attrs))
 		s := "CREATE EDGE IF NOT EXISTS %v(%v);"
-		for i, attr := range edge.EdgeAttrs {
+		for i, attr := range edge.Attrs {
 			attrNames[i] = fmt.Sprintf("`%v` %v", attr.Name, common.Type2String(attr.Type))
 		}
 		s = fmt.Sprintf(s, edge.Name, strings.Join(attrNames, ","))
@@ -126,9 +126,9 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, node *model.Node, recor
 	}
 	defer func() { session.Release() }()
 	stat := "USE G%v;INSERT VERTEX %v(%v),base(`deg`) VALUES %v;"
-	size := len(node.NodeAttrs)
+	size := len(node.Attrs)
 	names := make([]string, size)
-	for i, attr := range node.NodeAttrs {
+	for i, attr := range node.Attrs {
 		names[i] = fmt.Sprintf("`%v`", attr.Name)
 	}
 	stat = fmt.Sprintf(stat, graph, node.Name, strings.Join(names, ","), "%v")
@@ -138,9 +138,9 @@ func (n *NebulaClientImpl) MultiInsertNodes(graph int64, node *model.Node, recor
 		for p := 0; p < n.Batch && i < len(records); p++ {
 			r := records[i]
 			i++
-			attrs := make([]string, len(node.NodeAttrs)+1)
+			attrs := make([]string, len(node.Attrs)+1)
 			id, _ := r.Get(common.KeyID)
-			for q, attr := range node.NodeAttrs {
+			for q, attr := range node.Attrs {
 				v, err := r.Get(attr.Name)
 				if err != nil {
 					return 0, err
@@ -219,9 +219,9 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edge *model.Edge, recor
 	}
 	defer func() { session.Release() }()
 	stat := "USE G%v;INSERT EDGE %v(%v) VALUES %v;"
-	size := len(edge.EdgeAttrs)
+	size := len(edge.Attrs)
 	names := make([]string, size)
-	for i, attr := range edge.EdgeAttrs {
+	for i, attr := range edge.Attrs {
 		names[i] = fmt.Sprintf("`%v`", attr.Name)
 	}
 	stat = fmt.Sprintf(stat, graph, edge.Name, strings.Join(names, ","), "%v")
@@ -231,10 +231,10 @@ func (n *NebulaClientImpl) MultiInsertEdges(graph int64, edge *model.Edge, recor
 		for p := 0; p < n.Batch && i < len(records); p++ {
 			r := records[i]
 			i++
-			attrs := make([]string, len(edge.EdgeAttrs))
+			attrs := make([]string, len(edge.Attrs))
 			src, _ := r.Get(common.KeySrc)
 			tgt, _ := r.Get(common.KeyTgt)
-			for q, attr := range edge.EdgeAttrs {
+			for q, attr := range edge.Attrs {
 				v, err := r.Get(attr.Name)
 				if err != nil {
 					return 0, err

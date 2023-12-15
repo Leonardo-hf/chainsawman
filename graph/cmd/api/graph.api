@@ -204,48 +204,47 @@ type (
 )
 
 type (
-	Task {
+	AlgoTask {
 		Id         string `json:"id"`
-		Idf        string `json:"idf"`
 		CreateTime int64  `json:"createTime"`
 		UpdateTime int64  `json:"updateTime"`
 		Status     int64  `json:"status"`
 		Req        string `json:"req"`
-		Res        string `json:"res"`
+		AlgoID     int64  `json:"algoId"`
+		Output     string `json:"output"`
 	}
 
-	GetTasksRequest {
+	GetAlgoTasksRequest {
 		GraphID int64 `form:"graphId,optional"`
 	}
 
-	GetTasksReply {
-		Base  *BaseReply `json:"base"`
-		Tasks []*Task    `json:"tasks"`
+	GetAlgoTasksReply {
+		Base  *BaseReply  `json:"base"`
+		Tasks []*AlgoTask `json:"tasks"`
 	}
 
-	DropTaskRequest {
-		TaskID string `json:"taskId,optional"`
+	DropAlgoTaskRequest {
+		ID int64 `json:"id"`
 	}
 )
 
 type (
 	Algo {
-		Id       int64        `json:"id,optional"`
-		Name     string       `json:"name"`
-		Desc     string       `json:"desc"`
-		GroupId  int64        `json:"groupId"`
-		IsCustom bool         `json:"isCustom"`
-		Type     int64        `json:"type"`
-		Params   []*AlgoParam `json:"params,optional"`
+		Id      int64        `json:"id,optional"`
+		Name    string       `json:"name"`
+		Desc    string       `json:"desc"`
+		GroupId int64        `json:"groupId"`
+		Tag     string       `json:"tag"`
+		Params  []*AlgoParam `json:"params,optional"`
 	}
 
 	AlgoParam {
-		Key       string  `json:"key"`
-		KeyDesc   string  `json:"keyDesc"`
-		Type      int64   `json:"type"`
-		InitValue float64 `json:"initValue,optional"`
-		Max       float64 `json:"max,optional"`
-		Min       float64 `json:"min,optional"`
+		Key       string `json:"key"`
+		KeyDesc   string `json:"keyDesc"`
+		Type      int64  `json:"type"`
+		InitValue string `json:"initValue,optional"`
+		Max       string `json:"max,optional"`
+		Min       string `json:"min,optional"`
 	}
 
 	AlgoReply {
@@ -277,7 +276,6 @@ type (
 	}
 
 	ExecAlgoRequest {
-		TaskID  string   `json:"taskId,optional"`
 		GraphID int64    `json:"graphId"`
 		AlgoID  int64    `json:"algoId"`
 		Params  []*Param `json:"params,optional"`
@@ -338,19 +336,6 @@ service graph {
 }
 
 @server(
-	prefix: /api/graph/task
-)
-service graph {
-	@doc "获取图计算任务"
-	@handler getGraphTasks
-	get /task/getAll (GetTasksRequest) returns (GetTasksReply)
-	
-	@doc "删除任务"
-	@handler dropTask
-	post /drop (DropTaskRequest) returns (BaseReply)
-}
-
-@server(
 	prefix: /api/graph/algo
 )
 service graph {
@@ -369,6 +354,14 @@ service graph {
 	@doc "执行算法"
 	@handler algoExec
 	post /algo/exec (ExecAlgoRequest) returns (AlgoReply)
+	
+	@doc "获取图计算任务"
+	@handler getAlgoTask
+	get /task/getAll (GetAlgoTasksRequest) returns (GetAlgoTasksReply)
+	
+	@doc "删除任务"
+	@handler dropAlgoTask
+	post /drop (DropAlgoTaskRequest) returns (BaseReply)
 }
 
 @server(

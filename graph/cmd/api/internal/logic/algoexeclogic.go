@@ -3,13 +3,14 @@ package logic
 import (
 	"chainsawman/common"
 	"chainsawman/graph/cmd/api/internal/config"
-	"chainsawman/graph/cmd/api/internal/util"
-	"chainsawman/graph/model"
-	"context"
-	"strconv"
-
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
+	"chainsawman/graph/model"
+	"context"
+	"fmt"
+	"github.com/google/uuid"
+	"github.com/zeromicro/go-zero/core/jsonx"
+	"strconv"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -59,22 +60,44 @@ func (l *AlgoExecLogic) AlgoExec(req *types.ExecAlgoRequest) (resp *types.AlgoRe
 			}
 		}
 	}
-	// 设置返回值
-	resp = &types.AlgoReply{Base: &types.BaseReply{
-		TaskID:     req.TaskID,
-		TaskStatus: int64(model.KVTask_New),
-	}}
-	idf := common.AlgoExec
-	if req.TaskID != "" {
-		// 任务已经提交过
-		return resp, util.FetchTask(l.ctx, l.svcCtx, req.TaskID, idf, resp)
-	}
-	// 任务没提交过，创建任务
-	taskID, err := util.PublishTask(l.ctx, l.svcCtx, req.GraphID, idf, req)
+	// algoID 查找文件路径
+	execCfg, err := l.svcCtx.MysqlClient.GetAlgoExecCfgByID(l.ctx, req.AlgoID)
 	if err != nil {
 		return nil, err
 	}
-	req.TaskID = taskID
-	// 重试一次
-	return l.AlgoExec(req)
+	// 生成文件名称
+	fileName := fmt.Sprintf("%v-%v-%v", req.GraphID, req.AlgoID, uuid.New().String())
+	execParams := params2Map(req.Params)
+	execParams["graphID"] = fmt.Sprintf("G%v", req.GraphID)
+	execParams["target"] = fileName
+	// 提交任务，要防止重复提交任务
+	appID, err := l.svcCtx.AlgoService.SubmitAlgo(execCfg.JarPath, execCfg.MainClass, execParams)
+	if err != nil {
+		return nil, err
+	}
+	params, _ := jsonx.MarshalToString(req.Params)
+	err = l.svcCtx.MysqlClient.InsertAlgoTask(l.ctx, &model.Exec{
+		AlgoID:  req.AlgoID,
+		Status:  int64(model.KVTask_New),
+		Params:  params,
+		GraphID: req.GraphID,
+		Output:  fileName,
+		AppID:   appID,
+	})
+	return nil, err
+}
+
+func params2Map(params []*types.Param) map[string]interface{} {
+	m := make(map[string]interface{})
+	for _, p := range params {
+		switch p.Type {
+		case common.TypeString, common.TypeInt, common.TypeDouble:
+			m[p.Key] = p.Value
+			break
+		case common.TypeDoubleList, common.TypeStringList:
+			m[p.Key] = p.ListValue
+			break
+		}
+	}
+	return m
 }

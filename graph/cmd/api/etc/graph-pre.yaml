@@ -31,3 +31,7 @@ TaskMq:
   Group: "task_consumers"
 TaskMqV2:
   Addr: "redis-svc:6379"
+
+Algo:
+  Addr: "http://livy:8998"
+  SparkMasterUI: "http://spark-proxy:8080"

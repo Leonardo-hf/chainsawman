@@ -2,6 +2,7 @@ package config
 
 import (
 	"chainsawman/common"
+	"chainsawman/graph/cmd/api/internal/rpc"
 	"chainsawman/graph/db"
 	"chainsawman/graph/mq"
 	"github.com/zeromicro/go-zero/rest"
@@ -19,7 +20,7 @@ type Config struct {
 	TaskMq   mq.TaskMqConfig
 	TaskMqV2 mq.AsynqConfig
 
-	//AlgoRPC zrpc.RpcClientConf
+	Algo rpc.LivyConfig
 }
 
 func (c *Config) IsTaskV2Enabled() bool {

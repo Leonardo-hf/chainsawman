@@ -4,7 +4,6 @@ import (
 	"chainsawman/common"
 	"chainsawman/consumer/task/db"
 	"chainsawman/consumer/task/mq"
-	"chainsawman/consumer/task/rpc"
 )
 
 type Config struct {
@@ -12,8 +11,6 @@ type Config struct {
 	Redis  db.RedisConfig
 	Mysql  db.MysqlConfig
 	Minio  db.MinioConfig
-
-	Algo rpc.LivyConfig
 
 	TaskMq   mq.TaskMqConfig
 	TaskMqV2 mq.AsynqConfig
@@ -28,10 +25,6 @@ var (
 	OSSClient    db.OSSClient
 )
 
-var (
-	AlgoService rpc.AlgoService
-)
-
 var TaskMq mq.TaskMq
 
 func Init(c *Config) {
@@ -40,7 +33,6 @@ func Init(c *Config) {
 	RedisClient = db.InitRedisClient(&c.Redis)
 	OSSClient = db.InitMinioClient(&c.Minio)
 
-	AlgoService = rpc.InitLivyClient(&c.Algo)
 	if c.TaskMqEd == common.TaskMqEd {
 		TaskMq = mq.InitTaskMq(&c.TaskMq)
 	}
