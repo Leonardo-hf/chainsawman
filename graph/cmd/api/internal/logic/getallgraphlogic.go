@@ -52,6 +52,7 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.GetAllGraphReply, err erro
 				Name:    n.Name,
 				Desc:    n.Desc,
 				Display: n.Display,
+				Primary: n.Primary,
 				Attrs:   nodeAttrs,
 			})
 		}
@@ -70,6 +71,7 @@ func (l *GetAllGraphLogic) GetAllGraph() (resp *types.GetAllGraphReply, err erro
 				Desc:          n.Desc,
 				Display:       n.Display,
 				EdgeDirection: common.Int642Bool(n.Direct),
+				Primary:       n.Primary,
 				Attrs:         edgeAttrs,
 			})
 		}

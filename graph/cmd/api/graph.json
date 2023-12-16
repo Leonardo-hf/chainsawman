@@ -742,10 +742,6 @@
         "desc": {
           "type": "string"
         },
-        "primary": {
-          "type": "boolean",
-          "format": "boolean"
-        },
         "type": {
           "type": "integer",
           "format": "int64"
@@ -755,7 +751,6 @@
       "required": [
         "name",
         "desc",
-        "primary",
         "type"
       ]
     },
@@ -1582,6 +1577,9 @@
         "display": {
           "type": "string"
         },
+        "primary": {
+          "type": "string"
+        },
         "attrs": {
           "type": "array",
           "items": {
@@ -1594,7 +1592,6 @@
         "id",
         "name",
         "desc",
-        "edgeDirection",
         "display"
       ]
     },

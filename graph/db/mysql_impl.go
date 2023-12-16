@@ -26,7 +26,7 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 
 func (c *MysqlClientImpl) InsertAlgoTask(ctx context.Context, exec *model.Exec) error {
 	e := query.Exec
-	return e.WithContext(ctx).Save(exec)
+	return e.WithContext(ctx).Create(exec)
 }
 
 func (c *MysqlClientImpl) GetAlgoTaskByID(ctx context.Context, graphID int64) (*model.Exec, error) {

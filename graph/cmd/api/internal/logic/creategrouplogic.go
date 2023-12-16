@@ -45,6 +45,7 @@ func (l *CreateGroupLogic) CreateGroup(req *types.CreateGroupRequest) (resp *typ
 			Name:    n.Name,
 			Desc:    n.Desc,
 			Display: n.Display,
+			Primary: n.Primary,
 			Attrs:   nodeAttrs,
 		})
 	}
@@ -64,6 +65,7 @@ func (l *CreateGroupLogic) CreateGroup(req *types.CreateGroupRequest) (resp *typ
 			Desc:    n.Desc,
 			Display: n.Display,
 			Direct:  common.Bool2Int64(n.EdgeDirection),
+			Primary: n.Primary,
 			Attrs:   edgeAttrs,
 		})
 	}

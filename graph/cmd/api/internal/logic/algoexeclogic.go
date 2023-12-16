@@ -70,7 +70,7 @@ func (l *AlgoExecLogic) AlgoExec(req *types.ExecAlgoRequest) (resp *types.AlgoRe
 	execParams := params2Map(req.Params)
 	execParams["graphID"] = fmt.Sprintf("G%v", req.GraphID)
 	execParams["target"] = fileName
-	// 提交任务，要防止重复提交任务
+	// 提交任务
 	appID, err := l.svcCtx.AlgoService.SubmitAlgo(execCfg.JarPath, execCfg.MainClass, execParams)
 	if err != nil {
 		return nil, err

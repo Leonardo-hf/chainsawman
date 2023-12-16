@@ -24,16 +24,16 @@ type (
 		Id            int64   `json:"id"`
 		Name          string  `json:"name"`
 		Desc          string  `json:"desc"`
-		EdgeDirection bool    `json:"edgeDirection"`
+		EdgeDirection bool    `json:"edgeDirection,optional"`
 		Display       string  `json:"display"`
+		Primary       string  `json:"primary,optional"`
 		Attrs         []*Attr `json:"attrs,optional"`
 	}
 
 	Attr {
-		Name    string `json:"name"`
-		Desc    string `json:"desc"`
-		Primary bool   `json:"primary"`
-		Type    int64  `json:"type"`
+		Name string `json:"name"`
+		Desc string `json:"desc"`
+		Type int64  `json:"type"`
 	}
 
 	Pair {

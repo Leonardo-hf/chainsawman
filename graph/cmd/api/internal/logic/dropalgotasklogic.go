@@ -24,10 +24,14 @@ func NewDropAlgoTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Drop
 
 func (l *DropAlgoTaskLogic) DropAlgoTask(req *types.DropAlgoTaskRequest) (resp *types.BaseReply, err error) {
 	ctx := l.ctx
-	task, _ := l.svcCtx.MysqlClient.GetAlgoTaskByID(ctx, req.ID)
+	task, err := l.svcCtx.MysqlClient.GetAlgoTaskByID(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
 	err = l.svcCtx.AlgoService.StopAlgo(task.AppID)
 	if err != nil {
 		logx.Errorf("fail to stop algo, err: %v", err)
+		return nil, err
 	}
 	_, _ = l.svcCtx.MysqlClient.DropAlgoTaskByID(l.ctx, req.ID)
 	return &types.BaseReply{}, nil

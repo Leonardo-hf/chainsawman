@@ -25,16 +25,16 @@ type Structure struct {
 	Id            int64   `json:"id"`
 	Name          string  `json:"name"`
 	Desc          string  `json:"desc"`
-	EdgeDirection bool    `json:"edgeDirection"`
+	EdgeDirection bool    `json:"edgeDirection,optional"`
 	Display       string  `json:"display"`
+	Primary       string  `json:"primary,optional"`
 	Attrs         []*Attr `json:"attrs,optional"`
 }
 
 type Attr struct {
-	Name    string `json:"name"`
-	Desc    string `json:"desc"`
-	Primary bool   `json:"primary"`
-	Type    int64  `json:"type"`
+	Name string `json:"name"`
+	Desc string `json:"desc"`
+	Type int64  `json:"type"`
 }
 
 type Pair struct {

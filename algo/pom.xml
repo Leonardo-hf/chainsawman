@@ -37,9 +37,6 @@
         <project.encoding>UTF-8</project.encoding>
     </properties>
 
-    <dependencyManagement>
-
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -70,6 +67,22 @@
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
             <version>1.4.2</version>
+        </dependency>
+        <!-- mysql connector-->
+        <dependency>
+            <groupId>org.scalikejdbc</groupId>
+            <artifactId>scalikejdbc_${scala.binary.version}</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalikejdbc</groupId>
+            <artifactId>scalikejdbc-config_${scala.binary.version}</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
         </dependency>
     </dependencies>
     <build>

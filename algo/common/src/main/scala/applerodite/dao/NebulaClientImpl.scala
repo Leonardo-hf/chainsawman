@@ -1,26 +1,27 @@
 package applerodite.dao
 
 import applerodite.config.AlgoConstants.{ARTIFACT_COL, VERSION_COL}
-import applerodite.config.ClientConfig
 import com.vesoft.nebula.client.graph.data.{HostAddress, ResultSet}
 import com.vesoft.nebula.client.graph.{SessionPool, SessionPoolConfig}
 import com.vesoft.nebula.connector.connector.NebulaDataFrameReader
 import com.vesoft.nebula.connector.{NebulaConnectionConfig, ReadNebulaConfig, VertexID}
 import org.apache.spark.graphx.{Edge, Graph}
-import org.apache.spark.sql.Encoder
+import org.apache.spark.sql.{Encoder, SparkSession}
 
 import java.util
 import scala.collection.mutable.ListBuffer
 
-object NebulaClientImpl extends GraphClient {
+case class NebulaConfig(metaHost: String, metaPort: Int, graphdHost: String, graphdPort: Int, user: String, passwd: String)
 
-  case class NebulaConfig(metaHost: String, metaPort: Int, graphdHost: String, graphdPort: Int, user: String, passwd: String)
+class NebulaClientImpl extends GraphClient {
 
   var connectorConfig: NebulaConnectionConfig = _
 
   var config: NebulaConfig = _
 
-  def Init(nc: NebulaConfig): GraphClient = {
+  var spark: SparkSession = _
+
+  def GetGraphClient(nc: NebulaConfig, spark: SparkSession): GraphClient = {
     config = nc
     connectorConfig =
       NebulaConnectionConfig
@@ -30,6 +31,7 @@ object NebulaClientImpl extends GraphClient {
         .withExecuteRetry(2)
         .withTimeout(6000)
         .build()
+    this.spark = spark
     this
   }
 
@@ -65,7 +67,7 @@ object NebulaClientImpl extends GraphClient {
         .withNoColumn(true)
         //      .withPartitionNum(10)
         .build()
-      val dataSet = ClientConfig.spark.read.nebula(connectorConfig, nebulaReadEdgesConfig).loadEdgesToDF()
+      val dataSet = spark.read.nebula(connectorConfig, nebulaReadEdgesConfig).loadEdgesToDF()
       implicit val encoder: Encoder[Edge[Double]] = org.apache.spark.sql.Encoders.kryo[Edge[Double]]
       dataSet
         .map(row => {
@@ -88,7 +90,7 @@ object NebulaClientImpl extends GraphClient {
       .withNoColumn(true)
       //      .withPartitionNum(10)
       .build()
-    val edges = ClientConfig.spark.read.nebula(connectorConfig, nebulaReadDependsConfig).loadEdgesToDF()
+    val edges = spark.read.nebula(connectorConfig, nebulaReadDependsConfig).loadEdgesToDF()
     implicit val edgeEncoder: Encoder[Edge[None.type]] = org.apache.spark.sql.Encoders.kryo[Edge[None.type]]
     val edgesRDD = edges
       .map(row => {
@@ -102,7 +104,7 @@ object NebulaClientImpl extends GraphClient {
       .withReturnCols(List(ARTIFACT_COL, VERSION_COL))
       //      .withPartitionNum(10)
       .build()
-    val nodes = ClientConfig.spark.read.nebula(connectorConfig, nebulaReadReleaseConfig).loadVerticesToDF()
+    val nodes = spark.read.nebula(connectorConfig, nebulaReadReleaseConfig).loadVerticesToDF()
     implicit val nodeEncoder: Encoder[(VertexID, Release)] = org.apache.spark.sql.Encoders.kryo[(VertexID, Release)]
     val nodesRDD = nodes.map(row => (row.getString(0).toLong, Release(row.getString(1), row.getString(2))))(nodeEncoder).rdd
     Graph(nodesRDD, edgesRDD)
