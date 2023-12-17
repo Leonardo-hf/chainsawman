@@ -1,6 +1,6 @@
 package applerodite
 
-import applerodite.config.{AlgoConstants, ClientConfig}
+import applerodite.config.ClientConfig
 import com.alibaba.fastjson.JSON
 import com.vesoft.nebula.client.graph.data.ResultSet
 import org.apache.spark.sql.types.{StringType, StructField, StructType}

@@ -362,6 +362,10 @@ service graph {
 	@doc "删除任务"
 	@handler dropAlgoTask
 	post /drop (DropAlgoTaskRequest) returns (BaseReply)
+
+	@doc "获得热门软件概要"
+	@handler getHot
+
 }
 
 @server(

@@ -40,7 +40,7 @@ func main() {
 		c, _ := os.ReadFile(p)
 		err = jsonx.UnmarshalFromString(string(c), g)
 		if err != nil {
-			fmt.Printf("fail to parse %v:\n %v\n", p, err)
+			fmt.Printf("fail to parse %v, err: %v\n", p, err)
 			return
 		}
 		if len(g.Name) == 0 {
@@ -61,36 +61,37 @@ func main() {
 		return
 	}
 
-	gid, nid, eid, aid := 2, 1, 1, 1
+	gid, nid, eid, aid := 1, 1, 1, 1
 	var handle func(v *GroupDoc)
 	handle = func(v *GroupDoc) {
 		if v.ID != 0 {
 			return
 		}
-		parentId := 1
+		sql := ""
 		if len(v.Extends) > 0 {
 			if t, ok := graphs[v.Extends]; !ok {
-				fmt.Printf("fail to find valid `extends` in graph: %v\n", v.Name)
+				fmt.Printf("fail to find valid `extends` in group: %v\n", v.Name)
 			} else {
 				handle(t)
 			}
-			parentId = int(graphs[v.Extends].ID)
+			sql += fmt.Sprintf("INSERT INTO graph.group(id, name, `desc`, parentID) VALUES (%v, %v, %v, %v);\n\n",
+				gid, blank2Null(v.Name), blank2Null(v.Desc), int(graphs[v.Extends].ID))
+		} else {
+			sql += fmt.Sprintf("INSERT INTO graph.group(id, name, `desc`) VALUES (%v, %v, %v);\n\n",
+				gid, blank2Null(v.Name), blank2Null(v.Desc))
 		}
 		v.ID = int64(gid)
-		sql := ""
-		sql += fmt.Sprintf("INSERT INTO graph.group(id, name, `desc`, parentID) VALUES (%v, %v, %v, %v);\n\n",
-			gid, blank2Null(v.Name), blank2Null(v.Desc), parentId)
 		handleNode := func(nodes []*model.Node) {
 			for _, node := range nodes {
 				if len(node.Name) == 0 {
-					fmt.Printf("`node.name` is required in graph %v\n", v.Name)
+					fmt.Printf("`node.name` is required in group %v\n", v.Name)
 					return
 				}
 				sql += fmt.Sprintf("INSERT INTO graph.node(id, groupID, name, `desc`, `primary`) VALUES (%v, %v, %v, %v, %v);\n",
 					nid, gid, blank2Null(node.Name), blank2Null(node.Desc), blank2Null(node.Primary))
 				for _, attr := range node.Attrs {
 					if len(attr.Name) == 0 {
-						fmt.Printf("`node.attr.name` is required in graph %v\n", v.Name)
+						fmt.Printf("`node.attr.name` is required in group %v\n", v.Name)
 						return
 					}
 					sql += fmt.Sprintf("INSERT INTO graph.nodeAttr(nodeID, name, `desc`, type) VALUES (%v, %v, %v, %v);\n",
@@ -104,14 +105,14 @@ func main() {
 		handleEdge := func(edges []*model.Edge) {
 			for _, edge := range edges {
 				if len(edge.Name) == 0 {
-					fmt.Printf("`edge.name` is required in graph %v\n", v.Name)
+					fmt.Printf("`edge.name` is required in group %v\n", v.Name)
 					return
 				}
 				sql += fmt.Sprintf("INSERT INTO graph.edge(id, groupID, name, `desc`, `primary`, `direct`) VALUES (%v, %v, %v, %v, %v, %v);\n\n",
 					eid, gid, blank2Null(edge.Name), blank2Null(edge.Desc), blank2Null(edge.Primary), edge.Direct)
 				for _, attr := range edge.Attrs {
 					if len(attr.Name) == 0 {
-						fmt.Printf("`edge.attr.name` is required in graph %v\n", v.Name)
+						fmt.Printf("`edge.attr.name` is required in group %v\n", v.Name)
 						return
 					}
 					sql += fmt.Sprintf("INSERT INTO graph.edgeAttr(edgeID, name, `desc`, type) VALUES (%v, %v, %v, %v);\n",
@@ -134,7 +135,7 @@ func main() {
 				aid, blank2Null(algo.Name), blank2Null(algo.Desc), blank2Null(algo.Detail), gid, blank2Null(algo.Tag), blank2Null(algo.JarPath), blank2Null(algo.MainClass))
 			for _, param := range algo.Params {
 				if len(param.Name) == 0 {
-					fmt.Printf("`edge.name` is required in graph %v\n", v.Name)
+					fmt.Printf("`edge.name` is required in group %v\n", v.Name)
 					return
 				}
 				sql += fmt.Sprintf("INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (%v, %v, %v, %v, %v, %v, %v);\n",

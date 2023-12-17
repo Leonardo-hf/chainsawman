@@ -1,7 +1,7 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_SOFTWARE
-import applerodite.config.{AlgoConstants, ClientConfig}
+import .SCHEMA_SOFTWARE
+import applerodite.config.ClientConfig
 import com.alibaba.fastjson.JSON
 import org.apache.hadoop.shaded.org.eclipse.jetty.websocket.common.frames.DataFrame
 import org.apache.spark.graphx.{Graph, TripletFields, VertexId}

@@ -136,5 +136,3 @@ create table if not exists nodeAttr
         foreign key (nodeID) references node (id)
             on update cascade on delete cascade
 );
-
-INSERT INTO graph.group(id, name) VALUES (1, 'root');

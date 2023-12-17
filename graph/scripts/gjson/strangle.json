@@ -84,12 +84,12 @@
   ],
   "algos": [
     {
-      "name": "Team Diversity",
+      "name": "diversity",
       "desc": "团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。",
       "detail": "团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。",
       "tag": "软件风险",
       "jarPath": "s3a://lib/diversity-latest.jar",
-      "mainClass": "applerodite.Main",
+      "mainClass": "applerodite.diversity.Main",
       "params": [
         {
           "name": "libraries",
@@ -97,7 +97,25 @@
           "type": 3,
           "min": "1"
         }
-      ]
+      ],
+      "output": {
+        "artifact": {
+          "name": "工件名",
+          "type": 0
+        },
+        "s1": {
+          "name": "维护者多元性",
+          "type": 1
+        },
+        "s2": {
+          "name": "贡献者多元性",
+          "type": 1
+        },
+        "score": {
+          "name": "总得分",
+          "type": 1
+        }
+      }
     }
   ]
 }

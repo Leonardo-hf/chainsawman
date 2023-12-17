@@ -1,6 +1,5 @@
 package applerodite.dao
 
-import applerodite.config.AlgoConstants.{ARTIFACT_COL, VERSION_COL}
 import com.vesoft.nebula.client.graph.data.{HostAddress, ResultSet}
 import com.vesoft.nebula.client.graph.{SessionPool, SessionPoolConfig}
 import com.vesoft.nebula.connector.connector.NebulaDataFrameReader
@@ -101,7 +100,7 @@ class NebulaClientImpl extends GraphClient {
       .withSpace(graphName)
       .withLabel("release")
       .withNoColumn(false)
-      .withReturnCols(List(ARTIFACT_COL, VERSION_COL))
+      .withReturnCols(List("artifact", "version"))
       //      .withPartitionNum(10)
       .build()
     val nodes = spark.read.nebula(connectorConfig, nebulaReadReleaseConfig).loadVerticesToDF()

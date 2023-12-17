@@ -39,7 +39,7 @@ INSERT INTO graph.edge(id, groupID, name, `desc`, `primary`, `direct`) VALUES (6
 INSERT INTO graph.edge(id, groupID, name, `desc`, `primary`, `direct`) VALUES (7, 3, 'belong2', '属于', null, 1);
 
 
-INSERT INTO graph.algo(id, name, `desc`, detail, groupId, tag, jarPath, mainClass) VALUES (6, 'Team Diversity', '团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。', '团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。', 3, '软件风险', 's3a://lib/diversity-latest.jar', 'applerodite.Main');
+INSERT INTO graph.algo(id, name, `desc`, detail, groupId, tag, jarPath, mainClass) VALUES (9, 'diversity', '团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。', '团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。', 3, '软件风险', 's3a://lib/diversity-latest.jar', 'applerodite.diversity.Main');
 
-INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (6, 'libraries', '待识别卡脖子风险的软件列表', 3, null, '1', null);
+INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (9, 'libraries', '待识别卡脖子风险的软件列表', 3, null, '1', null);
 

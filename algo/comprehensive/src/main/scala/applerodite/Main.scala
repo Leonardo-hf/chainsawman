@@ -1,7 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.{ARTIFACT_COL, NODE_ID_COL, SCHEMA_SOFTWARE, VERSION_COL}
-import applerodite.config.{AlgoConstants, ClientConfig}
+import applerodite.config.ClientConfig
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.{JSON, JSONObject}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder

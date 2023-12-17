@@ -1,7 +1,7 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.SCHEMA_DEFAULT
-import applerodite.config.{AlgoConstants, ClientConfig}
+import .SCHEMA_DEFAULT
+import applerodite.config.ClientConfig
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
 import org.apache.spark.graphx.{EdgeTriplet, Graph, Pregel, VertexId}

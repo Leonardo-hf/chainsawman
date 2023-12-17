@@ -1,7 +1,6 @@
 package applerodite
 
-import applerodite.config.AlgoConstants.{SCHEMA_DEFAULT, SCHEMA_SCORE}
-import applerodite.config.{AlgoConstants, ClientConfig}
+import applerodite.config.ClientConfig
 import applerodite.util.CSVUtil
 import com.alibaba.fastjson.JSON
 import org.apache.spark.graphx.Graph
