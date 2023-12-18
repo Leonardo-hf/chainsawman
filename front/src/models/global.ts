@@ -1,5 +1,6 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {RootGroupID} from "@/constants";
+import {getAllGraph} from "@/services/graph/graph";
 
 
 let init_graphs: GraphRef2Group[] = []
@@ -48,7 +49,7 @@ export function parseGroups(g: Graph.Group[]) {
         })]
     })
     // 寻找每个组的父策略组
-    groups.forEach(g => g.parentGroup = groups.find(g2 => g2.id === g.parentId))
+    groups.filter(g => g.id !== RootGroupID).forEach(g => g.parentGroup = groups.find(g2 => g2.id === g.parentId))
     // 滤除根策略组，对结果排序
     groups = groups.filter(g => g.id !== RootGroupID).sort((a, b) => a.name > b.name ? 0 : 1)
     graphs = graphs.sort((a, b) => b.id - a.id)
@@ -60,12 +61,12 @@ export function isAlgoIllegal(g: GraphRef2Group, a: Graph.Algo) {
     if (g.group.id == a.groupId) {
         return true
     }
-    let group = g.group
-    while (group.parentId) {
-        if (group.parentId == a.groupId) {
+    let parent = g.group.parentGroup
+    while (parent) {
+        if (parent.id == a.groupId) {
             return true
         }
-        group = group.parentGroup!
+        parent = parent.parentGroup
     }
     return false
 }
@@ -88,13 +89,32 @@ export function genGroupOptions(gs: TreeNodeGroup[]) {
 
 
 export default () => {
-    const [graphs, setGraphs] = useState<GraphRef2Group[]>(init_graphs)
-    const [groups, setGroups] = useState<TreeNodeGroup[]>(init_groups)
+    const [graphs, setGraphs] = useState<GraphRef2Group[]>([])
+    const [groups, setGroups] = useState<TreeNodeGroup[]>([])
 
+    useEffect(() => {
+        const update = () => {
+            getAllGraph()
+                .then(res => {
+                    if (!res.groups) {
+                        return
+                    }
+                    const {graphs, groups} = parseGroups(res.groups)
+                    setGroups(groups)
+                    setGraphs(graphs)
+                    // 如果存在状态不为完成的图，则尝试再次请求
+                    if (graphs.filter(a => a.status !== 1).length) {
+                        setTimeout(_ => {
+                            update()
+                        }, 10000)
+                    }
+                    return
+                })
+        }
+        update()
+    }, [])
     return {
         graphs,
-        setGraphs,
         groups,
-        setGroups
     }
 }

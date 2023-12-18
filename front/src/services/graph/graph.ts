@@ -2,9 +2,9 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 创建算法 POST /api/graph/algo/algo/create */
+/** 创建算法 POST /api/graph/algo/create */
 export async function algoCreate(body: Graph.CreateAlgoRequest, options?: { [key: string]: any }) {
-  return request<Graph.BaseReply>('/api/graph/algo/algo/create', {
+  return request<Graph.BaseReply>('/api/graph/algo/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -14,9 +14,9 @@ export async function algoCreate(body: Graph.CreateAlgoRequest, options?: { [key
   });
 }
 
-/** 删除算法 POST /api/graph/algo/algo/drop */
+/** 删除算法 POST /api/graph/algo/drop */
 export async function algoDrop(body: Graph.DropAlgoRequest, options?: { [key: string]: any }) {
-  return request<Graph.BaseReply>('/api/graph/algo/algo/drop', {
+  return request<Graph.BaseReply>('/api/graph/algo/drop', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -26,9 +26,9 @@ export async function algoDrop(body: Graph.DropAlgoRequest, options?: { [key: st
   });
 }
 
-/** 执行算法 POST /api/graph/algo/algo/exec */
+/** 执行算法 POST /api/graph/algo/exec */
 export async function algoExec(body: Graph.ExecAlgoRequest, options?: { [key: string]: any }) {
-  return request<Graph.AlgoReply>('/api/graph/algo/algo/exec', {
+  return request<Graph.AlgoReply>('/api/graph/algo/exec', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -38,10 +38,40 @@ export async function algoExec(body: Graph.ExecAlgoRequest, options?: { [key: st
   });
 }
 
-/** 查询算法 GET /api/graph/algo/algo/getAll */
+/** 查询算法 GET /api/graph/algo/getAll */
 export async function algoGetAll(options?: { [key: string]: any }) {
-  return request<Graph.GetAlgoReply>('/api/graph/algo/algo/getAll', {
+  return request<Graph.GetAlgoReply>('/api/graph/algo/getAll', {
     method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 删除任务 POST /api/graph/algo/task/drop */
+export async function dropAlgoTask(
+  body: Graph.DropAlgoTaskRequest,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.BaseReply>('/api/graph/algo/task/drop', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 获取图计算任务 GET /api/graph/algo/task/getAll */
+export async function getAlgoTask(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getAlgoTaskParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GetAlgoTasksReply>('/api/graph/algo/task/getAll', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
@@ -233,29 +263,18 @@ export async function getNeighbors(
   });
 }
 
-/** 删除任务 POST /api/graph/task/drop */
-export async function dropTask(body: Graph.DropTaskRequest, options?: { [key: string]: any }) {
-  return request<Graph.BaseReply>('/api/graph/task/drop', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
+/** 获得软件类型HHI指数 GET /api/graph/se/hhi */
+export async function getHHI(options?: { [key: string]: any }) {
+  return request<Graph.GetHHIReply>('/api/graph/se/hhi', {
+    method: 'GET',
     ...(options || {}),
   });
 }
 
-/** 获取图计算任务 GET /api/graph/task/task/getAll */
-export async function getGraphTasks(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: Graph.getGraphTasksParams,
-  options?: { [key: string]: any },
-) {
-  return request<Graph.GetTasksReply>('/api/graph/task/task/getAll', {
+/** 获得热门软件概要 GET /api/graph/se/hot */
+export async function getHot(options?: { [key: string]: any }) {
+  return request<Graph.GetHotSEReply>('/api/graph/se/hot', {
     method: 'GET',
-    params: {
-      ...params,
-    },
     ...(options || {}),
   });
 }

@@ -1,6 +1,5 @@
 import {getGraph, getNeighbors} from "@/services/graph/graph";
-import {getNRandomColor, getRandomColor} from "@/utils/format";
-import {sum} from "@antfu/utils";
+import {getNRandomColor} from "@/utils/format";
 
 
 export const getGraphName = function (graphID: number, tgtNodeID: number | undefined = undefined) {
@@ -84,7 +83,7 @@ export default {
                 const border = np.nodes.map(n => n.deg).sort()[Math.floor(np.nodes.length * 2 / 3)]
                 const nodeType = payload.group.nodeTypeList.find((nt: Graph.Structure) => nt.name == np.tag)!
                 const display = nodeType.display
-                const labelAttr = nodeType.attrs?.find((a: Graph.Attr) => a.primary)
+                const labelAttr = nodeType.primary
                 // 为每一类型的节点设置一种颜色
                 const color = colors.pop()
                 np.nodes.forEach(n => {
@@ -122,7 +121,7 @@ export default {
                 // TODO: 过滤有不存在的节点的边
                 const edgeType = payload.group.edgeTypeList.find((et: Graph.Structure) => et.name === ep.tag)!
                 const display = edgeType.display
-                const labelAttr = edgeType.attrs?.find((a: Graph.Attr) => a.primary)
+                const labelAttr = edgeType.primary
                 ep.edges.forEach(e => {
                     if (!nodeSet.has(e.source) || !nodeSet.has(e.target)) {
                         return

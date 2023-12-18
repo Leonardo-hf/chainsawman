@@ -15,7 +15,7 @@ import {
 import React, {useRef, useState} from 'react';
 import {useModel} from '@@/exports';
 import {formatDate} from '@/utils/format';
-import {algoExec, dropTask, getGraphTasks} from '@/services/graph/graph';
+import {algoExec, dropAlgoTask, getAlgoTask} from '@/services/graph/graph';
 import {getTaskTypeDesc, TaskTypeMap} from './_task';
 import RankTable from '@/components/RankTable';
 import {getParamFormItem, getParamFormValue, getTooltip} from "@/constants/sp";
@@ -87,9 +87,10 @@ const Exec: React.FC = () => {
                     {({graphId}) => {
                         if (graphId) {
                             const graph = graphs.find(g => g.id === graphId)!
+                            const limit = 50
                             const algoId = algos.filter((a: Graph.Algo) => isAlgoIllegal(graph, a)).map((a: Graph.Algo) => {
                                 return {
-                                    label: getTooltip(a.name, a.desc),
+                                    label: getTooltip(a.name, a.detail.length > limit ? a.detail.substring(0, limit) + '...' : a.detail),
                                     value: a.id
                                 }
                             })
@@ -115,33 +116,19 @@ const Exec: React.FC = () => {
     }
 
     const getTaskList = () => {
-        const getTaskContent = (task: Graph.Task) => {
-            const sres = task.res
-            try {
-                if (!sres) {
-                    return
-                }
-                const res = JSON.parse(sres)
-                return <Space direction={"vertical"}>
-                    <Text>{'算法：' + algos.find((a: Graph.Algo) => a.id === res.algoId)?.name}</Text>
-                    <RankTable file={res.file}/>
-                </Space>
-            } catch (e) {
-                console.log(e)
-                return
-            }
+        const getTaskContent = (task: Graph.AlgoTask) => {
+            return <RankTable file={task.output}/>
         }
-        const getTaskGraph = (task: Graph.Task) => {
+        const getTaskGraph = (task: Graph.AlgoTask) => {
             try {
-                const req = JSON.parse(task.req)
-                return <Tag color={'pink'}>{graphs.find(g => g.id === req.graphId)!.name}</Tag>
+                return <Tag color={'pink'}>{graphs.find(g => g.id === task.graphId)!.name}</Tag>
             } catch (e) {
                 console.log(e)
                 return
             }
         }
 
-        return <ProList<Graph.Task>
+        return <ProList<Graph.AlgoTask>
             headerTitle='执行结果'
             key='taskProList'
             itemLayout='vertical'
@@ -164,7 +151,7 @@ const Exec: React.FC = () => {
                 filterType: 'light',
             }}
             request={async (params = {time: Date.now()}) => {
-                const tasks: Graph.Task[] = (await getGraphTasks({graphId: params.graphId})).tasks
+                const tasks: Graph.AlgoTask[] = (await getAlgoTask({graphId: params.graphId})).tasks
                 return {
                     data: tasks.filter((t: { status: number; }) => !params.subTitle || t.status == params.subTitle),
                     success: true,
@@ -174,7 +161,7 @@ const Exec: React.FC = () => {
             metas={{
                 title: {
                     search: false,
-                    render: (_, row) => <Text>{row.idf}</Text>
+                    render: (_, row) => <Text>{algos.find((a: Graph.Algo) => a.id === row.algoId)?.name}</Text>
                 },
                 subTitle: {
                     title: '类别',
@@ -197,8 +184,8 @@ const Exec: React.FC = () => {
                         return <Space direction={'vertical'}>
                             <Text type={'secondary'}>{formatDate(row.createTime)}</Text>
                             <a style={{float: 'right'}} onClick={() => {
-                                dropTask({
-                                    taskId: row.id
+                                dropAlgoTask({
+                                    id: row.id
                                 }).then(() => {
                                     // @ts-ignore
                                     taskListRef.current?.reload()

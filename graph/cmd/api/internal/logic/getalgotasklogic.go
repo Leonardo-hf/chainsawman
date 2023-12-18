@@ -49,6 +49,7 @@ func (l *GetAlgoTaskLogic) GetAlgoTask(req *types.GetAlgoTasksRequest) (resp *ty
 			Req:        task.Params,
 			AlgoID:     task.AlgoID,
 			Output:     task.Output,
+			GraphID:    task.GraphID,
 		})
 	}
 	return resp, nil

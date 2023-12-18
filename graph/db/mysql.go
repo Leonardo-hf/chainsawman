@@ -3,10 +3,15 @@ package db
 import (
 	"chainsawman/graph/model"
 	"context"
+	"time"
 )
 
 // MysqlClient
 type MysqlClient interface {
+	GetLatestSETask(ctx context.Context, n int64) ([]*SETask, error)
+
+	GetLatestHHITask(ctx context.Context, n int64) ([]*HHITask, error)
+
 	InsertAlgoTask(ctx context.Context, exec *model.Exec) error
 
 	GetAlgoTasks(ctx context.Context) ([]*model.Exec, error)
@@ -50,4 +55,18 @@ type MysqlClient interface {
 	InsertAlgo(ctx context.Context, algo *model.Algo) error
 
 	DropAlgoByID(ctx context.Context, id int64) (int64, error)
+}
+
+type HHITask struct {
+	Output     string
+	UpdateTime time.Time `gorm:"column:updateTime;"`
+	Graph      string
+}
+
+type SETask struct {
+	Output     string
+	UpdateTime time.Time `gorm:"column:updateTime;"`
+	Graph      string
+	GraphID    int64
+	Algo       string
 }

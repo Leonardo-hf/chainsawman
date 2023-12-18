@@ -12,7 +12,8 @@ export default defineConfig({
     },
     proxy: {
         '/api/graph': {
-            'target': 'http://127.0.0.1:8888/',
+            // 'target': 'http://127.0.0.1:8888/',
+            'target': 'http://127.0.0.1:30130/',
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },
@@ -56,10 +57,10 @@ export default defineConfig({
         {
             name: '首页',
             path: '/home',
-            component: './Home',
+            component: './Dashboard',
         },
         {
-            name: '图谱',
+            name: '图谱可视化',
             path: '/graph',
             routes: [
                 {
@@ -70,17 +71,12 @@ export default defineConfig({
             ]
         },
         {
-            name: '图结构',
-            path: '/group',
-            component: './Group'
-        },
-        {
-            name: '图算法',
+            name: '模型体系',
             path: '/algo',
             component: './Algo'
         },
         {
-            name: '图计算',
+            name: '指标分析',
             path: '/exec',
             component: './AlgoExec'
         },
@@ -98,6 +94,16 @@ export default defineConfig({
             name: '软件成分分析',
             path: '/util/extractor',
             component: './Extractor'
+        },
+        {
+            name: '图谱配置',
+            path: '/group',
+            component: './Group'
+        },
+        {
+            name: '表格',
+            path: '/gtable',
+            component: './GTable',
         },
         {
             name: '服务监控',

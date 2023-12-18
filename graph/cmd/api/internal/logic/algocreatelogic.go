@@ -37,6 +37,7 @@ func (l *AlgoCreateLogic) AlgoCreate(req *types.CreateAlgoRequest) (resp *types.
 	err = l.svcCtx.MysqlClient.InsertAlgo(l.ctx, &model.Algo{
 		Name:      req.Algo.Name,
 		Desc:      req.Algo.Desc,
+		Detail:    req.Algo.Detail,
 		Tag:       req.Algo.Tag,
 		JarPath:   fmt.Sprintf("s3a://lib/%v", req.Jar),
 		MainClass: req.EntryPoint,

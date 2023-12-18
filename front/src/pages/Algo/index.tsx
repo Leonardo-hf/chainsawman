@@ -4,18 +4,17 @@ import {
     ProFormGroup,
     ProFormList,
     ProFormSelect,
-    ProFormText, ProFormUploadButton,
+    ProFormText, ProFormTextArea, ProFormUploadButton,
     ProList
 } from "@ant-design/pro-components";
 import {Button, Divider, Form, message, Popconfirm, Space, Tag, Typography} from "antd";
-import {CloseOutlined, PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
+import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import {algoCreate, algoDrop} from "@/services/graph/graph";
 import React, {Key, useState} from "react";
 import ProCard from "@ant-design/pro-card";
 import {useModel} from "@@/exports";
 import {
     AlgoOptions,
-    AlgoType,
     AlgoTypeMap,
     getAlgoTypeDesc,
     getPrecise,
@@ -24,10 +23,14 @@ import {
 } from "@/constants";
 import {uploadLib} from "@/utils/oss";
 import {genGroupOptions} from "@/models/global";
+import Markdown from 'react-markdown'
+import remarkMath from "remark-math";
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 
 const {Text} = Typography;
 
-const Algo: React.FC = (props) => {
+const Algo: React.FC = () => {
 
     const [expandedRowKeys, setExpandedRowKeys] = useState<readonly Key[]>([]);
     const {initialState} = useModel('@@initialState')
@@ -44,19 +47,19 @@ const Algo: React.FC = (props) => {
                 entryPoint: vs.entryPoint,
                 jar: jar,
                 algo: {
-                    isCustom: true,
                     name: vs.name,
                     desc: vs.desc,
-                    type: vs.type,
+                    detail: vs.detail,
+                    tag: vs.tag,
                     groupId: vs.groupId,
                     params: vs.params.map(p => {
                         return {
                             key: p.key,
                             keyDesc: p.keyDesc,
                             type: p.type,
-                            max: p.range ? p.range[1] : undefined,
-                            min: p.range ? p.range[0] : undefined,
-                            initValue: p.initValue
+                            max: p.range ? p.range[1].toString() : undefined,
+                            min: p.range ? p.range[0].toString() : undefined,
+                            initValue: p.initValue.toString()
                         }
                     })
                 },
@@ -69,7 +72,7 @@ const Algo: React.FC = (props) => {
             })
         }
         type FormData = {
-            name: string, desc: string, type: AlgoType, groupId: number,
+            name: string, desc: string, tag: string, groupId: number, detail: string,
             entryPoint: string, jar: any,
             params: { key: string, keyDesc: string, type: ParamType, initValue: number, range: number[] }[]
         }
@@ -95,13 +98,14 @@ const Algo: React.FC = (props) => {
         >
             <ProFormGroup title='算法配置'>
                 <ProFormText name='name' label='名称' rules={[{required: true}]}/>
-                <ProFormText name='desc' label='描述' rules={[{required: true}]}/>
+                <ProFormText name='desc' label='概述' rules={[{required: true}]}/>
+                <ProFormTextArea name={'detail'} label={'详情'} rules={[{required: true}]}/>
                 <ProFormSelect
-                    initialValue={AlgoType.rank}
+                    initialValue={'节点中心度'}
                     options={AlgoOptions}
                     rules={[{required: true}]}
-                    name='type'
-                    label='算法分类'
+                    name='tag'
+                    label='算法标签'
                 />
                 <ProFormSelect name='groupId' style={{width: '100%'}} label='适用策略组' options={genGroupOptions(groups)}/>
             </ProFormGroup>
@@ -169,7 +173,10 @@ const Algo: React.FC = (props) => {
             }
         })
         return <Space direction={'vertical'}>
-            <Text type={'secondary'}>{algo.desc}</Text>
+
+            <Markdown remarkPlugins={[remarkMath]}
+                // @ts-ignore
+                      rehypePlugins={[rehypeKatex]}>{algo.detail}</Markdown>
             {algo.params?.length! > 0 && <Divider/>}
             {
                 algo.params?.map(p =>
@@ -177,7 +184,7 @@ const Algo: React.FC = (props) => {
                         <ProDescriptions dataSource={p}>
                             <ProDescriptions.Item dataIndex={'key'} label='key' valueType={'text'}/>
                             <ProDescriptions.Item dataIndex={'keyDesc'} label='名称' valueType={'text'}/>
-                            <ProDescriptions.Item label='类型' render={(_, t)=>ParamTypeOptions[t['type']].label}/>
+                            <ProDescriptions.Item label='类型' render={(_, t) => ParamTypeOptions[t['type']].label}/>
                             {p.initValue &&
                             <ProDescriptions.Item dataIndex={'initValue'} label='默认值' valueType={'text'}/>}
                             {p.max && <ProDescriptions.Item dataIndex={'max'} label='最大值' valueType={'text'}/>}
@@ -204,7 +211,7 @@ const Algo: React.FC = (props) => {
             }}
             request={
                 async (params = {time: Date.now()}) => {
-                    const data = algos.filter((a: Graph.Algo) => !params.subTitle || a.type == params.subTitle)
+                    const data = algos.filter((a: Graph.Algo) => !params.subTitle || a.tag == params.subTitle)
                     return {
                         data: data,
                         success: true,
@@ -220,7 +227,7 @@ const Algo: React.FC = (props) => {
                     title: '类别',
                     render: (_, row) => {
                         return <Space size={0}>
-                            {getAlgoTypeDesc(row.type)}
+                            {getAlgoTypeDesc(row.tag)}
                             <Tag
                                 color='#FFA54F'>{row.groupId === 1 ? '通用' : groups.find(g => g.id === row.groupId)!.desc}</Tag>
                         </Space>
@@ -234,7 +241,7 @@ const Algo: React.FC = (props) => {
                 },
                 actions: {
                     render: (_, a) => {
-                        return a.isCustom && <Popconfirm
+                        return <Popconfirm
                             title="确认删除？"
                             icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
                             onConfirm={() => {

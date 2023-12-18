@@ -7,6 +7,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/zeromicro/go-zero/core/logx"
+	"io"
 	"net/url"
 	"time"
 )
@@ -97,4 +98,8 @@ func (m *MinioClientImpl) GetAlgoPresignedURL(ctx context.Context, name string) 
 		return "", err
 	}
 	return presignedURL.String(), nil
+}
+
+func (m *MinioClientImpl) FetchAlgo(ctx context.Context, name string) (io.Reader, error) {
+	return m.client.GetObject(ctx, m.algo, name, minio.GetObjectOptions{})
 }

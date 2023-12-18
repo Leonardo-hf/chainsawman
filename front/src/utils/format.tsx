@@ -12,6 +12,18 @@ export const formatDate = (time: number) => {
 
 export const formatNumber = (v: any) => Math.floor(v).toString()
 
+export const formatEnum2Options = (enums: any) => {
+    const options = []
+    for (let k in enums) {
+        const v = enums[k]
+        options.push({
+            label: v.text,
+            value: v.status
+        })
+    }
+    return options
+}
+
 export const UUID = () =>
     'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0,

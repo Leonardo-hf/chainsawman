@@ -8,10 +8,7 @@ create table if not exists `group`
         primary key,
     name     varchar(255)  not null,
     `desc`   text          null,
-    parentID int default 1 null comment '标识父策略组，子策略组继承父策略组的全部节点与边缘',
-    constraint groups_groups_id_fk
-        foreign key (parentID) references `group` (id)
-            on update cascade on delete cascade
+    parentID int default 1 null comment '标识父策略组，子策略组继承父策略组的全部节点与边缘'
 );
 
 create table if not exists algo
@@ -100,7 +97,7 @@ create table if not exists `exec`
     algoID     int                                 not null,
     graphID    int                                 not null,
     output     varchar(255)                        null,
-    appID        varchar(255)                        not null,
+    appID        varchar(255)                      null,
     updateTime timestamp default CURRENT_TIMESTAMP not null,
     createTime timestamp default CURRENT_TIMESTAMP not null,
     constraint exec_algos_id_fk

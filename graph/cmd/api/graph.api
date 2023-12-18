@@ -209,6 +209,7 @@ type (
 		CreateTime int64  `json:"createTime"`
 		UpdateTime int64  `json:"updateTime"`
 		Status     int64  `json:"status"`
+		GraphID    int64  `json:"graphId"`
 		Req        string `json:"req"`
 		AlgoID     int64  `json:"algoId"`
 		Output     string `json:"output"`
@@ -233,6 +234,7 @@ type (
 		Id      int64        `json:"id,optional"`
 		Name    string       `json:"name"`
 		Desc    string       `json:"desc"`
+		Detail  string       `json:"detail"`
 		GroupId int64        `json:"groupId"`
 		Tag     string       `json:"tag"`
 		Params  []*AlgoParam `json:"params,optional"`
@@ -279,6 +281,41 @@ type (
 		GraphID int64    `json:"graphId"`
 		AlgoID  int64    `json:"algoId"`
 		Params  []*Param `json:"params,optional"`
+	}
+)
+
+type (
+	HotSE {
+		Artifact string  `json:"artifact"`
+		Version  string  `json:"version"`
+		HomePage string  `json:"homePage"`
+		Score    float64 `json:"score"`
+	}
+
+	HotSETopic {
+		Software   []*HotSE `json:"software"`
+		Language   string   `json:"language"`
+		Topic      string   `json:"topic"`
+		UpdateTime int64    `json:"updateTime"`
+	}
+
+	GetHotSEReply {
+		Topics []*HotSETopic `json:"topics"`
+	}
+
+	HHI {
+		Name  string `json:"name"`
+		Score string `json:"score"`
+	}
+
+	HHILanguage {
+		HHIs       []*HHI `json:"hhIs"`
+		Language   string `json:"language"`
+		UpdateTime int64  `json:"updateTime"`
+	}
+
+	GetHHIReply {
+		Languages []*HHILanguage `json:"languages"`
 	}
 )
 
@@ -341,19 +378,19 @@ service graph {
 service graph {
 	@doc "查询算法"
 	@handler algoGetAll
-	get /algo/getAll returns (GetAlgoReply)
+	get /getAll returns (GetAlgoReply)
 	
 	@doc "创建算法"
 	@handler algoCreate
-	post /algo/create (CreateAlgoRequest) returns (BaseReply)
+	post /create (CreateAlgoRequest) returns (BaseReply)
 	
 	@doc "删除算法"
 	@handler algoDrop
-	post /algo/drop (DropAlgoRequest) returns (BaseReply)
+	post /drop (DropAlgoRequest) returns (BaseReply)
 	
 	@doc "执行算法"
 	@handler algoExec
-	post /algo/exec (ExecAlgoRequest) returns (AlgoReply)
+	post /exec (ExecAlgoRequest) returns (AlgoReply)
 	
 	@doc "获取图计算任务"
 	@handler getAlgoTask
@@ -361,11 +398,7 @@ service graph {
 	
 	@doc "删除任务"
 	@handler dropAlgoTask
-	post /drop (DropAlgoTaskRequest) returns (BaseReply)
-
-	@doc "获得热门软件概要"
-	@handler getHot
-
+	post /task/drop (DropAlgoTaskRequest) returns (BaseReply)
 }
 
 @server(
@@ -383,4 +416,17 @@ service graph {
 	@doc "获得文件下载链接"
 	@handler fileAlgoGetPresigned
 	get /get/algo (PresignedRequest) returns (PresignedReply)
+}
+
+@server(
+	prefix: /api/graph/se
+)
+service graph {
+	@doc "获得热门软件概要"
+	@handler getHot
+	get /hot returns (GetHotSEReply)
+	
+	@doc "获得软件类型HHI指数"
+	@handler getHHI
+	get /hhi returns (GetHHIReply)
 }

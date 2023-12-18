@@ -19,7 +19,11 @@
     "@umijs/max": "^4.0.61",
     "@umijs/max-plugin-openapi": "^2.0.3",
     "antd": "^5.8.6",
-    "react-papaparse": "^4.4.0"
+    "react-countup": "^6.5.0",
+    "react-markdown": "^8.0.7",
+    "react-papaparse": "^4.4.0",
+    "rehype-katex": "^7.0.0",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

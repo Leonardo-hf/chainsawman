@@ -3,9 +3,9 @@ declare namespace Graph {
     id?: number;
     name: string;
     desc: string;
+    detail: string;
     groupId: number;
-    isCustom: boolean;
-    type: number;
+    tag: string;
     params?: AlgoParam[];
   };
 
@@ -13,9 +13,9 @@ declare namespace Graph {
     key: string;
     keyDesc: string;
     type: number;
-    initValue?: number;
-    max?: number;
-    min?: number;
+    initValue?: string;
+    max?: string;
+    min?: string;
   };
 
   type AlgoReply = {
@@ -24,10 +24,20 @@ declare namespace Graph {
     file: string;
   };
 
+  type AlgoTask = {
+    id: string;
+    createTime: number;
+    updateTime: number;
+    status: number;
+    graphId: number;
+    req: string;
+    algoId: number;
+    output: string;
+  };
+
   type Attr = {
     name: string;
     desc: string;
-    primary: boolean;
     type: number;
   };
 
@@ -64,16 +74,16 @@ declare namespace Graph {
     algoId: number;
   };
 
+  type DropAlgoTaskRequest = {
+    id: number;
+  };
+
   type DropGraphRequest = {
     graphId: number;
   };
 
   type DropGroupRequest = {
     groupId: number;
-  };
-
-  type DropTaskRequest = {
-    taskId?: string;
   };
 
   type Edge = {
@@ -88,7 +98,6 @@ declare namespace Graph {
   };
 
   type ExecAlgoRequest = {
-    taskId?: string;
     graphId: number;
     algoId: number;
     params?: Param[];
@@ -101,6 +110,19 @@ declare namespace Graph {
   type GetAlgoReply = {
     base: BaseReply;
     algos: Algo[];
+  };
+
+  type getAlgoTaskParams = {
+    graphId?: number;
+  };
+
+  type GetAlgoTasksReply = {
+    base: BaseReply;
+    tasks: AlgoTask[];
+  };
+
+  type GetAlgoTasksRequest = {
+    graphId?: number;
   };
 
   type GetAllGraphReply = {
@@ -136,8 +158,12 @@ declare namespace Graph {
     max?: number;
   };
 
-  type getGraphTasksParams = {
-    graphId?: number;
+  type GetHHIReply = {
+    languages: HHILanguage[];
+  };
+
+  type GetHotSEReply = {
+    topics: HotSETopic[];
   };
 
   type getMatchNodesByTagParams = {
@@ -208,15 +234,6 @@ declare namespace Graph {
     graphId: number;
   };
 
-  type GetTasksReply = {
-    base: BaseReply;
-    tasks: Task[];
-  };
-
-  type GetTasksRequest = {
-    graphId?: number;
-  };
-
   type Graph = {
     id: number;
     status: number;
@@ -247,6 +264,31 @@ declare namespace Graph {
   type GroupInfoReply = {
     base: BaseReply;
     group: Group;
+  };
+
+  type HHI = {
+    name: string;
+    score: string;
+  };
+
+  type HHILanguage = {
+    hhIs: HHI[];
+    language: string;
+    updateTime: number;
+  };
+
+  type HotSE = {
+    artifact: string;
+    version: string;
+    homePage: string;
+    score: number;
+  };
+
+  type HotSETopic = {
+    software: HotSE[];
+    language: string;
+    topic: string;
+    updateTime: number;
   };
 
   type MatchNode = {
@@ -295,19 +337,10 @@ declare namespace Graph {
     id: number;
     name: string;
     desc: string;
-    edgeDirection: boolean;
+    edgeDirection?: boolean;
     display: string;
+    primary?: string;
     attrs?: Attr[];
-  };
-
-  type Task = {
-    id: string;
-    idf: string;
-    createTime: number;
-    updateTime: number;
-    status: number;
-    req: string;
-    res: string;
   };
 
   type UpdateGraphRequest = {

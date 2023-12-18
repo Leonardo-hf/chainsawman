@@ -46,6 +46,7 @@ func (l *AlgoGetAllLogic) AlgoGetAll() (resp *types.GetAlgoReply, err error) {
 			Id:      a.ID,
 			Name:    a.Name,
 			Desc:    a.Desc,
+			Detail:  a.Detail,
 			GroupId: a.GroupID,
 			Params:  params,
 			Tag:     a.Tag,

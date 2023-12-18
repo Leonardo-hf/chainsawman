@@ -69,7 +69,3 @@ func (m *MinioClientImpl) FetchSource(ctx context.Context, name string) (io.Read
 func (m *MinioClientImpl) FetchAlgo(ctx context.Context, name string) (io.Reader, error) {
 	return m.client.GetObject(ctx, m.algo, name, minio.GetObjectOptions{})
 }
-func (m *MinioClientImpl) AlgoGenerated(ctx context.Context, name string) bool {
-	_, err := m.client.StatObject(ctx, m.algo, name, minio.StatObjectOptions{})
-	return err == nil
-}

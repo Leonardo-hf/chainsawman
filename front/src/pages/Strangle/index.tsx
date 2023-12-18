@@ -202,7 +202,7 @@ const Strangle: React.FC = () => {
     // 提交算法后轮询算法结果
     if (current === steps.length - 1 && lastTaskId && !lastTimer) {
         const timer = setInterval(() => {
-            const params: Graph.ExecAlgoRequest = {algoId: 0, graphId: 0, taskId: lastTaskId}
+            const params: Graph.ExecAlgoRequest = {algoId: 0, graphId: 0}
             algoExec(params).then((res) => {
                 if (res.file) {
                     setLastFileName(res.file)

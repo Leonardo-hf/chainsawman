@@ -20,9 +20,8 @@ import {GraphRef2Group, parseGroups, TreeNodeGroup} from '@/models/global';
 
 const {Title} = Typography;
 
-const HomePage: React.FC = () => {
-    const ref = useRef<ActionType>();
-    const {setGraphs, groups, setGroups} = useModel('global')
+const GTable: React.FC = () => {
+    const {graphs, groups} = useModel('global')
     // 创建图谱的drawer
     const getNewGraphModal = () => {
         // form提交处理函数
@@ -31,7 +30,7 @@ const HomePage: React.FC = () => {
             return await createGraph({groupId: groupId, graph: graph})
                 .then(() => {
                     message.success('图谱创建中...')
-                    ref.current?.reload()
+                    window.location.reload()
                     return true
                 }).catch(e => {
                     console.log(e)
@@ -80,11 +79,11 @@ const HomePage: React.FC = () => {
                                 return {
                                     name: n.name,
                                     desc: n.desc,
+                                    primary: n.primary,
                                     attr: n.attrs?.map(a => {
                                         return {
                                             name: a.name,
                                             desc: a.desc,
-                                            primary: a.primary,
                                             type: a.type === 0 ? 'string' : 'number'
                                         }
                                     })
@@ -94,12 +93,12 @@ const HomePage: React.FC = () => {
                                 return {
                                     name: n.name,
                                     desc: n.desc,
+                                    primary: n.primary,
                                     isDirect: n.edgeDirection,
                                     attr: n.attrs?.map(a => {
                                         return {
                                             name: a.name,
                                             desc: a.desc,
-                                            primary: a.primary,
                                             type: a.type === 0 ? 'string' : 'number'
                                         }
                                     })
@@ -142,7 +141,7 @@ const HomePage: React.FC = () => {
             return await updateGraph({edgeFileList: edgeFiles, graphId: graphId, nodeFileList: nodeFiles})
                 .then(() => {
                     message.success('图谱更新中...')
-                    ref.current?.reload()
+                    window.location.reload()
                     return true
                 }).catch(e => {
                     console.log(e)
@@ -209,7 +208,7 @@ const HomePage: React.FC = () => {
 
     const groupsEnum: any = {}
     groups.forEach(g => groupsEnum[g.id] = {
-        text: g.name,
+        text: g.desc,
     })
 
     const getGraphRoute = (g: GraphRef2Group) => {
@@ -231,34 +230,23 @@ const HomePage: React.FC = () => {
             fixed: 'left',
         },
         {
-            title: '组',
+            title: '图结构',
             copyable: true,
             ellipsis: true,
             valueType: 'select',
             valueEnum: groupsEnum,
             filters: true,
             onFilter: true,
-            hideInSearch: true,
             tooltip: '对图中节点、边结构的一组定义',
-            render: (_,d)=>d.group.desc
+            render: (_, d) => d.group.desc
         },
         {
-            title: '节点',
+            title: '节点数目',
             dataIndex: 'numNode',
-            sorter: {
-                compare: (a, b) => a.numNode - b.numNode,
-                multiple: 1
-            },
-            hideInSearch: true
         },
         {
-            title: '边',
+            title: '边数目',
             dataIndex: 'numEdge',
-            sorter: {
-                compare: (a, b) => a.numEdge - b.numEdge,
-                multiple: 2
-            },
-            hideInSearch: true
         },
         {
             disable: true,
@@ -267,7 +255,6 @@ const HomePage: React.FC = () => {
             filters: true,
             onFilter: true,
             valueType: 'select',
-            hideInSearch: true,
             valueEnum: {
                 2: {
                     text: '更新中',
@@ -287,10 +274,6 @@ const HomePage: React.FC = () => {
             title: '创建时间',
             dataIndex: 'creatAt',
             valueType: 'date',
-            sorter: {
-                compare: (a, b) => a.creatAt - b.creatAt,
-                multiple: 3
-            },
             hideInSearch: true
         },
         {
@@ -299,7 +282,7 @@ const HomePage: React.FC = () => {
             valueType: 'date',
             sorter: {
                 compare: (a, b) => a.updateAt - b.updateAt,
-                multiple: 3
+                multiple: 1
             },
             hideInSearch: true
         },
@@ -307,7 +290,7 @@ const HomePage: React.FC = () => {
             title: '操作',
             key: 'option',
             valueType: 'option',
-            render: (text, record, _, action) => {
+            render: (text, record) => {
                 const disable: CSSProperties | undefined = record.status !== 1 ? {
                     pointerEvents: 'none',
                     color: 'grey'
@@ -322,7 +305,7 @@ const HomePage: React.FC = () => {
                             graphId: record.id
                         }).then(() => {
                             message.success('删除图`' + record.name + '`成功')
-                            action?.reload()
+                            window.location.reload()
                         })
                     }}>
                         删除
@@ -332,46 +315,13 @@ const HomePage: React.FC = () => {
         },
     ]
 
-    // 查询图谱信息
-    async function checkGraphs() {
-        return await getAllGraph()
-            .then(res => {
-                if (!res.groups) {
-                    return []
-                }
-                const {graphs, groups} = parseGroups(res.groups)
-                // TODO: 可能反复触发重新渲染？
-                setGroups(groups)
-                setGraphs(graphs)
-                // 如果存在状态不为完成的图，则尝试再次请求
-                if (graphs.filter(a => a.status !== 1).length) {
-                    setTimeout(_ => {
-                        ref.current?.reload()
-                    }, 5000)
-                }
-                return graphs
-            })
-    }
-
     return (
         <PageContainer>
             <ProTable<GraphRef2Group>
                 key='graphList'
                 columns={columns}
                 cardBordered
-                actionRef={ref}
-                request={async (params) => {
-                    console.log('reload home')
-                    const keyword = params.name ? params.name : ''
-                    // 查询最新的图与组信息并更新
-                    const graphs = await checkGraphs()
-                    const fGraphs = graphs.filter(g => g.name.includes(keyword) && (!params.status || g.status == params.status))
-                    return {
-                        data: fGraphs,
-                        success: true,
-                        total: fGraphs.length
-                    }
-                }}
+                dataSource={graphs}
                 columnsState={{
                     persistenceKey: 'graphs_columns_state',
                     persistenceType: 'localStorage',
@@ -379,15 +329,13 @@ const HomePage: React.FC = () => {
                 rowKey={(record) => {
                     return record.id
                 }}
-                search={{
-                    labelWidth: 'auto',
-                }}
                 options={{
                     setting: {
                         listsHeight: 400,
                     },
                 }}
                 pagination={false}
+                search={false}
                 dateFormatter='string'
                 headerTitle={<Title level={4} style={{margin: '0 0 0 0'}}>图谱列表</Title>}
                 toolBarRender={() => [
@@ -398,5 +346,5 @@ const HomePage: React.FC = () => {
     );
 };
 
-export default HomePage;
+export default GTable;
 

@@ -15,7 +15,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/graph/algo/algo/create": {
+    "/api/graph/algo/create": {
       "post": {
         "summary": "创建算法",
         "operationId": "algoCreate",
@@ -42,7 +42,7 @@
         ]
       }
     },
-    "/api/graph/algo/algo/drop": {
+    "/api/graph/algo/drop": {
       "post": {
         "summary": "删除算法",
         "operationId": "algoDrop",
@@ -69,7 +69,7 @@
         ]
       }
     },
-    "/api/graph/algo/algo/exec": {
+    "/api/graph/algo/exec": {
       "post": {
         "summary": "执行算法",
         "operationId": "algoExec",
@@ -96,7 +96,7 @@
         ]
       }
     },
-    "/api/graph/algo/algo/getAll": {
+    "/api/graph/algo/getAll": {
       "get": {
         "summary": "查询算法",
         "operationId": "algoGetAll",
@@ -113,7 +113,7 @@
         ]
       }
     },
-    "/api/graph/algo/drop": {
+    "/api/graph/algo/task/drop": {
       "post": {
         "summary": "删除任务",
         "operationId": "dropAlgoTask",
@@ -578,6 +578,40 @@
         ]
       }
     },
+    "/api/graph/se/hhi": {
+      "get": {
+        "summary": "获得软件类型HHI指数",
+        "operationId": "getHHI",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetHHIReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/se/hot": {
+      "get": {
+        "summary": "获得热门软件概要",
+        "operationId": "getHot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetHotSEReply"
+            }
+          }
+        },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
     "/api/graph/update": {
       "post": {
         "summary": "更新图",
@@ -620,6 +654,9 @@
         "desc": {
           "type": "string"
         },
+        "detail": {
+          "type": "string"
+        },
         "groupId": {
           "type": "integer",
           "format": "int64"
@@ -638,6 +675,7 @@
       "required": [
         "name",
         "desc",
+        "detail",
         "groupId",
         "tag"
       ]
@@ -711,6 +749,10 @@
           "type": "integer",
           "format": "int64"
         },
+        "graphId": {
+          "type": "integer",
+          "format": "int64"
+        },
         "req": {
           "type": "string"
         },
@@ -728,6 +770,7 @@
         "createTime",
         "updateTime",
         "status",
+        "graphId",
         "req",
         "algoId",
         "output"
@@ -1115,6 +1158,36 @@
         "name"
       ]
     },
+    "GetHHIReply": {
+      "type": "object",
+      "properties": {
+        "languages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HHILanguage"
+          }
+        }
+      },
+      "title": "GetHHIReply",
+      "required": [
+        "languages"
+      ]
+    },
+    "GetHotSEReply": {
+      "type": "object",
+      "properties": {
+        "topics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HotSETopic"
+          }
+        }
+      },
+      "title": "GetHotSEReply",
+      "required": [
+        "topics"
+      ]
+    },
     "GetMatchNodesByTagReply": {
       "type": "object",
       "properties": {
@@ -1405,6 +1478,99 @@
       "required": [
         "base",
         "group"
+      ]
+    },
+    "HHI": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "score": {
+          "type": "string"
+        }
+      },
+      "title": "HHI",
+      "required": [
+        "name",
+        "score"
+      ]
+    },
+    "HHILanguage": {
+      "type": "object",
+      "properties": {
+        "hhIs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HHI"
+          }
+        },
+        "language": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "HHILanguage",
+      "required": [
+        "hhIs",
+        "language",
+        "updateTime"
+      ]
+    },
+    "HotSE": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "homePage": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "HotSE",
+      "required": [
+        "artifact",
+        "version",
+        "homePage",
+        "score"
+      ]
+    },
+    "HotSETopic": {
+      "type": "object",
+      "properties": {
+        "software": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HotSE"
+          }
+        },
+        "language": {
+          "type": "string"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "HotSETopic",
+      "required": [
+        "software",
+        "language",
+        "topic",
+        "updateTime"
       ]
     },
     "MatchNode": {

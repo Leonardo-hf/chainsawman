@@ -18,7 +18,7 @@ type Exec struct {
 	AlgoID     int64     `gorm:"column:algoID;type:int;not null" json:"algoID"`
 	GraphID    int64     `gorm:"column:graphID;type:int;not null" json:"graphID"`
 	Output     string    `gorm:"column:output;type:varchar(255)" json:"output"`
-	AppID      string    `gorm:"column:appID;type:varchar(255);not null" json:"appID"`
+	AppID      string    `gorm:"column:appID;type:varchar(255)" json:"appID"`
 	UpdateTime time.Time `gorm:"column:updateTime;type:timestamp;not null;default:CURRENT_TIMESTAMP;autoUpdateTime" json:"updateTime"`
 	CreateTime time.Time `gorm:"column:createTime;type:timestamp;not null;default:CURRENT_TIMESTAMP;autoCreateTime" json:"createTime"`
 }

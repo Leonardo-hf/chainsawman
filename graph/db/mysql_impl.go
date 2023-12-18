@@ -24,6 +24,34 @@ func InitMysqlClient(cfg *MysqlConfig) MysqlClient {
 	return &MysqlClientImpl{}
 }
 
+// TODO: 什么硬编码？
+func (c *MysqlClientImpl) GetLatestSETask(ctx context.Context, n int64) ([]*SETask, error) {
+	e := query.Exec
+	a := query.Algo
+	g := query.Graph
+	res := make([]*SETask, 0)
+	err := e.WithContext(ctx).Join(a, a.ID.EqCol(e.AlgoID)).Join(g, g.ID.EqCol(g.ID)).Distinct(e.AlgoID, e.GraphID).
+		Select(e.Output, e.UpdateTime, e.GraphID, a.Name.As("graph"), g.Name.As("algo")).Where(e.Status.Eq(1)).Where(a.Tag.Eq("软件影响力")).
+		Order(e.UpdateTime.Desc()).Limit(int(n)).Scan(&res)
+	return res, err
+}
+
+// TODO: 什么硬编码？
+func (c *MysqlClientImpl) GetLatestHHITask(ctx context.Context, n int64) ([]*HHITask, error) {
+	e := query.Exec
+	a := query.Algo
+	g := query.Graph
+	res := make([]*HHITask, 0)
+	sub := a.WithContext(ctx).Select(a.ID).Where(a.Name.Eq("hhi"))
+	err := e.WithContext(ctx).Join(g, g.ID.EqCol(g.ID)).
+		Select(e.Output, e.UpdateTime, g.Name.As("graph")).Where(e.Status.Eq(1)).Where(e.Columns(e.AlgoID).In(sub)).
+		Order(e.UpdateTime.Desc()).Limit(int(n)).Scan(&res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func (c *MysqlClientImpl) InsertAlgoTask(ctx context.Context, exec *model.Exec) error {
 	e := query.Exec
 	return e.WithContext(ctx).Create(exec)
@@ -145,7 +173,7 @@ func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*mod
 
 func (c *MysqlClientImpl) GetAllAlgo(ctx context.Context) ([]*model.Algo, error) {
 	a := query.Algo
-	return a.WithContext(ctx).Select(a.ID, a.Desc, a.GroupID, a.Name, a.Tag).Preload(a.Params).Find()
+	return a.WithContext(ctx).Select(a.ID, a.Desc, a.GroupID, a.Name, a.Tag, a.Detail).Preload(a.Params).Find()
 }
 
 func (c *MysqlClientImpl) DropAlgoByID(ctx context.Context, id int64) (int64, error) {

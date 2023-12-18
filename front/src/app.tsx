@@ -1,9 +1,9 @@
 import {RequestConfig} from "@@/plugin-request/request";
 import React from "react";
-import {RunTimeLayoutConfig} from "@umijs/max";
+import {RunTimeLayoutConfig, useModel} from "@umijs/max";
 import Graph from "./pages/Graph"
 
-import {algoGetAll, getAllGraph} from "./services/graph/graph";
+import {algoGetAll, getAllGraph, getHot} from "./services/graph/graph";
 import {parseGroups, setInit} from "@/models/global";
 import {message} from "antd";
 
@@ -64,10 +64,12 @@ export function patchClientRoutes({routes}) {
     })
 }
 
-export async function getInitialState(): Promise<{ algos: Graph.Algo[] }> {
+export async function getInitialState(): Promise<{ algos: Graph.Algo[], hotse: Graph.HotSETopic[]}> {
     const algosRes = await algoGetAll()
+    const hotse = await getHot()
     return {
-        algos: algosRes.algos
+        algos: algosRes.algos,
+        hotse: hotse.topics,
     }
 }
 

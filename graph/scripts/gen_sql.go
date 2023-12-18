@@ -77,7 +77,7 @@ func main() {
 			sql += fmt.Sprintf("INSERT INTO graph.group(id, name, `desc`, parentID) VALUES (%v, %v, %v, %v);\n\n",
 				gid, blank2Null(v.Name), blank2Null(v.Desc), int(graphs[v.Extends].ID))
 		} else {
-			sql += fmt.Sprintf("INSERT INTO graph.group(id, name, `desc`) VALUES (%v, %v, %v);\n\n",
+			sql += fmt.Sprintf("INSERT INTO graph.group(id, name, `desc`, parentID) VALUES (%v, %v, %v, null);\n\n",
 				gid, blank2Null(v.Name), blank2Null(v.Desc))
 		}
 		v.ID = int64(gid)

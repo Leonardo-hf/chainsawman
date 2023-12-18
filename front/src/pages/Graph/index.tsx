@@ -16,11 +16,8 @@ import {
 } from 'antd';
 import React, {SetStateAction, useEffect, useState} from 'react';
 import {connect, useModel} from '@@/exports';
-import {formatDate, formatNumber} from '@/utils/format';
-import {AlgoTypeMap, getAlgoTypeDesc, ParamType} from "@/constants";
-import {algoExec, dropGraph, dropTask, getGraphTasks, getMatchNodes} from '@/services/graph/graph';
-import {getTaskTypeDesc, TaskTypeMap} from './_task';
-import RankTable from '@/components/RankTable';
+import {formatNumber} from '@/utils/format';
+import {dropGraph, getMatchNodes} from '@/services/graph/graph';
 import {history} from 'umi';
 import {EdgeData, findByGid, getGraphName, isSubGraph, NodeData} from '@/models/graph';
 import LayoutSelector from "@/components/LayoutSelector";

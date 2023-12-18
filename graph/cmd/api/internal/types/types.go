@@ -204,6 +204,7 @@ type AlgoTask struct {
 	CreateTime int64  `json:"createTime"`
 	UpdateTime int64  `json:"updateTime"`
 	Status     int64  `json:"status"`
+	GraphID    int64  `json:"graphId"`
 	Req        string `json:"req"`
 	AlgoID     int64  `json:"algoId"`
 	Output     string `json:"output"`
@@ -226,6 +227,7 @@ type Algo struct {
 	Id      int64        `json:"id,optional"`
 	Name    string       `json:"name"`
 	Desc    string       `json:"desc"`
+	Detail  string       `json:"detail"`
 	GroupId int64        `json:"groupId"`
 	Tag     string       `json:"tag"`
 	Params  []*AlgoParam `json:"params,optional"`
@@ -272,4 +274,37 @@ type ExecAlgoRequest struct {
 	GraphID int64    `json:"graphId"`
 	AlgoID  int64    `json:"algoId"`
 	Params  []*Param `json:"params,optional"`
+}
+
+type HotSE struct {
+	Artifact string  `json:"artifact"`
+	Version  string  `json:"version"`
+	HomePage string  `json:"homePage"`
+	Score    float64 `json:"score"`
+}
+
+type HotSETopic struct {
+	Software   []*HotSE `json:"software"`
+	Language   string   `json:"language"`
+	Topic      string   `json:"topic"`
+	UpdateTime int64    `json:"updateTime"`
+}
+
+type GetHotSEReply struct {
+	Topics []*HotSETopic `json:"topics"`
+}
+
+type HHI struct {
+	Name  string `json:"name"`
+	Score string `json:"score"`
+}
+
+type HHILanguage struct {
+	HHIs       []*HHI `json:"hhIs"`
+	Language   string `json:"language"`
+	UpdateTime int64  `json:"updateTime"`
+}
+
+type GetHHIReply struct {
+	Languages []*HHILanguage `json:"languages"`
 }

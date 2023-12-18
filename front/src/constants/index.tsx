@@ -1,5 +1,6 @@
 import {Tag} from "antd";
 import React from "react";
+import {formatEnum2Options} from "@/utils/format";
 
 export enum ParamType {
     String,
@@ -9,11 +10,6 @@ export enum ParamType {
     DoubleList
 }
 
-export enum AlgoType {
-    rank,
-    cluster,
-    metrics,
-}
 
 export const ParamTypeOptions = [
     {
@@ -38,37 +34,36 @@ export const ParamTypeOptions = [
     }
 ]
 
-export let AlgoOptions = [
-    {
-        label: '中心度算法',
+export const AlgoTypeMap: any = {
+    软件风险: {
+        text: '软件风险',
+        color: 'pink',
+        status: '软件风险',
+    },
+    软件影响力: {
+        text: '软件影响力',
         color: 'blue',
-        value: AlgoType.rank,
+        status: '软件影响力',
     },
-    {
-        label: '聚类算法',
+    社区发现: {
+        text: '社区发现',
         color: 'purple',
-        value: AlgoType.cluster,
+        status: '社区发现',
     },
-    {
-        label: '网络结构特征',
+    网络拓扑性质: {
+        text: '网络拓扑性质',
         color: 'green',
-        value: AlgoType.metrics,
+        status: '网络拓扑性质',
     },
-]
-
-AlgoOptions = AlgoOptions.map((o: any) => {
-    return {
-        ...o,
-        text: o.label,
-        status: o.value
+    节点中心度: {
+        text: '节点中心度',
+        color: 'pink',
+        status: '节点中心度',
     }
-})
+}
+export const AlgoOptions = formatEnum2Options(AlgoTypeMap)
 
-export const AlgoTypeMap: any = {}
-AlgoOptions.forEach((o: any) => AlgoTypeMap[o.status] = o)
-
-
-export function getAlgoTypeDesc(type: AlgoType) {
+export function getAlgoTypeDesc(type: string) {
     const s = AlgoTypeMap[type]
     return <Tag color={s.color}>{s.text}</Tag>
 }

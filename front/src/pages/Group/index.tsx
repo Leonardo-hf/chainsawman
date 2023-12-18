@@ -15,6 +15,7 @@ import {createGroup, dropGroup} from "@/services/graph/graph";
 import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import ProCard from "@ant-design/pro-card";
 import {genGroupOptions, TreeNodeGroup} from "@/models/global";
+import {formatEnum2Options} from "@/utils/format";
 
 const {Text} = Typography;
 
@@ -22,79 +23,85 @@ const Group: React.FC = () => {
     const {groups} = useModel('global')
     const [expandedRowKeys, setExpandedRowKeys] = useState<readonly Key[]>([]);
 
-    const getNodeBadge = (display: string) => {
-        switch (display) {
-            case 'icon':
-                return <Badge color='brown' text='图标节点'/>
-            case 'color':
-                return <Badge color='cyan' text='彩色节点'/>
-        }
-    }
-
     const getAttrBadge = (primary: boolean) => {
         if (primary) {
             return <Badge color='#DC143C' text='主属性'/>
         }
-        return <Badge color='#A9A9A9' text='副属性'/>
+        return <Badge color='#A9A9A9' text='属性'/>
     }
 
-    const getEdgeBadge = (direct: boolean, display: string) => {
-        if (direct) {
-            switch (display) {
-                case 'real':
-                    return <Badge color='#000080' text='有向实边'/>
-                case 'dash':
-                    return <Badge color='#4169E1' text='有向虚边'/>
-            }
-        } else {
-            {
-                switch (display) {
-                    case 'real':
-                        return <Badge color='#2E8B57' text='无向实边'/>
-                    case 'dash':
-                        return <Badge color='#98FB98' text='无向虚边'/>
-                }
-            }
-        }
-    }
-
-    const getAttrsDesc = (attrs: Graph.Attr[] | undefined) => {
-        return attrs?.sort((a, b) => a.primary ? (a.name < b.name ? -1 : 1) : 1).map(a =>
+    const getAttrsDesc = (attrs: Graph.Attr[] | undefined, primary: string | undefined) => {
+        return attrs?.sort((a, b) => a.name == primary ? -1 : b.name == primary ? 1 : a.name < b.name ? -1 : 1).map(a =>
             <ProDescriptions.Item span={3}>
                 <ProDescriptions dataSource={a} key={a.name}
                                  style={{paddingBottom: 0}}>
-                    <ProDescriptions.Item dataIndex={'name'} label={getAttrBadge(a.primary)}
+                    <ProDescriptions.Item dataIndex={'name'} label={getAttrBadge(a.name == primary)}
                                           valueType={'text'}/>
                     <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'}/>
                     <ProDescriptions.Item label={'类型'}
-                                          render={(_, t)=>ParamTypeOptions[t['type']].label}/>
+                                          render={(_, t) => ParamTypeOptions[t['type']].label}/>
                 </ProDescriptions>
             </ProDescriptions.Item>)
     }
 
+    const nodeStyleEnum = {
+        color: {
+            text: '色彩',
+            status: 'color'
+        },
+        icon: {
+            text: '图标',
+            status: 'icon'
+        }
+    }
+    const nodeStyleOptions = formatEnum2Options(nodeStyleEnum)
+    const edgeStyleEnum = {
+        real: {
+            text: '实线',
+            status: 'real'
+        },
+        dash: {
+            text: '虚线',
+            status: 'dash'
+        }
+    }
+    const edgeStyleOptions = formatEnum2Options(edgeStyleEnum)
+    const edgeDirectEnum = {
+        true: {
+            text: '有向',
+            status: true
+        },
+        false: {
+            text: '无向',
+            status: false
+        }
+    }
+    const edgeDirectOptions = formatEnum2Options(edgeDirectEnum)
     const getGroupDesc = (group: TreeNodeGroup) => {
         return <ProDescriptions key={group.id} column={1}>
-            <ProDescriptions.Item label={'描述'} valueType={'text'}>{group.desc}</ProDescriptions.Item>
             {
-                group.nodeTypeList.map(n =>
-                    <ProDescriptions.Item label={'# ' + n.id}>
+                group.nodeTypeList.map((n, i) =>
+                    <ProDescriptions.Item label={<a style={{minWidth:128}}>节点{i+1} ({n.name})</a>}>
                         <ProDescriptions dataSource={n} key={n.id} column={3}>
-                            <ProDescriptions.Item dataIndex={'name'} label={getNodeBadge(n.display)}
-                                                  valueType={'text'}/>
+                            <ProDescriptions.Item dataIndex={'display'} label={<Badge color={"cyan"} text={'风格'}/>}
+                                                  valueEnum={nodeStyleEnum}/>
                             <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'} span={2}/>
-                            {getAttrsDesc(n.attrs)}
+                            {getAttrsDesc(n.attrs, n.primary)}
                         </ProDescriptions>
                     </ProDescriptions.Item>
                 )
             }
             {
-                group.edgeTypeList.map(e =>
-                    <ProDescriptions.Item label={'$ ' + e.id}> {
+                group.edgeTypeList.map((e,i) =>
+                    <ProDescriptions.Item label={<a style={{minWidth:128}}>边{i+1} ({e.name})</a>}> {
                         <ProDescriptions dataSource={e} key={e.id} column={3}>
-                            <ProDescriptions.Item dataIndex={'name'} label={getEdgeBadge(e.edgeDirection, e.display)}
-                                                  valueType={'text'}/>
+                            <ProDescriptions.Item dataIndex={'display'} label={<Badge color={"cyan"} text={'风格'}/>}
+                                                  valueEnum={edgeStyleEnum}/>
+                            <ProDescriptions.Item dataIndex={'edgeDirection'}
+                                                  label={'方向'}
+                                                  valueEnum={edgeDirectEnum}/>
                             <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'} span={2}/>
-                            {getAttrsDesc(e.attrs)}
+                            {getAttrsDesc(e.attrs, e.primary)}
                         </ProDescriptions>
                     }
                     </ProDescriptions.Item>
@@ -117,6 +124,7 @@ const Group: React.FC = () => {
                         desc: v.desc,
                         display: v.display,
                         edgeDirection: false,
+                        primary: v.attrs.find(a => a.primary)?.name,
                         name: v.name
                     })
                 } else {
@@ -126,13 +134,14 @@ const Group: React.FC = () => {
                         desc: v.desc,
                         display: v.display,
                         edgeDirection: v.direct,
+                        primary: v.attrs.find(a => a.primary)?.name,
                         name: v.name
                     })
                 }
             }
             // 插入继承自父图结构的节点和边
-            let parentGroup = groups.find(g=>g.id == vs.parentId)
-            while (parentGroup?.id !== RootGroupID){
+            let parentGroup = groups.find(g => g.id == vs.parentId)
+            while (parentGroup?.id !== RootGroupID) {
                 nodeTypeList.push(...parentGroup!.nodeTypeList)
                 edgeTypeList.push(...parentGroup!.edgeTypeList)
                 parentGroup = parentGroup!.parentGroup
@@ -245,15 +254,7 @@ const Group: React.FC = () => {
                             if (type === 'node') {
                                 return <ProFormSelect
                                     initialValue={'color'}
-                                    options={[
-                                        {
-                                            label: '彩色节点',
-                                            value: 'color'
-                                        }, {
-                                            label: '图标节点',
-                                            value: 'icon'
-                                        }
-                                    ]}
+                                    options={nodeStyleOptions}
                                     name='display'
                                     label='展示'
                                 />
@@ -262,29 +263,13 @@ const Group: React.FC = () => {
                                 return <Space size={"large"}>
                                     <ProFormSelect
                                         initialValue={true}
-                                        options={[
-                                            {
-                                                label: '有向',
-                                                value: true,
-                                            }, {
-                                                label: '无向',
-                                                value: false
-                                            }
-                                        ]}
+                                        options={edgeDirectOptions}
                                         name='direct'
                                         label='方向'
                                     />
                                     <ProFormSelect
                                         initialValue={'real'}
-                                        options={[
-                                            {
-                                                label: '实线',
-                                                value: 'real'
-                                            }, {
-                                                label: '虚线',
-                                                value: 'dash'
-                                            }
-                                        ]}
+                                        options={edgeStyleOptions}
                                         name='display'
                                         label='展示'
                                     />
@@ -324,7 +309,7 @@ const Group: React.FC = () => {
                                 }
                             ]}
                             name='primary'
-                            label={<Tooltip title={'节点或边的主属性将建立查询索引，被用于标志、搜索及展示该节点或边。建议使用可以区分不同节点或边的属性作为主属性'}>
+                            label={<Tooltip title={'节点或边的主属性将建立查询索引，被用于标志、搜索及展示该节点或边。建议使用可以区分不同节点或边的属性作为主属性。主属性只能有一个。'}>
                                 <span>主属性</span></Tooltip>}
                         />
                     </ProFormGroup>
@@ -334,9 +319,10 @@ const Group: React.FC = () => {
     }
 
     return <PageContainer>
+
         <ProList<TreeNodeGroup>
             rowKey="id"
-            headerTitle="图结构"
+            headerTitle='图谱结构'
             toolBarRender={() => {
                 return [
                     getCreateGroupModal(),
@@ -345,7 +331,7 @@ const Group: React.FC = () => {
             expandable={{expandedRowKeys, onExpandedRowsChange: setExpandedRowKeys}}
             dataSource={groups}
             metas={{
-                title: {dataIndex: 'name'},
+                title: {dataIndex: 'desc'},
                 description: {
                     render: (_, g) => getGroupDesc(g),
                 },
