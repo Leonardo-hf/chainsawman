@@ -1,6 +1,6 @@
 FROM bitnami/spark:3.3.2
 
-ADD ./jar/common-latest-jar-with-dependencies.jar jars/
+ADD ./jar/common-latest.jar jars/
 RUN rm -rf jars/okhttp-3.12.12.jar jars/okio-1.14.0.jar
 USER root
 

@@ -1,10 +1,10 @@
 import {RequestConfig} from "@@/plugin-request/request";
 import React from "react";
-import {RunTimeLayoutConfig, useModel} from "@umijs/max";
+import {RunTimeLayoutConfig} from "@umijs/max";
 import Graph from "./pages/Graph"
 
-import {algoGetAll, getAllGraph, getHot} from "./services/graph/graph";
-import {parseGroups, setInit} from "@/models/global";
+import {algoGetAll, getAllGraph, getHHI, getHot} from "./services/graph/graph";
+import {parseGroups} from "@/models/global";
 import {message} from "antd";
 
 let newRoutes: any[] = []
@@ -16,7 +16,6 @@ export function render(oldRender: () => void) {
         if (gs) {
             // 初始化图与组信息
             const {graphs, groups} = parseGroups(gs)
-            setInit(graphs, groups)
             // 生成路由
             const rootRoute = {
                 path: '/graph',
@@ -64,12 +63,14 @@ export function patchClientRoutes({routes}) {
     })
 }
 
-export async function getInitialState(): Promise<{ algos: Graph.Algo[], hotse: Graph.HotSETopic[]}> {
-    const algosRes = await algoGetAll()
-    const hotse = await getHot()
+export async function getInitialState(): Promise<{ algos: Graph.Algo[], hotse: Graph.HotSETopic[], hhi: Graph.HHILanguage[] }> {
+    const algosRes = algoGetAll()
+    const hotse = getHot()
+    const hhi = getHHI()
     return {
-        algos: algosRes.algos,
-        hotse: hotse.topics,
+        algos: (await algosRes).algos,
+        hotse: (await hotse).topics,
+        hhi: (await hhi).languages,
     }
 }
 

@@ -11,8 +11,7 @@ import {useModel} from "@@/exports";
 import {isAlgoIllegal} from "@/models/global";
 import ProCard from "@ant-design/pro-card";
 import RankTable from "@/components/RankTable";
-import {AlgoImpactIds, AlgoMulImpactId, getParamFormItem, getParamFormValue} from "@/constants/sp";
-import {getWeights} from "@/components/InputWeights/InputWeights";
+import {AlgoImpactNames, AlgoMulImpactName, getParamFormItem, getParamFormValue} from "@/constants/sp";
 import InputWeights from "@/components/InputWeights";
 import Loading from "@ant-design/pro-card/es/components/Loading";
 
@@ -20,7 +19,7 @@ const Impact: React.FC = () => {
     const {initialState} = useModel('@@initialState')
     //@ts-ignore
     const {algos} = initialState
-    const mulAlgo: Graph.Algo = algos.find((a: Graph.Algo) => a.id === AlgoMulImpactId)
+    const mulAlgo: Graph.Algo = algos.find((a: Graph.Algo) => a.name == AlgoMulImpactName)
 
     const {graphs} = useModel('global')
     const [lastTaskId, setLastTaskId] = useState<string>()
@@ -86,8 +85,8 @@ const Impact: React.FC = () => {
         padding: 16
     }
     const getStep1 = () => {
-        const algoSelect = AlgoImpactIds.map(id => {
-            const a = algos.find((a: Graph.Algo) => a.id === id)!
+        const algoSelect = AlgoImpactNames.map(name => {
+            const a = algos.find((a: Graph.Algo) => a.name == name)!
             return {
                 label: a.name,
                 value: a
@@ -101,8 +100,8 @@ const Impact: React.FC = () => {
             <ProFormDependency name={['algoSelect']}>
                 {({algoSelect}) => {
                     if (algoSelect.id === mulAlgo.id) {
-                        return <InputWeights headers={['广度', '深度', '中介度', '稳定性']} innerProps={{
-                            name: 'weightsOnImpact',
+                        return <InputWeights headers={AlgoImpactNames} innerProps={{
+                            name: 'weights',
                             label: '影响力算法权重',
                             rules: [{required: true}]
                         }}/>

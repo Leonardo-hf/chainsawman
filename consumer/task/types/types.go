@@ -226,7 +226,6 @@ type DropAlgoTaskRequest struct {
 type Algo struct {
 	Id      int64        `json:"id,optional"`
 	Name    string       `json:"name"`
-	Desc    string       `json:"desc"`
 	Detail  string       `json:"detail"`
 	GroupId int64        `json:"groupId"`
 	Tag     string       `json:"tag"`
@@ -295,8 +294,8 @@ type GetHotSEReply struct {
 }
 
 type HHI struct {
-	Name  string `json:"name"`
-	Score string `json:"score"`
+	Name  string  `json:"name"`
+	Score float64 `json:"score"`
 }
 
 type HHILanguage struct {

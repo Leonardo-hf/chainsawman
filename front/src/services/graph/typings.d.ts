@@ -268,7 +268,7 @@ declare namespace Graph {
 
   type HHI = {
     name: string;
-    score: string;
+    score: number;
   };
 
   type HHILanguage = {

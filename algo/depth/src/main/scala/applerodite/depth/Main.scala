@@ -73,11 +73,12 @@ object Main extends Template {
         (vd._5, release)
       }
     }
+    val min = math.max(1, -res.vertices.map(v => v._2._1).collect().min + 1)
     val rs = res.vertices.map(v => ResultRow.apply(
       id = v._1,
       artifact = v._2._2.get.Artifact,
       version = v._2._2.get.Version,
-      score = v._2._1
+      score = math.log(v._2._1 + min)
     )).collect()
     val rsMax = rs.map(r => r.`score`).max
     val rsMin = rs.map(r => r.`score`).min

@@ -3,7 +3,6 @@ import {
     ProForm,
     ProFormDependency,
     ProFormInstance,
-    ProFormRadio,
     ProFormSelect,
 } from "@ant-design/pro-components"
 import {Button, message, Spin, Steps, theme} from "antd"
@@ -13,9 +12,8 @@ import {useModel} from "@@/exports";
 import {isAlgoIllegal} from "@/models/global";
 import ProCard from "@ant-design/pro-card";
 import RankTable from "@/components/RankTable";
-import {AlgoCountryStrangle, AlgoMulStrangleId} from "@/constants/sp";
+import {AlgoStrangleNames, getParamFormValue} from "@/constants/sp";
 import InputWeights from "@/components/InputWeights";
-import {getWeights} from "@/components/InputWeights/InputWeights";
 
 
 const Strangle: React.FC = () => {
@@ -23,11 +21,7 @@ const Strangle: React.FC = () => {
     const {initialState} = useModel('@@initialState')
     //@ts-ignore
     const {algos} = initialState
-    const algoSingle: Graph.Algo = algos.find((a: Graph.Algo) => a.id === AlgoCountryStrangle)
-    const algoMul: Graph.Algo = algos.find((a: Graph.Algo) => a.id === AlgoMulStrangleId)
-    const libraries = algoSingle.params![0]
-    const weightsOnImpact = algoMul.params![0]
-    const weightsOnStrangle = algoMul.params![1]
+    const algo: Graph.Algo = algos.find((a: Graph.Algo) => a.name === AlgoStrangleNames[0])
 
     const {graphs} = useModel('global')
     const [lastTaskId, setLastTaskId] = useState<string>()
@@ -35,26 +29,26 @@ const Strangle: React.FC = () => {
     const [lastTimer, setLastTimer] = useState<NodeJS.Timer>()
 
     // 执行算法的目标图谱
-    const graphOptions = graphs.filter(g => isAlgoIllegal(g, algoSingle)).map(g => {
+    const graphOptions = graphs.filter(g => isAlgoIllegal(g, algo)).map(g => {
         return {
             label: g.name,
             value: g.id
         }
     })
 
-    type Source = number
-    const sourceManual: Source = 0, sourceImpact: Source = 1
-    const sourceOptions = [{
-        label: '人工录入',
-        value: sourceManual
-    }, {
-        label: '高影响力软件',
-        value: sourceImpact
-    }]
+    // type Source = number
+    // const sourceManual: Source = 0, sourceImpact: Source = 1
+    // const sourceOptions = [{
+    //     label: '人工录入',
+    //     value: sourceManual
+    // }, {
+    //     label: '高影响力软件',
+    //     value: sourceImpact
+    // }]
 
     // 算法表单相关
     type FormData = {
-        source: Source,
+        // source: Source,
         graphId: number,
         libraries: string[],
         weightsOnImpact: number[],
@@ -76,28 +70,21 @@ const Strangle: React.FC = () => {
         }
         const req: Graph.ExecAlgoRequest = {
             graphId: params.graphId,
-            params: [],
-            algoId: 0
+            params: getParamFormValue(params, algo),
+            algoId: algo.id!
         }
-        if (params.source === sourceManual) {
-            req.algoId = algoSingle.id!
-            req.params!.push({
-                key: libraries.key,
-                type: libraries.type,
-                listValue: params.libraries
-            })
-        } else {
-            req.algoId = algoMul.id!
-            req.params!.push({
-                key: weightsOnImpact.key,
-                type: weightsOnImpact.type,
-                listValue: getWeights(params.weightsOnImpact)
-            }, {
-                key: weightsOnStrangle.key,
-                type: weightsOnStrangle.type,
-                listValue: getWeights(params.weightsOnStrangle)
-            })
-        }
+        // else {
+        //     req.algoId = algoMul.id!
+        //     req.params!.push({
+        //         key: weightsOnImpact.key,
+        //         type: weightsOnImpact.type,
+        //         listValue: getWeights(params.weightsOnImpact)
+        //     }, {
+        //         key: weightsOnStrangle.key,
+        //         type: weightsOnStrangle.type,
+        //         listValue: getWeights(params.weightsOnStrangle)
+        //     })
+        // }
         return await algoExec(req).then((res) => {
             message.success('算法已提交')
             setLastTaskId(res.base.taskId)
@@ -136,63 +123,100 @@ const Strangle: React.FC = () => {
         return <div style={{display: current === 0 ? '' : 'none'}}>
             <ProFormSelect rules={[{required: true}]} label={'图谱'} name={'graphId'}
                            options={graphOptions}/>
-            <ProFormRadio.Group rules={[{required: true}]} label={'软件源'} name={'source'}
-                                options={sourceOptions} initialValue={sourceManual}/>
-            <ProFormDependency name={['graphId', 'source']}>
-                {({graphId, source}) => {
-                    if (source === sourceImpact) {
-                        return <InputWeights headers={['广度', '深度', '中介度', '稳定性']} innerProps={{
-                            name: 'weightsOnImpact',
-                            label: '影响力算法权重',
-                            rules: [{required: true}]
-                        }}/>
-                    }
-                    if (source === sourceManual) {
-                        return <ProFormSelect
-                            label={'软件名单'}
-                            name={'libraries'}
-                            rules={[{required: true}]}
-                            showSearch
-                            debounceTime={300}
-                            fieldProps={{
-                                filterOption: () => {
-                                    return true
-                                },
-                                mode: "multiple",
-                                allowClear: true
-                            }}
-                            request={async (v) => {
-                                let packs: any[] = []
-                                if (!v.keyWords) {
-                                    return packs
-                                }
-                                await getMatchNodesByTag({
-                                    graphId: graphId,
-                                    keywords: v.keyWords,
-                                    nodeId: 4,
-                                }).then(res => {
-                                    packs.push({
-                                        label: "library",
-                                        options: res.matchNodes.map(m => {
-                                            return {
-                                                label: m.primaryAttr,
-                                                value: m.primaryAttr
-                                            }
-                                        })
-                                    })
+            <ProFormDependency name={['graphId']}>
+                {({graphId}) => <ProFormSelect
+                    label={'软件名单'}
+                    name={'libraries'}
+                    rules={[{required: true}]}
+                    showSearch
+                    debounceTime={300}
+                    fieldProps={{
+                        filterOption: () => {
+                            return true
+                        },
+                        mode: "multiple",
+                        allowClear: true
+                    }}
+                    request={async (v) => {
+                        let packs: any[] = []
+                        if (!v.keyWords) {
+                            return packs
+                        }
+                        await getMatchNodesByTag({
+                            graphId: graphId,
+                            keywords: v.keyWords,
+                            nodeId: 4,
+                        }).then(res => {
+                            packs.push({
+                                label: "library",
+                                options: res.matchNodes.map(m => {
+                                    return {
+                                        label: m.primaryAttr,
+                                        value: m.primaryAttr
+                                    }
                                 })
-                                return packs
-                            }}/>
-                    }
-                }
-                }
+                            })
+                        })
+                        return packs
+                    }}/>}
             </ProFormDependency>
+            {/*<ProFormRadio.Group rules={[{required: true}]} label={'软件源'} name={'source'}*/}
+            {/*                    options={sourceOptions} initialValue={sourceManual}/>*/}
+            {/*<ProFormDependency name={['graphId', 'source']}>*/}
+            {/*    {({graphId, source}) => {*/}
+            {/*        if (source === sourceImpact) {*/}
+            {/*            return <InputWeights headers={['广度', '深度', '中介度', '稳定性']} innerProps={{*/}
+            {/*                name: 'weightsOnImpact',*/}
+            {/*                label: '影响力算法权重',*/}
+            {/*                rules: [{required: true}]*/}
+            {/*            }}/>*/}
+            {/*        }*/}
+            {/*        if (source === sourceManual) {*/}
+            {/*            return <ProFormSelect*/}
+            {/*                label={'软件名单'}*/}
+            {/*                name={'libraries'}*/}
+            {/*                rules={[{required: true}]}*/}
+            {/*                showSearch*/}
+            {/*                debounceTime={300}*/}
+            {/*                fieldProps={{*/}
+            {/*                    filterOption: () => {*/}
+            {/*                        return true*/}
+            {/*                    },*/}
+            {/*                    mode: "multiple",*/}
+            {/*                    allowClear: true*/}
+            {/*                }}*/}
+            {/*                request={async (v) => {*/}
+            {/*                    let packs: any[] = []*/}
+            {/*                    if (!v.keyWords) {*/}
+            {/*                        return packs*/}
+            {/*                    }*/}
+            {/*                    await getMatchNodesByTag({*/}
+            {/*                        graphId: graphId,*/}
+            {/*                        keywords: v.keyWords,*/}
+            {/*                        nodeId: 4,*/}
+            {/*                    }).then(res => {*/}
+            {/*                        packs.push({*/}
+            {/*                            label: "library",*/}
+            {/*                            options: res.matchNodes.map(m => {*/}
+            {/*                                return {*/}
+            {/*                                    label: m.primaryAttr,*/}
+            {/*                                    value: m.primaryAttr*/}
+            {/*                                }*/}
+            {/*                            })*/}
+            {/*                        })*/}
+            {/*                    })*/}
+            {/*                    return packs*/}
+            {/*                }}/>*/}
+            {/*        }*/}
+            {/*    }*/}
+            {/*    }*/}
+            {/*</ProFormDependency>*/}
         </div>
     }
     const getStep2 = () => {
         return <div style={{display: current === 1 ? '' : 'none'}}>
-            <InputWeights headers={['国别']} innerProps={{
-                name: 'weightsOnStrangle',
+            <InputWeights headers={AlgoStrangleNames} innerProps={{
+                name: 'weights',
                 label: '卡脖子风险算法权重',
                 rules: [{required: true}]
             }}/>

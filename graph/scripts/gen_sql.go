@@ -131,8 +131,8 @@ func main() {
 			handleEdge(graphs[v.Extends].Edges)
 		}
 		for _, algo := range v.Algos {
-			sql += fmt.Sprintf("INSERT INTO graph.algo(id, name, `desc`, detail, groupId, tag, jarPath, mainClass) VALUES (%v, %v, %v, %v, %v, %v, %v, %v);\n\n",
-				aid, blank2Null(algo.Name), blank2Null(algo.Desc), blank2Null(algo.Detail), gid, blank2Null(algo.Tag), blank2Null(algo.JarPath), blank2Null(algo.MainClass))
+			sql += fmt.Sprintf("INSERT INTO graph.algo(id, name, detail, groupId, tag, jarPath, mainClass) VALUES (%v, %v, %v, %v, %v, %v, %v);\n\n",
+				aid, blank2Null(algo.Name), blank2Null(algo.Detail), gid, blank2Null(algo.Tag), blank2Null(algo.JarPath), blank2Null(algo.MainClass))
 			for _, param := range algo.Params {
 				if len(param.Name) == 0 {
 					fmt.Printf("`edge.name` is required in group %v\n", v.Name)

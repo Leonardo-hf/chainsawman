@@ -85,7 +85,6 @@
   "algos": [
     {
       "name": "diversity",
-      "desc": "团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。",
       "detail": "团队多元性，软件的开发团队中贡献者和维护者的国别越多样，该软件的团队多元性越高。",
       "tag": "软件风险",
       "jarPath": "s3a://lib/diversity-latest.jar",

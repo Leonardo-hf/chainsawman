@@ -1,8 +1,7 @@
 import {
     PageContainer,
     ProForm,
-    ProFormDependency, ProFormGroup,
-    ProFormInstance,
+    ProFormDependency, ProFormInstance,
     ProFormSelect,
     ProList
 } from '@ant-design/pro-components';
@@ -55,7 +54,7 @@ const Exec: React.FC = () => {
                 params: pairs
             }).then(() => {
                 formRef.current?.resetFields()
-                message.success('算法已提交')
+                message.success('指标分析中')
                 // @ts-ignore
                 taskListRef.current?.reload()
                 return true
@@ -96,7 +95,7 @@ const Exec: React.FC = () => {
                             })
                             return <ProFormSelect
                                 rules={[{required: true}]}
-                                label={'Step2：选择算法'}
+                                label={'Step2：选择指标'}
                                 name={'algoId'}
                                 options={algoId}
                             />

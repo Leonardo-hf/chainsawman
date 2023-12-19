@@ -15,7 +15,14 @@ import {createGroup, dropGroup} from "@/services/graph/graph";
 import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import ProCard from "@ant-design/pro-card";
 import {genGroupOptions, TreeNodeGroup} from "@/models/global";
-import {formatEnum2Options} from "@/utils/format";
+import {
+    nodeStyleEnum,
+    nodeStyleOptions,
+    edgeStyleEnum,
+    edgeStyleOptions,
+    edgeDirectEnum,
+    edgeDirectOptions, defaultGroup
+} from "@/pages/Group/_group";
 
 const {Text} = Typography;
 
@@ -44,44 +51,11 @@ const Group: React.FC = () => {
             </ProDescriptions.Item>)
     }
 
-    const nodeStyleEnum = {
-        color: {
-            text: '色彩',
-            status: 'color'
-        },
-        icon: {
-            text: '图标',
-            status: 'icon'
-        }
-    }
-    const nodeStyleOptions = formatEnum2Options(nodeStyleEnum)
-    const edgeStyleEnum = {
-        real: {
-            text: '实线',
-            status: 'real'
-        },
-        dash: {
-            text: '虚线',
-            status: 'dash'
-        }
-    }
-    const edgeStyleOptions = formatEnum2Options(edgeStyleEnum)
-    const edgeDirectEnum = {
-        true: {
-            text: '有向',
-            status: true
-        },
-        false: {
-            text: '无向',
-            status: false
-        }
-    }
-    const edgeDirectOptions = formatEnum2Options(edgeDirectEnum)
     const getGroupDesc = (group: TreeNodeGroup) => {
         return <ProDescriptions key={group.id} column={1}>
             {
                 group.nodeTypeList.map((n, i) =>
-                    <ProDescriptions.Item label={<a style={{minWidth:128}}>节点{i+1} ({n.name})</a>}>
+                    <ProDescriptions.Item label={<a style={{minWidth: 128}}>节点{i + 1} ({n.name})</a>}>
                         <ProDescriptions dataSource={n} key={n.id} column={3}>
                             <ProDescriptions.Item dataIndex={'display'} label={<Badge color={"cyan"} text={'风格'}/>}
                                                   valueEnum={nodeStyleEnum}/>
@@ -92,13 +66,13 @@ const Group: React.FC = () => {
                 )
             }
             {
-                group.edgeTypeList.map((e,i) =>
-                    <ProDescriptions.Item label={<a style={{minWidth:128}}>边{i+1} ({e.name})</a>}> {
+                group.edgeTypeList.map((e, i) =>
+                    <ProDescriptions.Item label={<a style={{minWidth: 128}}>边{i + 1} ({e.name})</a>}> {
                         <ProDescriptions dataSource={e} key={e.id} column={3}>
                             <ProDescriptions.Item dataIndex={'display'} label={<Badge color={"cyan"} text={'风格'}/>}
                                                   valueEnum={edgeStyleEnum}/>
-                            <ProDescriptions.Item dataIndex={'edgeDirection'}
-                                                  label={'方向'}
+                            <ProDescriptions.Item dataIndex={'edgeDirection'} label={'方向'}
+                                //@ts-ignore
                                                   valueEnum={edgeDirectEnum}/>
                             <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'} span={2}/>
                             {getAttrsDesc(e.attrs, e.primary)}
@@ -194,25 +168,7 @@ const Group: React.FC = () => {
             </ProFormGroup>
             <ProFormList
                 label={(<Text strong>实体组配置</Text>)}
-                initialValue={[{
-                    name: 'normal',
-                    desc: '标准节点',
-                    type: 'node',
-                    attrs: [{
-                        name: 'name',
-                        desc: '名称',
-                        type: 0,
-                        primary: true
-                    }, {
-                        name: 'desc',
-                        desc: '描述',
-                        type: 0
-                    }]
-                }, {
-                    name: 'normal',
-                    desc: '标准边',
-                    type: 'edge',
-                }]}
+                initialValue={defaultGroup}
                 name='entities'
                 creatorButtonProps={{
                     creatorButtonText: '添加一个实体'
@@ -318,7 +274,7 @@ const Group: React.FC = () => {
         </DrawerForm>
     }
 
-    return <PageContainer>
+    return <PageContainer title={false}>
 
         <ProList<TreeNodeGroup>
             rowKey="id"

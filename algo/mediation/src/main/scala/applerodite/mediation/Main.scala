@@ -1,17 +1,14 @@
-package applerodite
+package applerodite.mediation
 
-import .SCHEMA_SOFTWARE
-import applerodite.config.ClientConfig
-import applerodite.util.CSVUtil
-import com.alibaba.fastjson.JSON
+import applerodite.config.CommonService
 import org.apache.spark.graphx._
-import org.apache.spark.sql.{Dataset, Row}
-import org.apache.spark.sql.functions._
+import org.apache.spark.sql.Row
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-object Proxy extends Impact{
+object Main extends Template {
+
 
   /**
    * 构建BetweennessCentrality图，图中顶点属性维护了图中所有顶点id的列表和所有边（srcId， dstId， attr）的列表
@@ -183,19 +180,9 @@ object Proxy extends Impact{
     resultG
   }
 
-  def main(args: Array[String]): Dataset[Row] = {
-    if (args.length < 1) {
-      return null
-    }
-    val json = JSON.parseObject(args.apply(0))
-    val graphID: String = json.getString("graphID")
-
-    val graph = ClientConfig.graphClient.loadInitGraphForSoftware(graphID)
-
+  override def exec(svc: CommonService, param: Param): Seq[Row] = {
+    val graph = svc.getGraphClient.loadInitGraphForSoftware(param.graphID)
     val graphForBC = Graph.fromEdges(graph.edges.mapValues(_ => 1.0), None)
-
-    val spark = ClientConfig.spark
-
     val initBCgraph = createBetweenGraph(graphForBC, k = 3)
     val vertexBCGraph = initBCgraph.mapVertices((id, attr) => {
       (id, betweennessCentralityForUnweightedGraph(id, attr))
@@ -205,7 +192,9 @@ object Proxy extends Impact{
         (score, release)
       }
     }
-
-    spark.sqlContext.createDataFrame(BCGraph.vertices.map(r => Row.apply(r._1, r._2._2.get.Artifact, r._2._2.get.Artifact, r._2._1)), SCHEMA_SOFTWARE).orderBy(desc(AlgoConstants.SCORE_COL))
+    val res = BCGraph.vertices.map(v => ResultRow.apply(`score` = math.log(v._2._1 + 1), `id` = v._1, `artifact` = v._2._2.get.Artifact, `version` = v._2._2.get.Version)).collect()
+    val rsMax = res.map(r => r.`score`).max
+    val rsMin = res.map(r => r.`score`).min
+    res.sortBy(r => -r.score).map(r => r.toRow(score = f"${(r.score - rsMin) / (rsMax - rsMin)}%.4f"))
   }
 }

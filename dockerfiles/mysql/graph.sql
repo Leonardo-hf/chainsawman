@@ -11,13 +11,15 @@ create table if not exists `group`
     parentID int default 1 null comment '标识父策略组，子策略组继承父策略组的全部节点与边缘'
 );
 
+create index group_parentID_index
+    on `group` (parentID);
+
 create table if not exists algo
 (
     id        int auto_increment
         primary key,
     name      varchar(255)  not null,
-    `desc`    varchar(255)  null,
-    detail    text          null,
+    detail    text          not null,
     jarPath   varchar(255)  null,
     mainClass varchar(255)  null,
     tag       varchar(255)  null,

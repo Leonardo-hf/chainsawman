@@ -38,7 +38,7 @@ case object GraphView {
 
 // 模板内部使用的常量
 case object Constants {
-  val SCHEMA: StructType = %s
+  %s
 }
 
 // 模板
@@ -208,12 +208,15 @@ func getInput(fields ...*model.AlgoParam) string {
 }
 
 func getSchema(def map[string]AlgoOutputDef) string {
+	fieldDef := make([]string, 0)
 	structFields := make([]string, 0)
-	for _, v := range def {
-		structFields = append(structFields, fmt.Sprintf(`StructField("%s", StringType, nullable = false)`, v.Name))
+	for k, v := range def {
+		k = strings.ToUpper(k)
+		fieldDef = append(fieldDef, fmt.Sprintf(`val COL_%s = "%s"`, k, v.Name))
+		structFields = append(structFields, fmt.Sprintf(`StructField(COL_%s, StringType, nullable = false)`, k))
 	}
-	return fmt.Sprintf(`
-StructType(
+	return strings.Join(fieldDef, "\n") + fmt.Sprintf(`
+val SCHEMA: StructType = StructType(
     List(
       %s
     )

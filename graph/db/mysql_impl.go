@@ -149,7 +149,22 @@ func (c *MysqlClientImpl) InsertGroup(ctx context.Context, group *model.Group) e
 
 func (c *MysqlClientImpl) DropGroupByID(ctx context.Context, id int64) (int64, error) {
 	gr := query.Group
-	res, err := gr.WithContext(ctx).Where(gr.ID.Eq(id)).Delete()
+	ids := make([]int64, 0)
+	q := make([]int64, 0)
+	q = append(q, id)
+	for len(q) > 0 {
+		pid := q[len(q)-1]
+		ids = append(ids, pid)
+		q = q[:len(q)-1]
+		children, err := gr.WithContext(ctx).Select(gr.ID).Where(gr.ParentID.Eq(pid)).Find()
+		if err != nil {
+			return 0, err
+		}
+		for _, child := range children {
+			q = append(q, child.ID)
+		}
+	}
+	res, err := gr.WithContext(ctx).Where(gr.ID.In(ids...)).Delete()
 	return res.RowsAffected, err
 }
 

@@ -58,7 +58,7 @@ object Main extends Template {
       preVGraph = vGraph
       val (maxVertex, score) = vGraph.vertices.max()(Ordering.by[(VertexId, Int), Double](_._2))
       val meta = graph.vertices.filter(v => v._1 == maxVertex).first()._2
-      res.append(ResultRow.apply(`id` = maxVertex, artifact = meta.Artifact, version = meta.Version, score = score))
+      res.append(ResultRow.apply(`id` = maxVertex, artifact = meta.Artifact, version = meta.Version, score = math.log(score)))
       vGraph = setCI(vGraph.subgraph(epred = e => e.srcId != maxVertex && e.dstId != maxVertex), r)
       vGraph.cache()
       preVGraph.unpersistVertices(blocking = false)

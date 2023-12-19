@@ -3,20 +3,11 @@ import {RootGroupID} from "@/constants";
 import {getAllGraph} from "@/services/graph/graph";
 
 
-let init_graphs: GraphRef2Group[] = []
-
-let init_groups: TreeNodeGroup[] = []
-
 export type GraphRef2Group = { id: number, status: number, group: TreeNodeGroup, name: string, numNode: number, numEdge: number, creatAt: number, updateAt: number }
 
 export type TreeNodeGroup = {
     id: number, name: string, desc: string, parentId: number,
     nodeTypeList: Graph.Structure[], edgeTypeList: Graph.Structure[], parentGroup: TreeNodeGroup | undefined
-}
-
-export function setInit(graphs: GraphRef2Group[], groups: TreeNodeGroup[]) {
-    init_graphs = graphs
-    init_groups = groups
 }
 
 // 将 groups 解析为前端使用的 graphs 和 groups
@@ -56,7 +47,7 @@ export function parseGroups(g: Graph.Group[]) {
     return {graphs, groups}
 }
 
-// 查看算法是否对于策略组合法
+// 查看算法是否对于图结构合法
 export function isAlgoIllegal(g: GraphRef2Group, a: Graph.Algo) {
     if (g.group.id == a.groupId) {
         return true
@@ -71,9 +62,9 @@ export function isAlgoIllegal(g: GraphRef2Group, a: Graph.Algo) {
     return false
 }
 
-// 生成策略组列表（Options）
+// 生成图结构列表（Options）
 export function genGroupOptions(gs: TreeNodeGroup[]) {
-    return [{label: '通用', value: RootGroupID}, ...gs.map(g => {
+    return [{label: '根', value: RootGroupID}, ...gs.map(g => {
         if (g.parentId > RootGroupID) {
             return {
                 label: g.desc + ' -> ' + g.parentGroup!.desc!,

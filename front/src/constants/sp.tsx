@@ -4,15 +4,11 @@ import React from "react";
 import {Space, Tooltip} from "antd";
 import {InfoCircleOutlined} from "@ant-design/icons";
 
-export const AlgoCountryStrangle = 11
+export const AlgoStrangleNames = ["diversity"]
 
-export const AlgoStrangleIds = [11]
+export const AlgoImpactNames = ["breadth", "depth", "mediation", "stability"]
 
-export const AlgoImpactIds = [7, 8, 9, 10]
-
-export const AlgoMulImpactId = 12
-
-export const AlgoMulStrangleId = 13
+export const AlgoMulImpactName = "integrated"
 
 export const getTooltip = (title: string, tip: string) => {
     return <Space>

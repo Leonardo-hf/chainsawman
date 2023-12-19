@@ -13,20 +13,20 @@
         <!--> 算法 <-->
         <module>degree</module>
         <module>pagerank</module>
-<!--        <module>betweenness</module>-->
-<!--        <module>closeness</module>-->
-<!--        <module>clusteringCoefficient</module>-->
+        <!--        <module>betweenness</module>-->
+        <!--        <module>closeness</module>-->
+        <!--        <module>clusteringCoefficient</module>-->
         <module>louvain</module>
         <!--> 软件影响力算法 <-->
         <module>breadth</module>
         <module>depth</module>
         <module>mediation</module>
         <module>stability</module>
-<!--        <module>comprehensive</module>-->
+        <module>integrated</module>
         <!--> 卡脖子软件算法 <-->
         <module>hhi</module>
         <module>diversity</module>
-<!--        <module>strangleRiskOnImpact</module>-->
+        <!--        <module>strangleRiskOnImpact</module>-->
     </modules>
 
     <properties>
@@ -36,74 +36,95 @@
         <scala.binary.version>2.12</scala.binary.version>
         <project.encoding>UTF-8</project.encoding>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.12</artifactId>
-            <version>${spark3.0.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.12</artifactId>
-            <version>${spark3.0.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-graphx_2.12</artifactId>
-            <version>${spark3.0.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vesoft</groupId>
-            <artifactId>nebula-spark-connector_3.0</artifactId>
-            <version>3.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.minio</groupId>
-            <artifactId>minio</artifactId>
-            <version>8.5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
-            <version>1.4.2</version>
-        </dependency>
-        <!-- mysql connector-->
-        <dependency>
-            <groupId>org.scalikejdbc</groupId>
-            <artifactId>scalikejdbc_${scala.binary.version}</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scalikejdbc</groupId>
-            <artifactId>scalikejdbc-config_${scala.binary.version}</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_2.12</artifactId>
+                <version>${spark3.0.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_2.12</artifactId>
+                <version>${spark3.0.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-graphx_2.12</artifactId>
+                <version>${spark3.0.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vesoft</groupId>
+                <artifactId>nebula-spark-connector_3.0</artifactId>
+                <version>3.6.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>8.5.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>1.4.2</version>
+            </dependency>
+            <!-- mysql connector-->
+            <dependency>
+                <groupId>org.scalikejdbc</groupId>
+                <artifactId>scalikejdbc_${scala.binary.version}</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalikejdbc</groupId>
+                <artifactId>scalikejdbc-config_${scala.binary.version}</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.33</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>net.alchim31.maven</groupId>
-                    <artifactId>scala-maven-plugin</artifactId>
-                    <version>3.4.1</version>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.5.3</version>
                     <executions>
                         <execution>
+                            <phase>package</phase>
                             <goals>
-                                <goal>compile</goal>
-                                <goal>testCompile</goal>
+                                <goal>single</goal>
                             </goals>
                         </execution>
                     </executions>
+                    <configuration>
+                        <appendAssemblyId>false</appendAssemblyId>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
                 </plugin>
             </plugins>
-
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

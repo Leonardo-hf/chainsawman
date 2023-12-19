@@ -651,9 +651,6 @@
         "name": {
           "type": "string"
         },
-        "desc": {
-          "type": "string"
-        },
         "detail": {
           "type": "string"
         },
@@ -674,7 +671,6 @@
       "title": "Algo",
       "required": [
         "name",
-        "desc",
         "detail",
         "groupId",
         "tag"
@@ -1487,7 +1483,8 @@
           "type": "string"
         },
         "score": {
-          "type": "string"
+          "type": "number",
+          "format": "double"
         }
       },
       "title": "HHI",

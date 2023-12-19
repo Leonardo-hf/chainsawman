@@ -64,7 +64,7 @@ const Algo: React.FC = () => {
                     })
                 },
             }).then(() => {
-                message.success('算法创建成功！')
+                message.success('指标创建成功！')
                 window.location.reload()
                 return true
             }).catch(e => {
@@ -78,7 +78,7 @@ const Algo: React.FC = () => {
         }
         const [form] = Form.useForm<FormData>()
         return <DrawerForm<FormData>
-            title='新建算法'
+            title='新建指标'
             resize={{
                 maxWidth: window.innerWidth * 0.8,
                 minWidth: window.innerWidth * 0.6,
@@ -87,7 +87,7 @@ const Algo: React.FC = () => {
             trigger={
                 <Button type='primary'>
                     <PlusOutlined/>
-                    新建算法
+                    新建指标
                 </Button>
             }
             autoFocusFirstInput
@@ -96,7 +96,7 @@ const Algo: React.FC = () => {
             }}
             onFinish={handleCreateAlgo}
         >
-            <ProFormGroup title='算法配置'>
+            <ProFormGroup title='指标配置'>
                 <ProFormText name='name' label='名称' rules={[{required: true}]}/>
                 <ProFormText name='desc' label='概述' rules={[{required: true}]}/>
                 <ProFormTextArea name={'detail'} label={'详情'} rules={[{required: true}]}/>
@@ -105,11 +105,11 @@ const Algo: React.FC = () => {
                     options={AlgoOptions}
                     rules={[{required: true}]}
                     name='tag'
-                    label='算法标签'
+                    label='指标标签'
                 />
                 <ProFormSelect name='groupId' style={{width: '100%'}} label='适用策略组' options={genGroupOptions(groups)}/>
             </ProFormGroup>
-            <ProFormGroup title='算法实现'>
+            <ProFormGroup title='指标实现'>
                 <ProFormText name='entryPoint' label='入口类' rules={[{required: true}]}/>
                 <ProFormUploadButton rules={[{required: true}]}
                                      fieldProps={{
@@ -165,7 +165,7 @@ const Algo: React.FC = () => {
 
 
     const getAlgoContent = (algo: Graph.Algo) => {
-        // 设置算法的初始值
+        // 设置指标的初始值
         const initValues: any = {}
         algo.params?.forEach(p => {
             if (p.initValue) {
@@ -200,7 +200,7 @@ const Algo: React.FC = () => {
     return <PageContainer>
         <ProList<Graph.Algo>
             rowKey="id"
-            headerTitle="算法列表"
+            headerTitle="指标名录"
             toolBarRender={() => {
                 return [
                     getCreateAlgoModal(),

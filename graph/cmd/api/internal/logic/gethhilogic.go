@@ -4,6 +4,7 @@ import (
 	"chainsawman/common"
 	"context"
 	"io"
+	"strconv"
 	"sync"
 
 	"chainsawman/graph/cmd/api/internal/svc"
@@ -61,9 +62,10 @@ func (l *GetHHILogic) GetHHI() (resp *types.GetHHIReply, err error) {
 				}
 				class, _ := r.Get("class")
 				score, _ := r.Get("score")
+				scoreFloat64, _ := strconv.ParseFloat(score[:len(score)-1], 64)
 				hhi = append(hhi, &types.HHI{
 					Name:  class,
-					Score: score,
+					Score: scoreFloat64,
 				})
 			}
 		}(t.Output, i)

@@ -129,9 +129,6 @@ export default {
                     let label = ''
                     if (labelAttr) {
                         label = e.attrs.find(a => a.key === labelAttr.name)!.value
-                        // if (label.length >= 10) {
-                        //     label = label.substring(0, 10) + '...'
-                        // }
                     }
                     const edgeStyle: any = {
                         source: e.source.toString(),

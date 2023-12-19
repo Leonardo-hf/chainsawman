@@ -12,8 +12,8 @@ export default defineConfig({
     },
     proxy: {
         '/api/graph': {
-            // 'target': 'http://127.0.0.1:8888/',
-            'target': 'http://127.0.0.1:30130/',
+            'target': 'http://127.0.0.1:8888/',
+            // 'target': 'http://127.0.0.1:30130/',
             'changeOrigin': true,
             // 'pathRewrite': {'^/api': ''},
         },
@@ -71,7 +71,7 @@ export default defineConfig({
             ]
         },
         {
-            name: '模型体系',
+            name: '指标体系',
             path: '/algo',
             component: './Algo'
         },
@@ -97,13 +97,19 @@ export default defineConfig({
         },
         {
             name: '图谱配置',
-            path: '/group',
-            component: './Group'
-        },
-        {
-            name: '表格',
-            path: '/gtable',
-            component: './GTable',
+            path: '/config',
+            routes: [
+                {
+                    name: '网络结构配置',
+                    path: '/config/group',
+                    component: './Group'
+                },
+                {
+                    name: '数据源配置',
+                    path: '/config/source',
+                    component: './GTable',
+                },
+            ]
         },
         {
             name: '服务监控',

@@ -1,6 +1,5 @@
 import {PlusOutlined} from '@ant-design/icons';
 import {
-    ActionType,
     DrawerForm,
     PageContainer,
     ProColumns,
@@ -12,13 +11,12 @@ import {
     ProTable
 } from '@ant-design/pro-components';
 import {Button, Form, message, Space, Typography} from 'antd';
-import React, {CSSProperties, useRef} from 'react';
-import {createGraph, dropGraph, getAllGraph, updateGraph} from '@/services/graph/graph';
+import React, {CSSProperties} from 'react';
+import {createGraph, dropGraph, updateGraph} from '@/services/graph/graph';
 import {useModel} from '@umijs/max';
 import {uploadSource} from '@/utils/oss';
-import {GraphRef2Group, parseGroups, TreeNodeGroup} from '@/models/global';
+import {GraphRef2Group, TreeNodeGroup} from '@/models/global';
 
-const {Title} = Typography;
 
 const GTable: React.FC = () => {
     const {graphs, groups} = useModel('global')
@@ -316,7 +314,7 @@ const GTable: React.FC = () => {
     ]
 
     return (
-        <PageContainer>
+        <PageContainer title={false}>
             <ProTable<GraphRef2Group>
                 key='graphList'
                 columns={columns}
@@ -337,7 +335,7 @@ const GTable: React.FC = () => {
                 pagination={false}
                 search={false}
                 dateFormatter='string'
-                headerTitle={<Title level={4} style={{margin: '0 0 0 0'}}>图谱列表</Title>}
+                headerTitle={'图谱列表'}
                 toolBarRender={() => [
                     getNewGraphModal(),
                 ]}
