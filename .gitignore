@@ -16,7 +16,7 @@ dockerfiles/mysql/mysql-files
 dockerfiles/nebula/
 dockerfiles/redis/data
 dockerfiles/spark/share
-dockerfiles/spark/jar/common-latest-jar-with-dependencies.jar
+dockerfiles/spark/jar
 dockerfiles/livy/data
 
 **/__pycache__

@@ -6,7 +6,7 @@
     {
       "name": "organization",
       "desc": "开发团队",
-      "primary": "artifact",
+      "primary": "name",
       "attrs": [
         {
           "name": "name",
@@ -23,7 +23,7 @@
     {
       "name": "developer",
       "desc": "开发者",
-      "primary": "idf",
+      "primary": "name",
       "attrs": [
         {
           "name": "name",
@@ -71,10 +71,11 @@
       "direct": 1,
       "attrs": [
         {
-        "name": "commits",
-        "desc": "贡献量",
-        "type": 2
-      }]
+          "name": "commits",
+          "desc": "贡献量",
+          "type": 2
+        }
+      ]
     },
     {
       "name": "host",
@@ -97,24 +98,28 @@
           "min": "1"
         }
       ],
-      "output": {
-        "artifact": {
+      "output": [
+        {
+          "id": "artifact",
           "name": "工件名",
           "type": 0
         },
-        "s1": {
+        {
+          "id": "s1",
           "name": "维护者多元性",
           "type": 1
         },
-        "s2": {
+        {
+          "id": "s2",
           "name": "贡献者多元性",
           "type": 1
         },
-        "score": {
+        {
+          "id": "score",
           "name": "总得分",
           "type": 1
         }
-      }
+      ]
     }
   ]
 }

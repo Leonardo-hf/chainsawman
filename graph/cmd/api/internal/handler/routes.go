@@ -100,6 +100,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/task/get",
+				Handler: getAlgoTaskByIDHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/task/getAll",
 				Handler: getAlgoTaskHandler(serverCtx),
 			},

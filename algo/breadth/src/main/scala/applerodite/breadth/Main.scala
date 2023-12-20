@@ -38,7 +38,7 @@ object Main extends Template {
         if (score == 0) {
           loop.break()
         }
-        val maxVertex = graph.vertices.filter(v => v._1 == maxVertexId).collect().apply(0)
+        val maxVertex = graph.vertices.filter(v => v._1 == maxVertexId).collect().head
         res.append(ResultRow.apply(id = maxVertexId, artifact = maxVertex._2.Artifact, version = maxVertex._2.Version, score = math.log(score + 1)))
         cal.add(maxVertexId)
         vGraph = vGraph.joinVertices(graph.edges.filter(e => e.dstId == maxVertexId).map[(VertexId, Double)](e => (e.srcId, -f))) {

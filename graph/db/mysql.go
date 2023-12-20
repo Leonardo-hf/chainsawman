@@ -58,15 +58,15 @@ type MysqlClient interface {
 }
 
 type HHITask struct {
-	Output     string
+	Output     string    `gorm:"column:output;"`
 	UpdateTime time.Time `gorm:"column:updateTime;"`
-	Graph      string
+	Graph      string    `gorm:"column:graph;"`
 }
 
 type SETask struct {
-	Output     string
+	Output     string    `gorm:"column:output;"`
 	UpdateTime time.Time `gorm:"column:updateTime;"`
-	Graph      string
-	GraphID    int64
-	Algo       string
+	Graph      string    `gorm:"column:graph;"`
+	GraphID    int64     `gorm:"column:graphID;"`
+	Algo       string    `gorm:"column:algo;"`
 }

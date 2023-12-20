@@ -83,13 +83,14 @@ abstract class Template {
 }
 
 type AlgoOutputDef struct {
+	Id   string
 	Name string
 	Type int64
 }
 
 type AlgoExtra struct {
 	model.Algo
-	Output map[string]AlgoOutputDef
+	Output []AlgoOutputDef
 }
 
 type GroupDocExtra struct {
@@ -125,11 +126,12 @@ func getParam(fields ...*model.AlgoParam) string {
 	return strings.Join(params, ", ")
 }
 
-func getResultRow(defs map[string]AlgoOutputDef) string {
+func getResultRow(defs ...AlgoOutputDef) string {
 	c := make([]string, 0)
 	tr := make([]string, 0)
 	fields := make([]string, 0)
-	for k, v := range defs {
+	for _, v := range defs {
+		k := v.Id
 		fields = append(fields, fmt.Sprintf("`%s`", k))
 		c = append(c, fmt.Sprintf("`%s`: %s", k, toScalaType(v.Type)))
 		tr = append(tr, fmt.Sprintf("`%s`: String = this.`%s`.toString", k, k))
@@ -207,11 +209,11 @@ func getInput(fields ...*model.AlgoParam) string {
 	return strings.Join(input, "\n") + "\n" + fmt.Sprintf("Param(%s)", strings.Join(c, ", "))
 }
 
-func getSchema(def map[string]AlgoOutputDef) string {
+func getSchema(def ...AlgoOutputDef) string {
 	fieldDef := make([]string, 0)
 	structFields := make([]string, 0)
-	for k, v := range def {
-		k = strings.ToUpper(k)
+	for _, v := range def {
+		k := strings.ToUpper(v.Id)
 		fieldDef = append(fieldDef, fmt.Sprintf(`val COL_%s = "%s"`, k, v.Name))
 		structFields = append(structFields, fmt.Sprintf(`StructField(COL_%s, StringType, nullable = false)`, k))
 	}
@@ -296,8 +298,8 @@ func main() {
 	}
 	params := getParam(targetAlgo.Params...)
 	input := getInput(targetAlgo.Params...)
-	schema := getSchema(targetAlgo.Output)
-	resultRow := getResultRow(targetAlgo.Output)
+	schema := getSchema(targetAlgo.Output...)
+	resultRow := getResultRow(targetAlgo.Output...)
 	nodesDef := getNodeDef(targetGroup.Nodes...)
 	edgesDef := getEdgeDef(targetGroup.Edges...)
 	framework := GetFramework(*pack, params, resultRow, nodesDef, edgesDef, schema, input)

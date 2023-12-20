@@ -39,7 +39,7 @@ const Group: React.FC = () => {
 
     const getAttrsDesc = (attrs: Graph.Attr[] | undefined, primary: string | undefined) => {
         return attrs?.sort((a, b) => a.name == primary ? -1 : b.name == primary ? 1 : a.name < b.name ? -1 : 1).map(a =>
-            <ProDescriptions.Item span={3}>
+            <ProDescriptions.Item key={a.name} span={3}>
                 <ProDescriptions dataSource={a} key={a.name}
                                  style={{paddingBottom: 0}}>
                     <ProDescriptions.Item dataIndex={'name'} label={getAttrBadge(a.name == primary)}
@@ -55,7 +55,7 @@ const Group: React.FC = () => {
         return <ProDescriptions key={group.id} column={1}>
             {
                 group.nodeTypeList.map((n, i) =>
-                    <ProDescriptions.Item label={<a style={{minWidth: 128}}>节点{i + 1} ({n.name})</a>}>
+                    <ProDescriptions.Item key={i} label={<a style={{minWidth: 128}}>节点{i + 1} ({n.name})</a>}>
                         <ProDescriptions dataSource={n} key={n.id} column={3}>
                             <ProDescriptions.Item dataIndex={'display'} label={<Badge color={"cyan"} text={'风格'}/>}
                                                   valueEnum={nodeStyleEnum}/>
@@ -67,14 +67,14 @@ const Group: React.FC = () => {
             }
             {
                 group.edgeTypeList.map((e, i) =>
-                    <ProDescriptions.Item label={<a style={{minWidth: 128}}>边{i + 1} ({e.name})</a>}> {
+                    <ProDescriptions.Item key={i} label={<a style={{minWidth: 128}}>边{i + 1} ({e.name})</a>}> {
                         <ProDescriptions dataSource={e} key={e.id} column={3}>
                             <ProDescriptions.Item dataIndex={'display'} label={<Badge color={"cyan"} text={'风格'}/>}
                                                   valueEnum={edgeStyleEnum}/>
                             <ProDescriptions.Item dataIndex={'edgeDirection'} label={'方向'}
                                 //@ts-ignore
                                                   valueEnum={edgeDirectEnum}/>
-                            <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'} span={2}/>
+                            <ProDescriptions.Item dataIndex={'desc'} label={'描述'} valueType={'text'}/>
                             {getAttrsDesc(e.attrs, e.primary)}
                         </ProDescriptions>
                     }
@@ -98,7 +98,7 @@ const Group: React.FC = () => {
                         desc: v.desc,
                         display: v.display,
                         edgeDirection: false,
-                        primary: v.attrs.find(a => a.primary)?.name,
+                        primary: v.attrs?.find(a => a.primary)?.name,
                         name: v.name
                     })
                 } else {
@@ -108,16 +108,16 @@ const Group: React.FC = () => {
                         desc: v.desc,
                         display: v.display,
                         edgeDirection: v.direct,
-                        primary: v.attrs.find(a => a.primary)?.name,
+                        primary: v.attrs?.find(a => a.primary)?.name,
                         name: v.name
                     })
                 }
             }
             // 插入继承自父图结构的节点和边
             let parentGroup = groups.find(g => g.id == vs.parentId)
-            while (parentGroup?.id !== RootGroupID) {
-                nodeTypeList.push(...parentGroup!.nodeTypeList)
-                edgeTypeList.push(...parentGroup!.edgeTypeList)
+            while (parentGroup && parentGroup.id !== RootGroupID) {
+                nodeTypeList.push(...parentGroup.nodeTypeList)
+                edgeTypeList.push(...parentGroup.edgeTypeList)
                 parentGroup = parentGroup!.parentGroup
             }
             return await createGroup({

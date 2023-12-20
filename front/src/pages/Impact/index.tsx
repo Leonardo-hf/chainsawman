@@ -5,7 +5,7 @@ import {
     ProFormSelect
 } from "@ant-design/pro-components"
 import {Button, message, Steps, theme} from "antd"
-import {algoExec} from "@/services/graph/graph";
+import {algoExec, getAlgoTaskByID} from "@/services/graph/graph";
 import React, {useRef, useState} from "react";
 import {useModel} from "@@/exports";
 import {isAlgoIllegal} from "@/models/global";
@@ -22,7 +22,7 @@ const Impact: React.FC = () => {
     const mulAlgo: Graph.Algo = algos.find((a: Graph.Algo) => a.name == AlgoMulImpactName)
 
     const {graphs} = useModel('global')
-    const [lastTaskId, setLastTaskId] = useState<string>()
+    const [lastTaskId, setLastTaskId] = useState<number>()
     const [lastFileName, setLastFileName] = useState<string>()
     const [lastTimer, setLastTimer] = useState<NodeJS.Timer>()
     const graphOptions = graphs.filter(g => isAlgoIllegal(g, mulAlgo)).map(g => {
@@ -56,7 +56,7 @@ const Impact: React.FC = () => {
         }
         return await algoExec(req).then((res) => {
             message.success('算法已提交')
-            setLastTaskId(res.base.taskId)
+            setLastTaskId(res.task.id)
             setLastFileName(undefined)
         })
     }
@@ -89,24 +89,24 @@ const Impact: React.FC = () => {
             const a = algos.find((a: Graph.Algo) => a.name == name)!
             return {
                 label: a.name,
-                value: a
+                value: a.id
             }
-        }).concat({label: mulAlgo.name, value: mulAlgo})
+        }).concat({label: mulAlgo.name, value: mulAlgo.id})
         return <div style={{display: current === 0 ? '' : 'none'}}>
             <ProFormSelect rules={[{required: true}]} label={'图谱'} name={'graphId'}
                            options={graphOptions}/>
             <ProFormRadio.Group rules={[{required: true}]} label={'算法'} name={'algoSelect'}
-                                options={algoSelect} initialValue={mulAlgo}/>
+                                options={algoSelect} initialValue={mulAlgo.id}/>
             <ProFormDependency name={['algoSelect']}>
                 {({algoSelect}) => {
-                    if (algoSelect.id === mulAlgo.id) {
+                    if (algoSelect === mulAlgo.id) {
                         return <InputWeights headers={AlgoImpactNames} innerProps={{
                             name: 'weights',
                             label: '影响力算法权重',
                             rules: [{required: true}]
                         }}/>
                     } else {
-                        return getParamFormItem(algoSelect)
+                        return getParamFormItem(algos.find((a: Graph.Algo) => a.id == algoSelect)!)
                     }
                 }}
             </ProFormDependency>
@@ -116,10 +116,10 @@ const Impact: React.FC = () => {
     // 提交算法后轮询算法结果
     if (current === steps.length - 1 && lastTaskId && !lastTimer) {
         const timer = setInterval(() => {
-            const params: Graph.ExecAlgoRequest = {algoId: 0, graphId: 0}
-            algoExec(params).then((res) => {
-                if (res.file) {
-                    setLastFileName(res.file)
+            const params: Graph.GetAlgoTaskRequest = {id: lastTaskId}
+            getAlgoTaskByID(params).then((res) => {
+                if (res.task.status) {
+                    setLastFileName(res.task.output)
                     clearInterval(timer)
                     setLastTimer(undefined)
                 }

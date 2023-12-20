@@ -85,24 +85,28 @@
         "max": "2147483647",
         "min": "1"
       }],
-      "output": {
-        "id": {
+      "output": [
+        {
+          "id": "id",
           "name": "id",
           "type": 5
         },
-        "artifact": {
+        {
+          "id": "artifact",
           "name": "工件名",
           "type": 0
         },
-        "version": {
+        {
+          "id": "version",
           "name": "版本号",
           "type": 0
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 1
         }
-      }
+      ]
     },
     {
       "name": "depth",
@@ -110,24 +114,28 @@
       "tag": "软件影响力",
       "jarPath": "s3a://lib/depth-latest.jar",
       "mainClass": "applerodite.depth.Main",
-      "output": {
-        "id": {
+      "output": [
+        {
+          "id": "id",
           "name": "id",
           "type": 5
         },
-        "artifact": {
+        {
+          "id": "artifact",
           "name": "工件名",
           "type": 0
         },
-        "version": {
+        {
+          "id": "version",
           "name": "版本号",
           "type": 0
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 1
         }
-      }
+      ]
     },
     {
       "name": "mediation",
@@ -135,24 +143,28 @@
       "tag": "软件影响力",
       "jarPath": "s3a://lib/mediation-latest.jar",
       "mainClass": "applerodite.mediation.Main",
-      "output": {
-        "id": {
+      "output": [
+        {
+          "id": "id",
           "name": "id",
           "type": 5
         },
-        "artifact": {
+        {
+          "id": "artifact",
           "name": "工件名",
           "type": 0
         },
-        "version": {
+        {
+          "id": "version",
           "name": "版本号",
           "type": 0
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 1
         }
-      }
+      ]
     },
     {
       "name": "stability",
@@ -168,24 +180,28 @@
         "max": "5",
         "min": "2"
       }],
-      "output": {
-        "id": {
+      "output": [
+        {
+          "id": "id",
           "name": "id",
           "type": 5
         },
-        "artifact": {
+        {
+          "id": "artifact",
           "name": "工件名",
           "type": 0
         },
-        "version": {
+        {
+          "id": "version",
           "name": "版本号",
           "type": 0
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 1
         }
-      }
+      ]
     },
     {
       "name": "integrated",
@@ -193,31 +209,37 @@
       "tag": "软件影响力",
       "jarPath": "s3a://lib/integrated-latest.jar",
       "mainClass": "applerodite.integrated.Main",
-      "params": [{
-        "name": "weights",
-        "desc": "集成的各个算法（breadth, depth, mediation, stability）的权重，范围为0~1",
-        "type": 4,
-        "max": "4",
-        "min": "1"
-      }],
-      "output": {
-        "id": {
+      "params": [
+        {
+          "name": "weights",
+          "desc": "集成的各个算法（breadth, depth, mediation, stability）的权重，范围为0~1",
+          "type": 4,
+          "max": "4",
+          "min": "1"
+        }
+      ],
+      "output": [
+        {
+          "id": "id",
           "name": "id",
           "type": 5
         },
-        "artifact": {
+        {
+          "id": "artifact",
           "name": "工件名",
           "type": 0
         },
-        "version": {
+        {
+          "id": "version",
           "name": "版本号",
           "type": 0
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 1
         }
-      }
+      ]
     },
     {
       "name": "hhi",
@@ -225,16 +247,18 @@
       "tag": "网络拓扑性质",
       "jarPath": "s3a://lib/hhi-latest.jar",
       "mainClass": "applerodite.hhi.Main",
-      "output": {
-        "class": {
+      "output": [
+        {
+          "id": "class",
           "name": "分类",
           "type": 0
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 1
         }
-      }
+      ]
     }
   ]
 }

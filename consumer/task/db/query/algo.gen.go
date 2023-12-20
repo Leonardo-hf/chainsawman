@@ -29,7 +29,6 @@ func newAlgo(db *gorm.DB, opts ...gen.DOOption) algo {
 	_algo.ALL = field.NewAsterisk(tableName)
 	_algo.ID = field.NewInt64(tableName, "id")
 	_algo.Name = field.NewString(tableName, "name")
-	_algo.Desc = field.NewString(tableName, "desc")
 	_algo.Detail = field.NewString(tableName, "detail")
 	_algo.JarPath = field.NewString(tableName, "jarPath")
 	_algo.MainClass = field.NewString(tableName, "mainClass")
@@ -47,7 +46,6 @@ type algo struct {
 	ALL       field.Asterisk
 	ID        field.Int64
 	Name      field.String
-	Desc      field.String
 	Detail    field.String
 	JarPath   field.String
 	MainClass field.String
@@ -75,7 +73,6 @@ func (a *algo) updateTableName(table string) *algo {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewInt64(table, "id")
 	a.Name = field.NewString(table, "name")
-	a.Desc = field.NewString(table, "desc")
 	a.Detail = field.NewString(table, "detail")
 	a.JarPath = field.NewString(table, "jarPath")
 	a.MainClass = field.NewString(table, "mainClass")
@@ -97,10 +94,9 @@ func (a *algo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *algo) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 8)
+	a.fieldMap = make(map[string]field.Expr, 7)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["name"] = a.Name
-	a.fieldMap["desc"] = a.Desc
 	a.fieldMap["detail"] = a.Detail
 	a.fieldMap["jarPath"] = a.JarPath
 	a.fieldMap["mainClass"] = a.MainClass

@@ -1,17 +1,19 @@
 INSERT INTO graph.group(id, name, `desc`, parentID) VALUES (1, 'root', '根图谱', null);
 
-INSERT INTO graph.algo(id, name, `desc`, detail, groupId, tag, jarPath, mainClass) VALUES (1, 'degree', '“度中心度”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点与其他节点直接相连的程度。', '“度中心度”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点与其他节点直接相连的程度。
+INSERT INTO graph.algo(id, name, detail, groupId, tag, jarPath, mainClass) VALUES (1, 'degree', '“度中心度”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点与其他节点直接相连的程度。
 
 “度中心度”算法的公式如下：
 
-$$C(i)=\\frac{k_i}{N−1}$$其中，$N$表示网络中的节点总数，$k_i$表示节点$i$的度，即与它相连的边的数量。这个公式将节点$i$的度除以最大可能的度，即与其他$N−1$个节点都相连的情况，得到一个介于$0$和$1$之间的值，表示节点$i$与其他节点的连接比例。
+$$C(i)=\\frac{k_i}{N−1}$$
+
+其中，$N$表示网络中的节点总数，$k_i$表示节点$i$的度，即与它相连的边的数量。这个公式将节点$i$的度除以最大可能的度，即与其他$N−1$个节点都相连的情况，得到一个介于$0$和$1$之间的值，表示节点$i$与其他节点的连接比例。
 
 “度中心度”认为一个节点的重要性取决于它的邻居节点的数量，而不考虑邻居节点的重要性或与其他节点的距离，它比较简单，时间复杂度为$O(N)$，但也有一些局限性，例如，它不能区分网络中的不同结构，如星形、环形或完全图，它们的节点度中心度都相同，但实际上它们的网络特性是不同的。
 
 “度中心度”算法可以用它来分析社交网络中的用户影响力，找出与更多人有联系的用户，或者用它来分析互联网中的网站流量，找出与更多网站有链接的网站。还可以用它来分析交通网络中的节点重要性，找出与更多路线有连接的节点。', 1, '节点中心度', 's3a://lib/degree-latest.jar', 'applerodite.degree.Main');
 
 
-INSERT INTO graph.algo(id, name, `desc`, detail, groupId, tag, jarPath, mainClass) VALUES (2, 'pagerank', '“Pagerank”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点被其他节点引用的程度。', '“Pagerank”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点被其他节点引用的程度。
+INSERT INTO graph.algo(id, name, detail, groupId, tag, jarPath, mainClass) VALUES (2, 'pagerank', '“Pagerank”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点被其他节点引用的程度。
 
 “Pagerank”算法的公式如下：
 
@@ -26,7 +28,7 @@ $$PR(i)=(1−d)+d*\\sum_{j∈M(i)}{\\frac{PR(j)}{L(j)}}$$
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (2, 'iter', '迭代次数', 2, '10', '1', '100');
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (2, 'prob', '阻尼系数', 1, '0.85', '0.1', '1');
 
-INSERT INTO graph.algo(id, name, `desc`, detail, groupId, tag, jarPath, mainClass) VALUES (3, 'louvain', 'louvain”算法是一种用于社区发现的算法，它可以在大规模的网络中快速地找出具有紧密连接的节点集合，即社区。', '“louvain”算法是一种用于社区发现的算法，它可以在大规模的网络中快速地找出具有紧密连接的节点集合，即社区。它的基本思想是利用模块度作为评价指标，通过不断地调整节点的社区归属，使得模块度达到最大值。
+INSERT INTO graph.algo(id, name, detail, groupId, tag, jarPath, mainClass) VALUES (3, 'louvain', '“louvain”算法是一种用于社区发现的算法，它可以在大规模的网络中快速地找出具有紧密连接的节点集合，即社区。它的基本思想是利用模块度作为评价指标，通过不断地调整节点的社区归属，使得模块度达到最大值。
 
 模块度是一种衡量网络划分质量的指标，它反映了网络中的社区结构与随机网络的差异程度。一个好的社区划分应该使得同一个社区内的节点连接更紧密，而不同社区间的节点连接更稀疏。模块度的计算公式如下：
 

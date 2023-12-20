@@ -60,8 +60,8 @@ func (l *GetHHILogic) GetHHI() (resp *types.GetHHIReply, err error) {
 				if err == io.EOF {
 					break
 				}
-				class, _ := r.Get("class")
-				score, _ := r.Get("score")
+				class, _ := r.Get("分类")
+				score, _ := r.Get("得分")
 				scoreFloat64, _ := strconv.ParseFloat(score[:len(score)-1], 64)
 				hhi = append(hhi, &types.HHI{
 					Name:  class,

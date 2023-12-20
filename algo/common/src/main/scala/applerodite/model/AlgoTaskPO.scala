@@ -2,8 +2,11 @@ package applerodite.model
 
 import scalikejdbc._
 
+import java.time.ZonedDateTime
+
 case class AlgoTaskPO(output: String,
-                      status: Int)
+                      status: Int,
+                      updateTime: ZonedDateTime)
 
 object AlgoTaskPO extends SQLSyntaxSupport[AlgoTaskPO] {
   override val tableName = "exec"
@@ -14,6 +17,7 @@ object AlgoTaskPO extends SQLSyntaxSupport[AlgoTaskPO] {
   def apply(o: ResultName[AlgoTaskPO])(rs: WrappedResultSet): AlgoTaskPO =
     new AlgoTaskPO(
       rs.string(o.output),
-      rs.int(o.status)
+      rs.int(o.status),
+      rs.dateTime(o.updateTime)
     )
 }

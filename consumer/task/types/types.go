@@ -200,7 +200,7 @@ type PresignedReply struct {
 }
 
 type AlgoTask struct {
-	Id         string `json:"id"`
+	Id         int64  `json:"id"`
 	CreateTime int64  `json:"createTime"`
 	UpdateTime int64  `json:"updateTime"`
 	Status     int64  `json:"status"`
@@ -212,6 +212,15 @@ type AlgoTask struct {
 
 type GetAlgoTasksRequest struct {
 	GraphID int64 `form:"graphId,optional"`
+}
+
+type GetAlgoTaskRequest struct {
+	ID int64 `form:"id"`
+}
+
+type GetAlgoTaskReply struct {
+	Base *BaseReply `json:"base"`
+	Task *AlgoTask  `json:"task"`
 }
 
 type GetAlgoTasksReply struct {

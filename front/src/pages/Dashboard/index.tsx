@@ -5,11 +5,14 @@ import {Col, Divider, Row, Statistic} from "antd";
 import CountUp from 'react-countup';
 import {PageContainer, ProCard} from "@ant-design/pro-components";
 import HHITable from "@/components/HHITable";
+import {GraphRef2Group} from "@/models/global";
+import {sum} from "@antfu/utils";
 
 const Dashboard: React.FC = () => {
     const {initialState} = useModel('@@initialState')
     //@ts-ignore
     const {hotse, hhi} = initialState
+    const {graphs} = useModel('global')
     // const hotse: Graph.HotSETopic[] = [{
     //     language: 'Python',
     //     topic: 'breadth',
@@ -77,6 +80,26 @@ const Dashboard: React.FC = () => {
     //         updateTime: new Date().getTime()
     //     },
     // ]
+    // const hhi2: Graph.HHILanguage[] = [{
+    //     language: 'Python',
+    //     updateTime: new Date().getTime(),
+    //     hhIs: [{
+    //         name: 'A/1',
+    //         score:  13.3
+    //     }, {
+    //         name: 'B/1',
+    //         score:  33.3
+    //     },{
+    //         name: 'B/2',
+    //         score:  76.4
+    //     },{
+    //         name: 'C/1',
+    //         score:  9.5
+    //     },{
+    //         name: 'D/1',
+    //         score:  3.3
+    //     }]
+    // }]
     const formatter = (value: number) => <CountUp end={value} separator=","/>
 
     return <PageContainer>
@@ -84,21 +107,21 @@ const Dashboard: React.FC = () => {
             <Row gutter={16}>
                 <Col span={8}>
                     <ProCard>
-                        <Statistic title="图谱数目" value={4}
+                        <Statistic title="图谱数目" value={graphs.length}
                             // @ts-ignore
                                    formatter={formatter}/>
                     </ProCard>
                 </Col>
                 <Col span={8}>
                     <ProCard>
-                        <Statistic title="累计节点数目" value={4234} precision={2}
+                        <Statistic title="累计节点数目" value={sum(graphs.map((g: GraphRef2Group) => g.numNode))}
                             // @ts-ignore
                                    formatter={formatter}/>
                     </ProCard>
                 </Col>
                 <Col span={8}>
                     <ProCard>
-                        <Statistic title="累计边数目" value={22321} precision={2}
+                        <Statistic title="累计边数目" value={sum(graphs.map((g: GraphRef2Group) => g.numEdge))}
                             // @ts-ignore
                                    formatter={formatter}/>
                     </ProCard>
@@ -108,12 +131,14 @@ const Dashboard: React.FC = () => {
             <Row gutter={16}>
                 {
                     hotse.map((s: Graph.HotSETopic) =>
-                        <Col span={12}>
+
+                        <Col key={s.topic + s.language} span={12}>
                             <SETable hot={s}/>
-                        </Col>)}
+                        </Col>)
+                }
                 {
                     hhi.map((h: Graph.HHILanguage) =>
-                        <Col span={12}>
+                        <Col key={h.language} span={12}>
                             <HHITable hhi={h}/>
                         </Col>)
                 }

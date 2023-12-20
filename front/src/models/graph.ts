@@ -89,10 +89,7 @@ export default {
                 np.nodes.forEach(n => {
                     let label = ''
                     if (labelAttr && n.deg >= border) {
-                        label = n.attrs.find(a => a.key === labelAttr.name)!.value
-                        // if (label.length >= 10) {
-                        //     label = label.substring(0, 10) + '...'
-                        // }
+                        label = n.attrs.find(a => a.key === labelAttr)!.value
                     }
                     nodeSet.add(n.id)
                     nodes.push({
@@ -128,7 +125,7 @@ export default {
                     }
                     let label = ''
                     if (labelAttr) {
-                        label = e.attrs.find(a => a.key === labelAttr.name)!.value
+                        label = e.attrs.find(a => a.key === labelAttr)!.value
                     }
                     const edgeStyle: any = {
                         source: e.source.toString(),

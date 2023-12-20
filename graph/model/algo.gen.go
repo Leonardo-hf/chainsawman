@@ -10,7 +10,6 @@ const TableNameAlgo = "algo"
 type Algo struct {
 	ID        int64        `gorm:"column:id;type:int;primaryKey;autoIncrement:true" json:"id"`
 	Name      string       `gorm:"column:name;type:varchar(255);not null" json:"name"`
-	Desc      string       `gorm:"column:desc;type:varchar(255)" json:"desc"`
 	Detail    string       `gorm:"column:detail;type:text" json:"detail"`
 	JarPath   string       `gorm:"column:jarPath;type:varchar(255)" json:"jarPath"`
 	MainClass string       `gorm:"column:mainClass;type:varchar(255)" json:"mainClass"`

@@ -31,7 +31,7 @@ func (c *MysqlClientImpl) GetLatestSETask(ctx context.Context, n int64) ([]*SETa
 	g := query.Graph
 	res := make([]*SETask, 0)
 	err := e.WithContext(ctx).Join(a, a.ID.EqCol(e.AlgoID)).Join(g, g.ID.EqCol(g.ID)).Distinct(e.AlgoID, e.GraphID).
-		Select(e.Output, e.UpdateTime, e.GraphID, a.Name.As("graph"), g.Name.As("algo")).Where(e.Status.Eq(1)).Where(a.Tag.Eq("软件影响力")).
+		Select(e.Output, e.UpdateTime, e.GraphID, g.Name.As("graph"), a.Name.As("algo")).Where(e.Status.Eq(1)).Where(a.Tag.Eq("软件影响力")).
 		Order(e.UpdateTime.Desc()).Limit(int(n)).Scan(&res)
 	return res, err
 }
@@ -43,7 +43,7 @@ func (c *MysqlClientImpl) GetLatestHHITask(ctx context.Context, n int64) ([]*HHI
 	g := query.Graph
 	res := make([]*HHITask, 0)
 	sub := a.WithContext(ctx).Select(a.ID).Where(a.Name.Eq("hhi"))
-	err := e.WithContext(ctx).Join(g, g.ID.EqCol(g.ID)).
+	err := e.WithContext(ctx).Join(g, g.ID.EqCol(e.GraphID)).Distinct(e.GraphID).
 		Select(e.Output, e.UpdateTime, g.Name.As("graph")).Where(e.Status.Eq(1)).Where(e.Columns(e.AlgoID).In(sub)).
 		Order(e.UpdateTime.Desc()).Limit(int(n)).Scan(&res)
 	if err != nil {
@@ -57,9 +57,9 @@ func (c *MysqlClientImpl) InsertAlgoTask(ctx context.Context, exec *model.Exec) 
 	return e.WithContext(ctx).Create(exec)
 }
 
-func (c *MysqlClientImpl) GetAlgoTaskByID(ctx context.Context, graphID int64) (*model.Exec, error) {
+func (c *MysqlClientImpl) GetAlgoTaskByID(ctx context.Context, id int64) (*model.Exec, error) {
 	t := query.Exec
-	return t.WithContext(ctx).Where(t.GraphID.Eq(graphID)).First()
+	return t.WithContext(ctx).Where(t.ID.Eq(id)).First()
 }
 
 func (c *MysqlClientImpl) DropAlgoTaskByID(ctx context.Context, id int64) (int64, error) {
@@ -150,16 +150,15 @@ func (c *MysqlClientImpl) InsertGroup(ctx context.Context, group *model.Group) e
 func (c *MysqlClientImpl) DropGroupByID(ctx context.Context, id int64) (int64, error) {
 	gr := query.Group
 	ids := make([]int64, 0)
-	q := make([]int64, 0)
-	q = append(q, id)
+	q := []int64{id}
 	for len(q) > 0 {
-		pid := q[len(q)-1]
-		ids = append(ids, pid)
-		q = q[:len(q)-1]
-		children, err := gr.WithContext(ctx).Select(gr.ID).Where(gr.ParentID.Eq(pid)).Find()
+		ids = append(ids, q...)
+		children, err := gr.WithContext(ctx).Select(gr.ID).Where(gr.ParentID.In(q...)).Find()
 		if err != nil {
 			return 0, err
 		}
+		// 清空 q
+		q = q[:0]
 		for _, child := range children {
 			q = append(q, child.ID)
 		}
@@ -188,7 +187,7 @@ func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*mod
 
 func (c *MysqlClientImpl) GetAllAlgo(ctx context.Context) ([]*model.Algo, error) {
 	a := query.Algo
-	return a.WithContext(ctx).Select(a.ID, a.Desc, a.GroupID, a.Name, a.Tag, a.Detail).Preload(a.Params).Find()
+	return a.WithContext(ctx).Select(a.ID, a.GroupID, a.Name, a.Tag, a.Detail).Preload(a.Params).Find()
 }
 
 func (c *MysqlClientImpl) DropAlgoByID(ctx context.Context, id int64) (int64, error) {

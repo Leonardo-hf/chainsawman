@@ -8,16 +8,18 @@
       "tag": "节点中心度",
       "jarPath": "s3a://lib/degree-latest.jar",
       "mainClass": "applerodite.degree.Main",
-      "output": {
-        "id": {
-          "name": "节点id",
+      "output": [
+        {
+          "id": "id",
+          "name": "分类",
           "type": 5
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 2
         }
-      }
+      ]
     },
     {
       "name": "pagerank",
@@ -25,31 +27,36 @@
       "tag": "节点中心度",
       "jarPath": "s3a://lib/pagerank-latest.jar",
       "mainClass": "applerodite.pagerank.Main",
-      "params": [{
-        "name": "iter",
-        "desc": "迭代次数",
-        "type": 2,
-        "default": "10",
-        "max": "100",
-        "min": "1"
-      }, {
-        "name": "prob",
-        "desc": "阻尼系数",
-        "type": 1,
-        "default": "0.85",
-        "max": "1",
-        "min": "0.1"
-      }],
-      "output": {
-        "id": {
-          "name": "节点id",
+      "params": [
+        {
+          "name": "iter",
+          "desc": "迭代次数",
+          "type": 2,
+          "default": "10",
+          "max": "100",
+          "min": "1"
+        },
+        {
+          "name": "prob",
+          "desc": "阻尼系数",
+          "type": 1,
+          "default": "0.85",
+          "max": "1",
+          "min": "0.1"
+        }
+      ],
+      "output": [
+        {
+          "id": "id",
+          "name": "分类",
           "type": 5
         },
-        "score": {
+        {
+          "id": "score",
           "name": "得分",
           "type": 1
         }
-      }
+      ]
     },
     {
       "name": "louvain",
@@ -57,38 +64,44 @@
       "tag": "社区发现",
       "jarPath": "s3a://lib/louvain-latest.jar",
       "mainClass": "applerodite.louvain.Main",
-      "params": [{
-        "name": "maxIter",
-        "desc": "外部迭代次数",
-        "type": 2,
-        "default": "10",
-        "max": "100",
-        "min": "1"
-      }, {
-        "name": "internalIter",
-        "desc": "内部迭代次数",
-        "type": 2,
-        "default": "5",
-        "max": "50",
-        "min": "1"
-      }, {
-        "name": "tol",
-        "desc": "系数",
-        "type": 1,
-        "default": "0.5",
-        "max": "1",
-        "min": "0"
-      }],
-      "output": {
-        "id": {
-          "name": "节点id",
+      "params": [
+        {
+          "name": "maxIter",
+          "desc": "外部迭代次数",
+          "type": 2,
+          "default": "10",
+          "max": "100",
+          "min": "1"
+        },
+        {
+          "name": "internalIter",
+          "desc": "内部迭代次数",
+          "type": 2,
+          "default": "5",
+          "max": "50",
+          "min": "1"
+        },
+        {
+          "name": "tol",
+          "desc": "系数",
+          "type": 1,
+          "default": "0.5",
+          "max": "1",
+          "min": "0"
+        }
+      ],
+      "output": [
+        {
+          "id": "id",
+          "name": "分类",
           "type": 5
         },
-        "class": {
+        {
+          "id": "class",
           "name": "分类",
           "type": 0
         }
-      }
+      ]
     }
   ]
 }

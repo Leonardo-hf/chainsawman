@@ -6,6 +6,7 @@ import Graph from "./pages/Graph"
 import {algoGetAll, getAllGraph, getHHI, getHot} from "./services/graph/graph";
 import {parseGroups} from "@/models/global";
 import {message} from "antd";
+import {RootGroupID} from "@/constants";
 
 let newRoutes: any[] = []
 
@@ -22,7 +23,7 @@ export function render(oldRender: () => void) {
                 children: []
             }
             const routeMap: any = {1: rootRoute}
-            const groupsQueue = [1]
+            const groupsQueue = [RootGroupID]
             while (groupsQueue.length > 0) {
                 const parentId = groupsQueue.shift()!
                 const parentRoute = routeMap[parentId]
@@ -30,7 +31,7 @@ export function render(oldRender: () => void) {
                     const p = parentRoute.path + '/' + g.id
                     const crtRoute = {
                         path: p,
-                        name: g.desc,
+                        name: <span style={{color: '#708090'}}>{g.desc}</span>,
                         children: graphs.filter(graph => graph.group.id === g.id).map(graph => {
                             return {
                                 path: p + '/s/' + graph.id,

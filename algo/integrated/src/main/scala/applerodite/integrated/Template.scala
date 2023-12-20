@@ -11,47 +11,47 @@ case class Param(`weights`: Seq[Double], graphID: String, target: String)
 
 // 辅助约束算法输出
 
-case class ResultRow(`artifact`: String, `version`: String, `score`: Double, `id`: Long) {
-  def toRow(`artifact`: String = this.`artifact`.toString, `version`: String = this.`version`.toString, `score`: String = this.`score`.toString, `id`: String = this.`id`.toString): Row = {
-    Row.apply(`artifact`, `version`, `score`, `id`)
+case class ResultRow(`id`: Long, `artifact`: String, `version`: String, `score`: Double) {
+  def toRow(`id`: String = this.`id`.toString, `artifact`: String = this.`artifact`.toString, `version`: String = this.`version`.toString, `score`: String = this.`score`.toString): Row = {
+    Row.apply(`id`, `artifact`, `version`, `score`)
   }
 }
 
 // 节点和边名称常量
 case object GraphView {
   case object Node {
+    
+case object LIBRARY{
+	var NAME = "library"
+	var ATTR_ARTIFACT = "artifact"
+var ATTR_DESC = "desc"
+var ATTR_TOPIC = "topic"
+var ATTR_HOME = "home"
+}
 
-    case object LIBRARY {
-      var NAME = "library"
-      var ATTR_ARTIFACT = "artifact"
-      var ATTR_DESC = "desc"
-      var ATTR_TOPIC = "topic"
-      var ATTR_HOME = "home"
-    }
 
-
-    case object RELEASE {
-      var NAME = "release"
-      var ATTR_IDF = "idf"
-      var ATTR_ARTIFACT = "artifact"
-      var ATTR_VERSION = "version"
-      var ATTR_CREATETIME = "createTime"
-    }
+case object RELEASE{
+	var NAME = "release"
+	var ATTR_IDF = "idf"
+var ATTR_ARTIFACT = "artifact"
+var ATTR_VERSION = "version"
+var ATTR_CREATETIME = "createTime"
+}
 
   }
 
   case object Edge {
+    
+case object DEPEND{
+	var NAME = "depend"
+	
+}
 
-    case object DEPEND {
-      var NAME = "depend"
 
-    }
-
-
-    case object BELONG2 {
-      var NAME = "belong2"
-
-    }
+case object BELONG2{
+	var NAME = "belong2"
+	
+}
 
   }
 }
@@ -59,17 +59,17 @@ case object GraphView {
 // 模板内部使用的常量
 case object Constants {
   val COL_ID = "id"
-  val COL_ARTIFACT = "工件名"
-  val COL_VERSION = "版本号"
-  val COL_SCORE = "得分"
-  val SCHEMA: StructType = StructType(
+val COL_ARTIFACT = "工件名"
+val COL_VERSION = "版本号"
+val COL_SCORE = "得分"
+val SCHEMA: StructType = StructType(
     List(
       StructField(COL_ID, StringType, nullable = false),
-      StructField(COL_ARTIFACT, StringType, nullable = false),
-      StructField(COL_VERSION, StringType, nullable = false),
-      StructField(COL_SCORE, StringType, nullable = false)
+StructField(COL_ARTIFACT, StringType, nullable = false),
+StructField(COL_VERSION, StringType, nullable = false),
+StructField(COL_SCORE, StringType, nullable = false)
     )
-  )
+)
 }
 
 // 模板
@@ -79,12 +79,12 @@ abstract class Template {
     val json = JSON.parseObject(args.apply(0))
     val graphID: String = json.getString("graphID")
     val target: String = json.getString("target")
-    val _weights = json.getJSONArray("weights")
-    val `weights` = Seq.empty
+	val _weights =json.getJSONArray("weights")
+val `weights` = Seq.empty
     for (i <- 0 until _weights.size()) {
       `weights` :+ _weights.getDouble(i)
     }
-    Param(weights = weights, graphID = graphID, target = target)
+Param(weights = weights, graphID = graphID, target = target)
   }
 
   /*

@@ -148,32 +148,28 @@ const GTable: React.FC = () => {
 
         // 为当前组各个可能上传的文件生成上传栏
         const getUploadFormItem = (crtGroup: TreeNodeGroup) => {
-            let nodeItems: JSX.Element[] = []
-            let edgeItems: JSX.Element[] = []
-            crtGroup.nodeTypeList.forEach(t => {
-                nodeItems.push(<ProFormUploadButton
+            let nodeItems: JSX.Element[] = crtGroup.nodeTypeList.map(t => <ProFormUploadButton
                     max={1}
                     fieldProps={{
                         customRequest: (option: any) => {
                             option.onSuccess()
                         }
                     }}
+                    key={t.name}
                     name={t.name}
                     label={t.name + '文件[可选]'}>
                 </ProFormUploadButton>)
-            })
-            crtGroup.edgeTypeList.forEach(t => {
-                edgeItems.push(<ProFormUploadButton
+            let edgeItems: JSX.Element[] = crtGroup.edgeTypeList.map(t => <ProFormUploadButton
                     fieldProps={{
                         customRequest: (option: any) => {
                             option.onSuccess()
                         }
                     }}
                     max={1}
+                    key={t.name}
                     name={t.name}
                     label={t.name + '文件[可选]'}>
                 </ProFormUploadButton>)
-            })
             return {nodeItems, edgeItems}
         }
         const {nodeItems, edgeItems} = getUploadFormItem(group)
@@ -316,7 +312,7 @@ const GTable: React.FC = () => {
     return (
         <PageContainer title={false}>
             <ProTable<GraphRef2Group>
-                key='graphList'
+                key='id'
                 columns={columns}
                 cardBordered
                 dataSource={graphs}

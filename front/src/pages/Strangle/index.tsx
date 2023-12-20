@@ -6,7 +6,7 @@ import {
     ProFormSelect,
 } from "@ant-design/pro-components"
 import {Button, message, Spin, Steps, theme} from "antd"
-import {algoExec, getMatchNodesByTag} from "@/services/graph/graph";
+import {algoExec, getAlgoTaskByID, getMatchNodesByTag} from "@/services/graph/graph";
 import React, {useRef, useState} from "react";
 import {useModel} from "@@/exports";
 import {isAlgoIllegal} from "@/models/global";
@@ -24,12 +24,16 @@ const Strangle: React.FC = () => {
     const algo: Graph.Algo = algos.find((a: Graph.Algo) => a.name === AlgoStrangleNames[0])
 
     const {graphs} = useModel('global')
-    const [lastTaskId, setLastTaskId] = useState<string>()
+    const [lastTaskId, setLastTaskId] = useState<number>()
     const [lastFileName, setLastFileName] = useState<string>()
     const [lastTimer, setLastTimer] = useState<NodeJS.Timer>()
 
+    let nodeId = 0
     // 执行算法的目标图谱
     const graphOptions = graphs.filter(g => isAlgoIllegal(g, algo)).map(g => {
+        if (nodeId == 0) {
+            nodeId = g.group.nodeTypeList.find(nt => nt.name == 'library')!.id
+        }
         return {
             label: g.name,
             value: g.id
@@ -87,7 +91,7 @@ const Strangle: React.FC = () => {
         // }
         return await algoExec(req).then((res) => {
             message.success('算法已提交')
-            setLastTaskId(res.base.taskId)
+            setLastTaskId(res.task.id)
             setLastFileName(undefined)
         })
     }
@@ -121,7 +125,7 @@ const Strangle: React.FC = () => {
     }
     const getStep1 = () => {
         return <div style={{display: current === 0 ? '' : 'none'}}>
-            <ProFormSelect rules={[{required: true}]} label={'图谱'} name={'graphId'}
+            <ProFormSelect rules={[{required: true}]} label={'卡脖子软件识别图谱'} name={'graphId'}
                            options={graphOptions}/>
             <ProFormDependency name={['graphId']}>
                 {({graphId}) => <ProFormSelect
@@ -139,13 +143,13 @@ const Strangle: React.FC = () => {
                     }}
                     request={async (v) => {
                         let packs: any[] = []
-                        if (!v.keyWords) {
+                        if (!v.keyWords || !graphId) {
                             return packs
                         }
                         await getMatchNodesByTag({
                             graphId: graphId,
                             keywords: v.keyWords,
-                            nodeId: 4,
+                            nodeId: nodeId,
                         }).then(res => {
                             packs.push({
                                 label: "library",
@@ -226,10 +230,10 @@ const Strangle: React.FC = () => {
     // 提交算法后轮询算法结果
     if (current === steps.length - 1 && lastTaskId && !lastTimer) {
         const timer = setInterval(() => {
-            const params: Graph.ExecAlgoRequest = {algoId: 0, graphId: 0}
-            algoExec(params).then((res) => {
-                if (res.file) {
-                    setLastFileName(res.file)
+            const params: Graph.GetAlgoTaskRequest = {id: lastTaskId}
+            getAlgoTaskByID(params).then((res) => {
+                if (res.task.status) {
+                    setLastFileName(res.task.output)
                     clearInterval(timer)
                     setLastTimer(undefined)
                 }

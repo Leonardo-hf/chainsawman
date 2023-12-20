@@ -2,7 +2,6 @@ declare namespace Graph {
   type Algo = {
     id?: number;
     name: string;
-    desc: string;
     detail: string;
     groupId: number;
     tag: string;
@@ -25,7 +24,7 @@ declare namespace Graph {
   };
 
   type AlgoTask = {
-    id: string;
+    id: number;
     createTime: number;
     updateTime: number;
     status: number;
@@ -112,8 +111,21 @@ declare namespace Graph {
     algos: Algo[];
   };
 
+  type getAlgoTaskByIDParams = {
+    id: number;
+  };
+
   type getAlgoTaskParams = {
     graphId?: number;
+  };
+
+  type GetAlgoTaskReply = {
+    base: BaseReply;
+    task: AlgoTask;
+  };
+
+  type GetAlgoTaskRequest = {
+    id: number;
   };
 
   type GetAlgoTasksReply = {

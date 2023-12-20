@@ -112,7 +112,7 @@ const Extractor: React.FC = () => {
                     updateTreeData(origin, key, extractor!.treeDep(res.dependencies)),
                 )
                 const ng = extractor!.graph(res.package, res.dependencies)
-                setGraphData((origin) => {
+                setGraphData((origin: { nodes: any[]; edges: string | any[]; }) => {
                     const unique = (arr: any[]) => {
                         const res = new Map()
                         return arr.filter((a) => !res.has(a.id) && res.set(a.id, 1))
@@ -166,6 +166,7 @@ const Extractor: React.FC = () => {
             </Space>
             <Divider/>
             <Checkbox.Group options={visualOptions} defaultValue={visual} onChange={(options) => {
+                // @ts-ignore
                 setVisual(options)
             }}/>
             {!isTreeVisable() && !isGraphVisable() && <Empty/>}

@@ -61,9 +61,11 @@ func (l *GetHotLogic) GetHot() (resp *types.GetHotSEReply, err error) {
 				if err == io.EOF {
 					break
 				}
-				artifact, _ := r.Get("artifact")
-				version, _ := r.Get("version")
-				score, _ := r.GetAsFloat64("score")
+				id, _ := r.GetAsInt("id")
+				rids = append(rids, id)
+				artifact, _ := r.Get("工件名")
+				version, _ := r.Get("版本号")
+				score, _ := r.GetAsFloat64("得分")
 				se = append(se, &types.HotSE{
 					Artifact: artifact,
 					Version:  version,
@@ -72,7 +74,7 @@ func (l *GetHotLogic) GetHot() (resp *types.GetHotSEReply, err error) {
 			}
 			ds, err := l.svcCtx.NebulaClient.GetLibraryByReleaseIDs(graph, rids)
 			if err != nil {
-				logx.Errorf("[Graph] fail to get library by rids: %v", rids)
+				logx.Errorf("[Graph] fail to get library by rids: %v, err: %v", rids, err)
 				return
 			}
 			for p, rid := range rids {

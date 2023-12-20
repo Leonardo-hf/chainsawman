@@ -26,6 +26,7 @@ case object LIBRARY{
 	var ATTR_ARTIFACT = "artifact"
 var ATTR_DESC = "desc"
 var ATTR_TOPIC = "topic"
+var ATTR_HOME = "home"
 }
 
 
@@ -57,11 +58,12 @@ case object BELONG2{
 
 // 模板内部使用的常量
 case object Constants {
-  val SCHEMA: StructType = 
-StructType(
+  val COL_CLASS = "分类"
+val COL_SCORE = "得分"
+val SCHEMA: StructType = StructType(
     List(
-      StructField("分类", StringType, nullable = false),
-StructField("得分", StringType, nullable = false)
+      StructField(COL_CLASS, StringType, nullable = false),
+StructField(COL_SCORE, StringType, nullable = false)
     )
 )
 }

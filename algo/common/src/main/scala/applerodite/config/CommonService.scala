@@ -1,6 +1,6 @@
 package applerodite.config
 
-import applerodite.dao.{GraphClient, MinioClientImpl, MysqlClient, MysqlClientImpl, NebulaClientImpl, NebulaConfig, OSSClient}
+import applerodite.dao.{GraphClient, MinioClientImpl, MysqlClient, MysqlClientImpl, MysqlConfig, NebulaClientImpl, NebulaConfig, OSSClient}
 import com.facebook.thrift.protocol.TCompactProtocol
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.spark.SparkConf
@@ -41,6 +41,12 @@ object CommonServiceImpl extends CommonService {
       nebulaConf.getString("user"), nebulaConf.getString("password"))
   }
 
+  def parseMysqlConfig(conf: Config) : MysqlConfig = {
+    val mysqlConf = conf.getConfig("mysql")
+    MysqlConfig.apply(driver = mysqlConf.getString("driver"), url = mysqlConf.getString("url"),
+      user = mysqlConf.getString("user"), password = mysqlConf.getString("password"))
+  }
+
   Init()
 
   def Init(): Unit = {
@@ -59,7 +65,7 @@ object CommonServiceImpl extends CommonService {
       .config(sparkConf)
       .getOrCreate()
     graphClient = new NebulaClientImpl().GetGraphClient(parseNebulaConfig(conf), spark)
-    mysqlClient = MysqlClientImpl.Init()
+    mysqlClient = MysqlClientImpl.Init(parseMysqlConfig(conf))
   }
 
   override def getOSSClient: OSSClient = ossClient

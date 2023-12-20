@@ -28,7 +28,7 @@ export async function algoDrop(body: Graph.DropAlgoRequest, options?: { [key: st
 
 /** 执行算法 POST /api/graph/algo/exec */
 export async function algoExec(body: Graph.ExecAlgoRequest, options?: { [key: string]: any }) {
-  return request<Graph.AlgoReply>('/api/graph/algo/exec', {
+  return request<Graph.GetAlgoTaskReply>('/api/graph/algo/exec', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -57,6 +57,21 @@ export async function dropAlgoTask(
       'Content-Type': 'application/json',
     },
     data: body,
+    ...(options || {}),
+  });
+}
+
+/** 获取单个图计算任务结果 GET /api/graph/algo/task/get */
+export async function getAlgoTaskByID(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.getAlgoTaskByIDParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GetAlgoTaskReply>('/api/graph/algo/task/get', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

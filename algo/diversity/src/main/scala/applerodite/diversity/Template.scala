@@ -11,9 +11,9 @@ case class Param(`libraries`: Seq[String], graphID: String, target: String)
 
 // 辅助约束算法输出
 
-case class ResultRow(`score`: Double, `artifact`: String, `s1`: Double, `s2`: Double) {
-  def toRow(`score`: String = this.`score`.toString, `artifact`: String = this.`artifact`.toString, `s1`: String = this.`s1`.toString, `s2`: String = this.`s2`.toString): Row = {
-    Row.apply(`score`, `artifact`, `s1`, `s2`)
+case class ResultRow(`artifact`: String, `s1`: Double, `s2`: Double, `score`: Double) {
+  def toRow(`artifact`: String = this.`artifact`.toString, `s1`: String = this.`s1`.toString, `s2`: String = this.`s2`.toString, `score`: String = this.`score`.toString): Row = {
+    Row.apply(`artifact`, `s1`, `s2`, `score`)
   }
 }
 
@@ -44,6 +44,7 @@ case object LIBRARY{
 	var ATTR_ARTIFACT = "artifact"
 var ATTR_DESC = "desc"
 var ATTR_TOPIC = "topic"
+var ATTR_HOME = "home"
 }
 
 
@@ -93,13 +94,16 @@ case object BELONG2{
 
 // 模板内部使用的常量
 case object Constants {
-  val SCHEMA: StructType = 
-StructType(
+  val COL_ARTIFACT = "工件名"
+val COL_S1 = "维护者多元性"
+val COL_S2 = "贡献者多元性"
+val COL_SCORE = "总得分"
+val SCHEMA: StructType = StructType(
     List(
-      StructField("工件名", StringType, nullable = false),
-StructField("维护者多元性", StringType, nullable = false),
-StructField("贡献者多元性", StringType, nullable = false),
-StructField("总得分", StringType, nullable = false)
+      StructField(COL_ARTIFACT, StringType, nullable = false),
+StructField(COL_S1, StringType, nullable = false),
+StructField(COL_S2, StringType, nullable = false),
+StructField(COL_SCORE, StringType, nullable = false)
     )
 )
 }

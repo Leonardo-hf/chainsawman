@@ -30,11 +30,12 @@ case object GraphView {
 
 // 模板内部使用的常量
 case object Constants {
-  val SCHEMA: StructType = 
-StructType(
+  val COL_ID = "分类"
+val COL_SCORE = "得分"
+val SCHEMA: StructType = StructType(
     List(
-      StructField("节点id", StringType, nullable = false),
-StructField("得分", StringType, nullable = false)
+      StructField(COL_ID, StringType, nullable = false),
+StructField(COL_SCORE, StringType, nullable = false)
     )
 )
 }

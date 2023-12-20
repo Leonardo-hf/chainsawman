@@ -134,9 +134,9 @@ func (n *NebulaClientImpl) GetLibraryByReleaseIDs(graph int64, rids []int64) (ma
 		ridsStr[i] = strconv.FormatInt(rid, 10)
 	}
 	stat := fmt.Sprintf("USE G%v;"+
-		"MATCH (v:release)-[b:belong2]->(l:library)"+
-		"WHERE id(v) in [%v]"+
-		"RETURN id(v) as rid, l.library AS library"+
+		"MATCH (v:release)-[b:belong2]->(l:library) "+
+		"WHERE id(v) in [%v] "+
+		"RETURN id(v) as rid, l.library.home as home "+
 		"LIMIT %v;",
 		graph, strings.Join(ridsStr, ","), len(ridsStr))
 	res, err := session.Execute(stat)
@@ -149,7 +149,7 @@ func (n *NebulaClientImpl) GetLibraryByReleaseIDs(graph int64, rids []int64) (ma
 	ridLibrary := make(map[int64]*Library)
 	for i := 0; i < res.GetRowSize(); i++ {
 		r, _ := res.GetRowValuesByIndex(i)
-		ridLibrary[common.ParseInt(r, "rid")] = &Library{Homepage: common.Parse(r, "library")}
+		ridLibrary[common.ParseInt(r, "rid")] = &Library{Homepage: common.Parse(r, "home")}
 	}
 	return ridLibrary, nil
 }

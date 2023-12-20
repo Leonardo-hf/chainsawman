@@ -23,6 +23,7 @@ func main() {
 	var configFile = flag.String("f", defaultCfg, "the config api")
 	var c config.Config
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
+
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 

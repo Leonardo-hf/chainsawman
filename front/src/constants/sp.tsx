@@ -25,20 +25,20 @@ export const getParamFormItem = (algo: Graph.Algo, pre: string = '') => {
             switch (p.type) {
                 case ParamType.Int:
                     return <ProFormDigit rules={[{required: true}]} name={p.key} fieldProps={{precision: 0}}
-                                         initialValue={p.initValue}
+                                         initialValue={p.initValue} key={p.key}
                                          label={getTooltip(pre + p.key, p.keyDesc)}
                                          max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
                                          min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
                 case ParamType.Double:
                     return <ProFormDigit rules={[{required: true}]} name={p.key} fieldProps={{precision: 4, step: 1e-4}}
-                                         initialValue={p.initValue}
+                                         initialValue={p.initValue} key={p.key}
                                          label={getTooltip(pre + p.key, p.keyDesc)}
                                          max={p.max ? p.max : Number.MAX_SAFE_INTEGER}
                                          min={p.min ? p.min : Number.MIN_SAFE_INTEGER}/>
                 case ParamType.StringList:
                 case ParamType.DoubleList:
                     return <ProFormSelect rules={[{required: true}]} name={p.key} label={getTooltip(pre + p.key, p.keyDesc)}
-                                          fieldProps={{mode: "tags"}}/>
+                                          fieldProps={{mode: "tags"}} key={p.key} options={[]}/>
             }
         }
     )

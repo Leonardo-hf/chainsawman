@@ -42,7 +42,7 @@ export function parseGroups(g: Graph.Group[]) {
     // 寻找每个组的父策略组
     groups.filter(g => g.id !== RootGroupID).forEach(g => g.parentGroup = groups.find(g2 => g2.id === g.parentId))
     // 滤除根策略组，对结果排序
-    groups = groups.filter(g => g.id !== RootGroupID).sort((a, b) => a.name > b.name ? 0 : 1)
+    groups = groups.filter(g => g.id !== RootGroupID).sort((a, b) => a.name.localeCompare(b.name))
     graphs = graphs.sort((a, b) => b.id - a.id)
     return {graphs, groups}
 }
@@ -97,7 +97,7 @@ export default () => {
                     if (graphs.filter(a => a.status !== 1).length) {
                         setTimeout(_ => {
                             update()
-                        }, 10000)
+                        }, 5000)
                     }
                     return
                 })

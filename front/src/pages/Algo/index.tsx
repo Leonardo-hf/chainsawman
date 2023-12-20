@@ -48,7 +48,6 @@ const Algo: React.FC = () => {
                 jar: jar,
                 algo: {
                     name: vs.name,
-                    desc: vs.desc,
                     detail: vs.detail,
                     tag: vs.tag,
                     groupId: vs.groupId,
@@ -98,8 +97,6 @@ const Algo: React.FC = () => {
         >
             <ProFormGroup title='指标配置'>
                 <ProFormText name='name' label='名称' rules={[{required: true}]}/>
-                <ProFormText name='desc' label='概述' rules={[{required: true}]}/>
-                <ProFormTextArea name={'detail'} label={'详情'} rules={[{required: true}]}/>
                 <ProFormSelect
                     initialValue={'节点中心度'}
                     options={AlgoOptions}
@@ -107,8 +104,10 @@ const Algo: React.FC = () => {
                     name='tag'
                     label='指标标签'
                 />
-                <ProFormSelect name='groupId' style={{width: '100%'}} label='适用策略组' options={genGroupOptions(groups)}/>
+                <ProFormSelect name='groupId' style={{width: '100%'}} label='适用策略组' rules={[{required: true}]}
+                               options={genGroupOptions(groups)}/>
             </ProFormGroup>
+            <ProFormTextArea name={'detail'} label={'详情'} rules={[{required: true}]}/>
             <ProFormGroup title='指标实现'>
                 <ProFormText name='entryPoint' label='入口类' rules={[{required: true}]}/>
                 <ProFormUploadButton rules={[{required: true}]}
@@ -172,26 +171,42 @@ const Algo: React.FC = () => {
                 initValues[p.key] = p.initValue
             }
         })
+        const getMaxMin = (type: number) => {
+            switch (ParamTypeOptions[type].value) {
+                case ParamType.DoubleList:
+                case ParamType.StringList:
+                    return {
+                        maxLabel: '最大长度',
+                        minLabel: '最小长度'
+                    }
+                default:
+                    return {
+                        maxLabel: '最大值',
+                        minLabel: '最小值'
+                    }
+            }
+        }
         return <Space direction={'vertical'}>
-
             <Markdown remarkPlugins={[remarkMath]}
                 // @ts-ignore
                       rehypePlugins={[rehypeKatex]}>{algo.detail}</Markdown>
             {algo.params?.length! > 0 && <Divider/>}
             {
-                algo.params?.map(p =>
-                    <>
-                        <ProDescriptions dataSource={p}>
-                            <ProDescriptions.Item dataIndex={'key'} label='key' valueType={'text'}/>
-                            <ProDescriptions.Item dataIndex={'keyDesc'} label='名称' valueType={'text'}/>
-                            <ProDescriptions.Item label='类型' render={(_, t) => ParamTypeOptions[t['type']].label}/>
-                            {p.initValue &&
-                            <ProDescriptions.Item dataIndex={'initValue'} label='默认值' valueType={'text'}/>}
-                            {p.max && <ProDescriptions.Item dataIndex={'max'} label='最大值' valueType={'text'}/>}
-                            {p.min && <ProDescriptions.Item dataIndex={'min'} label='最小值' valueType={'text'}/>}
-                        </ProDescriptions>
-                        <Divider/>
-                    </>
+                algo.params?.map((p, i) => {
+                        const {maxLabel, minLabel} = getMaxMin(p.type)
+                        return <div key={i}>
+                            <ProDescriptions dataSource={p} column={4}>
+                                <ProDescriptions.Item dataIndex={'key'} label={`参数${i + 1}`} valueType={'text'}/>
+                                <ProDescriptions.Item dataIndex={'keyDesc'} span={3} label='描述' valueType={'text'}/>
+                                <ProDescriptions.Item label='类型' render={(_, t) => ParamTypeOptions[t['type']].label}/>
+                                {p.initValue &&
+                                <ProDescriptions.Item dataIndex={'initValue'} label='默认值' valueType={'text'}/>}
+                                {p.max && <ProDescriptions.Item dataIndex={'max'} label={maxLabel} valueType={'text'}/>}
+                                {p.min && <ProDescriptions.Item dataIndex={'min'} label={minLabel} valueType={'text'}/>}
+                            </ProDescriptions>
+                            <Divider/>
+                        </div>
+                    }
                 )
             }
 

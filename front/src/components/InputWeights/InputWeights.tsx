@@ -68,6 +68,7 @@ const InputWeights: React.FC<Props> = (props) => {
             max={max}
         />
         <ProTable
+            rowKey={(row)=>row}
             cardProps={{bodyStyle: {padding: 0}}}
             dataSource={rows}
             columns={columns}

@@ -1,12 +1,10 @@
 package logic
 
 import (
-	"chainsawman/graph/model"
-	"context"
-	"strconv"
-
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
+	"chainsawman/graph/model"
+	"context"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -42,7 +40,7 @@ func (l *GetAlgoTaskLogic) GetAlgoTask(req *types.GetAlgoTasksRequest) (resp *ty
 	for i := range tasks {
 		task := tasks[len(tasks)-1-i]
 		resp.Tasks = append(resp.Tasks, &types.AlgoTask{
-			Id:         strconv.FormatInt(task.ID, 10),
+			Id:         task.ID,
 			CreateTime: task.CreateTime.UnixMilli(),
 			UpdateTime: task.UpdateTime.UnixMilli(),
 			Status:     task.Status,

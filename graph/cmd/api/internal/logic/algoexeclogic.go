@@ -29,7 +29,7 @@ func NewAlgoExecLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AlgoExec
 	}
 }
 
-func (l *AlgoExecLogic) AlgoExec(req *types.ExecAlgoRequest) (resp *types.AlgoReply, err error) {
+func (l *AlgoExecLogic) AlgoExec(req *types.ExecAlgoRequest) (resp *types.GetAlgoTaskReply, err error) {
 	// 参数校验
 	for _, p := range req.Params {
 		switch p.Type {
@@ -75,16 +75,27 @@ func (l *AlgoExecLogic) AlgoExec(req *types.ExecAlgoRequest) (resp *types.AlgoRe
 	if err != nil {
 		return nil, err
 	}
+	logx.Infof("[Graph] start algo job, appID: %v", appID)
 	params, _ := jsonx.MarshalToString(req.Params)
-	err = l.svcCtx.MysqlClient.InsertAlgoTask(l.ctx, &model.Exec{
+	exec := &model.Exec{
 		AlgoID:  req.AlgoID,
 		Status:  int64(model.KVTask_New),
 		Params:  params,
 		GraphID: req.GraphID,
 		Output:  fileName,
 		AppID:   appID,
-	})
-	return nil, err
+	}
+	err = l.svcCtx.MysqlClient.InsertAlgoTask(l.ctx, exec)
+	return &types.GetAlgoTaskReply{
+		Task: &types.AlgoTask{
+			Id:         exec.ID,
+			CreateTime: exec.CreateTime.UnixMilli(),
+			UpdateTime: exec.UpdateTime.UnixMilli(),
+			GraphID:    req.GraphID,
+			Req:        params,
+			AlgoID:     req.AlgoID,
+		},
+	}, err
 }
 
 func params2Map(params []*types.Param) map[string]interface{} {
