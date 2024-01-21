@@ -1,13 +1,13 @@
-from typing import List
+from typing import List, Tuple
 
 import toml
 from astroid import MANAGER
 from astroid.builder import AstroidBuilder
-from semver import parse_constraint
+from .poetry_semver import parse_constraint
 
-from requirements_detector.handle_setup import SetupWalker
+from .handle_setup import SetupWalker
 
-from requirements_detector.requirement import DetectedRequirement
+from .requirement import DetectedRequirement
 
 _PIP_OPTIONS = (
     "-i",
@@ -20,7 +20,7 @@ _PIP_OPTIONS = (
 )
 
 
-def from_requirements_txt(text) -> List[DetectedRequirement]:
+def from_requirements_txt(text) -> Tuple[str, str, List[DetectedRequirement]]:
     # see http://www.pip-installer.org/en/latest/logic.html
     requirements = []
 
@@ -43,44 +43,58 @@ def from_requirements_txt(text) -> List[DetectedRequirement]:
             continue
         requirements.append(detected)
 
-    return requirements
+    return '?', '?', requirements
 
 
-def from_setup_py(text):
+def from_setup_py(text) -> Tuple[str, str, List[DetectedRequirement]]:
     try:
         ast = AstroidBuilder(MANAGER).string_build(text)
         walker = SetupWalker(ast)
         requirements = []
+
         for req in walker.get_requires():
             requirements.append(DetectedRequirement.parse(req))
-        return [requirement for requirement in requirements if requirement is not None]
+        artifact, version = walker.get_package_info()
+        return artifact, version, [requirement for requirement in requirements if requirement is not None]
     except:
         # if the setup file is broken, we can't do much about that...
-        return []
+        return '', '', []
 
 
-def from_setup_cfg(text) -> List[DetectedRequirement]:
+def from_setup_cfg(text) -> Tuple[str, str, List[DetectedRequirement]]:
     requirements = []
     start = False
-    for req in text.split('\n'):
-        if req.strip().startswith('install_requires'):
+    artifact = ''
+    version = ''
+    for line in text.split('\n'):
+        if line.strip().startswith('name'):
+            line = line.strip()
+            artifact = line[line.find('=') + 1:].strip()
+        if line.strip().startswith('version'):
+            line = line.strip()
+            version = line[line.find('=') + 1:].strip()
+        if line.strip().startswith('install_requires'):
             start = True
             continue
         if start:
-            if not req.startswith('\t'):
-                break
-            detected = DetectedRequirement.parse(req.strip())
+            if not line.startswith('\t'):
+                start = False
+                continue
+            detected = DetectedRequirement.parse(line.strip())
             if detected is None:
                 continue
             requirements.append(detected)
-    return requirements
+
+    return artifact, version, requirements
 
 
-def from_pyproject_toml(text) -> List[DetectedRequirement]:
+def from_pyproject_toml(text) -> Tuple[str, str, List[DetectedRequirement]]:
     requirements = []
 
     parsed = toml.loads(text)
     poetry_section = parsed.get("tool", {}).get("poetry", {})
+    artifact = poetry_section.get("name", '')
+    version = poetry_section.get("version", '')
     dependencies = poetry_section.get("dependencies", {})
     # dependencies.update(poetry_section.get("dev-dependencies", {}))
 
@@ -88,14 +102,27 @@ def from_pyproject_toml(text) -> List[DetectedRequirement]:
         if name.lower() == "python":
             continue
         if isinstance(spec, dict):
-            spec = spec["version"]
             if "version" in spec:
                 spec = spec["version"]
+            elif 'git' in spec:
+                t = spec.get('git')
+                if 'rev' in spec:
+                    tv = 'rev@' + spec.get('rev')
+                elif 'tag' in spec:
+                    tv = 'tag@' + spec.get('tag')
+                else:
+                    tv = 'latest@' + spec.get('branch', 'master')
+                req = DetectedRequirement()
+                req.name = t
+                req.version_specs = [('', tv)]
+                requirements.append(req)
+                continue
             else:
                 req = DetectedRequirement.parse(f"{name}")
                 if req is not None:
                     requirements.append(req)
                     continue
+
         parsed_spec = str(parse_constraint(spec))
         if "," not in parsed_spec and "<" not in parsed_spec and ">" not in parsed_spec and "=" not in parsed_spec:
             parsed_spec = f"=={parsed_spec}"
@@ -110,4 +137,4 @@ def from_pyproject_toml(text) -> List[DetectedRequirement]:
         req = DetectedRequirement.parse(req)
         if req is not None:
             requirements.append(req)
-    return requirements
+    return artifact, version, requirements

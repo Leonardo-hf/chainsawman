@@ -78,7 +78,6 @@ export function genGroupOptions(gs: TreeNodeGroup[]) {
     })]
 }
 
-
 export default () => {
     const [graphs, setGraphs] = useState<GraphRef2Group[]>([])
     const [groups, setGroups] = useState<TreeNodeGroup[]>([])

@@ -209,7 +209,6 @@ const Algo: React.FC = () => {
                     }
                 )
             }
-
         </Space>
     }
     return <PageContainer>
@@ -233,6 +232,7 @@ const Algo: React.FC = () => {
                         total: data.length
                     }
                 }}
+
             expandable={{expandedRowKeys, onExpandedRowsChange: setExpandedRowKeys}}
             metas={{
                 title: {

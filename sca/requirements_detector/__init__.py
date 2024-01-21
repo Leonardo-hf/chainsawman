@@ -1,10 +1,16 @@
-from requirements_detector.detect import (  # from_setup_py,
+from .detect import (  # from_setup_py,
     CouldNotParseRequirements,
     RequirementsNotFound,
-    find_requirements,
-    from_pyproject_toml,
-    from_requirements_blob,
-    from_requirements_dir,
+)
+
+from .requirement import DetectedRequirement
+
+from .methods import (
     from_requirements_txt,
     from_setup_py,
+    from_setup_cfg,
+    from_pyproject_toml
 )
+
+__all__ = ['CouldNotParseRequirements', 'RequirementsNotFound', 'from_requirements_txt', 'from_setup_py',
+           'from_setup_cfg', 'from_pyproject_toml', 'DetectedRequirement']

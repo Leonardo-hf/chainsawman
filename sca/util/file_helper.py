@@ -1,44 +1,68 @@
+import io
 import tarfile
 import zipfile
-from collections import defaultdict
+from abc import abstractmethod, ABCMeta
+from typing import Callable, IO, Union
 
 import chardet
 
 
-def from_zip(f, target):
-    zip_file = zipfile.ZipFile(file=f, mode='r')
-    members = list(filter(lambda n: n.lower().endswith(target), zip_file.namelist()))
-    if len(members) == 0:
-        return []
-    return list(map(lambda m: zip_file.read(name=m).decode(), members))
+class Archive(metaclass=ABCMeta):
+
+    @abstractmethod
+    def get_file_by_name(self, name: str) -> bytes:
+        pass
+
+    @abstractmethod
+    def iter(self, func: Callable[[str], None]) -> None:
+        pass
 
 
-def from_zips(f, targets: []):
-    zip_file = zipfile.ZipFile(file=f, mode='r')
-    res = defaultdict(list)
-    for name in zip_file.namelist():
-        for t in targets:
-            if name.lower().endswith(t):
-                res[t].append(zip_file.read(name=name).decode())
-    return res
+class ZipArchive(Archive):
+    def __init__(self, f: IO[bytes]):
+        self.f = zipfile.ZipFile(file=f, mode='r')
+
+    def get_file_by_name(self, name: str) -> bytes:
+        return self.f.read(name=name)
+
+    def iter(self, func: Callable[[str], None]):
+        for name in self.f.namelist():
+            func(name)
 
 
-def from_tar(f, target):
-    tar_file = tarfile.open(fileobj=f, mode='r')
-    members = list(filter(lambda m: m.name.lower().endswith(target), tar_file.getmembers()))
-    if len(members) == 0:
-        return []
-    return list(map(lambda m: tar_file.extractfile(member=m).read().decode(), members))
+class TarArchive(Archive):
+    def __init__(self, f: IO[bytes]):
+        self.f = tarfile.open(fileobj=f, mode='r')
+
+    def get_file_by_name(self, name: str) -> bytes:
+        return self.f.extractfile(member=name).read()
+
+    def iter(self, func: Callable[[str], None]):
+        for member in self.f.getmembers():
+            func(member.name)
 
 
-def from_tars(f, targets: []):
-    tar_file = tarfile.open(fileobj=f, mode='r')
-    res = defaultdict(list)
-    for name in tar_file.getmembers():
-        for t in targets:
-            if name.lower().endswith(t):
-                res[t].append(tar_file.extractfile(member=name).read().decode())
-    return res
+def resolve_archive(data: Union[bytes, IO[bytes]]) -> Archive:
+    f: IO[bytes] = data
+    if isinstance(data, bytes):
+        f = io.BytesIO(data)
+    archive = None
+    # 如果是 zip 文件
+    if zipfile.is_zipfile(f):
+        archive = ZipArchive(f)
+    # 如果是 tar 文件
+    elif is_tarfile(f):
+        archive = TarArchive(f)
+    return archive
+
+
+def is_tarfile(f: IO[bytes]) -> bool:
+    try:
+        f.seek(0)
+        tarfile.open(fileobj=f, mode='r')
+    except tarfile.TarError:
+        return False
+    return True
 
 
 def is_text(b):

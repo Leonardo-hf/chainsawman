@@ -37,11 +37,43 @@ class SetupWalker:
     def _get_list_value(self, list_node):
         values = []
         for child_node in list_node.get_children():
-            if not isinstance(child_node, Const):
-                # we can't handle anything fancy, only constant values
-                raise CouldNotParseRequirements
-            values.append(child_node.value)
+            values.append(self._get_value(child_node))
         return values
+
+    def _get_value(self, node):
+        if not isinstance(node, Const):
+            # we can't handle anything fancy, only constant values
+            raise CouldNotParseRequirements
+        return node.value
+
+    def get_package_info(self):
+        # first, if we have a call to setup, then we can see what its "install_requires" argument is
+        if not self._setup_call:
+            raise CouldNotParseRequirements
+        artifact = ''
+        version = ''
+
+        def get_str_attr(child_node) -> str:
+            v = ''
+            if isinstance(child_node.value, Const):
+                v = self._get_value(child_node.value)
+            if isinstance(child_node.value, Name):
+                try:
+                    v = self._top_level_assigns[child_node.value.name]
+                    v = self._get_value(v)
+                except:
+                    pass
+            return v
+
+        for child_node in self._setup_call.get_children():
+            if not isinstance(child_node, Keyword):
+                # do we want to try to handle positional arguments?
+                continue
+            if child_node.arg == 'name':
+                artifact = get_str_attr(child_node)
+            if child_node.arg == 'version':
+                version = get_str_attr(child_node)
+        return artifact, version
 
     def get_requires(self):
         # first, if we have a call to setup, then we can see what its "install_requires" argument is
@@ -78,14 +110,12 @@ class SetupWalker:
 
             # otherwise it's something funky and we can't handle it
             raise CouldNotParseRequirements
-
         # if we've fallen off the bottom with nothing in our list of requirements,
         #  we simply didn't find anything useful
         return found_requirements
 
 
 def from_setup_py(setup_file: Union[str, Path]):
-
     if isinstance(setup_file, str):
         setup_file = Path(setup_file)
 

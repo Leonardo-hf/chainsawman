@@ -47,6 +47,7 @@ const InputWeights: React.FC<Props> = (props) => {
         dataIndex: 'sum',
         fixed: 'left'
     })
+
     return <>
         <ProFormSlider
             initialValue={initValues}

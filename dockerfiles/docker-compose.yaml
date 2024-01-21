@@ -189,6 +189,10 @@ services:
       CHS_ENV: "pre"
     volumes:
       - ./spark/share:/opt/share
+    depends_on:
+      - minio-svc
+      - mysql-svc
+      - nebula-graphd-svc
     ports:
       - "30126:8080"
       - "4040"

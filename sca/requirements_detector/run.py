@@ -1,9 +1,8 @@
-import os
 import sys
 from pathlib import Path
 from typing import NoReturn
 
-from . import find_requirements
+from .detect import find_requirements
 from .exceptions import RequirementsNotFound
 from .formatters import FORMATTERS
 

@@ -11,7 +11,7 @@ class MinioHelper:
         )
         self._bucket = cfg['BUCKET']
 
-    def fetch(self, name):
+    def fetch(self, name) -> bytes:
         response = self._client.get_object(self._bucket, name)
         data = response.data
         response.close()

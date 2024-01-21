@@ -20,3 +20,4 @@ dockerfiles/spark/jar
 dockerfiles/livy/data
 
 **/__pycache__
+**/.pytest_cache
