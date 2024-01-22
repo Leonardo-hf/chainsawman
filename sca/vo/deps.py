@@ -25,6 +25,7 @@ class Dep:
 
 @dataclass
 class ModuleDeps:
+    lang: str = ''
     path: str = ''
     group: str = ''
     artifact: str = ''
@@ -39,8 +40,8 @@ class PackageDeps(ModuleDeps):
 
 @dataclass
 class LanguageCount:
-    lang: str
-    cnt: int
+    type: str
+    value: int
 
 
 @dataclass

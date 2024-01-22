@@ -49,8 +49,6 @@ class AllDepsHandler(DepsHandler):
         return ['*']
 
     def deps(self, module: str, data: bytes) -> Tuple[Optional[ModuleDeps], HttpStatus]:
-        print(self._handlers)
-        print(self._handlers[0].modules())
         archive = resolve_archive(data)
         if not archive:
             return None, HttpStatus.ILLEGAL_FILE
@@ -61,7 +59,6 @@ class AllDepsHandler(DepsHandler):
             for h in self._handlers:
                 # 统计依赖文件
                 m = list(filter(lambda m: name.lower().endswith(m), h.modules()))
-                print(name.lower(), m)
                 if len(m):
                     dep, status = h.deps(name.lower(), archive.get_file_by_name(name))
                     if status == HttpStatus.OK:

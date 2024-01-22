@@ -69,7 +69,8 @@ class RustDepsHandler(DepsHandler):
                 tvs = self.rust_v_spec(tv)
                 for tv_specs in tvs:
                     parsed_deps.append(Dep(artifact=t, version=tv_specs[0], limit=tv_specs[1]))
-            return ModuleDeps(path=module, artifact=artifact, version=version, dependencies=parsed_deps), HttpStatus.OK
+            return ModuleDeps(lang=self.lang(), path=module, artifact=artifact, version=version,
+                              dependencies=parsed_deps), HttpStatus.OK
         return None, HttpStatus.NOT_SUPPORT
 
     def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
@@ -90,14 +91,17 @@ class RustDepsHandler(DepsHandler):
         content = spider(url).text
         content = content.strip().split('\n')
         target = None
-        if version == 'latest':
-            target = json.loads(content[-1].strip())
-        else:
-            for j in content:
-                j = json.loads(j.strip())
-                if j['vers'] == version:
-                    target = j
-                    break
+        try:
+            if version == 'latest':
+                target = json.loads(content[-1].strip())
+            else:
+                for j in content:
+                    j = json.loads(j.strip())
+                    if j['vers'] == version:
+                        target = j
+                        break
+        except:
+            pass
         if target is None:
             return None, HttpStatus.NOT_FOUND
 
@@ -111,4 +115,4 @@ class RustDepsHandler(DepsHandler):
         for name, v_spec, scope in deps:
             for v, limit in v_spec:
                 module_deps.append(Dep(artifact=name, version=v, limit=limit, scope=scope))
-        return ModuleDeps(artifact=artifact, version=version, dependencies=module_deps), HttpStatus.OK
+        return ModuleDeps(lang=self.lang(), artifact=artifact, version=version, dependencies=module_deps), HttpStatus.OK

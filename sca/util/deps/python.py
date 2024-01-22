@@ -47,7 +47,7 @@ class PyDepsHandler(DepsHandler):
                         continue
                     for v in r.version_specs:
                         module_deps.append(Dep(artifact=r.name, version=v[1], limit=v[0]))
-                return ModuleDeps(path=module, artifact=artifact, version=version,
+                return ModuleDeps(lang=self.lang(), path=module, artifact=artifact, version=version,
                                   dependencies=module_deps), HttpStatus.OK
         return None, HttpStatus.NOT_SUPPORT
 

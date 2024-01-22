@@ -28,7 +28,7 @@ class JavaDepsHandler(DepsHandler):
                     deps = list(
                         map(lambda d: Dep(group=d.group, artifact=d.artifact, version=d.version, scope=d.scope,
                                           optional=d.optional), deps))
-                return ModuleDeps(path=module, group=pom.get_group_id(), artifact=pom.get_artifact(),
+                return ModuleDeps(lang=self.lang(), path=module, group=pom.get_group_id(), artifact=pom.get_artifact(),
                                   version=pom.get_version(), dependencies=deps), HttpStatus.OK
             except:
                 pass
@@ -47,7 +47,7 @@ class JavaDepsHandler(DepsHandler):
                 deps = list(
                     map(lambda d: Dep(group=d.group, artifact=d.artifact, version=d.version, scope=d.scope,
                                       optional=d.optional), deps))
-            return ModuleDeps(group=pom.get_group_id(), artifact=pom.get_artifact(),
+            return ModuleDeps(lang=self.lang(), group=pom.get_group_id(), artifact=pom.get_artifact(),
                               version=pom.get_version(), dependencies=deps), HttpStatus.OK
         except:
             return None, HttpStatus.ILLEGAL_FILE

@@ -1,4 +1,4 @@
-from flask import Config, current_app
+from flask import Config
 
 from util.minio_helper import MinioHelper
 
@@ -6,11 +6,11 @@ from util.minio_helper import MinioHelper
 class Client:
     config: Config
 
-    @staticmethod
-    def init(config: Config) -> None:
-        config = config
-        current_app.config.setdefault('MINIO_CLIENT', MinioHelper(config['MINIO']))
+    @classmethod
+    def init(cls, config: Config) -> None:
+        config.setdefault('MINIO_CLIENT', MinioHelper(config['MINIO']))
+        cls.config = config
 
-    @staticmethod
-    def get_oss() -> MinioHelper:
-        return Client.config.get("MINIO_CLIENT")
+    @classmethod
+    def get_oss(cls) -> MinioHelper:
+        return cls.config.get("MINIO_CLIENT")

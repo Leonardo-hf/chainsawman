@@ -1,4 +1,5 @@
 import json
+import sys
 
 from attrs import asdict
 from flask import Flask, request
@@ -37,6 +38,7 @@ if __name__ == '__main__':
         app.config.from_file('config/client-pre.json', load=json.load)
     else:
         app.config.from_file('config/client.json', load=json.load)
+
     # 启动客户端
     Client.init(app.config)
     # 启动服务

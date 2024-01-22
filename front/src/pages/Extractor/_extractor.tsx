@@ -1,10 +1,10 @@
 import {DataNode} from "antd/es/tree"
 import {UUID} from "@/utils/format"
 
-export type Extractor = {
+export type DepExtractor = {
     value: string,
     label: string,
-    info: string,
+    // info: string,
     tree: (p: any) => DataNode,
     treeDep: (p: any[]) => DataNode[],
     graph: (p: any, d: any[]) => { nodes: any, edges: any }
@@ -23,25 +23,24 @@ const buildWithLimit = (p: any) => p.limit + ' ' + build(p)
 const buildWithComment = (p: any) => {
     return build(p) + (p.indirect ? '  //indirect' : p.exclude ? '  //exclude' : '')
 }
-const buildTree = (b: any) => {
-    return (p: any) => {
+const buildTree = (b: any) =>
+    (p: any) => {
         return {
             title: b(p),
+            origin: p,
             key: UUID()
         }
     }
-}
 
-const buildTreeDep = (b: any) => (p: any[]) => {
-    const res = []
-    for (let pi of p) {
-        res.push({
+const buildTreeDep = (b: any) =>
+    (p: any[]) => p.map(pi => {
+        return {
             title: b(pi),
-            key: UUID(),
-        })
-    }
-    return res
-}
+            origin: pi,
+            key: UUID()
+        }
+    })
+
 
 const getEdgeColor = (tag: string) => {
     switch (tag) {
@@ -101,11 +100,11 @@ const buildGraphWithEdgeTag = (b: any, getTag: (p: any) => string) => (p: any, d
     }
 }
 
-export const extractors: Extractor[] = [
+export const extractors: DepExtractor[] = [
     {
         value: 'java',
         label: 'java',
-        info: '支持上传 pom.xml 或携带该文件的 tar/zip 压缩包',
+        // info: '支持上传 pom.xml 或携带该文件的 tar/zip 压缩包',
         tree: buildTree(buildWithGroup),
         treeDep: buildTreeDep(buildWithGroup),
         graph: buildGraph(buildWithGroup),
@@ -113,7 +112,7 @@ export const extractors: Extractor[] = [
     {
         value: 'python',
         label: 'python',
-        info: '支持上传携带 setup.py, setup.cfg, pyproject.toml, requires.txt 文件的 tar/zip 压缩包',
+        // info: '支持上传携带 setup.py, setup.cfg, pyproject.toml, requires.txt 文件的 tar/zip 压缩包',
         tree: buildTree(build),
         treeDep: buildTreeDep(buildWithLimit),
         graph: buildGraphWithEdgeTag(build, p => p.limit),
@@ -121,7 +120,7 @@ export const extractors: Extractor[] = [
     {
         value: 'go',
         label: 'go',
-        info: '支持上传 go.mod 管理的 tar/zip 压缩包',
+        // info: '支持上传 go.mod 管理的 tar/zip 压缩包',
         tree: buildTree(build),
         treeDep: buildTreeDep(buildWithComment),
         graph: buildGraphWithEdgeTag(build, p => p.indirect ? 'indirect' : p.exclude ? 'exclude' : ''),
@@ -129,7 +128,7 @@ export const extractors: Extractor[] = [
     {
         value: 'rust',
         label: 'rust',
-        info: '支持上传携带 Cargo.toml 文件的 tar/zip 压缩包',
+        // info: '支持上传携带 Cargo.toml 文件的 tar/zip 压缩包',
         tree: buildTree(build),
         treeDep: buildTreeDep(buildWithLimit),
         graph: buildGraphWithEdgeTag(build, p => p.limit),

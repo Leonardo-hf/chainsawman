@@ -64,7 +64,7 @@ class GoDepsHandler(DepsHandler):
             artifact = '?'
             if 'Module' in res and res['Module']:
                 artifact = res['Module']['Mod']['Path']
-            return ModuleDeps(artifact=artifact, path=module, dependencies=reqs), HttpStatus.OK
+            return ModuleDeps(lang=self.lang(), artifact=artifact, path=module, dependencies=reqs), HttpStatus.OK
         return None, HttpStatus.NOT_SUPPORT
 
     def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:

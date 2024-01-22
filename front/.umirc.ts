@@ -62,33 +62,33 @@ export default defineConfig({
         {
             name: '图谱可视化',
             path: '/graph',
-            routes: [
-                {
-                    name: 'test',
-                    path: '/graph/test',
-                    component: './Graph'
-                }
-            ]
+            routes: []
         },
         {
             name: '指标体系',
             path: '/algo',
-            component: './Algo'
+            routes: []
         },
         {
             name: '指标分析',
             path: '/exec',
-            component: './AlgoExec'
-        },
-        {
-            name: '高影响力软件识别',
-            path: '/util/impact',
-            component: './Impact'
-        },
-        {
-            name: '卡脖子软件识别',
-            path: '/util/strangle',
-            component: './Strangle'
+            routes: [
+                {
+                    name: '高影响力软件识别',
+                    path: '/exec/impact',
+                    component: './Impact'
+                },
+                {
+                    name: '卡脖子软件识别',
+                    path: '/exec/strangle',
+                    component: './Strangle'
+                },
+                {
+                    name: '其他指标',
+                    path: '/exec/others',
+                    component: './AlgoExec'
+                }
+            ]
         },
         {
             name: '软件成分分析',

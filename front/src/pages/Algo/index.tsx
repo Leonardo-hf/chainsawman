@@ -1,168 +1,25 @@
 import {
-    DrawerForm,
-    PageContainer, ProDescriptions, ProFormDependency, ProFormDigit, ProFormDigitRange,
-    ProFormGroup,
-    ProFormList,
-    ProFormSelect,
-    ProFormText, ProFormTextArea, ProFormUploadButton,
-    ProList
+    PageContainer, ProDescriptions
 } from "@ant-design/pro-components";
-import {Button, Divider, Form, message, Popconfirm, Space, Tag, Typography} from "antd";
-import {PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
-import {algoCreate, algoDrop} from "@/services/graph/graph";
-import React, {Key, useState} from "react";
-import ProCard from "@ant-design/pro-card";
-import {useModel} from "@@/exports";
+import {Divider, Space, Typography} from "antd";
+import React from "react";
 import {
-    AlgoOptions,
-    AlgoTypeMap,
     getAlgoTypeDesc,
-    getPrecise,
     ParamType,
     ParamTypeOptions
 } from "@/constants";
-import {uploadLib} from "@/utils/oss";
-import {genGroupOptions} from "@/models/global";
 import Markdown from 'react-markdown'
 import remarkMath from "remark-math";
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
-const {Text} = Typography;
+const {Title} = Typography;
 
-const Algo: React.FC = () => {
+type AlgoProps = {
+    algo: Graph.Algo
+}
 
-    const [expandedRowKeys, setExpandedRowKeys] = useState<readonly Key[]>([]);
-    const {initialState} = useModel('@@initialState')
-    //@ts-ignore
-    const {algos} = initialState
-    const {groups} = useModel('global')
-
-    // 创建策略组的drawer
-    const getCreateAlgoModal = () => {
-        // form提交处理函数
-        const handleCreateAlgo = async (vs: FormData) => {
-            const jar = await uploadLib(vs.jar[0].originFileObj)
-            return await algoCreate({
-                entryPoint: vs.entryPoint,
-                jar: jar,
-                algo: {
-                    name: vs.name,
-                    detail: vs.detail,
-                    tag: vs.tag,
-                    groupId: vs.groupId,
-                    params: vs.params.map(p => {
-                        return {
-                            key: p.key,
-                            keyDesc: p.keyDesc,
-                            type: p.type,
-                            max: p.range ? p.range[1].toString() : undefined,
-                            min: p.range ? p.range[0].toString() : undefined,
-                            initValue: p.initValue.toString()
-                        }
-                    })
-                },
-            }).then(() => {
-                message.success('指标创建成功！')
-                window.location.reload()
-                return true
-            }).catch(e => {
-                console.log(e)
-            })
-        }
-        type FormData = {
-            name: string, desc: string, tag: string, groupId: number, detail: string,
-            entryPoint: string, jar: any,
-            params: { key: string, keyDesc: string, type: ParamType, initValue: number, range: number[] }[]
-        }
-        const [form] = Form.useForm<FormData>()
-        return <DrawerForm<FormData>
-            title='新建指标'
-            resize={{
-                maxWidth: window.innerWidth * 0.8,
-                minWidth: window.innerWidth * 0.6,
-            }}
-            form={form}
-            trigger={
-                <Button type='primary'>
-                    <PlusOutlined/>
-                    新建指标
-                </Button>
-            }
-            autoFocusFirstInput
-            drawerProps={{
-                destroyOnClose: true,
-            }}
-            onFinish={handleCreateAlgo}
-        >
-            <ProFormGroup title='指标配置'>
-                <ProFormText name='name' label='名称' rules={[{required: true}]}/>
-                <ProFormSelect
-                    initialValue={'节点中心度'}
-                    options={AlgoOptions}
-                    rules={[{required: true}]}
-                    name='tag'
-                    label='指标标签'
-                />
-                <ProFormSelect name='groupId' style={{width: '100%'}} label='适用策略组' rules={[{required: true}]}
-                               options={genGroupOptions(groups)}/>
-            </ProFormGroup>
-            <ProFormTextArea name={'detail'} label={'详情'} rules={[{required: true}]}/>
-            <ProFormGroup title='指标实现'>
-                <ProFormText name='entryPoint' label='入口类' rules={[{required: true}]}/>
-                <ProFormUploadButton rules={[{required: true}]}
-                                     fieldProps={{
-                                         customRequest: (option: any) => {
-                                             option.onSuccess()
-                                         }
-                                     }}
-                                     max={1}
-                                     name='jar'
-                                     label={'JAR'}/>
-            </ProFormGroup>
-            <ProFormList
-                label={(<Text strong>参数列表</Text>)}
-                name='params'
-                creatorButtonProps={{
-                    creatorButtonText: '添加一个参数'
-                }}
-                itemRender={({listDom, action}, {record}) => {
-                    return (
-                        <ProCard
-                            bordered
-                            extra={action}
-                            title={record?.key}
-                            style={{
-                                marginBlockEnd: 8,
-                            }}
-                        >
-                            {listDom}
-                        </ProCard>
-                    )
-                }}
-            >
-                <ProFormGroup>
-                    <ProFormText name='key' label='key' rules={[{required: true}]}/>
-                    <ProFormText name='keyDesc' label='名称' rules={[{required: true}]}/>
-                    <ProFormSelect
-                        initialValue={ParamType.Int}
-                        options={ParamTypeOptions}
-                        name='type'
-                        label='类型'
-                    />
-                    <ProFormDependency name={['type']}>
-                        {({type}) => type == ParamType.Int || type == ParamType.Double && <Space size={"large"}>
-                            <ProFormDigitRange name='range' fieldProps={getPrecise(type)} label='范围'/>
-                            <ProFormDigit name='initValue' fieldProps={getPrecise(type)} label='默认值'/>
-                        </Space>
-                        }
-                    </ProFormDependency>
-                </ProFormGroup>
-            </ProFormList>
-        </DrawerForm>
-    }
-
-
+const Algo: React.FC<AlgoProps> = (props) => {
     const getAlgoContent = (algo: Graph.Algo) => {
         // 设置指标的初始值
         const initValues: any = {}
@@ -187,9 +44,13 @@ const Algo: React.FC = () => {
             }
         }
         return <Space direction={'vertical'}>
+            <Space>
+                <Title>{props.algo.name}</Title>
+                {getAlgoTypeDesc(algo.tag)}
+            </Space>
             <Markdown remarkPlugins={[remarkMath]}
                 // @ts-ignore
-                      rehypePlugins={[rehypeKatex]}>{algo.detail}</Markdown>
+                      rehypePlugins={[rehypeKatex]}>{`定义: ${algo.detail}`}</Markdown>
             {algo.params?.length! > 0 && <Divider/>}
             {
                 algo.params?.map((p, i) => {
@@ -212,62 +73,7 @@ const Algo: React.FC = () => {
         </Space>
     }
     return <PageContainer>
-        <ProList<Graph.Algo>
-            rowKey="id"
-            headerTitle="指标名录"
-            toolBarRender={() => {
-                return [
-                    getCreateAlgoModal(),
-                ];
-            }}
-            search={{
-                filterType: 'light',
-            }}
-            request={
-                async (params = {time: Date.now()}) => {
-                    const data = algos.filter((a: Graph.Algo) => !params.subTitle || a.tag == params.subTitle)
-                    return {
-                        data: data,
-                        success: true,
-                        total: data.length
-                    }
-                }}
-
-            expandable={{expandedRowKeys, onExpandedRowsChange: setExpandedRowKeys}}
-            metas={{
-                title: {
-                    dataIndex: 'name', search: false,
-                },
-                subTitle: {
-                    title: '类别',
-                    render: (_, row) => {
-                        return <Space size={0}>
-                            {getAlgoTypeDesc(row.tag)}
-                            <Tag
-                                color='#FFA54F'>{row.groupId === 1 ? '通用' : groups.find(g => g.id === row.groupId)!.desc}</Tag>
-                        </Space>
-                    },
-                    valueType: 'select',
-                    valueEnum: AlgoTypeMap,
-                },
-                description: {
-                    search: false,
-                    render: (_, row) => getAlgoContent(row)
-                },
-                actions: {
-                    render: (_, a) => {
-                        return <Popconfirm
-                            title="确认删除？"
-                            icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
-                            onConfirm={() => {
-                                algoDrop({algoId: a.id!}).then(_ => window.location.reload())
-                            }}
-                        >
-                            <Button danger>删除</Button>
-                        </Popconfirm>
-                    },
-                },
-            }}/>
+        {getAlgoContent(props.algo)}
     </PageContainer>
 }
 

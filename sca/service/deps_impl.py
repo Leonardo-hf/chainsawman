@@ -28,7 +28,7 @@ class DepsServiceImpl(DepsService):
 
         archive.iter(count_file)
         return DepsResponse(base=status.value, packages=res,
-                            counts=list(map(lambda it: LanguageCount(lang=it[0], cnt=it[1]), count.items())))
+                            counts=list(map(lambda it: LanguageCount(type=it[0], value=it[1]), count.items())))
 
     def search(self, req: SearchDepsRequest) -> SearchDepsResponse:
         res, status = self.dh.search(req.lang, req.package)

@@ -86,10 +86,9 @@ const Exec: React.FC = () => {
                     {({graphId}) => {
                         if (graphId) {
                             const graph = graphs.find(g => g.id === graphId)!
-                            const limit = 50
                             const algoId = algos.filter((a: Graph.Algo) => isAlgoIllegal(graph, a)).map((a: Graph.Algo) => {
                                 return {
-                                    label: getTooltip(a.name, a.detail.length > limit ? a.detail.substring(0, limit) + '...' : a.detail),
+                                    label: getTooltip(a.name, a.detail),
                                     value: a.id
                                 }
                             })

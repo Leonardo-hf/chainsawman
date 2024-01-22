@@ -10,10 +10,21 @@ export const AlgoImpactNames = ["breadth", "depth", "mediation", "stability"]
 
 export const AlgoMulImpactName = "integrated"
 
+const limit = 50
+
+export const limitStr = (s: string) => {
+    const lines = s.split('\n')
+    if (lines) {
+        return lines[0]
+    }
+    return s.length > limit ? s.substring(0, limit) + '...' : s
+}
+
 export const getTooltip = (title: string, tip: string) => {
+    const shortTip = limitStr(tip)
     return <Space>
         <span>{title}</span>
-        <Tooltip title={tip}>
+        <Tooltip title={shortTip}>
             <InfoCircleOutlined/>
         </Tooltip>
     </Space>
