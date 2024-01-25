@@ -17,5 +17,5 @@ def spider(url):
         try:
             html = requests.get(url, headers=headers)
             return html
-        except:
+        except Exception:
             time.sleep(3)

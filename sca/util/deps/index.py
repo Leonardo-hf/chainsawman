@@ -1,24 +1,12 @@
 from abc import ABCMeta, abstractmethod
 from typing import List, Tuple, Optional
 
-from common import HttpStatus
-from util import resolve_archive, singleton
+from common import HttpStatus, Language
+from util import resolve_archive
 from vo import ModuleDeps, PackageDeps
 
 
-class DepsHandler(metaclass=ABCMeta):
-
-    @abstractmethod
-    def exts(self) -> List[str]:
-        pass
-
-    @abstractmethod
-    def modules(self) -> List[str]:
-        pass
-
-    @abstractmethod
-    def lang(self) -> str:
-        pass
+class DepsHandler(Language, metaclass=ABCMeta):
 
     # 解析依赖文件，返回 ModuleDeps 或 None(解析失败)
     @abstractmethod
@@ -30,7 +18,7 @@ class DepsHandler(metaclass=ABCMeta):
         pass
 
 
-class AllDepsHandler(DepsHandler):
+class ArchiveDepsHandler(DepsHandler):
 
     def exts(self) -> List[str]:
         return ['.*']
@@ -38,15 +26,15 @@ class AllDepsHandler(DepsHandler):
     def lang(self) -> str:
         return '*'
 
+    def modules(self) -> List[str]:
+        return ['*']
+
     def __init__(self, handlers: List[DepsHandler]):
         self._handlers: List[DepsHandler] = handlers
 
     @classmethod
     def with_handlers(cls, handlers: List[DepsHandler]):
-        return AllDepsHandler(handlers)
-
-    def modules(self) -> List[str]:
-        return ['*']
+        return ArchiveDepsHandler(handlers)
 
     def deps(self, module: str, data: bytes) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         archive = resolve_archive(data)
@@ -63,6 +51,7 @@ class AllDepsHandler(DepsHandler):
                     dep, status = h.deps(name.lower(), archive.get_file_by_name(name))
                     if status == HttpStatus.OK:
                         module_deps.append(dep)
+                    break
 
         archive.iter(get)
         return PackageDeps(modules=module_deps, path=module), HttpStatus.OK

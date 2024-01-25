@@ -2,7 +2,7 @@ from collections import defaultdict
 from functools import reduce
 
 from common import Client
-from util.deps import AllDepsHandler, PyDepsHandler, GoDepsHandler, JavaDepsHandler, RustDepsHandler
+from util.deps import ArchiveDepsHandler, PyDepsHandler, GoDepsHandler, JavaDepsHandler, RustDepsHandler
 from util import resolve_archive
 from vo import SearchDepsRequest, SearchDepsResponse, DepsRequest, DepsResponse, LanguageCount
 from .deps import DepsService
@@ -11,8 +11,8 @@ from .deps import DepsService
 class DepsServiceImpl(DepsService):
 
     def __init__(self):
-        self.dh = AllDepsHandler.with_handlers(
-            [PyDepsHandler(), GoDepsHandler(), JavaDepsHandler(), RustDepsHandler()])
+        self._inter_handlers = [PyDepsHandler(), GoDepsHandler(), JavaDepsHandler(), RustDepsHandler()]
+        self.dh = ArchiveDepsHandler.with_handlers(self._inter_handlers)
 
     def deps(self, req: DepsRequest) -> DepsResponse:
         oss = Client.get_oss()
@@ -22,9 +22,10 @@ class DepsServiceImpl(DepsService):
         count = defaultdict(int)
 
         def count_file(name: str):
-            for h in [PyDepsHandler(), GoDepsHandler(), JavaDepsHandler(), RustDepsHandler()]:
+            for h in self._inter_handlers:
                 if reduce(lambda a, b: a or b, map(lambda ext: name.endswith(ext), h.exts())):
                     count[h.lang()] += 1
+                    break
 
         archive.iter(count_file)
         return DepsResponse(base=status.value, packages=res,

@@ -1,17 +1,17 @@
 import json
-import sys
 
 from attrs import asdict
 from flask import Flask, request
 from gevent import pywsgi
 
 from common import Client
-from service import DepsService, DepsServiceImpl
-from vo import DepsRequest, SearchDepsRequest
+from service import DepsService, DepsServiceImpl, LintServiceImpl, LintService
+from vo import DepsRequest, SearchDepsRequest, LintsRequest
 
 app = Flask(__name__)
 
 deps_service: DepsService = DepsServiceImpl()
+lint_service: LintService = LintServiceImpl()
 
 
 @app.route('/parse', methods=['GET'])
@@ -28,6 +28,13 @@ def search():
     lang = request.values.get('lang')
     req = SearchDepsRequest(lang=lang, package=package)
     return asdict(deps_service.search(req))
+
+
+@app.route('/lint', methods=['GET'])
+def lint():
+    file_id = request.values.get('fileId')
+    req = LintsRequest(file_id=file_id, )
+    return asdict(lint_service.lint(req))
 
 
 if __name__ == '__main__':

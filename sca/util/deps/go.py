@@ -1,25 +1,15 @@
 import json
-from ctypes import *
+from ctypes import CDLL, c_char_p
 from typing import List, Optional, Tuple
 
-from common import HttpStatus
+from common import HttpStatus, GoLang
 from util import spider, Singleton
 from vo import Dep, ModuleDeps
 from .index import DepsHandler
 
 
 @Singleton
-class GoDepsHandler(DepsHandler):
-    MODULE_GOMOD = 'go.mod'
-
-    def lang(self) -> str:
-        return 'go'
-
-    def exts(self) -> List[str]:
-        return ['.go']
-
-    def modules(self) -> List[str]:
-        return [self.MODULE_GOMOD]
+class GoDepsHandler(GoLang, DepsHandler):
 
     def deps(self, module: str, data: bytes) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         if module.endswith(self.MODULE_GOMOD):

@@ -1,23 +1,13 @@
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
-from common import HttpStatus
+from common import HttpStatus, JavaLang
 from util import POM, Singleton
 from vo import Dep, ModuleDeps
 from .index import DepsHandler
 
 
 @Singleton
-class JavaDepsHandler(DepsHandler):
-    MODULE_POM = 'pom.xml'
-
-    def lang(self) -> str:
-        return 'java'
-
-    def exts(self) -> List[str]:
-        return ['.java', '.scala', '.class']
-
-    def modules(self) -> List[str]:
-        return [self.MODULE_POM]
+class JavaDepsHandler(JavaLang, DepsHandler):
 
     def deps(self, module: str, data: bytes) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         if module.endswith(self.MODULE_POM):
@@ -30,7 +20,7 @@ class JavaDepsHandler(DepsHandler):
                                           optional=d.optional), deps))
                 return ModuleDeps(lang=self.lang(), path=module, group=pom.get_group_id(), artifact=pom.get_artifact(),
                                   version=pom.get_version(), dependencies=deps), HttpStatus.OK
-            except:
+            except Exception:
                 pass
         return None, HttpStatus.NOT_FOUND
 
@@ -49,5 +39,5 @@ class JavaDepsHandler(DepsHandler):
                                       optional=d.optional), deps))
             return ModuleDeps(lang=self.lang(), group=pom.get_group_id(), artifact=pom.get_artifact(),
                               version=pom.get_version(), dependencies=deps), HttpStatus.OK
-        except:
+        except Exception:
             return None, HttpStatus.ILLEGAL_FILE

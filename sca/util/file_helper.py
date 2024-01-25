@@ -1,4 +1,5 @@
 import io
+import os
 import tarfile
 import zipfile
 from abc import abstractmethod, ABCMeta
@@ -14,32 +15,61 @@ class Archive(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def decompress_by_name(self, name: str, path: str) -> None:
+        pass
+
+    @abstractmethod
     def iter(self, func: Callable[[str], None]) -> None:
         pass
 
 
 class ZipArchive(Archive):
+
     def __init__(self, f: IO[bytes]):
-        self.f = zipfile.ZipFile(file=f, mode='r')
+        self._f = zipfile.ZipFile(file=f, mode='r')
+        prefix = list(filter(lambda _n: _n.endswith('/') and len(_n.split('/')) == 2, self._f.namelist()))
+        if len(prefix) == 1:
+            self._prefix = prefix[0]
+
+    def decompress_by_name(self, name: str, path: str) -> None:
+        if self._prefix is not None and len(self._prefix):
+            p = '{}/{}'.format(path, name.replace(self._prefix, ''))
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with open(p, 'wb') as fw:
+                fw.write(self._f.read(name=name))
+        else:
+            self._f.extract(member=name, path=path)
 
     def get_file_by_name(self, name: str) -> bytes:
-        return self.f.read(name=name)
+        return self._f.read(name=name)
 
     def iter(self, func: Callable[[str], None]):
-        for name in self.f.namelist():
+        for name in self._f.namelist():
             func(name)
 
 
 class TarArchive(Archive):
     def __init__(self, f: IO[bytes]):
-        self.f = tarfile.open(fileobj=f, mode='r')
+        self._f = tarfile.open(fileobj=f)
+        prefix = list(filter(lambda _n: len(_n.split('/')) == 1, self._f.getnames()))
+        if len(prefix) == 1:
+            self._prefix = prefix[0]
+
+    def decompress_by_name(self, name: str, path: str) -> None:
+        if self._prefix is not None and len(self._prefix):
+            p = '{}/{}'.format(path, name.replace(self._prefix, ''))
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with self._f.extractfile(member=name) as fr, open(p, 'wb') as fw:
+                fw.write(fr.read())
+        else:
+            self._f.extract(member=name, path=path)
 
     def get_file_by_name(self, name: str) -> bytes:
-        return self.f.extractfile(member=name).read()
+        return self._f.extractfile(member=name).read()
 
     def iter(self, func: Callable[[str], None]):
-        for member in self.f.getmembers():
-            func(member.name)
+        for name in self._f.getnames():
+            func(name)
 
 
 def resolve_archive(data: Union[bytes, IO[bytes]]) -> Archive:
@@ -62,8 +92,9 @@ def is_tarfile(f: IO[bytes]) -> bool:
         tarfile.open(fileobj=f, mode='r')
     except tarfile.TarError:
         return False
+    f.seek(0)
     return True
 
 
 def is_text(b):
-    return not chardet.detect(b)['encoding'] is None
+    return chardet.detect(b)['encoding'] is not None

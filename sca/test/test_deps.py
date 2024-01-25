@@ -3,10 +3,10 @@ from functools import reduce
 
 from common import HttpStatus
 from util import resolve_archive
-from util.deps import AllDepsHandler, PyDepsHandler, GoDepsHandler, JavaDepsHandler, RustDepsHandler
+from util.deps import ArchiveDepsHandler, PyDepsHandler, GoDepsHandler, JavaDepsHandler, RustDepsHandler
 from vo import PackageDeps
 
-dh = AllDepsHandler.with_handlers(
+dh = ArchiveDepsHandler.with_handlers(
     [PyDepsHandler(), GoDepsHandler(), JavaDepsHandler(), RustDepsHandler()])
 
 
@@ -80,9 +80,9 @@ def test_deps_rust():
         ps, status = dh.deps(path, f)
         assert status == HttpStatus.OK
         assert isinstance(ps, PackageDeps) and len(ps.modules) == 4 and ps.modules[0].artifact == 'rustix'
-        assert len(ps.modules[0].dependencies) == 5
+        assert len(ps.modules[0].dependencies) == 12
         d = ps.modules[0].dependencies[-1]
-        assert d.artifact == 'compiler_builtins' and d.version == '0.1.49'
+        assert d.artifact == 'static_assertions' and d.version == '1.1.0' and d.scope == 'dev'
 
 
 def test_search_rust():
