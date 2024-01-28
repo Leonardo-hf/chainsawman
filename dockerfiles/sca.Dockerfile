@@ -78,7 +78,7 @@ RUN wget -O - https://apt.corretto.aws/corretto.key | gpg --dearmor -o /usr/shar
     echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" | tee /etc/apt/sources.list.d/corretto.list && \
     apt-get update && apt-get install -y java-21-amazon-corretto-jdk
 
-RUN wget -O pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases/7.0.0-rc4/pmd-bin-7.0.0-rc4.zip && \
+RUN wget -O pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.0.0-rc4/pmd-dist-7.0.0-rc4-bin.zip && \
     unzip pmd.zip && \
     mv pmd-bin-7.0.0-rc4/ /usr/lib/ && \
     rm -rf pmd.zip
