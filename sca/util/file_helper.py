@@ -27,6 +27,7 @@ class ZipArchive(Archive):
 
     def __init__(self, f: IO[bytes]):
         self._f = zipfile.ZipFile(file=f, mode='r')
+        self._prefix = ''
         prefix = list(filter(lambda _n: _n.endswith('/') and len(_n.split('/')) == 2, self._f.namelist()))
         if len(prefix) == 1:
             self._prefix = prefix[0]
@@ -51,6 +52,7 @@ class ZipArchive(Archive):
 class TarArchive(Archive):
     def __init__(self, f: IO[bytes]):
         self._f = tarfile.open(fileobj=f)
+        self._prefix = ''
         prefix = list(filter(lambda _n: len(_n.split('/')) == 1, self._f.getnames()))
         if len(prefix) == 1:
             self._prefix = prefix[0]

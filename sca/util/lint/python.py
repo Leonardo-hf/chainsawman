@@ -13,7 +13,7 @@ class PyLintHandler(LintHandler, PyLang):
     def lint(self, path: str) -> Tuple[Optional[LangLint], HttpStatus]:
         ret = subprocess.run(['ruff', 'check', quote(path)], capture_output=True)
         return LangLint(lang=self.lang(), out=ret.stdout.decode().replace(path + '/', ''),
-                        err=ret.stderr.decode()), HttpStatus.OK
+                        err=ret.stderr.decode().replace(path + '/', '')), HttpStatus.OK
         # out = ret.stdout
         # err = ret.stderr
         # lints = []

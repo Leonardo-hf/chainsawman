@@ -1,4 +1,89 @@
-FROM python:3.8-slim
+FROM python:3.8-bookworm
+
+ENV PATH /usr/local/go/bin:$PATH
+
+ENV GOLANG_VERSION 1.22rc2
+
+RUN set -eux; \
+	arch="$(dpkg --print-architecture)"; arch="${arch##*-}"; \
+	url=; \
+	case "$arch" in \
+		'amd64') \
+			url='https://dl.google.com/go/go1.22rc2.linux-amd64.tar.gz'; \
+			sha256='f811e7ee8f6dee3d162179229f96a64a467c8c02a5687fac5ceaadcf3948c818'; \
+			;; \
+		'armhf') \
+			url='https://dl.google.com/go/go1.22rc2.linux-armv6l.tar.gz'; \
+			sha256='2b5b4ba2f116dcd147cfd3b1ec77efdcedff230f612bf9e6c971efb58262f709'; \
+			;; \
+		'arm64') \
+			url='https://dl.google.com/go/go1.22rc2.linux-arm64.tar.gz'; \
+			sha256='bf18dc64a396948f97df79a3d73176dbaa7d69341256a1ff1067fd7ec5f79295'; \
+			;; \
+		'i386') \
+			url='https://dl.google.com/go/go1.22rc2.linux-386.tar.gz'; \
+			sha256='15321745f1e22a4930bdbf53c456c3aab42204c35c9a0dec4bbe1c641518e502'; \
+			;; \
+		'mips64el') \
+			url='https://dl.google.com/go/go1.22rc2.linux-mips64le.tar.gz'; \
+			sha256='d52d63c45b479ad31f44bdee2e5dfee9e2afce9d42a61c5ac453cb0214b6bd13'; \
+			;; \
+		'ppc64el') \
+			url='https://dl.google.com/go/go1.22rc2.linux-ppc64le.tar.gz'; \
+			sha256='6f5aab8f36732d5d4b92ca6c96c9b8fa188b561b339740d52facab59a468c1e9'; \
+			;; \
+		'riscv64') \
+			url='https://dl.google.com/go/go1.22rc2.linux-riscv64.tar.gz'; \
+			sha256='1b146b19a46a010e263369a72498356447ba0f71f608cb90af01729d00529f40'; \
+			;; \
+		's390x') \
+			url='https://dl.google.com/go/go1.22rc2.linux-s390x.tar.gz'; \
+			sha256='12c9438147094fe33d99ee70d85c8fad1894b643aa0c6d355034fadac2fb7cfd'; \
+			;; \
+		*) echo >&2 "error: unsupported architecture '$arch' (likely packaging update needed)"; exit 1 ;; \
+	esac; \
+	\
+	wget -O go.tgz.asc "$url.asc"; \
+	wget -O go.tgz "$url" --progress=dot:giga; \
+	echo "$sha256 *go.tgz" | sha256sum -c -; \
+	\
+# https://github.com/golang/go/issues/14739#issuecomment-324767697
+	GNUPGHOME="$(mktemp -d)"; export GNUPGHOME; \
+# https://www.google.com/linuxrepositories/
+	gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796'; \
+# let's also fetch the specific subkey of that key explicitly that we expect "go.tgz.asc" to be signed by, just to make sure we definitely have it
+	gpg --batch --keyserver keyserver.ubuntu.com --recv-keys '2F52 8D36 D67B 69ED F998  D857 78BD 6547 3CB3 BD13'; \
+	gpg --batch --verify go.tgz.asc go.tgz; \
+	gpgconf --kill all; \
+	rm -rf "$GNUPGHOME" go.tgz.asc; \
+	\
+	tar -C /usr/local -xzf go.tgz; \
+	rm go.tgz; \
+	\
+# save the timestamp from the tarball so we can restore it for reproducibility, if necessary (see below)
+	SOURCE_DATE_EPOCH="$(stat -c '%Y' /usr/local/go)"; \
+	export SOURCE_DATE_EPOCH; \
+# for logging validation/edification
+	date --date "@$SOURCE_DATE_EPOCH" --rfc-2822; \
+	\
+# smoke test
+	go version; \
+# make sure our reproducibile timestamp is probably still correct (best-effort inline reproducibility test)
+	epoch="$(stat -c '%Y' /usr/local/go)"; \
+	[ "$SOURCE_DATE_EPOCH" = "$epoch" ]
+
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /bin v1.55.2
+
+RUN wget -O - https://apt.corretto.aws/corretto.key | gpg --dearmor -o /usr/share/keyrings/corretto-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" | tee /etc/apt/sources.list.d/corretto.list && \
+    apt-get update && apt-get install -y java-21-amazon-corretto-jdk
+
+RUN wget -O pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases/7.0.0-rc4/pmd-bin-7.0.0-rc4.zip && \
+    unzip pmd.zip && \
+    mv pmd-bin-7.0.0-rc4/ /usr/lib/ && \
+    rm -rf pmd.zip
+ENV PATH=$PATH:/usr/lib/pmd-bin-7.0.0-rc4/bin
+
 
 WORKDIR /app
 COPY sca .

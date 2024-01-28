@@ -7,5 +7,6 @@
     "BUCKET": "source"
   },
   "HOST": "127.0.0.1",
-  "PORT": "8082"
+  "PORT": "8082",
+  "PMD_RULESET": "config/cmd_mvn_ruleset"
 }

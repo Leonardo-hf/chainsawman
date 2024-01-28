@@ -3,7 +3,7 @@ import {InboxOutlined} from "@ant-design/icons";
 import {PageContainer} from "@ant-design/pro-components"
 import Graphin from "@antv/graphin";
 import {request} from "@umijs/max";
-import {Button, Checkbox, Divider, Empty, message, Select, Space, Tabs, TabsProps, Tree, Typography} from "antd"
+import {Button, Checkbox, Divider, Empty, message, Space, Tabs, TabsProps, Tree, Typography} from "antd"
 import {DataNode} from "antd/es/tree";
 import {UploadFile} from "antd/es/upload";
 import Dragger from "antd/es/upload/Dragger";
@@ -78,7 +78,7 @@ const Display: React.FC<DisplayProps> = (props: DisplayProps) => {
                 return
             }
             request('/api/util/search', {
-                timeout: 20000,
+                timeout: 30000,
                 method: 'get',
                 params: {
                     'package': extractor.tree(origin).title,
@@ -116,20 +116,28 @@ const Display: React.FC<DisplayProps> = (props: DisplayProps) => {
             setVisual(options)
         }}/>
         {visual.length == 0 && <Empty/>}
-        {
-            visual.includes('tree') && <Tree
-                showLine={true}
-                showIcon={true}
-                loadData={onLoadData}
-                defaultExpandParent
-                treeData={treeData}/>
-        }
-        {
-            visual.includes('graph') && <Graphin
-                data={graphData}
-                layout={{type: 'circular'}}
-                fitView={true}/>
-        }
+        <div style={{width: '100%', display: 'flex'}}>
+            {
+                visual.includes('tree') &&
+                <div style={{flexGrow: 1, flexBasis: '30%', flexShrink: 0}}>
+                    <Tree
+                        showLine={true}
+                        showIcon={true}
+                        loadData={onLoadData}
+                        defaultExpandParent
+                        treeData={treeData}/>
+                </div>
+            }
+            {visual.includes('tree') && visual.includes('graph') &&
+            <Divider type={'vertical'} style={{height: 'auto'}}/>}
+            {
+                visual.includes('graph') && <Graphin
+                    style={{flexGrow: 1, flexBasis: '70%', flexShrink: 1}}
+                    data={graphData}
+                    layout={{type: 'circular'}}
+                    fitView={true}/>
+            }
+        </div>
     </Space>
 }
 
@@ -177,11 +185,11 @@ const Extractor: React.FC = () => {
                         children: <Display extractor={getExtractor(m.lang)!} module={m}/>
                     }
                 }))
-
-                // 清理上传框
-                setFileList([])
             }
-        )
+        ).finally(() => {
+            // 清理上传框
+            setFileList([])
+        })
     }
 
     const getStatistic = (data: { type: string; value: number; }[]) => {
@@ -203,13 +211,16 @@ const Extractor: React.FC = () => {
                 },
             },
         }
-        return <Pie {...config} />
+        return <Space direction={'vertical'} style={{width: '100%'}}>
+            {data.length > 1 && <Pie {...config} />}
+            <Typography.Paragraph strong>检测到{data.map(d => `${d.value}个${d.type}文件`).join(', ')}</Typography.Paragraph>
+        </Space>
     }
 
     return <PageContainer>
         <Space direction="vertical" size="middle" style={{display: 'flex'}}>
             <Typography.Text strong>解析对象：</Typography.Text>
-            <Dragger style={{width: '100%'}} maxCount={1} beforeUpload={(file) => false} fileList={fileList}
+            <Dragger style={{width: '100%'}} maxCount={1} beforeUpload={() => false} fileList={fileList}
                      onChange={(e) => {
                          let newFileList = [...e.fileList];
                          newFileList = newFileList.slice(-1);
@@ -225,6 +236,7 @@ const Extractor: React.FC = () => {
                 <Button type="primary" onClick={commit}>解析</Button>
                 <Button onClick={() => {
                     setTabs(undefined)
+                    setFileList([])
                 }}>清除</Button>
             </Space>
             <Divider/>

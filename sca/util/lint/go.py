@@ -16,4 +16,4 @@ class GoLintHandler(GoLang, LintHandler):
         ret = subprocess.Popen(';'.join([cd, lint]), shell=True,
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return LangLint(lang=self.lang(), out=ret.stdout.read().decode().replace(path + '/', ''),
-                        err=ret.stderr.read().decode()), HttpStatus.OK
+                        err=ret.stderr.read().decode().replace(path + '/', '')), HttpStatus.OK

@@ -23,5 +23,6 @@ class LintServiceImpl(LintService):
         with open(p, 'wb') as f:
             f.write(data)
         res, status = self.dh.lint(p)
-        shutil.rmtree(p)
-        return LintsResponse(langLint=res, base=status)
+        print(res)
+        shutil.rmtree(tmp_dir)
+        return LintsResponse(langLint=res, base=status.value)

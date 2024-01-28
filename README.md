@@ -24,9 +24,9 @@
   * `go run consumer/connector/main.go`
   * `go run consumer/task/main.go`
 
-* sca，HTTP 服务，提供对 java、python、go 语言的代码的依赖树解析功能
+* sca，HTTP 服务，提供对 java、python、go、rust 语言的代码的依赖树解析功能，以及对前三者的静态检查
 
-  > http service, resolve requests about software composition analysis
+  > http service, resolve requests about software composition analysis for java, python, go, rust and lint for the former three
 
   * `python sca/main.py`
 

@@ -96,6 +96,11 @@ export default defineConfig({
             component: './Extractor'
         },
         {
+            name: '软件静态检查',
+            path: '/util/lint',
+            component: './Lint'
+        },
+        {
             name: '图谱配置',
             path: '/config',
             routes: [

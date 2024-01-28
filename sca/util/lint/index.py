@@ -65,6 +65,9 @@ class ArchiveLintHandler(LintHandler):
 
             archive.iter(filter_save)
 
+            # 没有检查到支持的语言
+            if len(used_handlers) == 0:
+                return None, HttpStatus.NOT_SUPPORT
             res: List[LangLint] = []
             for h in used_handlers:
                 p = get_temp_dir(h.lang())
