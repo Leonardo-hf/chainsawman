@@ -22,30 +22,19 @@ const HHITable: React.FC<Props> = (props) => {
     //     }
     //     return 'green'
     // }
-    const data = hhi.hhIs.map(h => {
-        return {
-            type: h.name,
-            value: h.score,
-            // color: getColor(h.score)
-        }
-    })
     const title = `${hhi.language} 软件垄断程度`
     const table = () => {
 
         const config = {
-            data,
-            xField: 'type',
-            yField: 'value',
-            seriesField: '',
-            colorField: 'value',
-            legend: false,
-            xAxis: {
-                label: {
-                    autoHide: true,
-                    autoRotate: false,
-                },
+            data: hhi.hhIs,
+            xField: 'name',
+            yField: 'score',
+            colorField: 'score',
+            label: {
+                text: (d: Graph.HHI) => `${(d.score).toFixed(1)}%`,
+                textBaseline: 'bottom',
             },
-        };
+        }
         return <Column {...config} />;
     }
     return <ProCard title={<Space direction={"horizontal"}>

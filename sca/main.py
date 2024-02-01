@@ -2,7 +2,7 @@ import json
 
 from attrs import asdict
 from flask import Flask, request
-from gevent import pywsgi
+from gevent import pywsgi, monkey
 
 from common import Client
 from service import DepsService, DepsServiceImpl, LintServiceImpl, LintService
@@ -52,6 +52,7 @@ if __name__ == '__main__':
     host = app.config['HOST']
     port = int(app.config['PORT'])
     if app.config.get('CHS_ENV') == 'pre':
+        monkey.patch_all()
         server = pywsgi.WSGIServer((host, port), app)
         server.serve_forever()
     else:

@@ -82,7 +82,7 @@ RUN wget -O pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F
     unzip pmd.zip && \
     mv pmd-bin-7.0.0-rc4/ /usr/lib/ && \
     rm -rf pmd.zip
-ENV PATH=$PATH:/usr/lib/pmd-bin-7.0.0-rc4/bin
+ENV PATH /usr/lib/pmd-bin-7.0.0-rc4/bin:$PATH
 
 
 WORKDIR /app

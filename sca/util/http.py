@@ -1,5 +1,3 @@
-import time
-
 import requests
 
 headers = {
@@ -9,13 +7,12 @@ headers = {
 
 
 def spider(url):
-    if url.startswith('file://'):
-        url = url[7:]
-        with open(url, 'r') as f:
-            return f.read()
+    retry = 3
     while True:
+        retry -= 1
         try:
-            html = requests.get(url, headers=headers)
+            html = requests.get(url, headers=headers, timeout=10.05)
             return html
-        except Exception:
-            time.sleep(3)
+        except Exception as e:
+            if retry <= 0:
+                raise Exception(e)
