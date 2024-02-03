@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple, Dict, Callable
 
 import smart_open
 from lxml import etree
+from packageurl import PackageURL
 
 from common import HttpStatus, PyLang
 from requirements_detector import from_setup_cfg, from_setup_py, from_requirements_txt, \
@@ -11,6 +12,10 @@ from requirements_detector import from_setup_cfg, from_setup_py, from_requiremen
 from util import spider, Singleton
 from vo import ModuleDeps, Dep, PackageDeps
 from .index import DepsHandler, ArchiveDepsHandler
+
+
+def _get_purl(artifact: str, version: Optional[str] = None) -> str:
+    return PackageURL(type='pypi', name=artifact, version=version).to_string()
 
 
 @Singleton
@@ -29,17 +34,19 @@ class PyDepsHandler(PyLang, DepsHandler):
                 artifact, version, reqs = self.PY_PARSE_MAP[k](data.decode())
                 for r in reqs:
                     if len(r.version_specs) == 0:
-                        module_deps.append(Dep(artifact=r.name))
+                        module_deps.append(Dep(purl=_get_purl(r.name)))
                         continue
                     for v in r.version_specs:
-                        module_deps.append(Dep(artifact=r.name, version=v[1], limit=v[0]))
-                return ModuleDeps(lang=self.lang(), path=module, artifact=artifact, version=version,
+                        module_deps.append(Dep(purl=_get_purl(r.name, v[1]),
+                                               limit=v[0]))
+                return ModuleDeps(lang=self.lang(), path=module,
+                                  purl=_get_purl(artifact, version),
                                   dependencies=module_deps), HttpStatus.OK
         return None, HttpStatus.NOT_SUPPORT
 
     @staticmethod
-    def get_python_package(artifact, version) -> Optional[bytes]:
-        if version == 'latest':
+    def get_python_package(artifact: str, version: Optional[str]) -> Optional[bytes]:
+        if version is None:
             url = 'https://pypi.org/pypi/{}/json'.format(artifact)
             version = spider(url).json()['info']['version']
         repo = etree.HTML(spider('{}/{}'.format('https://pypi.org/simple', artifact)).text)
@@ -64,17 +71,15 @@ class PyDepsHandler(PyLang, DepsHandler):
         return None
 
     def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
-        package = package[package.find(' ') + 1:]
-        s = package.rfind(':')
-        artifact = package[:s].strip()
-        version = package[s + 1:].strip()
+        purl = PackageURL.from_string(package)
+        artifact = purl.name
+        version = purl.version
         data = self.get_python_package(artifact, version)
         if data is None:
             return None, HttpStatus.NOT_FOUND
         package_dep, status = ArchiveDepsHandler.with_handlers([self]).deps('', data)
         if isinstance(package_dep, PackageDeps) and len(package_dep.modules) > 0:
             module_dep = package_dep.modules[0]
-            module_dep.artifact = artifact
-            module_dep.version = version
+            module_dep.purl = package
             return module_dep, HttpStatus.OK
         return None, HttpStatus.NOT_FOUND

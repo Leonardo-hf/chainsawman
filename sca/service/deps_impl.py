@@ -32,5 +32,5 @@ class DepsServiceImpl(DepsService):
                             counts=list(map(lambda it: LanguageCount(type=it[0], value=it[1]), count.items())))
 
     def search(self, req: SearchDepsRequest) -> SearchDepsResponse:
-        res, status = self.dh.search(req.lang, req.package)
+        res, status = self.dh.search(req.lang, req.purl)
         return SearchDepsResponse(base=status.value, deps=res)

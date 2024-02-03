@@ -1,9 +1,15 @@
 from typing import Optional, Tuple
 
+from packageurl import PackageURL
+
 from common import HttpStatus, JavaLang
 from util import POM, Singleton
 from vo import Dep, ModuleDeps
 from .index import DepsHandler
+
+
+def _get_purl(group, artifact, version) -> str:
+    return PackageURL(type='maven', namespace=group, name=artifact, version=version).to_string()
 
 
 @Singleton
@@ -16,28 +22,31 @@ class JavaDepsHandler(JavaLang, DepsHandler):
                 deps = pom.get_dependencies()
                 if deps is not None:
                     deps = list(
-                        map(lambda d: Dep(group=d.group, artifact=d.artifact, version=d.version, scope=d.scope,
-                                          optional=d.optional), deps))
-                return ModuleDeps(lang=self.lang(), path=module, group=pom.get_group_id(), artifact=pom.get_artifact(),
-                                  version=pom.get_version(), dependencies=deps), HttpStatus.OK
-            except Exception:
-                pass
+                        map(lambda d: Dep(
+                            purl=_get_purl(d.group, d.artifact, d.version),
+                            scope=d.scope, optional=d.optional), deps))
+                return ModuleDeps(lang=self.lang(), path=module,
+                                  purl=_get_purl(pom.get_group_id(), pom.get_artifact(), pom.get_version()),
+                                  dependencies=deps), HttpStatus.OK
+            except Exception as e:
+                print(e)
         return None, HttpStatus.NOT_FOUND
 
     def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         try:
-            s1 = package.find('/')
-            s2 = package.find(':')
-            group = package[:s1].strip()
-            artifact = package[s1 + 1:s2].strip()
-            version = package[s2 + 1:].strip()
+            purl = PackageURL.from_string(package)
+            group = purl.namespace
+            artifact = purl.name
+            version = purl.version
             pom = POM.from_coordinate(artifact=artifact, group=group, version=version)
             deps = pom.get_dependencies()
             if deps is not None:
                 deps = list(
-                    map(lambda d: Dep(group=d.group, artifact=d.artifact, version=d.version, scope=d.scope,
-                                      optional=d.optional), deps))
-            return ModuleDeps(lang=self.lang(), group=pom.get_group_id(), artifact=pom.get_artifact(),
-                              version=pom.get_version(), dependencies=deps), HttpStatus.OK
+                    map(lambda d: Dep(
+                        purl=_get_purl(d.group, d.artifact, d.version),
+                        scope=d.scope, optional=d.optional), deps))
+            return ModuleDeps(lang=self.lang(),
+                              purl=_get_purl(pom.get_group_id(), pom.get_artifact(), pom.get_version()),
+                              dependencies=deps), HttpStatus.OK
         except Exception:
             return None, HttpStatus.ILLEGAL_FILE

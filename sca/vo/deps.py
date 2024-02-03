@@ -13,9 +13,7 @@ class DepsRequest:
 
 @dataclass
 class Dep:
-    artifact: str
-    version: str = "latest"
-    group: str = ''
+    purl: str
     limit: str = ''
     indirect: bool = False
     exclude: bool = False
@@ -25,11 +23,9 @@ class Dep:
 
 @dataclass
 class ModuleDeps:
+    purl: str = ''
     lang: str = ''
     path: str = ''
-    group: str = ''
-    artifact: str = ''
-    version: str = ''
     dependencies: List[Dep] = []
 
 
@@ -53,7 +49,7 @@ class DepsResponse:
 
 @dataclass
 class SearchDepsRequest:
-    package: str
+    purl: str
     lang: str
 
 
@@ -61,3 +57,14 @@ class SearchDepsRequest:
 class SearchDepsResponse:
     base: HttpStatus
     deps: Optional[ModuleDeps] = None
+
+
+@dataclass
+class Vul:
+    id: str
+    aliases: Optional[str]
+    summary: str
+    details: str
+    cwe: Optional[str]
+    severity: Optional[str]
+    ref: Optional[str]

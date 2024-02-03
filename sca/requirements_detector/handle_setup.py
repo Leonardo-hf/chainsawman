@@ -50,8 +50,8 @@ class SetupWalker:
         # first, if we have a call to setup, then we can see what its "install_requires" argument is
         if not self._setup_call:
             raise CouldNotParseRequirements
-        artifact = ''
-        version = ''
+        artifact = '?'
+        version = '?'
 
         def get_str_attr(child_node) -> str:
             v = ''

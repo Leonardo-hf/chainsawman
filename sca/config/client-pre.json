@@ -7,5 +7,7 @@
     "BUCKET": "source"
   },
   "HOST": "0.0.0.0",
-  "PORT": "8082"
+  "PORT": "8082",
+  "PMD_RULESET": "config/cmd_mvn_ruleset",
+  "OSV_API": ""
 }

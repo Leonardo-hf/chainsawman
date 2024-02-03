@@ -58,14 +58,14 @@ def from_setup_py(text) -> Tuple[str, str, List[DetectedRequirement]]:
         return artifact, version, [requirement for requirement in requirements if requirement is not None]
     except Exception:
         # if the setup file is broken, we can't do much about that...
-        return '', '', []
+        return '?', '?', []
 
 
 def from_setup_cfg(text) -> Tuple[str, str, List[DetectedRequirement]]:
     requirements = []
     start = False
-    artifact = ''
-    version = ''
+    artifact = '?'
+    version = '?'
     for line in text.split('\n'):
         if line.strip().startswith('name'):
             line = line.strip()
@@ -93,8 +93,8 @@ def from_pyproject_toml(text) -> Tuple[str, str, List[DetectedRequirement]]:
 
     parsed = toml.loads(text)
     poetry_section = parsed.get("tool", {}).get("poetry", {})
-    artifact = poetry_section.get("name", '')
-    version = poetry_section.get("version", '')
+    artifact = poetry_section.get("name", '?')
+    version = poetry_section.get("version", '?')
     dependencies = poetry_section.get("dependencies", {})
     # dependencies.update(poetry_section.get("dev-dependencies", {}))
 
@@ -107,11 +107,11 @@ def from_pyproject_toml(text) -> Tuple[str, str, List[DetectedRequirement]]:
             elif 'git' in spec:
                 t = spec.get('git')
                 if 'rev' in spec:
-                    tv = 'rev@' + spec.get('rev')
+                    tv = 'rev:' + spec.get('rev')
                 elif 'tag' in spec:
-                    tv = 'tag@' + spec.get('tag')
+                    tv = 'tag:' + spec.get('tag')
                 else:
-                    tv = 'latest@' + spec.get('branch', 'master')
+                    tv = 'branch:' + spec.get('branch', 'master')
                 req = DetectedRequirement()
                 req.name = t
                 req.version_specs = [('', tv)]

@@ -1,6 +1,6 @@
 from flask import Config
 
-from util.minio_helper import MinioHelper
+from util import VulAPI, MinioHelper
 
 
 class Client:
@@ -9,8 +9,13 @@ class Client:
     @classmethod
     def init(cls, config: Config) -> None:
         config.setdefault('MINIO_CLIENT', MinioHelper(config['MINIO']))
+        config.setdefault('OSV_API', VulAPI(config['OSV_API']))
         cls.config = config
 
     @classmethod
     def get_oss(cls) -> MinioHelper:
         return cls.config.get("MINIO_CLIENT")
+
+    @classmethod
+    def get_osv(cls) -> VulAPI:
+        return cls.config.get("OSV_API")

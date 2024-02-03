@@ -2,11 +2,16 @@ import json
 from typing import List, Tuple, Optional, Dict
 
 import toml
+from packageurl import PackageURL
 
 from common import HttpStatus, RustLang
 from util import spider, Singleton
 from vo import Dep, ModuleDeps
 from .index import DepsHandler
+
+
+def _get_purl(name: str, version: Optional[str]) -> str:
+    return PackageURL(type='cargo', name=name, version=version).to_string()
 
 
 @Singleton
@@ -41,7 +46,7 @@ class RustDepsHandler(RustLang, DepsHandler):
             def parse_deps(deps: Dict[str, Dict], scope: str = '') -> List[Dep]:
                 res: List[Dep] = []
                 for t, detail in deps.items():
-                    tv = 'latest'
+                    tv = None
                     t_optional = False
                     if isinstance(detail, str):
                         tv = detail
@@ -53,31 +58,30 @@ class RustDepsHandler(RustLang, DepsHandler):
                         if 'git' in detail:
                             t = detail.get('git')
                             if 'rev' in detail:
-                                tv = 'rev@' + detail.get('rev')
+                                tv = 'rev:' + detail.get('rev')
                             elif 'tag' in detail:
-                                tv = 'tag@' + detail.get('tag')
+                                tv = 'tag:' + detail.get('tag')
                             else:
-                                tv = 'latest@' + detail.get('branch', 'master')
+                                tv = 'branch:' + detail.get('branch', 'master')
                         else:
                             tv = detail.get('version', tv)
                     tvs = self.rust_v_spec(tv)
                     for tv_specs in tvs:
                         res.append(
-                            Dep(artifact=t, version=tv_specs[0], limit=tv_specs[1], optional=t_optional, scope=scope))
+                            Dep(purl=_get_purl(t, tv_specs[0]), limit=tv_specs[1], optional=t_optional, scope=scope))
                 return res
 
             deps = parse_deps(parsed.get('dependencies', {}))
             dev_deps = parse_deps(parsed.get('dev-dependencies', {}), 'dev')
             deps.extend(dev_deps)
-            return ModuleDeps(lang=self.lang(), path=module, artifact=artifact, version=version,
+            return ModuleDeps(lang=self.lang(), path=module, purl=_get_purl(artifact, version),
                               dependencies=deps), HttpStatus.OK
         return None, HttpStatus.NOT_SUPPORT
 
     def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
-        package = package[package.find(' ') + 1:]
-        s = package.rfind(':')
-        artifact = package[:s].strip()
-        version = package[s + 1:]
+        purl = PackageURL.from_string(package)
+        artifact = purl.name
+        version = purl.version
         if len(artifact) == 0:
             return None, HttpStatus.NOT_FOUND
         elif 1 <= len(artifact) <= 2:
@@ -92,7 +96,7 @@ class RustDepsHandler(RustLang, DepsHandler):
         content = content.strip().split('\n')
         target = None
         try:
-            if version == 'latest':
+            if version is None:
                 target = json.loads(content[-1].strip())
             else:
                 for j in content:
@@ -119,5 +123,5 @@ class RustDepsHandler(RustLang, DepsHandler):
         deps = list(map(lambda d: (get_name(d), self.rust_v_spec(d['req']), trans_scope(d['kind'])), target['deps']))
         for name, v_spec, scope in deps:
             for v, limit in v_spec:
-                module_deps.append(Dep(artifact=name, version=v, limit=limit, scope=scope))
-        return ModuleDeps(lang=self.lang(), artifact=artifact, version=version, dependencies=module_deps), HttpStatus.OK
+                module_deps.append(Dep(purl=_get_purl(name, v), limit=limit, scope=scope))
+        return ModuleDeps(lang=self.lang(), purl=_get_purl(artifact, version), dependencies=module_deps), HttpStatus.OK
