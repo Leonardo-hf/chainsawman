@@ -1,57 +1,48 @@
 import {uploadSource} from "@/utils/oss";
 import {InboxOutlined} from "@ant-design/icons";
-import {PageContainer} from "@ant-design/pro-components"
+import {PageContainer, ProList} from "@ant-design/pro-components"
 import Graphin from "@antv/graphin";
 import {request} from "@umijs/max";
-import {Button, Checkbox, Divider, Empty, message, Space, Tabs, TabsProps, Tree, Typography} from "antd"
+import {Button, Checkbox, Divider, Empty, message, Space, Tabs, TabsProps, Tag, Tree, Typography} from "antd"
 import {DataNode} from "antd/es/tree";
 import {UploadFile} from "antd/es/upload";
 import Dragger from "antd/es/upload/Dragger";
-import React, {useEffect, useRef, useState} from "react";
-import {DepExtractor, getExtractor} from "./_extractor"
+import React, {Key, memo, useEffect, useRef, useState} from "react";
+import {DepExtractor, getExtractor, ModuleDep, Dep, OSV} from "./_extractor"
 import {Pie} from "@ant-design/plots";
 
-type ModuleDep = {
-    lang: string,
-    path: string,
-    group: string,
-    artifact: string,
-    version: string,
-    dependencies: {
-        artifact: string
-        version: string
-        group: string
-        limit: string
-        indirect: boolean
-        exclude: boolean
-        optional: boolean
-        scope: boolean
-    }[]
-}
+
 type DisplayProps = {
     module: ModuleDep,
     extractor: DepExtractor
 }
-const Display: React.FC<DisplayProps> = (props: DisplayProps) => {
+const Display: React.FC<DisplayProps> = memo((props: DisplayProps) => {
     const {module, extractor} = props
-
-    const getTreeData = (p: any, dependencies: any[]) => {
-        let root = extractor.tree(p)
-        root.children = extractor!.treeDep(dependencies)
-        return [root]
-    }
-
-    const getGraphData = (p: any, dependencies: any[]) => {
-        return extractor!.graph(p, dependencies)
-    }
     const visualOptions = [
         {label: '依赖树', value: 'tree'},
         {label: '依赖图', value: 'graph'},
-    ];
-
+    ]
     const [visual, setVisual] = useState(['tree'])
-    const [treeData, setTreeData] = useState<DataNode[]>(getTreeData(module, module.dependencies))
-    const [graphData, setGraphData] = useState<any>(getGraphData(module, module.dependencies))
+    const [treeData, setTreeData] = useState<DataNode[]>()
+    const [graphData, setGraphData] = useState<any>()
+    const [osvs, setOSVs] = useState<OSV[]>([])
+
+    useEffect(() => {
+        const getTreeData = (p: Dep, dependencies: Dep[]) => {
+            let root = extractor.tree(p)
+            root.children = extractor!.treeDep(dependencies)
+            return [root]
+        }
+
+        const getGraphData = (p: ModuleDep, dependencies: Dep[]) => {
+            return extractor!.graph({purl: p.purl}, dependencies)
+        }
+        setTreeData(getTreeData(module, module.dependencies))
+        setGraphData(getGraphData(module, module.dependencies))
+        setOSVs(module.dependencies.flatMap(d => (d.osv ?? []).map(o => {
+            return {...o, affect: d.purl}
+        })))
+    }, [])
 
     // It's just a simple demo. You can use tree map to optimize update perf.
     const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] =>
@@ -60,18 +51,18 @@ const Display: React.FC<DisplayProps> = (props: DisplayProps) => {
                 return {
                     ...node,
                     children,
-                };
+                }
             }
             if (node.children) {
                 return {
                     ...node,
                     children: updateTreeData(node.children, key, children),
-                };
+                }
             }
-            return node;
+            return node
         })
 
-    const onLoadData = ({key, origin, children}: any) => new Promise<void>(
+    const onLoadData = ({key, purl, children}: any) => new Promise<void>(
         resolve => {
             if (children) {
                 resolve()
@@ -81,7 +72,7 @@ const Display: React.FC<DisplayProps> = (props: DisplayProps) => {
                 timeout: 30000,
                 method: 'get',
                 params: {
-                    'package': extractor.tree(origin).title,
+                    'package': purl,
                     'lang': extractor.value
                 }
             }).then((res: {
@@ -104,7 +95,7 @@ const Display: React.FC<DisplayProps> = (props: DisplayProps) => {
                     }
                     return {
                         nodes: unique(origin.nodes.concat(ng.nodes)),
-                        edges: origin.edges.concat(ng.edges)
+                        edges: [...origin.edges, ng.edges]
                     }
                 })
             }).finally(() => resolve())
@@ -138,8 +129,52 @@ const Display: React.FC<DisplayProps> = (props: DisplayProps) => {
                     fitView={true}/>
             }
         </div>
+        {osvs.length > 0 && <VulDisplay osvs={osvs}/>}
     </Space>
-}
+})
+
+const VulDisplay: React.FC<{ osvs: OSV[] }> = memo(({osvs}) => {
+    const getSeverity = (severity: string | undefined) => {
+        switch (severity) {
+            case 'CRITICAL':
+                return <Tag color={'magenta'}>极危</Tag>
+            case 'HIGH':
+                return <Tag color={'red'}>高危</Tag>
+            case 'MEDIUM':
+                return <Tag color={'magenta'}>中危</Tag>
+            case 'LOW':
+                return <Tag color={'magenta'}>低危</Tag>
+            default:
+                return
+        }
+    }
+    return <ProList<OSV>
+        style={{width: '100%'}}
+        headerTitle={<Typography.Text strong type={'warning'}>漏洞列表</Typography.Text>}
+        metas={{
+            title: {
+                render: (_, d) => <a href={d.ref}>{d.id}</a>
+            },
+            subTitle: {
+                render: (_, d) => <Space>
+                    {d.aliases && <Tag color={'purple'}>{d.aliases}</Tag>}
+                    <Tag>{d.affect!}</Tag>
+                    {d.cwe && <Tag color={'green'}>{d.cwe}</Tag>}
+                </Space>
+            },
+            description: {
+                dataIndex: 'summary',
+            },
+            content: {
+                dataIndex: 'details'
+            },
+            actions: {
+                render: (_, d) => getSeverity(d.severity)
+            },
+        }}
+        dataSource={osvs}
+    />
+})
 
 const Extractor: React.FC = () => {
     const [tabs, setTabs] = useState<TabsProps["items"]>()
@@ -149,8 +184,8 @@ const Extractor: React.FC = () => {
 
     useEffect(() => {
         //@ts-ignore
-        endRef.current.scrollIntoView({behavior: 'smooth'});
-    });
+        endRef.current.scrollIntoView({behavior: 'smooth'})
+    }, [tabs])
 
     const commit = async () => {
         if (fileList.length === 0) {

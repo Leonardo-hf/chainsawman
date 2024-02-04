@@ -1,10 +1,13 @@
 from collections import defaultdict
 from functools import reduce
+from typing import Optional, Dict, List
 
-from common import Client
+from packageurl import PackageURL
+
+from client import Client
 from util.deps import ArchiveDepsHandler, PyDepsHandler, GoDepsHandler, JavaDepsHandler, RustDepsHandler
 from util import resolve_archive
-from vo import SearchDepsRequest, SearchDepsResponse, DepsRequest, DepsResponse, LanguageCount
+from vo import SearchDepsRequest, SearchDepsResponse, DepsRequest, DepsResponse, LanguageCount, PackageDeps, OSV, Dep
 from .deps import DepsService
 
 
@@ -14,10 +17,32 @@ class DepsServiceImpl(DepsService):
         self._inter_handlers = [PyDepsHandler(), GoDepsHandler(), JavaDepsHandler(), RustDepsHandler()]
         self.dh = ArchiveDepsHandler.with_handlers(self._inter_handlers)
 
+    @staticmethod
+    def get_osv_for_deps(res: PackageDeps):
+        purl2deps: Dict[str, List[Dep]] = defaultdict(list)
+        for m in res.modules:
+            for d in m.dependencies:
+                purl2deps[d.purl].append(d)
+        purls = list(purl2deps.keys())[:2]
+
+        def safe_from_str(p: str) -> PackageURL:
+            try:
+                return PackageURL.from_string(p)
+            except Exception:
+                return PackageURL(type='generic', name='generic')
+
+        osvs = Client.get_osv().query_vul_by_purls(list(map(lambda p: safe_from_str(p), purls)))
+        for i in range(len(purls)):
+            purl = purls[i]
+            for d in purl2deps[purl]:
+                d.osv = osvs[i]
+
     def deps(self, req: DepsRequest) -> DepsResponse:
         oss = Client.get_oss()
         data = oss.fetch(req.file_id)
         res, status = self.dh.deps(req.filename, data)
+        if isinstance(res, PackageDeps):
+            self.get_osv_for_deps(res)
         archive = resolve_archive(data)
         count = defaultdict(int)
 

@@ -9,6 +9,7 @@ import {GraphRef2Group} from "@/models/global";
 import {sum} from "@antfu/utils";
 
 const Dashboard: React.FC = () => {
+    //@ts-ignore
     const {initialState} = useModel('@@initialState')
     //@ts-ignore
     const {hotse, hhi} = initialState

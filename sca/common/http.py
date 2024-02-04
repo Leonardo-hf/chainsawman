@@ -13,3 +13,14 @@ class HttpStatus(Enum):
     ILLEGAL_FILE = V(status=4000, msg='文件格式不合法')
     NOT_SUPPORT = V(status=4001, msg='不支持此编程语言或包管理工具')
     NOT_FOUND = V(status=4002, msg='无法从源中获取该软件依赖')
+
+
+class HttpException(Exception):
+    def __init__(self, status: HttpStatus):
+        self._status = status.V
+
+    def __str__(self):
+        return self._status.msg
+
+    def status(self):
+        return self._status

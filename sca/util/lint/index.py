@@ -2,18 +2,18 @@ import os
 import shutil
 from abc import ABCMeta, abstractmethod
 from functools import reduce
-from typing import Tuple, Optional, List, Set
+from typing import Tuple, List, Set
 
-from common import HttpStatus, Language
+from common import HttpStatus, Language, HttpException
 from util import resolve_archive
-from vo import LangLint, LangLints
+from vo import LangLint, Lint
 
 
 class LintHandler(Language, metaclass=ABCMeta):
 
     # 解析依赖文件，返回 ModuleDeps 或 None(解析失败)
     @abstractmethod
-    def lint(self, path: str) -> Tuple[Optional[LangLint], HttpStatus]:
+    def lint(self, path: str) -> Tuple[List[Lint], str]:
         pass
 
     def __hash__(self):
@@ -43,7 +43,7 @@ class ArchiveLintHandler(LintHandler):
     def with_handlers(cls, handlers: List[LintHandler]):
         return ArchiveLintHandler(handlers)
 
-    def lint(self, path: str) -> Tuple[Optional[LangLint], HttpStatus]:
+    def lint(self, path: str) -> Tuple[List[Lint], str]:
         with open(path, 'rb') as f:
             archive = resolve_archive(f.read())
 
@@ -67,15 +67,13 @@ class ArchiveLintHandler(LintHandler):
 
             # 没有检查到支持的语言
             if len(used_handlers) == 0:
-                return None, HttpStatus.NOT_SUPPORT
+                raise HttpException(HttpStatus.NOT_SUPPORT)
             res: List[LangLint] = []
             for h in used_handlers:
                 p = get_temp_dir(h.lang())
                 # 获得Lint
-                lints, status = h.lint(p)
-                if status != HttpStatus.OK:
-                    continue
-                res.append(lints)
+                lints, err = h.lint(p)
+                res.append(LangLint(lang=h.lang(), lints=lints, err=err))
                 # 删除文件
                 shutil.rmtree(p)
-            return LangLints(lints=res), HttpStatus.OK
+            return res, ''

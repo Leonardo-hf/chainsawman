@@ -2,9 +2,9 @@ import json
 
 from attrs import asdict
 from flask import Flask, request
-from gevent import pywsgi, monkey
+from gevent import pywsgi
 
-from common import Client
+from client import Client
 from service import DepsService, DepsServiceImpl, LintServiceImpl, LintService
 from vo import DepsRequest, SearchDepsRequest, LintsRequest
 
@@ -26,7 +26,7 @@ def parse():
 def search():
     package = request.values.get('package')
     lang = request.values.get('lang')
-    req = SearchDepsRequest(lang=lang, package=package)
+    req = SearchDepsRequest(lang=lang, purl=package)
     return asdict(deps_service.search(req))
 
 
@@ -52,7 +52,6 @@ if __name__ == '__main__':
     host = app.config['HOST']
     port = int(app.config['PORT'])
     if app.config.get('CHS_ENV') == 'pre':
-        monkey.patch_all()
         server = pywsgi.WSGIServer((host, port), app)
         server.serve_forever()
     else:

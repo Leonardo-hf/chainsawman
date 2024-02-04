@@ -1,38 +1,24 @@
+import re
 import subprocess
 from shlex import quote
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from common import HttpStatus, PyLang
 from util import Singleton
-from vo import LangLint
+from vo import Lint
 from .index import LintHandler
 
 
 @Singleton
 class PyLintHandler(LintHandler, PyLang):
-    def lint(self, path: str) -> Tuple[Optional[LangLint], HttpStatus]:
+    def __init__(self):
+        self._re = re.compile(
+            r'(?P<path>[\S]*?.py):(?P<pos>(?:[0-9]*:?)+):[\s]+(?P<lint>[\S]+( \[.])?)[\s]+(?P<msg>[\S\s]*?)\n')
+
+    def lint(self, path: str) -> Tuple[List[Lint], str]:
         ret = subprocess.run(['ruff', 'check', quote(path)], capture_output=True)
-        return LangLint(lang=self.lang(), out=ret.stdout.decode().replace(path + '/', ''),
-                        err=ret.stderr.decode().replace(path + '/', '')), HttpStatus.OK
-        # out = ret.stdout
-        # err = ret.stderr
-        # lints = []
-        # if out is not None and len(out):
-        #     lines = out.decode().split('\n')
-        #     for line in lines:
-        #         line = line.strip()
-        #         # 输出 Found xxx errors. 时，结束解析
-        #         if line.startswith('Found'):
-        #             break
-        #         msgs = line.split(': ')
-        #         pos = msgs[0].replace(path + '/', '')
-        #         i = pos.find(':')
-        #         lints.append(Lint(file=pos[:i], pos=pos[i + 1:], tip=msgs[1]))
-        # elif err is not None and len(err):
-        #     err = err.decode()
-        #     if err.startswith('warning: No Python files found under the given path(s)'):
-        #         pass
-        #     else:
-        #         print(err)
-        #         return None, HttpStatus.ILLEGAL_FILE
-        # return LangLint(lang=self.lang(), lints=lints), HttpStatus.OK
+        out = ret.stdout.decode().replace(path + '/', '')
+        out = self._re.finditer(out)
+        lints = list(map(lambda o: Lint(path=o.group('path'), pos=o.group('pos'),
+                                        msg=o.group('msg'), lint=o.group('lint')), out))
+        return lints, ret.stderr.decode().replace(path + '/', '')

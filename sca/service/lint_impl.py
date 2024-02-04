@@ -2,7 +2,8 @@ import os
 import shutil
 import uuid
 
-from common import Client
+from client import Client
+from common import HttpException, HttpStatus
 from util.lint import GoLintHandler, JavaLintHandler, PyLintHandler, ArchiveLintHandler
 from vo import LintsRequest, LintsResponse
 from .lint import LintService
@@ -22,7 +23,10 @@ class LintServiceImpl(LintService):
         p = '{}/{}'.format(tmp_dir, req.file_id)
         with open(p, 'wb') as f:
             f.write(data)
-        res, status = self.dh.lint(p)
-        print(res)
-        shutil.rmtree(tmp_dir)
-        return LintsResponse(langLint=res, base=status.value)
+        try:
+            res, _ = self.dh.lint(p)
+        except HttpException as e:
+            return LintsResponse(langLints=[], base=e.status())
+        finally:
+            shutil.rmtree(tmp_dir)
+        return LintsResponse(langLints=res, base=HttpStatus.OK)

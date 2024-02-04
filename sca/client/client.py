@@ -9,7 +9,7 @@ class Client:
     @classmethod
     def init(cls, config: Config) -> None:
         config.setdefault('MINIO_CLIENT', MinioHelper(config['MINIO']))
-        config.setdefault('OSV_API', VulAPI(config['OSV_API']))
+        config.setdefault('OSV_CLIENT', VulAPI(config['OSV_API']))
         cls.config = config
 
     @classmethod
@@ -18,4 +18,4 @@ class Client:
 
     @classmethod
     def get_osv(cls) -> VulAPI:
-        return cls.config.get("OSV_API")
+        return cls.config.get("OSV_CLIENT")

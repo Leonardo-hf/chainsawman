@@ -65,30 +65,24 @@ export default defineConfig({
             routes: []
         },
         {
-            name: '指标体系',
+            name: '指标模型',
             path: '/algo',
             routes: []
         },
         {
-            name: '指标分析',
-            path: '/exec',
-            routes: [
-                {
-                    name: '高影响力软件识别',
-                    path: '/exec/impact',
-                    component: './Impact'
-                },
-                {
-                    name: '卡脖子软件识别',
-                    path: '/exec/strangle',
-                    component: './Strangle'
-                },
-                {
-                    name: '其他指标',
-                    path: '/exec/others',
-                    component: './AlgoExec'
-                }
-            ]
+            name: '高影响力软件识别',
+            path: '/exec/impact',
+            component: './Impact'
+        },
+        {
+            name: '卡脖子软件识别',
+            path: '/exec/strangle',
+            component: './Strangle'
+        },
+        {
+            name: '指标计算结果',
+            path: '/exec/others',
+            component: './AlgoExec'
         },
         {
             name: '软件成分分析',

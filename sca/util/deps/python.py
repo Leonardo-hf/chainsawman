@@ -7,7 +7,7 @@ from lxml import etree
 from packageurl import PackageURL
 
 from common import HttpStatus, PyLang
-from requirements_detector import from_setup_cfg, from_setup_py, from_requirements_txt, \
+from util.requirements_detector import from_setup_cfg, from_setup_py, from_requirements_txt, \
     from_pyproject_toml, DetectedRequirement
 from util import spider, Singleton
 from vo import ModuleDeps, Dep, PackageDeps

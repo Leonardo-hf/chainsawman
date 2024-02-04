@@ -1,15 +1,28 @@
+import json
 from collections import defaultdict
 from functools import reduce
 
 from packageurl import PackageURL
 
+from client import Client
 from common import HttpStatus
+from service import DepsServiceImpl
 from util import resolve_archive
 from util.deps import ArchiveDepsHandler, PyDepsHandler, GoDepsHandler, JavaDepsHandler, RustDepsHandler
 from vo import PackageDeps
 
 dh = ArchiveDepsHandler.with_handlers(
     [PyDepsHandler(), GoDepsHandler(), JavaDepsHandler(), RustDepsHandler()])
+
+
+# def test_osv():
+#     Client.init({'OSV_API': ''})
+#     path = 'test/cases/htmlunit-2.17.zip'
+#     with open(path, 'rb') as f:
+#         ps, status = dh.deps(path, f)
+#         assert isinstance(ps, PackageDeps)
+#         DepsServiceImpl.get_osv_for_deps(ps)
+#         print(ps)
 
 
 def test_deps_go():
@@ -43,7 +56,7 @@ def test_deps_java():
                PackageURL.from_string(ps.modules[0].purl).name == 'log4j'
         assert len(ps.modules[0].dependencies) == 5
         d = ps.modules[0].dependencies[-1]
-        assert d.purl == 'pkg:maven/org.apache.geronimo.specs/geronimo-jms_1.1_spec@1.0' and d.scope == 'provided'
+        assert d.purl == 'pkg:maven/org.apache.geronimo.specs/geronimo-jms_1.1_spec@1.0' and d.scope == 'compile'
 
 
 def test_search_java():
@@ -53,7 +66,7 @@ def test_search_java():
     assert len(ps.dependencies) == 5 and PackageURL.from_string(ps.purl).namespace == 'log4j' and \
            PackageURL.from_string(ps.purl).name == 'log4j'
     d = ps.dependencies[-1]
-    assert d.purl == 'pkg:maven/org.apache.geronimo.specs/geronimo-jms_1.1_spec@1.0' and d.scope == 'provided'
+    assert d.purl == 'pkg:maven/org.apache.geronimo.specs/geronimo-jms_1.1_spec@1.0' and d.scope == 'compile'
 
 
 def test_deps_python():

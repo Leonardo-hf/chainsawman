@@ -12,8 +12,20 @@ class DepsRequest:
 
 
 @dataclass
+class OSV:
+    id: str
+    aliases: Optional[str]
+    summary: str
+    details: str
+    cwe: Optional[str]
+    severity: Optional[str]
+    ref: Optional[str]
+
+
+@dataclass
 class Dep:
     purl: str
+    osv: List[OSV] = []
     limit: str = ''
     indirect: bool = False
     exclude: bool = False
@@ -57,14 +69,3 @@ class SearchDepsRequest:
 class SearchDepsResponse:
     base: HttpStatus
     deps: Optional[ModuleDeps] = None
-
-
-@dataclass
-class Vul:
-    id: str
-    aliases: Optional[str]
-    summary: str
-    details: str
-    cwe: Optional[str]
-    severity: Optional[str]
-    ref: Optional[str]

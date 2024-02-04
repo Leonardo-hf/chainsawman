@@ -1,40 +1,93 @@
 import {uploadSource} from "@/utils/oss";
 import {InboxOutlined} from "@ant-design/icons";
-import {PageContainer} from "@ant-design/pro-components"
+import {PageContainer, ProList} from "@ant-design/pro-components"
 import {request} from "@umijs/max";
-import {Button, Card, Divider, Empty, message, Space, Tabs, TabsProps, Typography} from "antd"
+import {Button, Card, Divider, Empty, message, Space, Tabs, TabsProps, Tag, Typography} from "antd"
 import {UploadFile} from "antd/es/upload";
 import Dragger from "antd/es/upload/Dragger";
-import React, {useEffect, useRef, useState} from "react";
+import React, {memo, useEffect, useRef, useState} from "react";
 
 const {Text, Paragraph} = Typography
 
-type LintMsg = {
+type Lint = {
+    path: string
+    pos: string
+    msg: string
+    lint: string
+}
+
+type LangLint = {
     lang: string,
-    out: string,
+    lints: Lint[],
     err: string
 }
 
 type DisplayLintProps = {
-    lint: LintMsg
+    lint: LangLint
 }
 
-const DisplayLint: React.FC<DisplayLintProps> = (props: DisplayLintProps) => {
+const DisplayLint: React.FC<DisplayLintProps> = memo((props: DisplayLintProps) => {
     const {lint} = props
-    const {out, err} = lint
-    return <Space direction={"horizontal"} style={{width: '100%', alignItems: 'flex-start'}}>
+    const {lints, err} = lint
+    const [lintsEnum, setLintsEnum] = useState({})
+    useEffect(() => {
+        setLintsEnum(lints.reduce((a: any, b) => {
+            if (!a[b.lint]) {
+                a[b.lint] = {
+                    text: b.lint,
+                    status: b.lint,
+                }
+            }
+            return a
+        }, {}))
+    }, [])
+    return <div style={{display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'flex-start'}}>
         {
-            out && <Card title={<Text type={'warning'}>Warning</Text>}>
-                <Paragraph style={{whiteSpace: 'pre-wrap'}}>{out}</Paragraph>
-            </Card>
-        }
-        {
-            err && <Card title={<Text type={'danger'}>Error</Text>}>
+            err && <Card style={{width: '100%', marginBottom: '16px'}} title={<Text type={'danger'}>Error</Text>}>
                 <Paragraph style={{whiteSpace: 'pre-wrap'}}>{err}</Paragraph>
             </Card>
         }
-    </Space>
-}
+        {
+            lints.length && <ProList<Lint>
+                style={{width: '100%'}}
+                headerTitle={<Text type={'warning'}>Warning</Text>}
+                pagination={{
+                    defaultPageSize: 10,
+                    showSizeChanger: true,
+                }}
+                search={{filterType: "light"}}
+                request={async ({actions}) => {
+                    const res = lints.filter(l => !actions || l.lint == actions)
+                    return {
+                        data: res,
+                        success: true,
+                        total: res.length,
+                    }
+                }}
+                metas={{
+                    title: {
+                        dataIndex: 'path',
+                        search: false
+                    },
+                    subTitle: {
+                        render: (_, d) => <Tag color={'geekblue'}>{d.pos}</Tag>,
+                        search: false
+                    },
+                    description: {
+                        dataIndex: 'msg',
+                        search: false
+                    },
+                    actions: {
+                        title: <Text strong>LINT规则</Text>,
+                        valueType: 'select',
+                        render: (_, d) => <Tag color={'orange'}>{d.lint}</Tag>,
+                        valueEnum: lintsEnum
+                    },
+                }}
+            />
+        }
+    </div>
+})
 
 const Lint: React.FC = () => {
     const [tabs, setTabs] = useState<TabsProps["items"]>()
@@ -43,8 +96,8 @@ const Lint: React.FC = () => {
 
     useEffect(() => {
         //@ts-ignore
-        endRef.current.scrollIntoView({behavior: 'smooth'});
-    });
+        endRef.current.scrollIntoView({behavior: 'smooth'})
+    }, [tabs])
 
     const commit = async () => {
         if (fileList.length === 0) {
@@ -60,12 +113,10 @@ const Lint: React.FC = () => {
             }
         }).then((res: {
                 base: { status: number, msg: string },
-                langLint: {
-                    lints: LintMsg[]
-                }
+                langLints: LangLint[]
             }) => {
                 message.success('检查完毕')
-                const msgs = res.langLint.lints
+                const msgs = res.langLints
                 setTabs(msgs.map((m, i) => {
                     return {
                         key: m.lang,

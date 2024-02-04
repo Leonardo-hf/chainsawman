@@ -271,8 +271,8 @@ class POM:
             # get version
             version = self.value(dep, TAG_VERSION)
             # get scope & optional
-            scope = self.value_or_default(dep, TAG_SCOPE, default='provided')
-            optional = self.value_or_default(dep, TAG_OPTIONAL, default='false')
+            scope = self.value_or_default(dep, TAG_SCOPE, default='compile')
+            optional = self.value_or_default(dep, TAG_OPTIONAL, default=False)
             # version is ${XXX} search in properties
             if not is_none(version):
                 version = self._check_ref(version)
@@ -402,6 +402,7 @@ def fetch(urls: List[str]) -> Union[str, None]:
             continue
         while True:
             try:
+                print(url)
                 res = requests.get(url)
                 if res.status_code == 404:
                     break

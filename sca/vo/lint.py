@@ -2,31 +2,28 @@ from typing import List, Optional
 
 from attr import dataclass
 
-# @dataclass
-# class Lint:
-#     file: str
-#     pos: str
-#     tip: str
 from common import HttpStatus
 
 
 @dataclass
-class LangLint:
-    lang: str = ''
-    out: Optional[str] = None
-    err: Optional[str] = None
-    # lints: List[Lint]
+class Lint:
+    path: str = ''
+    pos: str = ''
+    msg: str = ''
+    lint: str = ''
 
 
 @dataclass
-class LangLints(LangLint):
-    lints: List[LangLint] = []
+class LangLint(Lint):
+    lang: str = ''
+    lints: List[Lint] = []
+    err: str = ''
 
 
 @dataclass
 class LintsResponse:
     base: HttpStatus
-    langLint: LangLints = []
+    langLints: List[LangLint]
 
 
 @dataclass

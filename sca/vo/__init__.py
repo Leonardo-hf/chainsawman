@@ -1,10 +1,10 @@
 from .deps import (
-    DepsRequest, Dep, ModuleDeps, PackageDeps, DepsResponse, SearchDepsRequest, SearchDepsResponse, LanguageCount, Vul
+    DepsRequest, Dep, ModuleDeps, PackageDeps, DepsResponse, SearchDepsRequest, SearchDepsResponse, LanguageCount, OSV
 )
 
 from .lint import (
-    LangLint, LangLints, LintsResponse, LintsRequest
+    LangLint, Lint, LintsResponse, LintsRequest
 )
 
 __all__ = ['DepsRequest', 'Dep', 'ModuleDeps', 'PackageDeps', 'DepsResponse', 'SearchDepsRequest', 'SearchDepsResponse',
-           'LanguageCount', 'LintsResponse', 'LangLint', 'LangLints', 'LintsRequest', 'Vul']
+           'LanguageCount', 'LintsResponse', 'LangLint', 'Lint', 'LintsRequest', 'OSV']
