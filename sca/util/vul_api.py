@@ -30,15 +30,19 @@ class VulAPI:
             })
             return m
 
-        def parse_res(ret: List[Mapping]) -> List[OSV]: return list(
-            map(lambda v: OSV(id=v['id'], aliases=v.get('aliases', ''), summary=v['summary'], details=v['details'],
-                              cwe=v.get('database_specific', defaultdict(str))['cwe_ids'],
-                              severity=v.get('database_specific', defaultdict(str))['severity'],
-                              ref=v.get('references', [defaultdict(str)])[0]['url'])
-                , map(lambda v: v['database_specific']['osv'][0], ret)))
+        def parse_res(ret: Mapping) -> List[OSV]:
+            if ret['error']:
+                return []
+            ret = ret['result']['data']
+            return list(
+                map(lambda v: OSV(id=v['id'], aliases=v.get('aliases', ''), summary=v['summary'], details=v['details'],
+                                  cwe=v.get('database_specific', defaultdict(str))['cwe_ids'],
+                                  severity=v.get('database_specific', defaultdict(str))['severity'],
+                                  ref=v.get('references', [defaultdict(str)])[0]['url'])
+                    , map(lambda v: v['database_specific']['osv'][0], ret)))
 
         api_name = 'searchByAffected'
         url = '%s%s' % (self._base_url, ','.join(list(map(lambda _: api_name, range(len(purls))))))
         json_str = json.dumps(reduce(lambda a, b: merge_from_purl(a, b), enumerate(purls), {}))
         r = requests.get(url, params={'batch': 1, 'input': json_str})
-        return list(map(lambda x: parse_res(x['result']['data']), json.loads(r.text)))
+        return list(map(lambda x: parse_res(x), r.json()))
