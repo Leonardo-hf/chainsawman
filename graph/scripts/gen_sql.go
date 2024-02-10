@@ -10,6 +10,7 @@ import (
 
 type GroupDoc struct {
 	model.Group
+	Tags    []model.Algo
 	Algos   []model.Algo
 	Extends string
 }
@@ -31,6 +32,8 @@ func main() {
 		return
 	}
 	graphs := make(map[string]*GroupDoc)
+	tags := make(map[string]*model.Algo)
+	// 收集所有文件中的GROUP
 	for _, name := range files {
 		g := &GroupDoc{}
 		p := fmt.Sprintf("%v/%v", indir, name.Name())
@@ -47,8 +50,12 @@ func main() {
 			fmt.Printf("`name` is required in %v", p)
 		}
 		graphs[g.Name] = g
+		for _, t := range g.Tags {
+			tags[t.Name] = &t
+		}
 	}
 
+	// 创建输出目录文件夹
 	_, err = os.ReadDir(outDir)
 	if os.IsNotExist(err) {
 		err = os.Mkdir(outDir, os.ModePerm)
@@ -62,16 +69,38 @@ func main() {
 	}
 
 	gid, nid, eid, aid := 1, 1, 1, 1
+
+	// 收集所有JSON中的TAG，统一写入文件
+	tagSql := ""
+	for _, tag := range tags {
+		if len(tag.Name) == 0 {
+			fmt.Printf("`tag.name` is required in group %v\n", tag.Name)
+		}
+		tagSql += fmt.Sprintf("INSERT INTO graph.algo(id, name, detail, isTag) VALUES (%v, %v, %v, true);\n\n",
+			aid, tag.Name, tag.Detail)
+		aid += 1
+	}
+	p := fmt.Sprintf("%v/tag.sql", outDir)
+	err = os.WriteFile(p, []byte(tagSql), os.ModePerm)
+	if err != nil {
+		fmt.Printf("fail to write file, path: %v, err: %v\n", p, err)
+		return
+	}
+
+	// 将每个GROUP的JSON转化为SQL写入文件
 	var handle func(v *GroupDoc)
 	handle = func(v *GroupDoc) {
+		// 已经处理过的GROUP，直接返回
 		if v.ID != 0 {
 			return
 		}
 		sql := ""
+		// 生成写入GROUP SCHEMA的SQL
 		if len(v.Extends) > 0 {
 			if t, ok := graphs[v.Extends]; !ok {
 				fmt.Printf("fail to find valid `extends` in group: %v\n", v.Name)
 			} else {
+				// 优先处理继承的GROUP的JSON
 				handle(t)
 			}
 			sql += fmt.Sprintf("INSERT INTO graph.group(id, name, `desc`, parentID) VALUES (%v, %v, %v, %v);\n\n",
@@ -81,6 +110,7 @@ func main() {
 				gid, blank2Null(v.Name), blank2Null(v.Desc))
 		}
 		v.ID = int64(gid)
+		// 生成写入NODE, NODE_ATTR SCHEMA的SQL
 		handleNode := func(nodes []*model.Node) {
 			for _, node := range nodes {
 				if len(node.Name) == 0 {
@@ -102,6 +132,7 @@ func main() {
 			}
 
 		}
+		// 生成写入EDGE, EDGE_ATTR SCHEMA的SQL
 		handleEdge := func(edges []*model.Edge) {
 			for _, edge := range edges {
 				if len(edge.Name) == 0 {
@@ -123,13 +154,16 @@ func main() {
 			}
 		}
 		handleNode(v.Nodes)
+		// 处理继承来的NODE
 		if len(v.Extends) > 0 {
 			handleNode(graphs[v.Extends].Nodes)
 		}
 		handleEdge(v.Edges)
+		// 处理继承来的EDGE
 		if len(v.Extends) > 0 {
 			handleEdge(graphs[v.Extends].Edges)
 		}
+		// 处理GROUP持有的ALGO及ALGO_PARAM
 		for _, algo := range v.Algos {
 			sql += fmt.Sprintf("INSERT INTO graph.algo(id, name, detail, groupId, tag, jarPath, mainClass) VALUES (%v, %v, %v, %v, %v, %v, %v);\n\n",
 				aid, blank2Null(algo.Name), blank2Null(algo.Detail), gid, blank2Null(algo.Tag), blank2Null(algo.JarPath), blank2Null(algo.MainClass))
@@ -145,6 +179,7 @@ func main() {
 			aid++
 		}
 		gid++
+		// SQL写入文件
 		p := fmt.Sprintf("%v/%v.sql", outDir, v.Name)
 		err = os.WriteFile(p, []byte(sql), os.ModePerm)
 		if err != nil {

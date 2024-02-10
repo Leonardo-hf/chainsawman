@@ -23,6 +23,8 @@ create table if not exists algo
     jarPath   varchar(255)  null,
     mainClass varchar(255)  null,
     tag       varchar(255)  null,
+    tagID     int           null,
+    isTag     tinyint(1) default 0,
     groupId   int default 1 null comment '约束算法应用于某个策略组的图谱，此外：
 1......应用于全部策略组',
     constraint algos_groups_id_fk

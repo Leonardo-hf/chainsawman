@@ -114,6 +114,11 @@ export default defineConfig({
             name: '服务监控',
             path: '/monitor',
             component: './Monitor'
+        },
+        {
+            name: 'test',
+            path: '/test',
+            component: './AlgoDoc'
         }
     ],
     npmClient: 'npm',

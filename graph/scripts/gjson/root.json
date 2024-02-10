@@ -1,6 +1,9 @@
 {
   "name": "root",
   "desc": "根图谱",
+  "tag": [{
+
+  }],
   "algos": [
     {
       "name": "degree",

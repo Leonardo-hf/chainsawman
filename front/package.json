@@ -21,9 +21,10 @@
     "@umijs/max-plugin-openapi": "^2.0.3",
     "antd": "^5.8.6",
     "react-countup": "^6.5.0",
-    "react-markdown": "^8.0.7",
+    "react-markdown": "^9.0.1",
     "react-papaparse": "^4.4.0",
     "rehype-katex": "^7.0.0",
+    "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0"
   },
   "devDependencies": {
