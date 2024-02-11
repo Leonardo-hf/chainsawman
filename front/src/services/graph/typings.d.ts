@@ -2,10 +2,20 @@ declare namespace Graph {
   type Algo = {
     id?: number;
     name: string;
+    define: string;
     detail: string;
     groupId: number;
     tag: string;
+    tagId: number;
     params?: AlgoParam[];
+  };
+
+  type algoGetDocParams = {
+    algoId: number;
+  };
+
+  type AlgoIDRequest = {
+    algoId: number;
   };
 
   type AlgoParam = {
@@ -69,10 +79,6 @@ declare namespace Graph {
     edgeTypeList: Structure[];
   };
 
-  type DropAlgoRequest = {
-    algoId: number;
-  };
-
   type DropAlgoTaskRequest = {
     id: number;
   };
@@ -104,6 +110,11 @@ declare namespace Graph {
 
   type fileAlgoGetPresignedParams = {
     filename: string;
+  };
+
+  type GetAlgoDocReply = {
+    base: BaseReply;
+    doc: string;
   };
 
   type GetAlgoReply = {

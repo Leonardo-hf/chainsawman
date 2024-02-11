@@ -242,9 +242,11 @@ type (
 	Algo {
 		Id      int64        `json:"id,optional"`
 		Name    string       `json:"name"`
+		Define  string       `json:"define"`
 		Detail  string       `json:"detail"`
 		GroupId int64        `json:"groupId"`
 		Tag     string       `json:"tag"`
+		TagID   int64        `json:"tagId"`
 		Params  []*AlgoParam `json:"params,optional"`
 	}
 
@@ -268,7 +270,12 @@ type (
 		Algos []*Algo    `json:"algos"`
 	}
 
-	DropAlgoRequest {
+	GetAlgoDocReply {
+		Base *BaseReply `json:"base"`
+		Doc  string     `json:"doc"`
+	}
+
+	AlgoIDRequest {
 		AlgoID int64 `json:"algoId"`
 	}
 
@@ -388,13 +395,17 @@ service graph {
 	@handler algoGetAll
 	get /getAll returns (GetAlgoReply)
 	
+	@doc "查询算法文档"
+	@handler algoGetDoc
+	get /getDoc (AlgoIDRequest) returns (GetAlgoDocReply)
+	
 	@doc "创建算法"
 	@handler algoCreate
 	post /create (CreateAlgoRequest) returns (BaseReply)
 	
 	@doc "删除算法"
 	@handler algoDrop
-	post /drop (DropAlgoRequest) returns (BaseReply)
+	post /drop (AlgoIDRequest) returns (BaseReply)
 	
 	@doc "执行算法"
 	@handler algoExec

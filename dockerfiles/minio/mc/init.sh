@@ -11,3 +11,12 @@ then
   mc cp /jar/$file minio/lib
 fi
 done
+mc mb --ignore-existing minio/assets
+mc set download minio/assets
+for file in `ls /assets`
+do
+if test -f /assets/$file
+then
+  mc cp /assets/$file minio/assets
+fi
+done

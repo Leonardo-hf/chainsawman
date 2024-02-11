@@ -19,7 +19,8 @@ create table if not exists algo
     id        int auto_increment
         primary key,
     name      varchar(255)  not null,
-    detail    text          not null,
+    define    varchar(1023)  not null,
+    detail    text          null,
     jarPath   varchar(255)  null,
     mainClass varchar(255)  null,
     tag       varchar(255)  null,

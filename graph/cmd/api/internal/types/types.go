@@ -235,9 +235,11 @@ type DropAlgoTaskRequest struct {
 type Algo struct {
 	Id      int64        `json:"id,optional"`
 	Name    string       `json:"name"`
+	Define  string       `json:"define"`
 	Detail  string       `json:"detail"`
 	GroupId int64        `json:"groupId"`
 	Tag     string       `json:"tag"`
+	TagID   int64        `json:"tagId"`
 	Params  []*AlgoParam `json:"params,optional"`
 }
 
@@ -261,7 +263,12 @@ type GetAlgoReply struct {
 	Algos []*Algo    `json:"algos"`
 }
 
-type DropAlgoRequest struct {
+type GetAlgoDocReply struct {
+	Base *BaseReply `json:"base"`
+	Doc  string     `json:"doc"`
+}
+
+type AlgoIDRequest struct {
 	AlgoID int64 `json:"algoId"`
 }
 

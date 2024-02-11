@@ -1,6 +1,7 @@
 package db
 
 import (
+	"chainsawman/common"
 	"chainsawman/graph/db/query"
 	"chainsawman/graph/model"
 	"context"
@@ -187,12 +188,21 @@ func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*mod
 
 func (c *MysqlClientImpl) GetAllAlgo(ctx context.Context) ([]*model.Algo, error) {
 	a := query.Algo
-	return a.WithContext(ctx).Select(a.ID, a.GroupID, a.Name, a.Tag, a.Detail).Preload(a.Params).Find()
+	return a.WithContext(ctx).Where(a.IsTag.Eq(common.Bool2Int64(true))).Select(a.ID, a.GroupID, a.Name, a.Tag, a.TagID, a.Define).Preload(a.Params).Find()
+}
+
+func (c *MysqlClientImpl) GetAlgoDoc(ctx context.Context, id int64) (string, error) {
+	a := query.Algo
+	algo, err := a.WithContext(ctx).Where(a.ID.Eq(id)).Select(a.Detail).First()
+	if err != nil {
+		return "", err
+	}
+	return algo.Detail, nil
 }
 
 func (c *MysqlClientImpl) DropAlgoByID(ctx context.Context, id int64) (int64, error) {
 	a := query.Algo
-	res, err := a.WithContext(ctx).Where(a.ID.Eq(id)).Delete()
+	res, err := a.WithContext(ctx).Where(a.ID.Eq(id), a.IsTag.Eq(common.Bool2Int64(false))).Delete()
 	return res.RowsAffected, err
 }
 

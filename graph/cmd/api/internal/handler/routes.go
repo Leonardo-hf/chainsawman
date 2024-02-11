@@ -84,6 +84,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: algoGetAllHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/getDoc",
+				Handler: algoGetDocHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/create",
 				Handler: algoCreateHandler(serverCtx),

@@ -60,7 +60,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/DropAlgoRequest"
+              "$ref": "#/definitions/AlgoIDRequest"
             }
           }
         ],
@@ -108,6 +108,32 @@
             }
           }
         },
+        "tags": [
+          "graph"
+        ]
+      }
+    },
+    "/api/graph/algo/getDoc": {
+      "get": {
+        "summary": "查询算法文档",
+        "operationId": "algoGetDoc",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetAlgoDocReply"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "algoId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
         "tags": [
           "graph"
         ]
@@ -677,6 +703,9 @@
         "name": {
           "type": "string"
         },
+        "define": {
+          "type": "string"
+        },
         "detail": {
           "type": "string"
         },
@@ -686,6 +715,10 @@
         },
         "tag": {
           "type": "string"
+        },
+        "tagId": {
+          "type": "integer",
+          "format": "int64"
         },
         "params": {
           "type": "array",
@@ -697,9 +730,24 @@
       "title": "Algo",
       "required": [
         "name",
+        "define",
         "detail",
         "groupId",
-        "tag"
+        "tag",
+        "tagId"
+      ]
+    },
+    "AlgoIDRequest": {
+      "type": "object",
+      "properties": {
+        "algoId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "AlgoIDRequest",
+      "required": [
+        "algoId"
       ]
     },
     "AlgoParam": {
@@ -929,19 +977,6 @@
         "edgeTypeList"
       ]
     },
-    "DropAlgoRequest": {
-      "type": "object",
-      "properties": {
-        "algoId": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "title": "DropAlgoRequest",
-      "required": [
-        "algoId"
-      ]
-    },
     "DropAlgoTaskRequest": {
       "type": "object",
       "properties": {
@@ -1047,6 +1082,22 @@
       "required": [
         "graphId",
         "algoId"
+      ]
+    },
+    "GetAlgoDocReply": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "$ref": "#/definitions/BaseReply"
+        },
+        "doc": {
+          "type": "string"
+        }
+      },
+      "title": "GetAlgoDocReply",
+      "required": [
+        "base",
+        "doc"
       ]
     },
     "GetAlgoReply": {

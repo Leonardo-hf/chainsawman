@@ -29,10 +29,13 @@ func newAlgo(db *gorm.DB, opts ...gen.DOOption) algo {
 	_algo.ALL = field.NewAsterisk(tableName)
 	_algo.ID = field.NewInt64(tableName, "id")
 	_algo.Name = field.NewString(tableName, "name")
+	_algo.Define = field.NewString(tableName, "define")
 	_algo.Detail = field.NewString(tableName, "detail")
 	_algo.JarPath = field.NewString(tableName, "jarPath")
 	_algo.MainClass = field.NewString(tableName, "mainClass")
 	_algo.Tag = field.NewString(tableName, "tag")
+	_algo.TagID = field.NewInt64(tableName, "tagID")
+	_algo.IsTag = field.NewInt64(tableName, "isTag")
 	_algo.GroupID = field.NewInt64(tableName, "groupId")
 	_algo.Params = algoHasManyParams{
 		db: db.Session(&gorm.Session{}),
@@ -51,10 +54,13 @@ type algo struct {
 	ALL       field.Asterisk
 	ID        field.Int64
 	Name      field.String
+	Define    field.String
 	Detail    field.String
 	JarPath   field.String
 	MainClass field.String
 	Tag       field.String
+	TagID     field.Int64
+	IsTag     field.Int64
 	/*
 		约束算法应用于某个策略组的图谱，此外：
 		1......应用于全部策略组
@@ -79,10 +85,13 @@ func (a *algo) updateTableName(table string) *algo {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewInt64(table, "id")
 	a.Name = field.NewString(table, "name")
+	a.Define = field.NewString(table, "define")
 	a.Detail = field.NewString(table, "detail")
 	a.JarPath = field.NewString(table, "jarPath")
 	a.MainClass = field.NewString(table, "mainClass")
 	a.Tag = field.NewString(table, "tag")
+	a.TagID = field.NewInt64(table, "tagID")
+	a.IsTag = field.NewInt64(table, "isTag")
 	a.GroupID = field.NewInt64(table, "groupId")
 
 	a.fillFieldMap()
@@ -100,13 +109,16 @@ func (a *algo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *algo) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 8)
+	a.fieldMap = make(map[string]field.Expr, 11)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["name"] = a.Name
+	a.fieldMap["define"] = a.Define
 	a.fieldMap["detail"] = a.Detail
 	a.fieldMap["jarPath"] = a.JarPath
 	a.fieldMap["mainClass"] = a.MainClass
 	a.fieldMap["tag"] = a.Tag
+	a.fieldMap["tagID"] = a.TagID
+	a.fieldMap["isTag"] = a.IsTag
 	a.fieldMap["groupId"] = a.GroupID
 
 }

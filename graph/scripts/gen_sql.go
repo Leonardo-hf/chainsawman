@@ -76,8 +76,8 @@ func main() {
 		if len(tag.Name) == 0 {
 			fmt.Printf("`tag.name` is required in group %v\n", tag.Name)
 		}
-		tagSql += fmt.Sprintf("INSERT INTO graph.algo(id, name, detail, isTag) VALUES (%v, %v, %v, true);\n\n",
-			aid, tag.Name, tag.Detail)
+		tagSql += fmt.Sprintf("INSERT INTO graph.algo(id, name, define, detail, isTag) VALUES (%v, %v, %v, %v, 1);\n\n",
+			aid, blank2Null(tag.Name), blank2Null(tag.Define), blank2Null(tag.Detail))
 		aid += 1
 	}
 	p := fmt.Sprintf("%v/tag.sql", outDir)
@@ -165,11 +165,19 @@ func main() {
 		}
 		// 处理GROUP持有的ALGO及ALGO_PARAM
 		for _, algo := range v.Algos {
-			sql += fmt.Sprintf("INSERT INTO graph.algo(id, name, detail, groupId, tag, jarPath, mainClass) VALUES (%v, %v, %v, %v, %v, %v, %v);\n\n",
-				aid, blank2Null(algo.Name), blank2Null(algo.Detail), gid, blank2Null(algo.Tag), blank2Null(algo.JarPath), blank2Null(algo.MainClass))
+			if len(algo.Define) == 0 {
+				fmt.Printf("`algo.define` is required in group %v\n", v.Name)
+				return
+			}
+			if _, ok := tags[algo.Tag]; !ok {
+				fmt.Printf("`algo.tag` should be defined before used in group %v: %v\n", v.Name, algo.Tag)
+				return
+			}
+			sql += fmt.Sprintf("INSERT INTO graph.algo(id, name, define, detail, groupID, tag, tagID, jarPath, mainClass) VALUES (%v, %v, %v, %v, %v, %v, %v, %v, %v);\n\n",
+				aid, blank2Null(algo.Name), blank2Null(algo.Define), blank2Null(algo.Detail), gid, blank2Null(algo.Tag), tags[algo.Tag].ID, blank2Null(algo.JarPath), blank2Null(algo.MainClass))
 			for _, param := range algo.Params {
 				if len(param.Name) == 0 {
-					fmt.Printf("`edge.name` is required in group %v\n", v.Name)
+					fmt.Printf("`param.name` is required in group %v\n", v.Name)
 					return
 				}
 				sql += fmt.Sprintf("INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (%v, %v, %v, %v, %v, %v, %v);\n",

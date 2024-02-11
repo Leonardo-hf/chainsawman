@@ -45,10 +45,11 @@ func (l *AlgoGetAllLogic) AlgoGetAll() (resp *types.GetAlgoReply, err error) {
 		sortAlgos = append(sortAlgos, &types.Algo{
 			Id:      a.ID,
 			Name:    a.Name,
-			Detail:  a.Detail,
+			Define:  a.Define,
 			GroupId: a.GroupID,
 			Params:  params,
 			Tag:     a.Tag,
+			TagID:   a.TagID,
 		})
 	}
 	sort.Sort(sortAlgos)

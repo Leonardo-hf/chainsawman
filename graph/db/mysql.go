@@ -50,6 +50,8 @@ type MysqlClient interface {
 
 	GetAllAlgo(ctx context.Context) ([]*model.Algo, error)
 
+	GetAlgoDoc(ctx context.Context, id int64) (string, error)
+
 	GetAlgoExecCfgByID(ctx context.Context, id int64) (*model.Algo, error)
 
 	InsertAlgo(ctx context.Context, algo *model.Algo) error

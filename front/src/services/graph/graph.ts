@@ -15,7 +15,7 @@ export async function algoCreate(body: Graph.CreateAlgoRequest, options?: { [key
 }
 
 /** 删除算法 POST /api/graph/algo/drop */
-export async function algoDrop(body: Graph.DropAlgoRequest, options?: { [key: string]: any }) {
+export async function algoDrop(body: Graph.AlgoIDRequest, options?: { [key: string]: any }) {
   return request<Graph.BaseReply>('/api/graph/algo/drop', {
     method: 'POST',
     headers: {
@@ -42,6 +42,21 @@ export async function algoExec(body: Graph.ExecAlgoRequest, options?: { [key: st
 export async function algoGetAll(options?: { [key: string]: any }) {
   return request<Graph.GetAlgoReply>('/api/graph/algo/getAll', {
     method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 查询算法文档 GET /api/graph/algo/getDoc */
+export async function algoGetDoc(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: Graph.algoGetDocParams,
+  options?: { [key: string]: any },
+) {
+  return request<Graph.GetAlgoDocReply>('/api/graph/algo/getDoc', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

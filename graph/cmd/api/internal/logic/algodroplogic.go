@@ -23,7 +23,7 @@ func NewAlgoDropLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AlgoDrop
 	}
 }
 
-func (l *AlgoDropLogic) AlgoDrop(req *types.DropAlgoRequest) (resp *types.BaseReply, err error) {
+func (l *AlgoDropLogic) AlgoDrop(req *types.AlgoIDRequest) (resp *types.BaseReply, err error) {
 	_, err = l.svcCtx.MysqlClient.DropAlgoByID(l.ctx, req.AlgoID)
 	return nil, err
 }

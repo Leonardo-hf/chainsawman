@@ -10,10 +10,13 @@ const TableNameAlgo = "algo"
 type Algo struct {
 	ID        int64        `gorm:"column:id;type:int;primaryKey;autoIncrement:true" json:"id"`
 	Name      string       `gorm:"column:name;type:varchar(255);not null" json:"name"`
+	Define    string       `gorm:"column:define;type:varchar(1023);not null" json:"define"`
 	Detail    string       `gorm:"column:detail;type:text" json:"detail"`
 	JarPath   string       `gorm:"column:jarPath;type:varchar(255)" json:"jarPath"`
 	MainClass string       `gorm:"column:mainClass;type:varchar(255)" json:"mainClass"`
 	Tag       string       `gorm:"column:tag;type:varchar(255)" json:"tag"`
+	TagID     int64        `gorm:"column:tagID;type:int" json:"tagID"`
+	IsTag     int64        `gorm:"column:isTag;type:tinyint(1)" json:"isTag"`
 	GroupID   int64        `gorm:"column:groupId;type:int;default:1;comment:约束算法应用于某个策略组的图谱，此外：\n1......应用于全部策略组" json:"groupId"`
 	Params    []*AlgoParam `gorm:"foreignKey:algoID" json:"params"`
 }
