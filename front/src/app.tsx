@@ -69,7 +69,7 @@ export function render(oldRender: () => void) {
                         {
                             path: `/algo/${tagId}/index`,
                             name: '概述',
-                            element: <AlgoDoc algoId={tagId}/>
+                            element: <AlgoDoc algoID={tagId}/>
                         },
                         // 收集每个分类下的节点
                         ...e[1].map(a => {
@@ -77,7 +77,7 @@ export function render(oldRender: () => void) {
                             return {
                                 path: `/algo/${tagId}/${a.id}`,
                                 name: a.name,
-                                element: <AlgoDoc algoId={a.id!}/>
+                                element: <AlgoDoc algoID={a.id!}/>
                             }
                         })
                     ]

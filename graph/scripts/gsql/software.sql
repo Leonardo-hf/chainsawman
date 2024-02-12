@@ -24,7 +24,7 @@ INSERT INTO graph.algo(id, name, define, detail, groupID, tag, tagID, jarPath, m
 
 $$C_{breadth}=\\sum_{p∈d(i)}^n{V_p}$$
 
-其中，$d(i)$表示直接依赖软件$i$的软件集合。VoteRank算法首先为图谱中的每个软件赋予分值$Vp=1$。该算法分为多个轮次，在每一轮中，需要计算图谱中所有软件的$C_{breadth}$ ，并选取具有最高$C_{breadth}$的软件$F$，取$C_{breadth}(F)$为$F$在本指标中的得分。然后，将$F$的分值置为$0$，并对每个依赖于$F$的软件，将其分值减少$f$，且最低减少至$0$，此时进行下一轮计算，直至一轮中最高的$C_{breadth}$为$0$时，结束该算法。通常将$f$设置为图谱中软件的平均入度的倒数。', 3, '软件研发影响力', 0, 's3a://lib/breadth-latest.jar', 'applerodite.breadth.Main');
+其中，$d(i)$表示直接依赖软件$i$的软件集合。VoteRank算法首先为图谱中的每个软件赋予分值$Vp=1$。该算法分为多个轮次，在每一轮中，需要计算图谱中所有软件的$C_{breadth}$ ，并选取具有最高$C_{breadth}$的软件$F$，取$C_{breadth}(F)$为$F$在本指标中的得分。然后，将$F$的分值置为$0$，并对每个依赖于$F$的软件，将其分值减少$f$，且最低减少至$0$，此时进行下一轮计算，直至一轮中最高的$C_{breadth}$为$0$时，结束该算法。通常将$f$设置为图谱中软件的平均入度的倒数。', 3, '软件研发影响力', 2, 's3a://lib/breadth-latest.jar', 'applerodite.breadth.Main');
 
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (7, 'iter', '迭代次数，即返回前多少个高影响力软件', 2, '100', '1', '2147483647');
 
@@ -45,14 +45,14 @@ $$D_i=\\sqrt{\\frac{\\sum_{p∈q(i)}^n{D_p^2}}{N}}+1 (1)$$
 
 $$C_{depth}=\\frac{\\sum_{p∈g(i)}^{n-1}{D_p-D_i}}{N-1} (2)$$
 
-其中，$N$是图中软件的总数，$g(i)$表示直接或间接依赖于软件$i$的软件集合。', 3, '软件研发影响力', 0, 's3a://lib/depth-latest.jar', 'applerodite.depth.Main');
+其中，$N$是图中软件的总数，$g(i)$表示直接或间接依赖于软件$i$的软件集合。', 3, '软件研发影响力', 2, 's3a://lib/depth-latest.jar', 'applerodite.depth.Main');
 
 
 INSERT INTO graph.algo(id, name, define, detail, groupID, tag, tagID, jarPath, mainClass) VALUES (9, 'mediation', '中介度排序算法，基于假设：在更多依赖路径中处于中部的软件具有重要的集成作用，具有更高的研发影响力。', '中介度排序算法，基于假设：在更多依赖路径中处于中部的软件具有重要的集成作用，具有更高的研发影响力。
 
 在软件依赖图谱中，对于一条由依赖（有向边）组成的路径，可以将路径中包含的软件（节点）依据与路径起点软件的距离由短至长划分为头部软件、中间软件，和尾部软件。在软件研发实践中，高度集成的开发工具或框架通常被广泛使用，因为它们能够帮助开发者更快速、便捷地解决问题，而这些软件便属于中间软件。
 
-因此，指标使用betweenness算法寻找依赖图谱中的中间软件，并研究其中介作用。详情可见betweenness的介绍。', 3, '软件研发影响力', 0, 's3a://lib/mediation-latest.jar', 'applerodite.mediation.Main');
+因此，指标使用betweenness算法寻找依赖图谱中的中间软件，并研究其中介作用。详情可见betweenness的介绍。', 3, '软件研发影响力', 2, 's3a://lib/mediation-latest.jar', 'applerodite.mediation.Main');
 
 
 INSERT INTO graph.algo(id, name, define, detail, groupID, tag, tagID, jarPath, mainClass) VALUES (10, 'stability', '稳定性指标，基于假设：对软件开发生态稳定贡献更大的软件具有更高的研发影响力。', '稳定性指标，基于假设：对软件开发生态稳定贡献更大的软件具有更高的研发影响力。
@@ -63,7 +63,7 @@ $$C_{stability}=(k_i-1)\\sum_{p∈δBall(i,l)}{(k_p-1} (1)$$
 
 $$λ(l)=(\\frac{\\sum_i{C_{stability}(i)}}{N<k>})^{\\frac{1}{l+1}} (2)$$
 
-其中，$k_i$表示软件$i$的度数，$Ball(i, l)$表示距离软件$i$最短距离为$l$的软件集合，$N$是节点的总数，$<k>$是图当前的平均度。算法首先计算依赖网络中所有软件的$C_{stability}$ ，并认为软件对网络的稳定性的贡献取决于$C_{stability}$ 的大小。接着算法计算图的$λ(l)$，若$λ(l)>1$，则将$C_(st)$最大的软件从网络中移除，并重新计算所有软件的$C_(stability)$，直到$λ(l)≤1$，此时认为图谱被破坏，不再重新计算软件的$C_{stability}$。', 3, '软件研发影响力', 0, 's3a://lib/stability-latest.jar', 'applerodite.stability.Main');
+其中，$k_i$表示软件$i$的度数，$Ball(i, l)$表示距离软件$i$最短距离为$l$的软件集合，$N$是节点的总数，$<k>$是图当前的平均度。算法首先计算依赖网络中所有软件的$C_{stability}$ ，并认为软件对网络的稳定性的贡献取决于$C_{stability}$ 的大小。接着算法计算图的$λ(l)$，若$λ(l)>1$，则将$C_(st)$最大的软件从网络中移除，并重新计算所有软件的$C_(stability)$，直到$λ(l)≤1$，此时认为图谱被破坏，不再重新计算软件的$C_{stability}$。', 3, '软件研发影响力', 2, 's3a://lib/stability-latest.jar', 'applerodite.stability.Main');
 
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (10, 'radius', '半径，识别节点影响力时考虑与该节点距离为radius的其他节点，计算复杂度随radius增加而升高', 2, '3', '2', '5');
 
@@ -73,7 +73,7 @@ $$C_{integrated}(i)=a*C_{breadth}(i)+b*C_{depth}(i)+c*C_{mediation}(i)+d*C_{stab
 
 其中，a,b,c,d为各个指标的权重，基于对Python软件的观察，其建议取值为$a=0.52887$，$b=0.21942$，$c=0.09656$，$d=0.15515$。对于其他语言，上述取值可能不适用。
 
-综合影响力算法可以有效综合各指标的优势，使之达到互补的效果，与下载量名列前茅、受到Awesome Project的开发者广泛推荐的软件有更高的拟合度。', 3, '软件研发影响力', 0, 's3a://lib/integrated-latest.jar', 'applerodite.integrated.Main');
+综合影响力算法可以有效综合各指标的优势，使之达到互补的效果，与下载量名列前茅、受到Awesome Project的开发者广泛推荐的软件有更高的拟合度。', 3, '软件研发影响力', 2, 's3a://lib/integrated-latest.jar', 'applerodite.integrated.Main');
 
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (11, 'weights', '集成的各个算法（breadth, depth, mediation, stability）的权重，范围为0~1', 4, null, '1', '4');
 
@@ -91,6 +91,6 @@ $$HHI=\\sum_{i=1}^{n}{s_i^2}$$
 
 “hhi”指数可以用来分析不同行业的市场结构，找出存在垄断或寡头的行业，或者用它来评估企业的并购或兼并对市场竞争的影响，或者用它来制定反垄断的政策或法规。
 
-', 3, '软件研发影响力', 0, 's3a://lib/hhi-latest.jar', 'applerodite.hhi.Main');
+', 3, '软件研发影响力', 2, 's3a://lib/hhi-latest.jar', 'applerodite.hhi.Main');
 
 

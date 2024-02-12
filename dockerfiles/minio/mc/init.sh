@@ -11,7 +11,7 @@ then
   mc cp /jar/$file minio/lib
 fi
 done
-mc mb --ignore-existing minio/assets
+mc mb --ignore-existing /assets
 mc set download minio/assets
 for file in `ls /assets`
 do

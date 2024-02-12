@@ -7,7 +7,7 @@ import {Button, Checkbox, Divider, Empty, message, Space, Tabs, TabsProps, Tag, 
 import {DataNode} from "antd/es/tree";
 import {UploadFile} from "antd/es/upload";
 import Dragger from "antd/es/upload/Dragger";
-import React, {Key, memo, useEffect, useRef, useState} from "react";
+import React, {memo, useEffect, useRef, useState} from "react";
 import {DepExtractor, getExtractor, ModuleDep, Dep, OSV} from "./_extractor"
 import {Pie} from "@ant-design/plots";
 

@@ -1,14 +1,24 @@
 #!/bin/bash
 # api
-goctl api go -api graph/cmd/api/graph.api -dir graph/cmd/api/
-cp graph/cmd/api/internal/types/types.go consumer/task/types/
+API="graph/cmd/api"
+SCRIPT="graph/scripts"
+goctl api go -api ${API}/graph.api -dir ${API}
+cp ${API}/internal/types/types.go consumer/task/types/
 # swagger
-goctl api plugin -plugin goctl-swagger="swagger -filename graph.json" -api graph/cmd/api/graph.api -dir graph/cmd/api/
-sed -i '/requestBody/d' graph/cmd/api/graph.json
-cp graph/cmd/api/graph.json front/
+goctl api plugin -plugin goctl-swagger="swagger -filename graph.json" -api ${API}/graph.api -dir ${API}
+sed -i '/requestBody/d' ${API}/graph.json
+cp ${API}/graph.json front/
 # gorm gen
 # TODO: mysql -uroot -p${MYSQL_ROOT_PASSWORD}
-cp graph/scripts/graph.sql dockerfiles/mysql/
-cp -r graph/scripts/gsql/ dockerfiles/mysql/
-go run graph/scripts/gen.go
+GSQL="${SCRIPT}/gsql"
+INIT_SQL="dockerfiles/mysql/graph.sql"
+cp ${SCRIPT}/graph.sql ${INIT_SQL}
+for file in `ls ${GSQL}`
+do
+if test -f ${GSQL}/${file}
+then
+  cat ${GSQL}/${file} >> ${INIT_SQL}
+fi
+done
+go run ${SCRIPT}/gen.go
 go run consumer/task/scripts/gen.go

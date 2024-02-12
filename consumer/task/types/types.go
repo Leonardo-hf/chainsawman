@@ -269,7 +269,7 @@ type GetAlgoDocReply struct {
 }
 
 type AlgoIDRequest struct {
-	AlgoID int64 `json:"algoId"`
+	AlgoID int64 `form:"algoId"`
 }
 
 type CreateAlgoRequest struct {

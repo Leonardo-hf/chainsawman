@@ -10,7 +10,7 @@ $$C(i)=\\frac{k_i}{N−1}$$
 
 “度中心度”认为一个节点的重要性取决于它的邻居节点的数量，而不考虑邻居节点的重要性或与其他节点的距离，它比较简单，时间复杂度为$O(N)$，但也有一些局限性，例如，它不能区分网络中的不同结构，如星形、环形或完全图，它们的节点度中心度都相同，但实际上它们的网络特性是不同的。
 
-“度中心度”算法可以用它来分析社交网络中的用户影响力，找出与更多人有联系的用户，或者用它来分析互联网中的网站流量，找出与更多网站有链接的网站。还可以用它来分析交通网络中的节点重要性，找出与更多路线有连接的节点。', 1, '其他', 0, 's3a://lib/degree-latest.jar', 'applerodite.degree.Main');
+“度中心度”算法可以用它来分析社交网络中的用户影响力，找出与更多人有联系的用户，或者用它来分析互联网中的网站流量，找出与更多网站有链接的网站。还可以用它来分析交通网络中的节点重要性，找出与更多路线有连接的节点。', 1, '其他', 1, 's3a://lib/degree-latest.jar', 'applerodite.degree.Main');
 
 
 INSERT INTO graph.algo(id, name, define, detail, groupID, tag, tagID, jarPath, mainClass) VALUES (5, 'pagerank', '“Pagerank”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点被其他节点引用的程度。', '“Pagerank”算法是一种用于衡量网络中节点重要性的指标，它反映了一个节点被其他节点引用的程度。
@@ -23,7 +23,7 @@ $$PR(i)=(1−d)+d*\\sum_{j∈M(i)}{\\frac{PR(j)}{L(j)}}$$
 
 “Pagerank”算法认为一个节点的重要性取决于它的邻居节点的重要性和数量。这个算法比较复杂，其最优时间复杂度为$O(N+E)$，需要进行多次迭代计算，直到收敛为止。
 
-“Pagerank”算法的使用场景有很多，例如，可以用它来分析互联网中的网页排名，找出被更多网页引用的网页，或者用它来分析社交网络中的用户影响力，找出被更多用户关注的用户。还可以用它来分析科学文献中的引文关系，找出被更多文献引用的文献。', 1, '其他', 0, 's3a://lib/pagerank-latest.jar', 'applerodite.pagerank.Main');
+“Pagerank”算法的使用场景有很多，例如，可以用它来分析互联网中的网页排名，找出被更多网页引用的网页，或者用它来分析社交网络中的用户影响力，找出被更多用户关注的用户。还可以用它来分析科学文献中的引文关系，找出被更多文献引用的文献。', 1, '其他', 1, 's3a://lib/pagerank-latest.jar', 'applerodite.pagerank.Main');
 
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (5, 'iter', '迭代次数', 2, '10', '1', '100');
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (5, 'prob', '阻尼系数', 1, '0.85', '0.1', '1');
@@ -50,7 +50,7 @@ $$Q=\\frac{1}{2m}\\sum_{i,j}{((A_{ij}−\\frac{k_ik_j}{2m})δ(ci,cj))}$$
 
 - 重复上一步，直到模块度不再增加，或者网络中只剩下一个节点，得到最终的社区划分$C_n$，以及对应的模块度$C_n$。
 
-“louvain”算法用它来分析社交网络中的用户群体，找出具有相似兴趣或行为的用户，或者用它来分析知识图谱中的实体关系，找出具有相似属性或语义的实体。还可以用它来分析生物网络中的基因或蛋白质，找出具有相似功能或结构的基因或蛋白质。', 1, '其他', 0, 's3a://lib/louvain-latest.jar', 'applerodite.louvain.Main');
+“louvain”算法用它来分析社交网络中的用户群体，找出具有相似兴趣或行为的用户，或者用它来分析知识图谱中的实体关系，找出具有相似属性或语义的实体。还可以用它来分析生物网络中的基因或蛋白质，找出具有相似功能或结构的基因或蛋白质。', 1, '其他', 1, 's3a://lib/louvain-latest.jar', 'applerodite.louvain.Main');
 
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (6, 'maxIter', '外部迭代次数', 2, '10', '1', '100');
 INSERT INTO graph.algoParam(algoID, name, `desc`, type, `default`, `min`, `max`) VALUES (6, 'internalIter', '内部迭代次数', 2, '5', '1', '50');

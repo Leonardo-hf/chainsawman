@@ -76,6 +76,7 @@ func main() {
 		if len(tag.Name) == 0 {
 			fmt.Printf("`tag.name` is required in group %v\n", tag.Name)
 		}
+		tag.ID = int64(aid)
 		tagSql += fmt.Sprintf("INSERT INTO graph.algo(id, name, define, detail, isTag) VALUES (%v, %v, %v, %v, 1);\n\n",
 			aid, blank2Null(tag.Name), blank2Null(tag.Define), blank2Null(tag.Detail))
 		aid += 1

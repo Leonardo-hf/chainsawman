@@ -28,6 +28,7 @@ services:
     entrypoint: ""
     volumes:
       - "./minio/jar:/jar"
+      - "./minio/assets:/assets"
       - "./minio/mc/init.sh:/init.sh"
     command: /init.sh
     depends_on:
@@ -39,7 +40,6 @@ services:
     volumes: # 数据卷挂载路径设置,将本机目录映射到容器目录
       - "./mysql/my.cnf:/etc/mysql/conf.d/my.cnf"                # mysql配置文件
       - "./mysql/graph.sql:/docker-entrypoint-initdb.d/graph.sql"         # 数据库初始化SQL
-      - "./mysql/gsql:/docker-entrypoint-initdb.d/gsql/"         # 数据库初始化SQL
       - "./mysql/data:/var/lib/mysql"                            # 持久化数据库文件
     environment: # 设置环境变量,相当于docker run命令中的-e
       TZ: Asia/Shanghai

@@ -188,7 +188,7 @@ func (c *MysqlClientImpl) GetGroupByGraphId(ctx context.Context, id int64) (*mod
 
 func (c *MysqlClientImpl) GetAllAlgo(ctx context.Context) ([]*model.Algo, error) {
 	a := query.Algo
-	return a.WithContext(ctx).Where(a.IsTag.Eq(common.Bool2Int64(true))).Select(a.ID, a.GroupID, a.Name, a.Tag, a.TagID, a.Define).Preload(a.Params).Find()
+	return a.WithContext(ctx).Where(a.IsTag.Eq(common.Bool2Int64(false))).Select(a.ID, a.GroupID, a.Name, a.Tag, a.TagID, a.Define).Preload(a.Params).Find()
 }
 
 func (c *MysqlClientImpl) GetAlgoDoc(ctx context.Context, id int64) (string, error) {

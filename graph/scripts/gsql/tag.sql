@@ -45,5 +45,5 @@ INSERT INTO graph.algo(id, name, define, detail, isTag) VALUES (3, '软件卡脖
 
   * 假设3-2：软件团队内部分人员或第三方组织有强话语权才能实施卡脖子。
 
-', 1);
+![](/assets/strangle-procedure.png)', 1);
 

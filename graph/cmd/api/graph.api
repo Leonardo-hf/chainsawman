@@ -276,7 +276,7 @@ type (
 	}
 
 	AlgoIDRequest {
-		AlgoID int64 `json:"algoId"`
+		AlgoID int64 `form:"algoId"`
 	}
 
 	CreateAlgoRequest {
