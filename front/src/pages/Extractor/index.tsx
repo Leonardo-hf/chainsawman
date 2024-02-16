@@ -10,6 +10,7 @@ import Dragger from "antd/es/upload/Dragger";
 import React, {memo, useEffect, useRef, useState} from "react";
 import {DepExtractor, getExtractor, ModuleDep, Dep, OSV} from "./_extractor"
 import {Pie} from "@ant-design/plots";
+import {exportPlain} from "@/utils/format";
 
 
 type DisplayProps = {
@@ -180,6 +181,7 @@ const Extractor: React.FC = () => {
     const [tabs, setTabs] = useState<TabsProps["items"]>()
     const [counts, setCounts] = useState<{ type: string, value: number }[]>()
     const [fileList, setFileList] = useState<UploadFile[]>([])
+    const [resJSON, saveRes] = useState<string>('')
     const endRef = useRef(null)
 
     useEffect(() => {
@@ -212,6 +214,7 @@ const Extractor: React.FC = () => {
                     return
                 }
                 // 接受依赖解析结果
+                saveRes(JSON.stringify(modules))
                 setCounts(res.counts)
                 setTabs(modules.map(m => {
                     return {
@@ -275,7 +278,11 @@ const Extractor: React.FC = () => {
                 }}>清除</Button>
             </Space>
             <Divider/>
-            <Typography.Text strong>解析结果：</Typography.Text>
+            <div style={{display: 'inline-flex', justifyContent: 'space-between', width: '100%'}}>
+                <Typography.Text strong>解析结果：</Typography.Text>
+                {tabs && tabs.length && <Button
+                    onClick={() => exportPlain(`sca-${new Date().toISOString()}.json`, resJSON)}>导出</Button>}
+            </div>
             {tabs && tabs.length ?
                 <Space style={{width: '100%'}} direction={'vertical'}>
                     {getStatistic(counts!)}

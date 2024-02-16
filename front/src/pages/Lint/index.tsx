@@ -6,6 +6,7 @@ import {Button, Card, Divider, Empty, message, Space, Tabs, TabsProps, Tag, Typo
 import {UploadFile} from "antd/es/upload";
 import Dragger from "antd/es/upload/Dragger";
 import React, {memo, useEffect, useRef, useState} from "react";
+import {exportPlain} from "@/utils/format";
 
 const {Text, Paragraph} = Typography
 
@@ -92,6 +93,7 @@ const DisplayLint: React.FC<DisplayLintProps> = memo((props: DisplayLintProps) =
 const Lint: React.FC = () => {
     const [tabs, setTabs] = useState<TabsProps["items"]>()
     const [fileList, setFileList] = useState<UploadFile[]>([])
+    const [resJSON, saveRes] = useState<string>('')
     const endRef = useRef(null)
 
     useEffect(() => {
@@ -117,6 +119,7 @@ const Lint: React.FC = () => {
             }) => {
                 message.success('检查完毕')
                 const msgs = res.langLints
+                saveRes(JSON.stringify(res.langLints))
                 setTabs(msgs.map((m, i) => {
                     return {
                         key: m.lang,
@@ -155,7 +158,11 @@ const Lint: React.FC = () => {
                 }}>清除</Button>
             </Space>
             <Divider/>
-            <Typography.Text strong>解析结果：</Typography.Text>
+            <div style={{display: 'inline-flex', justifyContent: 'space-between', width: '100%'}}>
+                <Typography.Text strong>解析结果：</Typography.Text>
+                {tabs  && tabs.length && <Button
+                    onClick={() => exportPlain(`lint-${new Date().toISOString()}.json`, resJSON)}>导出</Button>}
+            </div>
             {tabs && tabs.length ?
                 <Space style={{width: '100%'}} direction={'vertical'}>
                     <Tabs items={tabs}/>
