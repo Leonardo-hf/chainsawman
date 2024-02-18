@@ -29,4 +29,4 @@ class LintServiceImpl(LintService):
             return LintsResponse(langLints=[], base=e.status())
         finally:
             shutil.rmtree(tmp_dir)
-        return LintsResponse(langLints=res, base=HttpStatus.OK)
+        return LintsResponse(langLints=res, base=HttpStatus.OK.value)

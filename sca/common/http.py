@@ -17,7 +17,7 @@ class HttpStatus(Enum):
 
 class HttpException(Exception):
     def __init__(self, status: HttpStatus):
-        self._status = status.V
+        self._status = status.value
 
     def __str__(self):
         return self._status.msg

@@ -40,7 +40,7 @@ export default defineConfig({
             'changeOrigin': true,
         },
     },
-    mock: false,
+    // mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',

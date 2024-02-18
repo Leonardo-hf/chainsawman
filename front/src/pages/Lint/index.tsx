@@ -49,7 +49,7 @@ const DisplayLint: React.FC<DisplayLintProps> = memo((props: DisplayLintProps) =
             </Card>
         }
         {
-            lints.length && <ProList<Lint>
+            lints.length > 0 && <ProList<Lint>
                 style={{width: '100%'}}
                 headerTitle={<Text type={'warning'}>Warning</Text>}
                 pagination={{
@@ -160,7 +160,7 @@ const Lint: React.FC = () => {
             <Divider/>
             <div style={{display: 'inline-flex', justifyContent: 'space-between', width: '100%'}}>
                 <Typography.Text strong>解析结果：</Typography.Text>
-                {tabs  && tabs.length && <Button
+                {tabs && tabs.length && <Button
                     onClick={() => exportPlain(`lint-${new Date().toISOString()}.json`, resJSON)}>导出</Button>}
             </div>
             {tabs && tabs.length ?

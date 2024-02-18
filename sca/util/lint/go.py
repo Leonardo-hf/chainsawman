@@ -1,9 +1,9 @@
 import re
 import subprocess
 from shlex import quote
-from typing import Optional, Tuple, List
+from typing import Tuple, List
 
-from common import HttpStatus, GoLang
+from common import GoLang
 from util import Singleton
 from vo import Lint
 from .index import LintHandler
