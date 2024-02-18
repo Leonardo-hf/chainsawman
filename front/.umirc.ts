@@ -40,7 +40,7 @@ export default defineConfig({
             'changeOrigin': true,
         },
     },
-    // mock: false,
+    mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
@@ -119,11 +119,6 @@ export default defineConfig({
             path: '/monitor',
             component: './Monitor'
         },
-        {
-            name: 'test',
-            path: '/test',
-            component: './AlgoDoc'
-        }
     ],
     npmClient: 'npm',
 });
