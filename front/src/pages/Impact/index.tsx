@@ -34,7 +34,7 @@ const Impact: React.FC = () => {
 
     type FormData = {
         graphId: number,
-        algoSelect: Graph.Algo,
+        algoId: number,
     }
 
     const impact = async () => {
@@ -51,8 +51,8 @@ const Impact: React.FC = () => {
         }
         const req: Graph.ExecAlgoRequest = {
             graphId: params.graphId,
-            algoId: params.algoSelect.id!,
-            params: getParamFormValue(params, algos.find((a: Graph.Algo) => a.id === params.algoSelect.id))
+            algoId: params.algoId,
+            params: getParamFormValue(params, algos.find((a: Graph.Algo) => a.id === params.algoId))
         }
         return await algoExec(req).then((res) => {
             message.success('算法已提交')
@@ -95,18 +95,18 @@ const Impact: React.FC = () => {
         return <div style={{display: current === 0 ? '' : 'none'}}>
             <ProFormSelect rules={[{required: true}]} label={'图谱'} name={'graphId'}
                            options={graphOptions}/>
-            <ProFormRadio.Group rules={[{required: true}]} label={'算法'} name={'algoSelect'}
+            <ProFormRadio.Group rules={[{required: true}]} label={'算法'} name={'algoId'}
                                 options={algoSelect} initialValue={mulAlgo.id}/>
-            <ProFormDependency name={['algoSelect']}>
-                {({algoSelect}) => {
-                    if (algoSelect === mulAlgo.id) {
+            <ProFormDependency name={['algoId']}>
+                {({algoId}) => {
+                    if (algoId === mulAlgo.id) {
                         return <InputWeights headers={AlgoImpactNames} innerProps={{
                             name: 'weights',
                             label: '影响力算法权重',
                             rules: [{required: true}]
                         }}/>
                     } else {
-                        return getParamFormItem(algos.find((a: Graph.Algo) => a.id == algoSelect)!)
+                        return getParamFormItem(algos.find((a: Graph.Algo) => a.id == algoId)!)
                     }
                 }}
             </ProFormDependency>

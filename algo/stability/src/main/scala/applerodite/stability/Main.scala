@@ -6,62 +6,63 @@ import org.apache.spark.sql.Row
 
 import scala.collection.mutable.ListBuffer
 
-object Main extends Template {
+object Main extends Template  {
 
-  def setCI(g: Graph[Int, None.type], r: Int): Graph[Int, None.type] = {
-    // 准备度数
-    val deg = g.degrees.collect().toMap
-    var cGraph = g.outerJoinVertices(g.inDegrees) {
-      (_, _, deg) => (0, deg.getOrElse(0), ListBuffer[List[VertexId]]())
-    }
+  private case class NSkip(var vertex: VertexId, var skip: Int)
 
-    // 获得所有入路径
-    cGraph = Pregel(cGraph, initialMsg = (0, ListBuffer[List[VertexId]]()), maxIterations = Int.MaxValue, activeDirection = EdgeDirection.Out)(
-      (_, attr, msg) => {
-        // 累计完成的节点
-        (attr._1 + msg._1, attr._2, attr._3.union(msg._2))
+  private case class VertexState(state: ListBuffer[NSkip], toSend: Seq[NSkip])
+
+  private def setCI(g: Graph[Int, None.type], r: Int): Graph[Int, None.type] = {
+    val degMap = g.degrees.collect().toMap
+    // 计算图g中距离每个节点r跳的节点的个数
+    Pregel(
+      g.mapVertices((vid, _) => VertexState(state = ListBuffer.empty, toSend = Seq.apply(NSkip(vid, r)))),
+      initialMsg = Seq.empty[NSkip],
+      maxIterations = Int.MaxValue,
+      activeDirection = EdgeDirection.Out)(
+      vprog = (_, attr, msg) => {
+        // state 存放skip为0（达到终点站）的节点，toSend存放发往下一跳的节点
+        if (msg.isEmpty) {
+          attr
+        } else {
+          VertexState(state = attr.state ++= msg.filter(_.skip == 0), toSend = msg.filter(_.skip > 0))
+        }
       },
-      edge => {
-        if (edge.srcAttr._1 == edge.srcAttr._2) {
-          val paths = ListBuffer[List[VertexId]]()
-          // 如果是空，则将自身直接加入
-          if (edge.srcAttr._3.isEmpty) {
-            paths.append(List.apply(edge.srcId))
-          }
-          // 否则，将自己加入到路径的最后
-          for (p <- edge.srcAttr._3) {
-            paths.append(p :+ edge.srcId)
-          }
-          Iterator((edge.dstId, (1, paths)))
+      sendMsg = edge => {
+        // 如果当前节点有待发送的节点，将待发送的节点发送给下一跳
+        if (edge.srcAttr.toSend.nonEmpty) {
+          Iterator((edge.dstId, edge.srcAttr.toSend.map(ns => NSkip(ns.vertex, ns.skip - 1))))
         } else {
           Iterator.empty
         }
-      }, (a, b) => (a._1 + b._1, a._2.union(b._2)))
-
-    // 过滤得到所有长度为r的路径，计算CI值
-    cGraph.mapVertices((v, vd) => vd._3.filter(d => d.length == r).map(d => deg.getOrElse(d.head, 1) - 1).sum * (deg.getOrElse(v, 1) - 1))
+      },
+      mergeMsg = (a, b) => a.union(b)
+    )
+      // 计算每个节点的CI值
+      .mapVertices((vid, attr) => attr.state.map(v => degMap.getOrElse(v.vertex, 0) - 1).sum * (degMap.getOrElse(vid, 0) - 1))
   }
 
   override def exec(svc: CommonService, param: Param): Seq[Row] = {
+    svc.getSparkSession.sparkContext.setCheckpointDir("s3a://tmp")
     val graph = svc.getGraphClient.loadInitGraphForSoftware(param.graphID)
-    graph.cache()
-
+    val metaMap = graph.vertices.collect().toMap
     val r = param.`radius`
-    val res: Seq[ResultRow] = Seq.empty
+    val res = ListBuffer.empty[ResultRow]
 
     var preVGraph: Graph[Int, None.type] = null
     var vGraph = setCI(graph.mapVertices((_, _) => 0), r)
     vGraph.cache()
-    println("!!!", vGraph.vertices.map(v => v._2).sum(), vGraph.degrees.map(d => d._2).sum())
+    // 多次迭代，每次迭代选出最优的节点的CI值
     while (math.pow(vGraph.vertices.map(v => v._2).sum() / vGraph.degrees.map(d => d._2).sum(), 1.0 / (r + 1)) > 1) {
       preVGraph = vGraph
       val (maxVertex, score) = vGraph.vertices.max()(Ordering.by[(VertexId, Int), Double](_._2))
-      val meta = graph.vertices.filter(v => v._1 == maxVertex).first()._2
-      res :+ ResultRow.apply(`id` = maxVertex, artifact = meta.Artifact, version = meta.Version, score = math.log(score))
+      val meta = metaMap(maxVertex)
+      res.append(ResultRow.apply(`id` = maxVertex, artifact = meta.Artifact, version = meta.Version, score = math.log(score)))
       vGraph = setCI(vGraph.subgraph(epred = e => e.srcId != maxVertex && e.dstId != maxVertex), r)
       vGraph.cache()
-      preVGraph.unpersistVertices(blocking = false)
-      preVGraph.edges.unpersist(blocking = false)
+      vGraph.checkpoint()
+      preVGraph.unpersistVertices()
+      preVGraph.edges.unpersist()
     }
     if (res.isEmpty) {
       return Seq.empty
@@ -72,3 +73,4 @@ object Main extends Template {
   }
 
 }
+

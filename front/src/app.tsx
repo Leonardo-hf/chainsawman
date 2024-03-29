@@ -166,7 +166,7 @@ export const request: RequestConfig = {
     responseInterceptors: [
         (res) => {
             //@ts-ignore
-            const base = res.data.base
+            const base = res.data?.base
             if (base && base.status > 2000) {
                 throw new Error(base.msg)
             }

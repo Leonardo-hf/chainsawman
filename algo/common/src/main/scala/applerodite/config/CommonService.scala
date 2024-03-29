@@ -20,28 +20,28 @@ trait CommonService {
 // TODO: logs
 object CommonServiceImpl extends CommonService {
 
-  var ossClient: OSSClient = _
+  private var ossClient: OSSClient = _
 
-  var spark: SparkSession = _
+  private var spark: SparkSession = _
 
-  var graphClient: GraphClient = _
+  private var graphClient: GraphClient = _
 
-  var mysqlClient: MysqlClient = _
+  private var mysqlClient: MysqlClient = _
 
-  def parseMinioConfig(conf: Config): MinioClientImpl.MinioConfig = {
+  private def parseMinioConfig(conf: Config): MinioClientImpl.MinioConfig = {
     val minioConf = conf.getConfig("minio")
     MinioClientImpl.MinioConfig(minioConf.getString("url"), minioConf.getString("user"),
       minioConf.getString("password"), minioConf.getString("bucket"))
   }
 
-  def parseNebulaConfig(conf: Config): NebulaConfig = {
+  private def parseNebulaConfig(conf: Config): NebulaConfig = {
     val nebulaConf = conf.getConfig("nebula")
     NebulaConfig(nebulaConf.getString("metaHost"), nebulaConf.getInt("metaPort"),
       nebulaConf.getString("graphdHost"), nebulaConf.getInt("graphdPort"),
       nebulaConf.getString("user"), nebulaConf.getString("password"))
   }
 
-  def parseMysqlConfig(conf: Config) : MysqlConfig = {
+  private def parseMysqlConfig(conf: Config): MysqlConfig = {
     val mysqlConf = conf.getConfig("mysql")
     MysqlConfig.apply(driver = mysqlConf.getString("driver"), url = mysqlConf.getString("url"),
       user = mysqlConf.getString("user"), password = mysqlConf.getString("password"))
@@ -49,13 +49,12 @@ object CommonServiceImpl extends CommonService {
 
   Init()
 
-  def Init(): Unit = {
+  private def Init(): Unit = {
     var conf = ConfigFactory.parseString("akka.http.server.preview.enable-http2 = on")
       .withFallback(ConfigFactory.defaultApplication())
     if (System.getenv("CHS_ENV") == "pre") {
       conf = ConfigFactory.load("application-pre.conf")
     }
-    ossClient = MinioClientImpl.Init(parseMinioConfig(conf))
     val sparkConf = new SparkConf()
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .registerKryoClasses(Array[Class[_]](classOf[TCompactProtocol]))
@@ -64,6 +63,10 @@ object CommonServiceImpl extends CommonService {
       .master(conf.getConfig("spark").getString("url"))
       .config(sparkConf)
       .getOrCreate()
+    println("Spark session created")
+    println(conf)
+    println(parseMysqlConfig(conf))
+    ossClient = MinioClientImpl.Init(parseMinioConfig(conf))
     graphClient = new NebulaClientImpl().GetGraphClient(parseNebulaConfig(conf), spark)
     mysqlClient = MysqlClientImpl.Init(parseMysqlConfig(conf))
   }

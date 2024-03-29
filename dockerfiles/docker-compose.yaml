@@ -195,7 +195,6 @@ services:
       - nebula-graphd-svc
     ports:
       - "30126:8080"
-      - "4040"
       - "7077"
   spark-worker1:
     image: applerodite/chs-spark:latest
@@ -204,14 +203,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2.00"
+          cpus: "4.00"
           memory: 4G
     user: root
     environment:
       SPARK_MODE: "worker"
       SPARK_MASTER_URL: "spark://spark-proxy:7077"
       SPARK_WORKER_MEMORY: "4G"
-      SPARK_WORKER_CORES: "2"
+      SPARK_WORKER_CORES: "4"
       SPARK_RPC_AUTHENTICATION_ENABLED: "no"
       SPARK_RPC_ENCRYPTION_ENABLED: "no"
       SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
@@ -223,34 +222,36 @@ services:
       - spark-proxy
     ports:
       - "30127:8081"
-  spark-worker2:
-    image: applerodite/chs-spark:latest
-    hostname: spark-worker2
-    container_name: spark-worker2
-    deploy:
-      resources:
-        limits:
-          cpus: "2.00"
-          memory: 4G
-    user: root
-    environment:
-      SPARK_MODE: "worker"
-      SPARK_MASTER_URL: "spark://spark-proxy:7077"
-      SPARK_WORKER_MEMORY: "4G"
-      SPARK_WORKER_CORES: "2"
-      SPARK_RPC_AUTHENTICATION_ENABLED: "no"
-      SPARK_RPC_ENCRYPTION_ENABLED: "no"
-      SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
-      SPARK_SSL_ENABLED: "no"
-      CHS_ENV: "pre"
-      AWS_ACCESS_KEY_ID: "minioadmin"
-      AWS_SECRET_ACCESS_KEY: "minioadmin"
-    volumes:
-      - "./spark/share:/opt/share"
-    depends_on:
-      - spark-proxy
-    ports:
-      - "30128:8081"
+      - "30131:4040"
+  
+  #  spark-worker2:
+#    image: applerodite/chs-spark:latest
+#    hostname: spark-worker2
+#    container_name: spark-worker2
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "2.00"
+#          memory: 4G
+#    user: root
+#    environment:
+#      SPARK_MODE: "worker"
+#      SPARK_MASTER_URL: "spark://spark-proxy:7077"
+#      SPARK_WORKER_MEMORY: "4G"
+#      SPARK_WORKER_CORES: "2"
+#      SPARK_RPC_AUTHENTICATION_ENABLED: "no"
+#      SPARK_RPC_ENCRYPTION_ENABLED: "no"
+#      SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
+#      SPARK_SSL_ENABLED: "no"
+#      CHS_ENV: "pre"
+#      AWS_ACCESS_KEY_ID: "minioadmin"
+#      AWS_SECRET_ACCESS_KEY: "minioadmin"
+#    volumes:
+#      - "./spark/share:/opt/share"
+#    depends_on:
+#      - spark-proxy
+#    ports:
+#      - "30128:8081"
   livy:
     image: applerodite/chs-livy:latest
     container_name: livy
@@ -264,7 +265,7 @@ services:
     depends_on:
       - spark-proxy
       - spark-worker1
-      - spark-worker2
+#      - spark-worker2
   task1:
     image: applerodite/chs-task:latest                           # 镜像"applerodite/chs-task:latest"
     container_name: task1

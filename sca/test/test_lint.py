@@ -1,5 +1,3 @@
-import json
-
 from util.lint import PyLintHandler, GoLintHandler, JavaLintHandler, ArchiveLintHandler
 from vo import LangLint
 
