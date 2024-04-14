@@ -50,6 +50,7 @@ func (l *livyClient) SubmitAlgo(jar string, entryPoint string, args map[string]i
 	return res.AppID, nil
 }
 
+// TODO: standalone 模式下无法获得 appID
 func (l *livyClient) StopAlgo(appID string) error {
 	urlValues := url.Values{}
 	urlValues.Add("id", appID)
