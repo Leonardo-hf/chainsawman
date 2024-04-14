@@ -1,13 +1,13 @@
 export const formatDate = (time: number) => {
     const t = new Date(time);
     const tf = (i: number) => (i < 10 ? '0' : '') + i
-    const year = t.getUTCFullYear()
-    const thisYear = new Date().getUTCFullYear()
+    const year = t.getFullYear()
+    const thisYear = new Date().getFullYear()
     if (year == thisYear) {
-        return (t.getUTCMonth() + 1) + '月' + t.getUTCDay() + '日 ' +
-            tf(t.getUTCHours()) + ':' + tf(t.getUTCMinutes())
+        return (t.getMonth() + 1) + '月' + t.getDate() + '日 ' +
+            tf(t.getHours()) + ':' + tf(t.getMinutes())
     }
-    return year + '年' + (t.getUTCMonth() + 1) + '月' + t.getUTCDay() + '日 '
+    return year + '年' + (t.getMonth() + 1) + '月' + t.getDay() + '日 '
 }
 
 export const formatNumber = (v: any) => Math.floor(v).toString()

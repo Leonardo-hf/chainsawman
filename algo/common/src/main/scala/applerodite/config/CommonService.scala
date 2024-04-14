@@ -1,11 +1,16 @@
 package applerodite.config
 
+
 import applerodite.dao.{GraphClient, MinioClientImpl, MysqlClient, MysqlClientImpl, MysqlConfig, NebulaClientImpl, NebulaConfig, OSSClient}
 import com.facebook.thrift.protocol.TCompactProtocol
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
+/**
+ * 本包需要被添加至spark环境中，对本包做任何更新均应当同步更新spark
+ * TODO: 放到包注释中
+ */
 trait CommonService {
   def getOSSClient: OSSClient
 
@@ -63,9 +68,6 @@ object CommonServiceImpl extends CommonService {
       .master(conf.getConfig("spark").getString("url"))
       .config(sparkConf)
       .getOrCreate()
-    println("Spark session created")
-    println(conf)
-    println(parseMysqlConfig(conf))
     ossClient = MinioClientImpl.Init(parseMinioConfig(conf))
     graphClient = new NebulaClientImpl().GetGraphClient(parseNebulaConfig(conf), spark)
     mysqlClient = MysqlClientImpl.Init(parseMysqlConfig(conf))

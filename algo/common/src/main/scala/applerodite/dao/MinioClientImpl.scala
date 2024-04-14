@@ -9,9 +9,9 @@ object MinioClientImpl extends OSSClient {
 
   case class MinioConfig(endpoint: String, user: String, passwd: String, bucket: String)
 
-  var minioClient: MinioClient = _
+  private var minioClient: MinioClient = _
 
-  var bucket: String = _
+  private var bucket: String = _
 
   def Init(config: MinioConfig): OSSClient = {
     minioClient =

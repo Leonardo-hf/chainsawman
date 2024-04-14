@@ -1,8 +1,9 @@
 package applerodite.dao
 
+import org.apache.log4j.Logger
 import applerodite.model.AlgoTaskPO
-import scalikejdbc.DB.using
-import scalikejdbc.{ConnectionPool, DB, GlobalSettings, LoggingSQLAndTimeSettings, update, withSQL}
+import com.typesafe.config.ConfigFactory
+import scalikejdbc.{ConnectionPool, DB, GlobalSettings, LoggingSQLAndTimeSettings, scalikejdbcSQLInterpolationImplicitDef, update, withSQL}
 
 import java.time.ZonedDateTime
 
@@ -25,7 +26,7 @@ object MysqlClientImpl extends MysqlClient {
     DB localTx { implicit s =>
       val res = withSQL {
         val ap = AlgoTaskPO.column
-        update(AlgoTaskPO).set(ap.status -> 1, ap.updateTime -> ZonedDateTime.now()).where.eq(ap.output, output)
+        update(AlgoTaskPO).set(ap.status -> 1, ap.updatetime -> ZonedDateTime.now()).where.eq(ap.output, output)
       }.update.apply()
       (res, Option.empty)
     }
