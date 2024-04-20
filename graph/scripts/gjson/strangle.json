@@ -134,8 +134,8 @@
       "define": "国家软件供给关系是软件卡脖子风险中的一个指标，衡量了软件供应关系导致的断供风险。",
       "detail": "# 国家软件供给关系\n\n国家软件供给关系是软件卡脖子风险中的一个指标，衡量了软件供应关系导致的断供风险。\n\n## 定义\n\n供应风险与供应链的上下游的供给关系息息相关。若下游完全依赖于单一上游，则下游存在极大的断供风险，反之若下游依赖于多个上游，则分摊了供应风险，下游具有较多的自主性。若上下游间相互存在业务依赖，则提高了单方断供的成本，使断供风险进一步降低。为研究中国与其他国家在开源软件中的供给关系，我们通过计算中国对单个国家软件的依赖在其所有依赖中的比重评估中国对该国家的依赖程度，进一步地，我们研究了该国家对中国开源软件的依赖程度，并判断该国家对其他国家的依赖是单一还是多元。若中国依赖某个国家较多，且该国家对中国的依赖较少且自身自主性较强，则该国家对中国的断供风险极高。\n\n## 公式\n\n$$\nRisk(A,B)=\\frac{Depends(B, A)}{\\sum_i{Depends(B, i)}}*(1-\\frac{Depends(A, B)}{\\sum_i{Depends(A, i)}})*(1-\\frac{\\sum_i{Depends(A, i)^2}}{(\\sum_i{Depends(A, i))^2}})\\tag{1}\n$$\n\n式中，$Depends(B, A)$表示$B$国依赖$A$国开源软件的数目。公式由三部分组成，第一部分描述了$B$国对$A$国开源软件的依赖程度，第二部分描述了$A$国对$B$国开源软件的依赖程度，第三部分则表示了$A$国开源软件的自主性。\n\n## 参数\n\n### 源国家（source）\n\n* 类型：字符串\n\n### 目标国家（targets）\n\n* 类型：一组字符串\n\n算法研究所有目标国家对于源国家的断供风险\n\n## 输出\n\n| 参数名  | 类型   | 定义                       |\n| ------- | ------ | -------------------------- |\n| country | 字符串 | 目标国家名称               |\n| s1      | 浮点数 | 对目标国家的依赖程度       |\n| s2      | 浮点数 | 目标国家对自身的依赖程度   |\n| s3      | 浮点数 | 目标国家开源软件的自主性   |\n| score   | 浮点数 | 目标国家对源国家的断供风险 |\n\n",
       "tag": "软件卡脖子风险",
-      "jarPath": "s3a://lib/diversity-latest.jar",
-      "mainClass": "applerodite.diversity.Main",
+      "jarPath": "s3a://lib/supply-latest.jar",
+      "mainClass": "applerodite.supply.Main",
       "params": [
         {
           "name": "source",
@@ -172,6 +172,129 @@
         {
           "id": "score",
           "name": "断供风险",
+          "type": 1
+        }
+      ]
+    },
+    {
+      "name": "growth",
+      "define": "软件生长潜力是软件卡脖子风险中的一个指标，说明了软件产品在生命周期的不同阶段下断供风险的差异。",
+      "detail": "# 软件生长潜力\n\n软件生长潜力是软件卡脖子风险中的一个指标，说明了软件产品在生命周期的不同阶段下断供风险的差异。\n\n## 定义\n\n软件生长潜力衡量了软件技术是否发展成熟，发展成熟的技术往往已经有了大量的技术积累且存在大量下游用户，被卡脖子后会造成严重后果，尚未发展成熟的技术被卡脖子后则不会产生严重影响，且容易存在替代。我们以软件的应用领域为对象，研究该应用领域的技术生长潜力，具体地，计算一个应用领域下当前年度新增的软件占过去五年新增的软件的比例。该比例越高，即说明该应用领域下的软件仍处于成长期，尚未成熟，卡脖子后造成的危害也更小。反之，成熟的软件分类会更容易导致卡脖子。\n\n## 公式\n\n$$\nHarm(d)=\\frac{Count(d, currentYear)}{\\sum_{y\\in[currenYear-4, currentYear]}{Count(d, y)}}\n$$\n\n式中，$Count(d, y)$表示软件应用领域$d$在$y$年度产生的软件总数。\n\n## 参数\n\n### 应用领域（domains）\n\n* 一组字符串\n\n算法研究一组软件应用领域的生长潜力。\n\n## 输出\n\n| 参数名      | 类型   | 定义                   |\n| ----------- | ------ | ---------------------- |\n| domain      | 字符串 | 软件应用领域           |\n| currentYear | 字符串 | 计算生长潜力的基准年份 |\n| score       | 浮点数 | 生长潜力               |",
+      "tag": "软件卡脖子风险",
+      "jarPath": "s3a://lib/growth-latest.jar",
+      "mainClass": "applerodite.growth.Main",
+      "params": [
+        {
+          "name": "domains",
+          "desc": "软件应用领域",
+          "type": 3
+        }
+      ],
+      "output": [
+        {
+          "id": "domain",
+          "name": "软件应用领域",
+          "type": 0
+        },
+        {
+          "id": "currentYear",
+          "name": "基准年份",
+          "type": 0
+        },
+        {
+          "id": "score",
+          "name": "断供风险",
+          "type": 1
+        }
+      ]
+    },
+    {
+      "name": "expansion",
+      "define": "软件扩张潜力是软件卡脖子风险中的一个指标，说明了软件产品在生命周期的不同阶段下断供风险的差异。",
+      "detail": "# 软件扩张潜力\n\n软件扩张潜力是软件卡脖子风险中的一个指标，说明了软件产品在生命周期的不同阶段下断供风险的差异。\n\n## 定义\n\n软件扩张潜力衡量了该技术收到市场欢迎的程度，如果软件越来越受市场欢迎，则表明软件具有较大的商业价值，发生卡脖子后会造成严重危害。相反，如果软件日渐式微，则其商业价值也随之流失。我们以软件的应用领域作为研究对象，具体地，计算一个应用领域下的所有软件该年度新增的依赖占过去五年新增的依赖的比例，该比例越高，即扩张潜力越大，正在迅速获得市场认可，该分类下的软件具有更高的商业价值，断供后也造成更大的危害。\n\n## 公式\n\n$$\nHarm(d)=\\frac{DependsCount(d, currentYear)(d, currentYear)}{\\sum_{y\\in[currenYear-4, currentYear]}{DependsCount(d, currentYear)(d, y)}}\n$$\n\n式中，$DependsCount(d, y)$表示软件应用领域$d$在$y$年度产生的依赖总数。\n\n## 参数\n\n### 应用领域（domains）\n\n* 一组字符串\n\n算法研究一组软件应用领域的扩张潜力。\n\n## 输出\n\n| 参数名      | 类型   | 定义                   |\n| ----------- | ------ | ---------------------- |\n| domain      | 字符串 | 软件应用领域           |\n| currentYear | 字符串 | 计算扩张潜力的基准年份 |\n| score       | 浮点数 | 扩张潜力               |",
+      "tag": "软件卡脖子风险",
+      "jarPath": "s3a://lib/expansion-latest.jar",
+      "mainClass": "applerodite.expansion.Main",
+      "params": [
+        {
+          "name": "domains",
+          "desc": "软件应用领域",
+          "type": 3
+        }
+      ],
+      "output": [
+        {
+          "id": "domain",
+          "name": "软件应用领域",
+          "type": 0
+        },
+        {
+          "id": "currentYear",
+          "name": "基准年份",
+          "type": 0
+        },
+        {
+          "id": "score",
+          "name": "断供风险",
+          "type": 1
+        }
+      ]
+    },
+    {
+      "name": "gap",
+      "define": "软件技术差距是软件卡脖子风险中的一个指标，衡量了软件产品由于技术差距导致的断供风险。",
+      "detail": "# 软件技术差距\n\n软件技术差距是软件卡脖子风险中的一个指标，衡量了软件产品由于技术差距导致的断供风险。\n\n## 定义\n\n软件技术差距反映了在同一个应用领域下，一个软件与最热门的软件的技术差距。在同一个应用领域内，最热门的软件发生卡脖子显然会造成严重的危害，相反，如果是该领域并不热门的软件发生了卡脖子，那么造成的危害也会显著变小。具体地，我们对于一个软件，计算其被依赖次数与该分类下最热门的软件被依赖次数的差距作为技术差距。\n\n## 公式\n\n$$\nHarm(s)=\\frac{DependsCount(s)-min(DependsCount)}{max(DependsCount)-min(DependsCount)}\n$$\n\n式中，$DependsCount(s)$表示软件的依赖总数。$min(DependsCount)$表示同一应用领域下的软件具有的最少的依赖数目，同理$max(DependsCount)$表示同一应用领域下的软件具有的最多的依赖数目。\n\n## 参数\n\n### 目标软件（libraries）\n\n* 一组字符串\n\n算法研究一组软件在其应用领域下的软件技术差距。\n\n## 输出\n\n| 参数名  | 类型   | 定义     |\n| ------- | ------ | -------- |\n| library | 字符串 | 目标软件 |\n| score   | 浮点数 | 扩张潜力 |",
+      "tag": "软件卡脖子风险",
+      "jarPath": "s3a://lib/gap-latest.jar",
+      "mainClass": "applerodite.gap.Main",
+      "params": [
+        {
+          "name": "libraries",
+          "desc": "目标软件",
+          "type": 3
+        }
+      ],
+      "output": [
+        {
+          "id": "library",
+          "name": "目标软件",
+          "type": 0
+        },
+        {
+          "id": "score",
+          "name": "扩张潜力",
+          "type": 1
+        }
+      ]
+    },
+    {
+      "name": "gap-country",
+      "define": "国家软件技术差距是软件卡脖子风险中的一个指标，衡量了国家在技术领域中的技术差距导致的软件断供风险。",
+      "detail": "# 国家软件技术差距\n\n国家软件技术差距是软件卡脖子风险中的一个指标，衡量了国家在技术领域中的技术差距导致的软件断供风险。\n\n## 定义\n\n国家相关软件积累差距反映了一个应用领域中，本国的技术积累和其他国家的差距，其他国家的技术积累越领先本国，那么该领域的软件发生卡脖子对本国的危害就越大。相反，如果本国在该领域领先他国，则该领域的软件发生卡脖子并不会对本国产生危害。具体地，我们按国别统计一个领域中的所有软件的被依赖次数，使用属于本国的所有软件的被依赖次数之和与其他国家的所有软件的被依赖次数之和做比较作为国家相关软件积累的差距。\n\n## 公式\n\n$$\nHarm(d)=\\frac{DependsCount(d, country)-DependsCount(d, min(country)}{DependsCount(d, max(country)-DependsCount(d, min(country)}\n$$\n\n式中，$DependsCount(d, country)$表示属于国家$country$的软件的依赖总数。$DependsCount(d, min(country))$表示同一应用领域下投入最少的国家持有的软件依赖总数，同理$DependsCount(d, max(country))$表示同一应用领域下投入最多的国家持有的软件依赖总数\n\n## 参数\n\n### 国家（country）\n\n* 字符串\n\n算法研究特定国家与其他国家在同一应用领域下的技术差距。\n\n### 应用领域（domains）\n\n* 一组字符串\n\n算法研究一组软件应用领域的国家软件技术差距。\n\n## 输出\n\n| 参数名 | 类型   | 定义         |\n| ------ | ------ | ------------ |\n| domain | 字符串 | 软件应用领域 |\n| score  | 浮点数 | 扩张潜力     |",
+      "tag": "软件卡脖子风险",
+      "jarPath": "s3a://lib/gap-country-latest.jar",
+      "mainClass": "applerodite.gap-country.Main",
+      "params": [
+        {
+          "name": "country",
+          "desc": "国家",
+          "type": 0
+        },
+        {
+          "name": "domains",
+          "desc": "软件应用领域",
+          "type": 3
+        }
+      ],
+      "output": [
+        {
+          "id": "domain",
+          "name": "软件应用领域",
+          "type": 0
+        },
+        {
+          "id": "score",
+          "name": "扩张潜力",
           "type": 1
         }
       ]
