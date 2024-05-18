@@ -14,14 +14,13 @@
 
   > http service, handle CRUD about structures and algorithms of graphs, passing time cost tasks like inserting nodes and edges, executing algorithms to consumers
 
-  * `run graph/scripts/graph.sql`
+  * `exec graph/scripts/graph.sql graph/scripts/gsql/*.sql`
   * `go run graph/cmd/api/graph.go`
 
 * consumer，消费者，通过基于 redis 的消息队列获取高耗时任务，并写入任务结果
 
   > consumer, handle time cost tasks passed by a task queue based on redis and then write result
 
-  * `go run consumer/connector/main.go`
   * `go run consumer/task/main.go`
 
 * sca，HTTP 服务，提供对 java、python、go、rust 语言的代码的依赖树解析功能，以及对前三者的静态检查

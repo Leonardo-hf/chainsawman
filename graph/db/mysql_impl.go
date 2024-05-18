@@ -31,7 +31,7 @@ func (c *MysqlClientImpl) GetLatestSETask(ctx context.Context, n int64) ([]*SETa
 	a := query.Algo
 	g := query.Graph
 	res := make([]*SETask, 0)
-	err := e.WithContext(ctx).Join(a, a.ID.EqCol(e.AlgoID)).Join(g, g.ID.EqCol(g.ID)).Distinct(e.AlgoID, e.GraphID).
+	err := e.WithContext(ctx).Join(a, a.ID.EqCol(e.AlgoID)).Join(g, g.ID.EqCol(e.GraphID)).Distinct(e.AlgoID, e.GraphID).
 		Select(e.Output, e.UpdateTime, e.GraphID, g.Name.As("graph"), a.Name.As("algo")).Where(e.Status.Eq(1)).Where(a.Tag.Eq("软件研发影响力")).
 		Order(e.UpdateTime.Desc()).Limit(int(n)).Scan(&res)
 	return res, err

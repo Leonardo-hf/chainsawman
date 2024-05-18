@@ -87,5 +87,6 @@ ENV PATH /usr/lib/pmd-bin-7.0.0-rc4/bin:$PATH
 
 WORKDIR /app
 COPY sca .
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip install -r ./requirements.txt
 CMD ["python3", "main.py"]

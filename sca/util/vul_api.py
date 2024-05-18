@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import defaultdict
 from functools import reduce
 from typing import List, Tuple, Mapping
@@ -31,7 +32,7 @@ class VulAPI:
             return m
 
         def parse_res(ret: Mapping) -> List[OSV]:
-            if ret['error']:
+            if 'error' in ret:
                 return []
             ret = ret['result']['data']
             return list(
@@ -42,7 +43,7 @@ class VulAPI:
                     , map(lambda v: v['database_specific']['osv'][0], ret)))
 
         api_name = 'searchByAffected'
-        url = '%s%s' % (self._base_url, ','.join(list(map(lambda _: api_name, range(len(purls))))))
+        url = '%s/%s' % (self._base_url, ','.join(list(map(lambda _: api_name, range(len(purls))))))
         json_str = json.dumps(reduce(lambda a, b: merge_from_purl(a, b), enumerate(purls), {}))
         r = requests.get(url, params={'batch': 1, 'input': json_str})
         return list(map(lambda x: parse_res(x), r.json()))
