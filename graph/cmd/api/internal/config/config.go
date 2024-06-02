@@ -2,9 +2,9 @@ package config
 
 import (
 	"chainsawman/common"
-	"chainsawman/graph/cmd/api/internal/rpc"
 	"chainsawman/graph/db"
 	"chainsawman/graph/mq"
+	"chainsawman/graph/rpc"
 	"github.com/zeromicro/go-zero/rest"
 )
 

@@ -3,6 +3,7 @@ package db
 import (
 	"chainsawman/graph/model"
 	"context"
+	"time"
 )
 
 type RedisClient interface {
@@ -11,4 +12,6 @@ type RedisClient interface {
 	UpsertTask(ctx context.Context, task *model.KVTask) error
 
 	DropTask(ctx context.Context, id string) (int64, error)
+
+	CheckIdempotent(ctx context.Context, id string, expire time.Duration) (bool, error)
 }

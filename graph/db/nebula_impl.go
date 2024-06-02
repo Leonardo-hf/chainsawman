@@ -5,7 +5,6 @@ import (
 	"chainsawman/graph/model"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -26,14 +25,33 @@ type NebulaConfig struct {
 	Passwd   string
 }
 
+type logAdapter struct{}
+
+func (*logAdapter) Info(msg string) {
+	logx.Info(msg)
+}
+
+func (*logAdapter) Warn(msg string) {
+	logx.Error(msg)
+}
+
+func (l *logAdapter) Error(msg string) {
+	logx.Error(msg)
+}
+
+func (*logAdapter) Fatal(msg string) {
+	logx.Severe(msg)
+	panic(msg)
+}
+
 func InitNebulaClient(cfg *NebulaConfig) NebulaClient {
 	hostAddress := nebula.HostAddress{Host: cfg.Addr, Port: cfg.Port}
 	hostList := []nebula.HostAddress{hostAddress}
 	testPoolConfig := nebula.GetDefaultConf()
-	pool, err := nebula.NewConnectionPool(hostList, testPoolConfig, nebula.DefaultLogger{})
+	pool, err := nebula.NewConnectionPool(hostList, testPoolConfig, &logAdapter{})
 	if err != nil {
 		msg := fmt.Sprintf("Fail to initialize the connection pool, host: %s, port: %d, %s", cfg.Addr, cfg.Port, err.Error())
-		log.Fatal(msg)
+		logx.Error(msg)
 	}
 	return &NebulaClientImpl{
 		Pool:     pool,

@@ -61,3 +61,11 @@ func (r *RedisClientImpl) DropTask(ctx context.Context, id string) (int64, error
 	}
 	return cmd.Result()
 }
+
+func (r *RedisClientImpl) CheckIdempotent(ctx context.Context, id string, expire time.Duration) (bool, error) {
+	cmd := r.rdb.SetNX(ctx, id, 1, expire)
+	if cmd.Err() != nil {
+		return false, cmd.Err()
+	}
+	return cmd.Result()
+}

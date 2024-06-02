@@ -31,6 +31,10 @@ func initHandleTable() {
 }
 
 func main() {
+
+	python := handler.CronPython{}
+	python.Handle(&model.KVTask{})
+	return
 	flag.Parse()
 	defaultCfg := "consumer/task/etc/consumer.yaml"
 	switch os.Getenv("CHS_ENV") {

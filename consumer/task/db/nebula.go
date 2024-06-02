@@ -32,4 +32,8 @@ type NebulaClient interface {
 	DropGraph(graph int64) error
 
 	MultiIncNodesDeg(graph int64, degMap map[int64]int64) (int, error)
+
+	GetNodeIDsByNames(graph int64, names []string) (map[string]int64, error)
+
+	GetMaxID(graph int64) (int64, error)
 }

@@ -6,6 +6,7 @@ const (
 	GraphGet       = "graph:get"
 	GraphNodes     = "graph:nodes"
 	GraphNeighbors = "graph:neighbors"
+	CronPython     = "cron:python"
 )
 
 const (
@@ -19,8 +20,29 @@ const (
 	TaskMqEd2 = "task_ed2"
 )
 
+type PreparedGraphInfo struct {
+	GroupID int64
+	GraphID int64
+	Name    string
+}
+
+const (
+	SoftwareDepsGroup = 3
+	PythonDepsGraph   = 1
+)
+
+var PreparedGraph = map[int64]*PreparedGraphInfo{
+	PythonDepsGraph: {
+		GraphID: PythonDepsGraph,
+		GroupID: SoftwareDepsGroup,
+		Name:    "Python软件依赖图谱",
+	},
+}
+
 type TaskAttr struct {
-	Queue string
+	Queue      string
+	Cron       string
+	FixedGraph *PreparedGraphInfo
 }
 
 func TaskIdf(idf string) *TaskAttr {
@@ -29,18 +51,23 @@ func TaskIdf(idf string) *TaskAttr {
 
 var taskAttrMap = map[string]*TaskAttr{
 	GraphCreate: {
-		Queue: PMedium,
+		Queue: PLow,
 	},
 	GraphUpdate: {
-		Queue: PMedium,
+		Queue: PLow,
 	},
 	GraphNodes: {
-		Queue: PLow,
+		Queue: PHigh,
 	},
 	GraphGet: {
 		Queue: PHigh,
 	},
 	GraphNeighbors: {
 		Queue: PHigh,
+	},
+	CronPython: {
+		Queue:      PMedium,
+		FixedGraph: PreparedGraph[PythonDepsGraph],
+		Cron:       "0 0 * * * ? *",
 	},
 }

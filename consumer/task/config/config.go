@@ -4,6 +4,7 @@ import (
 	"chainsawman/common"
 	"chainsawman/consumer/task/db"
 	"chainsawman/consumer/task/mq"
+	"chainsawman/consumer/task/rpc"
 )
 
 type Config struct {
@@ -16,6 +17,8 @@ type Config struct {
 	TaskMqV2 mq.AsynqConfig
 
 	TaskMqEd string
+
+	Sca rpc.ScaConfig
 }
 
 var (
@@ -23,6 +26,7 @@ var (
 	MysqlClient  db.MysqlClient
 	RedisClient  db.RedisClient
 	OSSClient    db.OSSClient
+	ScaClient    rpc.ScaClient
 )
 
 var TaskMq mq.TaskMq
@@ -36,6 +40,8 @@ func Init(c *Config) {
 	if c.TaskMqEd == common.TaskMqEd {
 		TaskMq = mq.InitTaskMq(&c.TaskMq)
 	}
+
+	ScaClient = rpc.InitScaClient(&c.Sca)
 }
 
 func (c *Config) IsTaskV2Enabled() bool {

@@ -2,9 +2,9 @@ package svc
 
 import (
 	"chainsawman/graph/cmd/api/internal/config"
-	"chainsawman/graph/cmd/api/internal/rpc"
 	"chainsawman/graph/db"
 	"chainsawman/graph/mq"
+	"chainsawman/graph/rpc"
 )
 
 type ServiceContext struct {

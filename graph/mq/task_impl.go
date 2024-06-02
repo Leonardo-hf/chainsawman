@@ -53,3 +53,7 @@ func (r *TaskMqImpl) DelTaskMsg(ctx context.Context, task *model.KVTask) error {
 	cmd := r.rdb.XDel(ctx, r.topic, task.Tid)
 	return cmd.Err()
 }
+
+func (r *TaskMqImpl) ScheduleTask(ctx context.Context, task *model.KVTask, cron string) (string, error) {
+	panic("to implement")
+}

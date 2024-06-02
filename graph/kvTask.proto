@@ -15,5 +15,6 @@ message KVTask {
     New = 0;
     Finished = 1;
     Err = 2;
+    Schedule = 3;
   }
 }

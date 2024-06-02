@@ -25,3 +25,6 @@ TaskMq:
 TaskMqV2:
   Addr: "localhost:6379"
 TaskMqEd: "task_ed2"
+
+Sca:
+  Url: "localhost:8082"

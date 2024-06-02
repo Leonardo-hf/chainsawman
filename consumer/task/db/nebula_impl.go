@@ -474,6 +474,25 @@ func (n *NebulaClientImpl) DropGraph(graph int64) error {
 	return err
 }
 
+// GetNodeIDsByNames 根据节点的名称查询节点的ID
+func (n *NebulaClientImpl) GetNodeIDsByNames(graph int64, names []string) (map[string]int64, error) {
+	if len(names) == 0 {
+		return make(map[string]int64), nil
+	}
+	session, err := n.getSession()
+	if err != nil {
+		return nil, err
+	}
+	defer func() { session.Release() }()
+	panic("implement me")
+	// TODO
+}
+
+func (n *NebulaClientImpl) GetMaxID(graph int64) (int64, error) {
+	panic("implement me")
+	// TODO
+}
+
 func (n *NebulaClientImpl) getSession() (*nebula.Session, error) {
 	return n.Pool.GetSession(n.Username, n.Password)
 }

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"bytes"
 	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -68,4 +69,9 @@ func (m *MinioClientImpl) FetchSource(ctx context.Context, name string) (io.Read
 }
 func (m *MinioClientImpl) FetchAlgo(ctx context.Context, name string) (io.Reader, error) {
 	return m.client.GetObject(ctx, m.algo, name, minio.GetObjectOptions{})
+}
+
+func (m *MinioClientImpl) AddSource(ctx context.Context, name string, content []byte) error {
+	_, err := m.client.PutObject(ctx, m.source, name, bytes.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
+	return err
 }

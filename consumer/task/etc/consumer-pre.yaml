@@ -25,3 +25,6 @@ TaskMq:
 TaskMqV2:
   Addr: "redis-svc:6379"
 TaskMqEd: "task_ed2"
+
+Sca:
+  Url: "sca-svc:8082"

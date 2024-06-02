@@ -28,10 +28,9 @@ func (h *CreateGraph) Handle(task *model.KVTask) (string, error) {
 		return "", err
 	}
 	// 尝试三次
-	ok := false
 	for i := 0; i < 3; i++ {
 		time.Sleep(10 * time.Second)
-		ok, err = config.NebulaClient.HasGraph(req.GraphID)
+		ok, err := config.NebulaClient.HasGraph(req.GraphID)
 		if err != nil {
 			logx.Error(err)
 		}
