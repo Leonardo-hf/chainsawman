@@ -5,6 +5,7 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/model"
 	"chainsawman/consumer/task/types"
+	"github.com/zeromicro/go-zero/core/logx"
 
 	"context"
 	"fmt"
@@ -36,7 +37,7 @@ func (h *CronPython) Handle(task *model.KVTask) (string, error) {
 	// 获得最大ID
 	maxLibraryID, err := config.NebulaClient.GetMaxLibraryID(t.FixedGraph.GraphID)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	libraryGen := &IDGen{id: maxLibraryID + 1}
 	maxReleaseID, err := config.NebulaClient.GetMaxReleaseID(t.FixedGraph.GraphID)
@@ -53,6 +54,7 @@ func (h *CronPython) Handle(task *model.KVTask) (string, error) {
 	software := getUpdate()
 	// 从 sca 查询依赖
 	for _, s := range software {
+		logx.Infof("[Cron] handle Python software: %v", s.String())
 		// 获得待更新的库的ID
 		sourceID, err := h.handleReleaseIfAbsent(t.FixedGraph.GraphID, s, libraryGen, releaseGen, &libraryCSV, &releaseCSV, &belong2CSV)
 		if err != nil {
@@ -61,6 +63,7 @@ func (h *CronPython) Handle(task *model.KVTask) (string, error) {
 		resp, err := config.ScaClient.GetDeps(s.String(), "python")
 		// TODO：查询依赖失败，则跳过
 		if err != nil {
+			logx.Error(err)
 			continue
 		}
 		for _, dep := range resp.Deps.Dependencies {
@@ -163,6 +166,7 @@ func (h *CronPython) getIDsFromCache(graph int64, names []string, cache *collect
 	callback func(graph int64, names []string) (map[string]int64, error)) (map[string]int64, error) {
 	res := make(map[string]int64)
 	filterNames := make([]string, 0)
+	// 优先从缓存中读取
 	for _, name := range names {
 		if id, ok := cache.Get(name); ok {
 			res[name] = id.(int64)
@@ -170,6 +174,7 @@ func (h *CronPython) getIDsFromCache(graph int64, names []string, cache *collect
 		}
 		filterNames = append(filterNames, name)
 	}
+	// 未读取到，则从数据库查询
 	if len(filterNames) != 0 {
 		filterIdMap, err := callback(graph, filterNames)
 		if err != nil {
@@ -177,6 +182,8 @@ func (h *CronPython) getIDsFromCache(graph int64, names []string, cache *collect
 		}
 		for k, v := range filterIdMap {
 			res[k] = v
+			// 写入缓存
+			cache.Set(k, v)
 		}
 	}
 	return res, nil
@@ -204,6 +211,6 @@ type IDGen struct {
 
 func (g *IDGen) get() int64 {
 	currentID := g.id
-	currentID += 1
+	g.id += 1
 	return currentID
 }

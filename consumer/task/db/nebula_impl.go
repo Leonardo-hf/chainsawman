@@ -485,7 +485,7 @@ func (n *NebulaClientImpl) GetIDsByPrimary(graph int64, node *model.Node, primar
 		stat := fmt.Sprintf("USE G%v;"+
 			"LOOKUP ON %v "+
 			"WHERE %v.%v == \"%v\" "+
-			"YIELD id(v) as id "+
+			"YIELD id(vertex) as id |"+
 			"LIMIT 1;", graph, node.Name, node.Name, node.Primary, name)
 		res, err := session.Execute(stat)
 		// 非严重错误，忽略
@@ -498,6 +498,7 @@ func (n *NebulaClientImpl) GetIDsByPrimary(graph int64, node *model.Node, primar
 		if res.GetRowSize() > 0 {
 			r, _ := res.GetRowValuesByIndex(0)
 			resMap[name] = common.ParseInt(r, "id")
+			continue
 		}
 		resMap[name] = 0
 	}
@@ -521,7 +522,7 @@ func (n *NebulaClientImpl) GetMaxID(graph int64, tag string) (int64, error) {
 	stat := fmt.Sprintf("USE G%v;"+
 		"LOOKUP ON %v "+
 		"YIELD id(vertex) as id "+
-		"| ORDER BY id "+
+		"| ORDER BY $-.id "+
 		"| LIMIT 1;", graph, tag)
 	res, err := session.Execute(stat)
 	if err != nil {
@@ -534,7 +535,7 @@ func (n *NebulaClientImpl) GetMaxID(graph int64, tag string) (int64, error) {
 		r, _ := res.GetRowValuesByIndex(0)
 		return common.ParseInt(r, "id"), nil
 	}
-	return 0, fmt.Errorf("[NEBULA] fail to get maxID of Graph%v", graph)
+	return 0, nil
 }
 
 func (n *NebulaClientImpl) GetMaxLibraryID(graph int64) (int64, error) {
@@ -542,7 +543,12 @@ func (n *NebulaClientImpl) GetMaxLibraryID(graph int64) (int64, error) {
 }
 
 func (n *NebulaClientImpl) GetMaxReleaseID(graph int64) (int64, error) {
-	return n.GetMaxID(graph, "release")
+	id, err := n.GetMaxID(graph, "release")
+	// 最小ID为2'000'000
+	if id == 0 {
+		id = 200 * 10000
+	}
+	return id, err
 }
 
 func (n *NebulaClientImpl) getSession() (*nebula.Session, error) {

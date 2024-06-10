@@ -1,9 +1,9 @@
 package rpc
 
 import (
+	"errors"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/jsonx"
-	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"net/http"
 )
@@ -61,8 +61,7 @@ func (c *ScaClient) GetDeps(p string, lang string) (*DepsResponse, error) {
 		return nil, err
 	}
 	if deps.Base.Status != 2000 {
-		logx.Errorf("[Cron] get deps failed, package: %v, code: %v, err: %v", p, deps.Base.Status, deps.Base.Msg)
-		return nil, nil
+		return nil, errors.New(fmt.Sprintf("[Cron] get deps failed, package: %v, code: %v, err: %v", p, deps.Base.Status, deps.Base.Msg))
 	}
 	return deps, nil
 }

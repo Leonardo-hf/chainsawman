@@ -8,6 +8,8 @@ import (
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
 	"chainsawman/graph/cmd/api/internal/util"
+	"chainsawman/graph/model"
+	"github.com/zeromicro/go-zero/core/logx"
 
 	"context"
 	"flag"
@@ -35,9 +37,10 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 	// 启动定时任务
-	schedule(ctx)
+	go schedule(ctx)
 
-	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	ctx.TaskMq.ProduceTaskMsg(context.Background(), &model.KVTask{Idf: common.CronPython})
+	logx.Infof("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
 

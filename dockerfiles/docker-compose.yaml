@@ -321,6 +321,15 @@ services:
       - task2
     ports:
       - "30130:8888"
+  asynqmon:
+    image: hibiken/asynqmon
+    container_name: asynqmon
+    command: --redis-addr=redis-svc:6379
+    depends_on:
+      - graph-svc
+      - redis-svc
+    ports:
+      - "8089:8080"
   sca-svc:
     image: applerodite/chs-sca:latest                            # 镜像"applerodite/chs-sca:latest"
     container_name: sca-svc

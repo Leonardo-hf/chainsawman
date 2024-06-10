@@ -49,7 +49,8 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		tid, _ := strconv.ParseInt(t, 10, 64)
 		var edge *model.Edge
 		for _, e := range group.Edges {
-			if e.ID == tid {
+			// TODO
+			if e.ID == tid || e.Name == t {
 				edge = e
 				break
 			}
@@ -125,7 +126,8 @@ func (h *UpdateGraph) Handle(task *model.KVTask) (string, error) {
 		tid, _ := strconv.ParseInt(t, 10, 64)
 		var node *model.Node
 		for _, n := range group.Nodes {
-			if n.ID == tid {
+			// TODO
+			if n.ID == tid || n.Name == t {
 				node = n
 				break
 			}

@@ -5,15 +5,14 @@ import (
 	"chainsawman/graph/model"
 	"context"
 	"github.com/golang/protobuf/proto"
-	"github.com/zeromicro/go-zero/core/logx"
-
 	"github.com/hibiken/asynq"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type AsynqImpl struct {
 	client    *asynq.Client
-	schedule  *asynq.Scheduler
 	inspector *asynq.Inspector
+	config    *AsynqConfig
 }
 
 type AsynqConfig struct {
@@ -45,13 +44,10 @@ func (l *logAdapter) Fatal(args ...interface{}) {
 
 func InitTaskMqV2(cfg *AsynqConfig) TaskMq {
 	opt := asynq.RedisClientOpt{Addr: cfg.Addr}
-	scheduleOpts := &asynq.SchedulerOpts{
-		Logger: &logAdapter{},
-	}
 	return &AsynqImpl{
 		client:    asynq.NewClient(opt),
 		inspector: asynq.NewInspector(opt),
-		schedule:  asynq.NewScheduler(opt, scheduleOpts),
+		config:    cfg,
 	}
 }
 
@@ -76,11 +72,22 @@ func (a *AsynqImpl) DelTaskMsg(_ context.Context, task *model.KVTask) error {
 }
 
 func (a *AsynqImpl) ScheduleTask(_ context.Context, task *model.KVTask, cron string) (string, error) {
+	scheduler := asynq.NewScheduler(
+		asynq.RedisClientOpt{Addr: a.config.Addr},
+		&asynq.SchedulerOpts{
+			Logger: &logAdapter{},
+		})
 	t := common.TaskIdf(task.Idf)
 	content, _ := proto.Marshal(task)
-	res, err := a.schedule.Register(cron, asynq.NewTask(task.Idf, content), asynq.MaxRetry(3), asynq.Queue(t.Queue))
+	id, err := scheduler.Register(cron, asynq.NewTask(task.Idf, content), asynq.MaxRetry(3), asynq.Queue(t.Queue))
 	if err != nil {
+		logx.Error("[Graph] fail to start scheduler, err: %v", err)
 		return "", err
 	}
-	return res, nil
+	if err = scheduler.Run(); err != nil {
+		logx.Error("[Graph] fail to start scheduler, err: %v", err)
+		return "", err
+	}
+	logx.Infof("[Graph] start scheduler, id: %v", id)
+	return id, nil
 }

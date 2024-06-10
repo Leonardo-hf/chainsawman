@@ -91,6 +91,7 @@ func main() {
 }
 
 func handle(ctx context.Context, task *model.KVTask, h handler.Handler) error {
+	logx.Infof("[Task] start task, idf=%v", task.Idf)
 	res, err := h.Handle(task)
 	if err == config.DelayTaskErr {
 		logx.Infof("[Task] %v", err)

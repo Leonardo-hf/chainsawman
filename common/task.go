@@ -68,6 +68,6 @@ var taskAttrMap = map[string]*TaskAttr{
 	CronPython: {
 		Queue:      PMedium,
 		FixedGraph: PreparedGraph[PythonDepsGraph],
-		Cron:       "0 0 * * * ? *",
+		Cron:       "0 * * * *",
 	},
 }
