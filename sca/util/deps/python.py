@@ -1,3 +1,4 @@
+import re
 import time
 from functools import reduce
 from typing import List, Optional, Tuple, Dict, Callable
@@ -47,28 +48,22 @@ class PyDepsHandler(PyLang, DepsHandler):
     @staticmethod
     def get_python_package(artifact: str, version: Optional[str]) -> Optional[bytes]:
         if version is None:
-            url = 'https://pypi.org/pypi/{}/json'.format(artifact)
-            version = spider(url).json()['info']['version']
-        repo = etree.HTML(spider('{}/{}'.format('https://pypi.org/simple', artifact)).text)
-        file_url = repo.xpath('/html/body/a')
-        for a in file_url:
-            v = str(a.text).lower().replace('_', '-')
-            archive_suffix = ['.zip', '.egg', '.tar.gz', '.tar.bz2']
-            if not reduce(lambda left, right: left or right, map(lambda s: v.endswith(s), archive_suffix)):
-                continue
-            archive_suffix.append(artifact + '-')
-            for s in archive_suffix:
-                v = v.replace(s, '')
-            if v == version:
-                file_url = a.attrib.get('href')
-                file_url = file_url[:file_url.rfind('#')]
-                while True:
-                    try:
-                        with smart_open.open(file_url, mode='rb') as f:
-                            return f.read()
-                    except Exception:
-                        time.sleep(1)
-        return None
+            res = spider(f'https://pypi.org/pypi/{artifact}/json').json()
+            version = res.get('info').get('version')
+        res = spider(f'https://pypi.org/pypi/{artifact}/{version}/json').json()
+        urls = list(filter(
+            lambda r: not r.get('filename').endswith('whl') and r.get('filename').startswith(f'{artifact}-{version}.'),
+            res.get('urls', [])))
+        if len(urls) == 0:
+            return None
+        file_url = urls[0].get('url')
+        print(file_url)
+        while True:
+            try:
+                with smart_open.open(file_url, mode='rb') as f:
+                    return f.read()
+            except Exception:
+                time.sleep(1)
 
     def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         purl = PackageURL.from_string(package)
@@ -82,4 +77,4 @@ class PyDepsHandler(PyLang, DepsHandler):
             module_dep = package_dep.modules[0]
             module_dep.purl = package
             return module_dep, HttpStatus.OK
-        return None, HttpStatus.NOT_FOUND
+        return ModuleDeps(purl=package, lang=lang), HttpStatus.OK

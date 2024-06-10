@@ -5,15 +5,15 @@ import (
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/handler"
 	"chainsawman/consumer/task/model"
-	"github.com/google/uuid"
-	"os"
-	"time"
 
 	"context"
 	"flag"
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -28,13 +28,10 @@ func initHandleTable() {
 	handleTable[common.GraphNeighbors] = &handler.GetNeighbors{}
 	handleTable[common.GraphNodes] = &handler.GetNodes{}
 	handleTable[common.GraphCreate] = &handler.CreateGraph{}
+	handleTable[common.CronPython] = &handler.CronPython{}
 }
 
 func main() {
-
-	python := handler.CronPython{}
-	python.Handle(&model.KVTask{})
-	return
 	flag.Parse()
 	defaultCfg := "consumer/task/etc/consumer.yaml"
 	switch os.Getenv("CHS_ENV") {

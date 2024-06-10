@@ -8,12 +8,12 @@ import (
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
 	"chainsawman/graph/cmd/api/internal/util"
-	"context"
-	"os"
-	"time"
 
+	"context"
 	"flag"
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
@@ -29,7 +29,6 @@ func main() {
 	var configFile = flag.String("f", defaultCfg, "the config api")
 	var c config.Config
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
-
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 

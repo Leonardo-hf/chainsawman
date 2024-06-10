@@ -71,7 +71,7 @@ func (m *MinioClientImpl) FetchAlgo(ctx context.Context, name string) (io.Reader
 	return m.client.GetObject(ctx, m.algo, name, minio.GetObjectOptions{})
 }
 
-func (m *MinioClientImpl) AddSource(ctx context.Context, name string, content []byte) error {
-	_, err := m.client.PutObject(ctx, m.source, name, bytes.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
-	return err
+func (m *MinioClientImpl) AddSource(ctx context.Context, name string, content []byte) (string, error) {
+	res, err := m.client.PutObject(ctx, m.source, name, bytes.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
+	return res.Key, err
 }

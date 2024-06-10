@@ -3,6 +3,7 @@ package rpc
 import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/jsonx"
+	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"net/http"
 )
@@ -21,12 +22,14 @@ func InitScaClient(cfg *ScaConfig) ScaClient {
 	}
 }
 
-type DepsResponse struct {
-	Packages PackageDeps `json:"packages"`
+type BaseResponse struct {
+	Status int64  `json:"status"`
+	Msg    string `json:"msg"`
 }
 
-type PackageDeps struct {
-	Modules []ModuleDeps `json:"modules"`
+type DepsResponse struct {
+	Deps ModuleDeps   `json:"deps"`
+	Base BaseResponse `json:"base"`
 }
 
 type ModuleDeps struct {
@@ -43,7 +46,7 @@ type Dep struct {
 }
 
 func (c *ScaClient) GetDeps(p string, lang string) (*DepsResponse, error) {
-	resp, err := http.Get(fmt.Sprintf("%v/search?package=%v&lang=%v", c.url, p, lang))
+	resp, err := http.Get(fmt.Sprintf("http://%v/search?package=%v&lang=%v", c.url, p, lang))
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
@@ -56,6 +59,10 @@ func (c *ScaClient) GetDeps(p string, lang string) (*DepsResponse, error) {
 	err = jsonx.Unmarshal(body, deps)
 	if err != nil {
 		return nil, err
+	}
+	if deps.Base.Status != 2000 {
+		logx.Errorf("[Cron] get deps failed, package: %v, code: %v, err: %v", p, deps.Base.Status, deps.Base.Msg)
+		return nil, nil
 	}
 	return deps, nil
 }

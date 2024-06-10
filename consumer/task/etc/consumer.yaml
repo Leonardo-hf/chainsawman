@@ -27,4 +27,4 @@ TaskMqV2:
 TaskMqEd: "task_ed2"
 
 Sca:
-  Url: "localhost:8082"
+  Url: "127.0.0.1:8082"

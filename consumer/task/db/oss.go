@@ -10,5 +10,5 @@ type OSSClient interface {
 
 	FetchAlgo(ctx context.Context, name string) (io.Reader, error)
 
-	AddSource(ctx context.Context, name string, content []byte) error
+	AddSource(ctx context.Context, name string, content []byte) (string, error)
 }

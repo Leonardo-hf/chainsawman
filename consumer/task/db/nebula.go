@@ -33,7 +33,15 @@ type NebulaClient interface {
 
 	MultiIncNodesDeg(graph int64, degMap map[int64]int64) (int, error)
 
-	GetNodeIDsByNames(graph int64, names []string) (map[string]int64, error)
+	// GetLibraryIDsByNames 根据名称查询库的ID
+	GetLibraryIDsByNames(graph int64, names []string) (map[string]int64, error)
 
-	GetMaxID(graph int64) (int64, error)
+	// GetReleaseIDsByNames 根据名称查询发行版本的ID
+	GetReleaseIDsByNames(graph int64, names []string) (map[string]int64, error)
+
+	// GetMaxLibraryID 获取库的最大ID
+	GetMaxLibraryID(graph int64) (int64, error)
+
+	// GetMaxReleaseID 获取发行版本的最大ID
+	GetMaxReleaseID(graph int64) (int64, error)
 }

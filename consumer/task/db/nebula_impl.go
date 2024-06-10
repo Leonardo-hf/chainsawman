@@ -474,23 +474,75 @@ func (n *NebulaClientImpl) DropGraph(graph int64) error {
 	return err
 }
 
-// GetNodeIDsByNames 根据节点的名称查询节点的ID
-func (n *NebulaClientImpl) GetNodeIDsByNames(graph int64, names []string) (map[string]int64, error) {
-	if len(names) == 0 {
-		return make(map[string]int64), nil
-	}
+func (n *NebulaClientImpl) GetIDsByPrimary(graph int64, node *model.Node, primary []string) (map[string]int64, error) {
 	session, err := n.getSession()
 	if err != nil {
 		return nil, err
 	}
 	defer func() { session.Release() }()
-	panic("implement me")
-	// TODO
+	resMap := make(map[string]int64)
+	for _, name := range primary {
+		stat := fmt.Sprintf("USE G%v;"+
+			"LOOKUP ON %v "+
+			"WHERE %v.%v == \"%v\" "+
+			"YIELD id(v) as id "+
+			"LIMIT 1;", graph, node.Name, node.Name, node.Primary, name)
+		res, err := session.Execute(stat)
+		// 非严重错误，忽略
+		if err != nil {
+			logx.Errorf("[NEBULA] fail to exec nGQL: %v, err: %v", stat, err)
+		}
+		if !res.IsSucceed() {
+			logx.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat)
+		}
+		if res.GetRowSize() > 0 {
+			r, _ := res.GetRowValuesByIndex(0)
+			resMap[name] = common.ParseInt(r, "id")
+		}
+		resMap[name] = 0
+	}
+	return resMap, nil
 }
 
-func (n *NebulaClientImpl) GetMaxID(graph int64) (int64, error) {
-	panic("implement me")
-	// TODO
+func (n *NebulaClientImpl) GetLibraryIDsByNames(graph int64, names []string) (map[string]int64, error) {
+	return n.GetIDsByPrimary(graph, &model.Node{Name: "library", Primary: "artifact"}, names)
+}
+
+func (n *NebulaClientImpl) GetReleaseIDsByNames(graph int64, names []string) (map[string]int64, error) {
+	return n.GetIDsByPrimary(graph, &model.Node{Name: "release", Primary: "idf"}, names)
+}
+
+func (n *NebulaClientImpl) GetMaxID(graph int64, tag string) (int64, error) {
+	session, err := n.getSession()
+	if err != nil {
+		return 0, err
+	}
+	defer func() { session.Release() }()
+	stat := fmt.Sprintf("USE G%v;"+
+		"LOOKUP ON %v "+
+		"YIELD id(vertex) as id "+
+		"| ORDER BY id "+
+		"| LIMIT 1;", graph, tag)
+	res, err := session.Execute(stat)
+	if err != nil {
+		return 0, err
+	}
+	if !res.IsSucceed() {
+		return 0, fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat)
+	}
+	if res.GetRowSize() > 0 {
+		r, _ := res.GetRowValuesByIndex(0)
+		return common.ParseInt(r, "id"), nil
+	}
+	return 0, fmt.Errorf("[NEBULA] fail to get maxID of Graph%v", graph)
+}
+
+func (n *NebulaClientImpl) GetMaxLibraryID(graph int64) (int64, error) {
+	return n.GetMaxID(graph, "library")
+}
+
+func (n *NebulaClientImpl) GetMaxReleaseID(graph int64) (int64, error) {
+	return n.GetMaxID(graph, "release")
 }
 
 func (n *NebulaClientImpl) getSession() (*nebula.Session, error) {
