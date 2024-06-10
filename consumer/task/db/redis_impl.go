@@ -41,10 +41,8 @@ func (r *RedisClientImpl) UpsertTask(ctx context.Context, task *model.KVTask) er
 
 func (r *RedisClientImpl) DropDuplicate(ctx context.Context, set string, keys []string, expired time.Duration) ([]string, error) {
 	formatKeys := make([]string, len(keys))
-	msetReq := make(map[string]interface{})
 	for i, k := range keys {
 		formatKeys[i] = fmt.Sprintf("%v_%v", set, k)
-		msetReq[formatKeys[i]] = 1
 	}
 	// 查询哪些Key存在
 	cmd := r.rdb.MGet(ctx, formatKeys...)
@@ -63,6 +61,10 @@ func (r *RedisClientImpl) DropDuplicate(ctx context.Context, set string, keys []
 		}
 	}
 	// 更新过期时间
-	_ = r.rdb.MSet(ctx, msetReq, expired)
+	pipe := r.rdb.Pipeline()
+	for _, key := range formatKeys {
+		pipe.Set(ctx, key, "1", expired)
+	}
+	_, err = pipe.Exec(ctx)
 	return newKeys, err
 }
