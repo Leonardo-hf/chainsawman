@@ -1,16 +1,13 @@
-import re
 import time
-from functools import reduce
 from typing import List, Optional, Tuple, Dict, Callable
 
 import smart_open
-from lxml import etree
 from packageurl import PackageURL
 
 from common import HttpStatus, PyLang
+from util import spider, Singleton
 from util.requirements_detector import from_setup_cfg, from_setup_py, from_requirements_txt, \
     from_pyproject_toml, DetectedRequirement
-from util import spider, Singleton
 from vo import ModuleDeps, Dep, PackageDeps
 from .index import DepsHandler, ArchiveDepsHandler
 
@@ -47,18 +44,31 @@ class PyDepsHandler(PyLang, DepsHandler):
 
     @staticmethod
     def get_python_package(artifact: str, version: Optional[str]) -> Optional[bytes]:
+        def standardize(name: str) -> str:
+            return name.lower().replace('-', '_')
+
         if version is None:
             res = spider(f'https://pypi.org/pypi/{artifact}/json').json()
             version = res.get('info').get('version')
         res = spider(f'https://pypi.org/pypi/{artifact}/{version}/json').json()
+        print(res.get('urls'))
         urls = list(filter(
-            lambda r: not r.get('filename').endswith('whl') and r.get('filename').startswith(f'{artifact}-{version}.'),
+            lambda r: not r.get('filename').endswith('whl') and
+                      (r.get('filename').startswith(f'{standardize(artifact)}-{version}.') or
+                       r.get('filename').startswith(f'{artifact}-{version}.')),
             res.get('urls', [])))
         if len(urls) == 0:
             return None
         file_url = urls[0].get('url')
-        print(file_url)
         while True:
+            try:
+                # 优先使用镜像
+                with smart_open.open(
+                        file_url.replace('https://files.pythonhosted.org/', 'https://pypi.tuna.tsinghua.edu.cn/'),
+                        mode='rb') as f:
+                    return f.read()
+            except Exception:
+                time.sleep(1)
             try:
                 with smart_open.open(file_url, mode='rb') as f:
                     return f.read()

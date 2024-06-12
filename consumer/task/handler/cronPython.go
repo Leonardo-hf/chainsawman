@@ -69,10 +69,11 @@ func (h *CronPython) Handle(task *model.KVTask) (string, error) {
 		for _, dep := range resp.Deps.Dependencies {
 			purl, _ := packageurl.FromString(dep.Purl)
 			targetID, err := h.handleReleaseIfAbsent(t.FixedGraph.GraphID, &purl, libraryGen, releaseGen, &libraryCSV, &releaseCSV, &belong2CSV)
+			logx.Debugf("[Cron] handle Python dependency: %v -> %v, err: %v", sourceID, targetID, err)
 			if err != nil {
 				return "", err
 			}
-			// 写入发行版本依赖
+			// 写入发行版本依赖, TODO: 没写入？
 			dependsCSV = dependsCSV + fmt.Sprintf("%v,%v\n", sourceID, targetID)
 		}
 	}

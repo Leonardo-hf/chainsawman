@@ -75,6 +75,7 @@ func (n *NebulaClientImpl) CreateGraph(graph int64, group *model.Group) error {
 		}
 		s = fmt.Sprintf(s, node.Name, strings.Join(attrNames, ","))
 		stat += s
+		// TODO: 未能成功创建索引， 为什么
 		s += fmt.Sprintf("CREATE TAG INDEX IF NOT EXISTS %v_tag_index on %v(%v(10));", node.Name, node.Name, node.Primary)
 	}
 	for _, edge := range group.Edges {
@@ -86,6 +87,7 @@ func (n *NebulaClientImpl) CreateGraph(graph int64, group *model.Group) error {
 		s = fmt.Sprintf(s, edge.Name, strings.Join(attrNames, ","))
 		stat += s
 	}
+	logx.Infof("[Task] create Graph%v, stat: %v", graph, stat)
 	res, err := session.Execute(stat)
 	if !res.IsSucceed() {
 		return fmt.Errorf("[NEBULA] nGQL error: %v, stats: %v", res.GetErrorMsg(), stat)

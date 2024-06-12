@@ -85,6 +85,7 @@ def test_search_python():
     name = 'pkg:pypi/django-redis@5.4.0'
     ps, status = dh.search('python', name)
     assert status == HttpStatus.OK
+    print(ps)
     assert len(ps.dependencies) == 4 and PackageURL.from_string(ps.purl).name == 'django-redis'
     d = ps.dependencies[0]
     assert PackageURL.from_string(d.purl).name == 'django' and PackageURL.from_string(

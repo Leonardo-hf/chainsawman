@@ -8,7 +8,6 @@ import (
 	"chainsawman/graph/cmd/api/internal/svc"
 	"chainsawman/graph/cmd/api/internal/types"
 	"chainsawman/graph/cmd/api/internal/util"
-	"chainsawman/graph/model"
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"context"
@@ -39,7 +38,6 @@ func main() {
 	// 启动定时任务
 	go schedule(ctx)
 
-	ctx.TaskMq.ProduceTaskMsg(context.Background(), &model.KVTask{Idf: common.CronPython})
 	logx.Infof("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
@@ -63,6 +61,9 @@ func schedule(ctx *svc.ServiceContext) {
 	}
 	// 保障图谱创建完成
 	time.Sleep(time.Minute)
+	// Debug 立刻执行一次任务
+	//ctx.TaskMq.ProduceTaskMsg(context.Background(), &model.KVTask{Idf: common.CronPython})
+
 	// 开始调度任务
 	for _, idf := range []string{common.CronPython} {
 		_, _ = util.CreateCronTask(context.Background(), ctx, idf)
