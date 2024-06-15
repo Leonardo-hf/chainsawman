@@ -73,7 +73,7 @@ const Display: React.FC<DisplayProps> = memo((props: DisplayProps) => {
                 timeout: 30000,
                 method: 'get',
                 params: {
-                    'package': purl,
+                    'purl': purl,
                     'lang': extractor.value
                 }
             }).then((res: {

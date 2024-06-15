@@ -8,12 +8,16 @@ from common import HttpStatus, PyLang
 from util import spider, Singleton
 from util.requirements_detector import from_setup_cfg, from_setup_py, from_requirements_txt, \
     from_pyproject_toml, DetectedRequirement
-from vo import ModuleDeps, Dep, PackageDeps
+from vo import ModuleDeps, Dep, PackageDeps, ModuleMeta
 from .index import DepsHandler, ArchiveDepsHandler
 
 
 def _get_purl(artifact: str, version: Optional[str] = None) -> str:
     return PackageURL(type='pypi', name=artifact, version=version).to_string()
+
+
+def _standardize(name: str) -> str:
+    return name.lower().replace('-', '_')
 
 
 @Singleton
@@ -44,17 +48,14 @@ class PyDepsHandler(PyLang, DepsHandler):
 
     @staticmethod
     def get_python_package(artifact: str, version: Optional[str]) -> Optional[bytes]:
-        def standardize(name: str) -> str:
-            return name.lower().replace('-', '_')
-
         if version is None:
             res = spider(f'https://pypi.org/pypi/{artifact}/json').json()
             version = res.get('info').get('version')
         res = spider(f'https://pypi.org/pypi/{artifact}/{version}/json').json()
-        print(res.get('urls'))
+        # 筛选源文件链接
         urls = list(filter(
             lambda r: not r.get('filename').endswith('whl') and
-                      (r.get('filename').startswith(f'{standardize(artifact)}-{version}.') or
+                      (r.get('filename').startswith(f'{_standardize(artifact)}-{version}.') or
                        r.get('filename').startswith(f'{artifact}-{version}.')),
             res.get('urls', [])))
         if len(urls) == 0:
@@ -75,13 +76,51 @@ class PyDepsHandler(PyLang, DepsHandler):
             except Exception:
                 time.sleep(1)
 
+    def meta(self, lang: str, purl: str) -> Tuple[Optional[ModuleMeta], HttpStatus]:
+        def safe_get(j, k, default):
+            v = j.get(k, default)
+            if v is None:
+                return default
+            return v
+
+        purl = PackageURL.from_string(purl)
+        artifact = purl.name
+        version = purl.version
+        if version is None:
+            res = spider(f'https://pypi.org/pypi/{artifact}/json').json()
+            version = res.get('info').get('version')
+        res = spider(f'https://pypi.org/pypi/{artifact}/{version}/json').json()
+        # 获取元数据
+        info = res.get('info', {})
+        if info is None:
+            return None, HttpStatus.NOT_FOUND
+        # 1. 获取主页
+        pages = sorted(list(filter(lambda url: url is not None,
+                                   {*safe_get(info, 'project_urls', {}).values(), info.get('home_page'),
+                                    info.get('project_url'),
+                                    info.get('package_url')})),
+                       key=lambda url: ('github.com' in url, 'pypi.org' in url, -len(url)), reverse=True)
+        homepage = ''
+        if len(pages) > 0:
+            homepage = pages[0]
+        # 2. 获取上传时间
+        urls = res.get('urls', [])
+        if len(urls) == 0:
+            return None, HttpStatus.NOT_FOUND
+        update_time = urls[0].get('upload_time_iso_8601')
+        # 3. 获取摘要
+        summary = info.get('summary', '')
+        return ModuleMeta(desc=summary, homepage=homepage, upload_time=update_time), HttpStatus.OK
+
     def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         purl = PackageURL.from_string(package)
         artifact = purl.name
         version = purl.version
         data = self.get_python_package(artifact, version)
+        # 查询不到源文件，直接返回
         if data is None:
             return None, HttpStatus.NOT_FOUND
+        # 解析源文件
         package_dep, status = ArchiveDepsHandler.with_handlers([self]).deps('', data)
         if isinstance(package_dep, PackageDeps) and len(package_dep.modules) > 0:
             module_dep = package_dep.modules[0]

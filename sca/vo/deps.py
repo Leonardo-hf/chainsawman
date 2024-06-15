@@ -47,6 +47,13 @@ class PackageDeps(ModuleDeps):
 
 
 @dataclass
+class ModuleMeta:
+    desc: str = ''
+    homepage: str = ''
+    upload_time: str = ''
+
+
+@dataclass
 class LanguageCount:
     type: str
     value: int
@@ -69,3 +76,15 @@ class SearchDepsRequest:
 class SearchDepsResponse:
     base: HttpStatus
     deps: Optional[ModuleDeps] = None
+
+
+@dataclass
+class SearchMetaRequest:
+    purl: str
+    lang: str
+
+
+@dataclass
+class SearchMetaResponse:
+    base: HttpStatus
+    meta: Optional[ModuleMeta]

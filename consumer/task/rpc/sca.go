@@ -32,11 +32,22 @@ type DepsResponse struct {
 	Base BaseResponse `json:"base"`
 }
 
+type MetaResponse struct {
+	Meta ModuleMeta   `json:"meta"`
+	Base BaseResponse `json:"base"`
+}
+
 type ModuleDeps struct {
 	Purl         string `json:"purl"`
 	Lang         string `json:"lang"`
 	Path         string `json:"path"`
 	Dependencies []Dep  `json:"dependencies"`
+}
+
+type ModuleMeta struct {
+	Desc       string `json:"desc"`
+	UploadTime string `json:"upload_time"`
+	Homepage   string `json:"homepage"`
 }
 
 type Dep struct {
@@ -46,7 +57,7 @@ type Dep struct {
 }
 
 func (c *ScaClient) GetDeps(p string, lang string) (*DepsResponse, error) {
-	resp, err := http.Get(fmt.Sprintf("http://%v/search?package=%v&lang=%v", c.url, p, lang))
+	resp, err := http.Get(fmt.Sprintf("http://%v/search?purl=%v&lang=%v", c.url, p, lang))
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
@@ -64,4 +75,25 @@ func (c *ScaClient) GetDeps(p string, lang string) (*DepsResponse, error) {
 		return nil, errors.New(fmt.Sprintf("[Cron] get deps failed, package: %v, code: %v, err: %v", p, deps.Base.Status, deps.Base.Msg))
 	}
 	return deps, nil
+}
+
+func (c *ScaClient) GetMeta(p string, lang string) (*MetaResponse, error) {
+	resp, err := http.Get(fmt.Sprintf("http://%v/meta?purl=%v&lang=%v", c.url, p, lang))
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	meta := &MetaResponse{}
+	err = jsonx.Unmarshal(body, meta)
+	if err != nil {
+		return nil, err
+	}
+	if meta.Base.Status != 2000 {
+		return nil, errors.New(fmt.Sprintf("[Cron] get meta failed, package: %v, code: %v, err: %v", p, meta.Base.Status, meta.Base.Msg))
+	}
+	return meta, nil
 }

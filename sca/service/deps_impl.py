@@ -7,7 +7,8 @@ from packageurl import PackageURL
 from client import Client
 from util.deps import ArchiveDepsHandler, PyDepsHandler, GoDepsHandler, JavaDepsHandler, RustDepsHandler
 from util import resolve_archive
-from vo import SearchDepsRequest, SearchDepsResponse, DepsRequest, DepsResponse, LanguageCount, PackageDeps, OSV, Dep
+from vo import SearchDepsRequest, SearchDepsResponse, DepsRequest, DepsResponse, LanguageCount, PackageDeps, OSV, Dep, \
+    SearchMetaRequest, SearchMetaResponse
 from .deps import DepsService
 
 
@@ -57,5 +58,9 @@ class DepsServiceImpl(DepsService):
                             counts=list(map(lambda it: LanguageCount(type=it[0], value=it[1]), count.items())))
 
     def search(self, req: SearchDepsRequest) -> SearchDepsResponse:
-        res, status = self.dh.search(req.lang, req.purl)
-        return SearchDepsResponse(base=status.value, deps=res)
+        deps, status = self.dh.search(req.lang, req.purl)
+        return SearchDepsResponse(base=status.value, deps=deps)
+
+    def meta(self, req: SearchMetaRequest) -> SearchMetaResponse:
+        meta, status = self.dh.meta(req.lang, req.purl)
+        return SearchMetaResponse(base=status.value, meta=meta)

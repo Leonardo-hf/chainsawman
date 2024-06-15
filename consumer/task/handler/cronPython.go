@@ -4,6 +4,7 @@ import (
 	"chainsawman/common"
 	"chainsawman/consumer/task/config"
 	"chainsawman/consumer/task/model"
+	"chainsawman/consumer/task/rpc"
 	"chainsawman/consumer/task/types"
 	"github.com/zeromicro/go-zero/core/logx"
 
@@ -128,6 +129,10 @@ func (h *CronPython) Handle(task *model.KVTask) (string, error) {
 func (h *CronPython) handleReleaseIfAbsent(graph int64, release *packageurl.PackageURL,
 	libraryIDGen *IDGen, releaseIDGen *IDGen, libraryCSV *string, releaseCSV *string, belong2CSV *string) (int64, error) {
 	// 1. 查询发行版本是否存在
+	if release.Version == "" {
+		// 无版本则默认为 latest
+		release.Version = "latest"
+	}
 	releaseIDMap, err := h.getIDsFromCache(graph, []string{release.String()}, h.releaseIDCache, config.NebulaClient.GetReleaseIDsByNames)
 	if err != nil {
 		return 0, err
@@ -139,8 +144,16 @@ func (h *CronPython) handleReleaseIfAbsent(graph int64, release *packageurl.Pack
 		releaseIDMap[release.String()] = releaseID
 		// 写入缓存中
 		h.releaseIDCache.Set(release.String(), releaseID)
+		meta := &rpc.MetaResponse{Meta: rpc.ModuleMeta{}}
+		// 若非latest, 查询软件信息
+		if release.Version != "latest" {
+			res, err := config.ScaClient.GetMeta(release.ToString(), "python")
+			if err == nil {
+				meta = res
+			}
+		}
 		// 新发行版本写入CSV
-		*releaseCSV = *releaseCSV + fmt.Sprintf("%v,%v,%v,%v,\n", releaseID, release.String(), release.Name, release.Version)
+		*releaseCSV = *releaseCSV + fmt.Sprintf("%v,%v,%v,%v,%v\n", releaseID, release.String(), release.Name, release.Version, meta.Meta.UploadTime)
 		// 2. 查询库是否存在
 		libraryIDMap, err := h.getIDsFromCache(graph, []string{release.Name}, h.libraryIDCache, config.NebulaClient.GetLibraryIDsByNames)
 		if err != nil {
@@ -154,7 +167,7 @@ func (h *CronPython) handleReleaseIfAbsent(graph int64, release *packageurl.Pack
 			// 写入缓存中
 			h.libraryIDCache.Set(release.Name, libraryID)
 			// 新库写入CSV
-			*libraryCSV = *libraryCSV + fmt.Sprintf("%v,%v,,,\n", libraryID, release.Name)
+			*libraryCSV = *libraryCSV + fmt.Sprintf("%v,%v,,%v,%v\n", libraryID, release.Name, meta.Meta.Desc, meta.Meta.Homepage)
 		}
 		// 3. 归属关系写入CSV
 		*belong2CSV = *belong2CSV + fmt.Sprintf("%v,%v\n", releaseIDMap[release.String()], libraryIDMap[release.Name])

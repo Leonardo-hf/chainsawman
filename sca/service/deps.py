@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from vo import DepsRequest, SearchDepsRequest, DepsResponse, SearchDepsResponse
+from vo import DepsRequest, SearchDepsRequest, DepsResponse, SearchDepsResponse, SearchMetaRequest, SearchMetaResponse
 
 
 class DepsService(metaclass=ABCMeta):
@@ -10,4 +10,8 @@ class DepsService(metaclass=ABCMeta):
 
     @abstractmethod
     def search(self, req: SearchDepsRequest) -> SearchDepsResponse:
+        pass
+
+    @abstractmethod
+    def meta(self, req: SearchMetaRequest) -> SearchMetaResponse:
         pass

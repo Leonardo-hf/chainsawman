@@ -4,7 +4,7 @@ from packageurl import PackageURL
 
 from common import HttpStatus, JavaLang
 from util import POM, Singleton
-from vo import Dep, ModuleDeps
+from vo import Dep, ModuleDeps, ModuleMeta
 from .index import DepsHandler
 
 
@@ -50,3 +50,7 @@ class JavaDepsHandler(JavaLang, DepsHandler):
                               dependencies=deps), HttpStatus.OK
         except Exception:
             return None, HttpStatus.ILLEGAL_FILE
+
+    # TODO: 未实现
+    def meta(self, lang: str, purl: str) -> Tuple[Optional[ModuleMeta], HttpStatus]:
+        return ModuleMeta(), HttpStatus.OK

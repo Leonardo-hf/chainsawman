@@ -3,18 +3,21 @@ from typing import List, Tuple, Optional
 
 from common import HttpStatus, Language
 from util import resolve_archive
-from vo import ModuleDeps, PackageDeps
+from vo import ModuleDeps, PackageDeps, ModuleMeta
 
 
 class DepsHandler(Language, metaclass=ABCMeta):
 
-    # 解析依赖文件，返回 ModuleDeps 或 None(解析失败)
     @abstractmethod
     def deps(self, module: str, data: bytes) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         pass
 
     @abstractmethod
-    def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
+    def search(self, lang: str, purl: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
+        pass
+
+    @abstractmethod
+    def meta(self, lang: str, purl: str) -> Tuple[Optional[ModuleMeta], HttpStatus]:
         pass
 
 
@@ -56,8 +59,14 @@ class ArchiveDepsHandler(DepsHandler):
         archive.iter(get)
         return PackageDeps(modules=module_deps, path=module), HttpStatus.OK
 
-    def search(self, lang: str, package: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
+    def search(self, lang: str, purl: str) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         for h in self._handlers:
             if lang == h.lang():
-                return h.search(lang, package)
+                return h.search(lang, purl)
+        return None, HttpStatus.NOT_SUPPORT
+
+    def meta(self, lang: str, purl: str) -> Tuple[Optional[ModuleMeta], HttpStatus]:
+        for h in self._handlers:
+            if lang == h.lang():
+                return h.meta(lang, purl)
         return None, HttpStatus.NOT_SUPPORT

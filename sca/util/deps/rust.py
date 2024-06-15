@@ -6,7 +6,7 @@ from packageurl import PackageURL
 
 from common import HttpStatus, RustLang
 from util import spider, Singleton
-from vo import Dep, ModuleDeps
+from vo import Dep, ModuleDeps, ModuleMeta
 from .index import DepsHandler
 
 
@@ -124,4 +124,9 @@ class RustDepsHandler(RustLang, DepsHandler):
         for name, v_spec, scope in deps:
             for v, limit in v_spec:
                 module_deps.append(Dep(purl=_get_purl(name, v), limit=limit, scope=scope))
-        return ModuleDeps(lang=self.lang(), purl=_get_purl(artifact, version), dependencies=module_deps), HttpStatus.OK
+        return ModuleDeps(lang=self.lang(), purl=_get_purl(artifact, version),
+                          dependencies=module_deps), HttpStatus.OK
+
+    # TODO: 未实现
+    def meta(self, lang: str, purl: str) -> Tuple[Optional[ModuleMeta], HttpStatus]:
+        return ModuleMeta(), HttpStatus.OK

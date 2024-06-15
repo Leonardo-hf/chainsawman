@@ -6,7 +6,7 @@ from packageurl import PackageURL
 
 from common import HttpStatus, GoLang
 from util import spider, Singleton
-from vo import Dep, ModuleDeps
+from vo import Dep, ModuleDeps, ModuleMeta
 from .index import DepsHandler
 
 
@@ -16,6 +16,10 @@ def _get_purl(name, version) -> str:
 
 @Singleton
 class GoDepsHandler(GoLang, DepsHandler):
+
+    # TODO: 未实现
+    def meta(self, lang: str, purl: str) -> Tuple[Optional[ModuleMeta], HttpStatus]:
+        return ModuleMeta(), HttpStatus.OK
 
     def deps(self, module: str, data: bytes) -> Tuple[Optional[ModuleDeps], HttpStatus]:
         if module.endswith(self.MODULE_GOMOD):

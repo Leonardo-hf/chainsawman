@@ -7,7 +7,7 @@ from gevent import pywsgi
 
 from client import Client
 from service import DepsService, DepsServiceImpl, LintServiceImpl, LintService
-from vo import DepsRequest, SearchDepsRequest, LintsRequest
+from vo import DepsRequest, SearchDepsRequest, LintsRequest, SearchMetaRequest
 
 app = Flask(__name__)
 
@@ -25,10 +25,18 @@ def parse():
 
 @app.route('/search', methods=['GET'])
 def search():
-    package = request.values.get('package')
+    purl = request.values.get('purl')
     lang = request.values.get('lang')
-    req = SearchDepsRequest(lang=lang, purl=package)
+    req = SearchDepsRequest(lang=lang, purl=purl)
     return asdict(deps_service.search(req))
+
+
+@app.route('/meta', methods=['GET'])
+def meta():
+    purl = request.values.get('purl')
+    lang = request.values.get('lang')
+    req = SearchMetaRequest(lang=lang, purl=purl)
+    return asdict(deps_service.meta(req))
 
 
 @app.route('/lint', methods=['GET'])
