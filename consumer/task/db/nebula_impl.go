@@ -74,9 +74,8 @@ func (n *NebulaClientImpl) CreateGraph(graph int64, group *model.Group) error {
 			attrNames[i] = fmt.Sprintf("`%v` %v", attr.Name, common.Type2String(attr.Type))
 		}
 		s = fmt.Sprintf(s, node.Name, strings.Join(attrNames, ","))
-		stat += s
-		// TODO: 未能成功创建索引， 为什么
 		s += fmt.Sprintf("CREATE TAG INDEX IF NOT EXISTS %v_tag_index on %v(%v(10));", node.Name, node.Name, node.Primary)
+		stat += s
 	}
 	for _, edge := range group.Edges {
 		attrNames := make([]string, len(edge.Attrs))
@@ -485,10 +484,8 @@ func (n *NebulaClientImpl) GetIDsByPrimary(graph int64, node *model.Node, primar
 	resMap := make(map[string]int64)
 	for _, name := range primary {
 		stat := fmt.Sprintf("USE G%v;"+
-			"LOOKUP ON %v "+
-			"WHERE %v.%v == \"%v\" "+
-			"YIELD id(vertex) as id |"+
-			"LIMIT 1;", graph, node.Name, node.Name, node.Primary, name)
+			"MATCH (v:%v) WHERE v.%v.%v == \"%v\""+
+			"RETURN id(v) as id LIMIT 1;", graph, node.Name, node.Name, node.Primary, name)
 		res, err := session.Execute(stat)
 		// 非严重错误，忽略
 		if err != nil {

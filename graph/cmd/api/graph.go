@@ -43,6 +43,7 @@ func main() {
 }
 
 func schedule(ctx *svc.ServiceContext) {
+	graphExisted := true
 	// 准备图谱
 	for graphID, info := range common.PreparedGraph {
 		key := fmt.Sprintf("prepare_%d", graphID)
@@ -50,6 +51,7 @@ func schedule(ctx *svc.ServiceContext) {
 		if ok, _ := ctx.RedisClient.CheckIdempotent(context.Background(), key, time.Hour); ok {
 			// 判断图谱是否存在
 			if graph, _ := ctx.MysqlClient.GetGraphByID(context.Background(), graphID); graph == nil {
+				graphExisted = false
 				// 不存在则创建图谱
 				_, _ = logic.NewCreateGraphLogic(context.Background(), ctx).CreateGraph(&types.CreateGraphRequest{
 					GraphID: graphID,
@@ -60,7 +62,9 @@ func schedule(ctx *svc.ServiceContext) {
 		}
 	}
 	// 保障图谱创建完成
-	time.Sleep(time.Minute)
+	if !graphExisted {
+		time.Sleep(time.Minute)
+	}
 	// Debug 立刻执行一次任务
 	//ctx.TaskMq.ProduceTaskMsg(context.Background(), &model.KVTask{Idf: common.CronPython})
 

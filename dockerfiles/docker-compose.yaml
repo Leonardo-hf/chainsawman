@@ -62,7 +62,7 @@ services:
     ports: # 映射端口
       - "6379"
   nebula-metad-headless:
-    image: docker.io/vesoft/nebula-metad:v3.6.0
+    image: docker.io/vesoft/nebula-metad:v3.8.0
     container_name: nebula-metad-headless
     environment:
       USER: root
@@ -93,7 +93,7 @@ services:
     cap_add:
       - SYS_PTRACE
   nebula-storaged0:
-    image: docker.io/vesoft/nebula-storaged:v3.6.0
+    image: docker.io/vesoft/nebula-storaged:v3.8.0
     container_name: nebula-storaged0
     environment:
       USER: root
@@ -127,7 +127,7 @@ services:
     cap_add:
       - SYS_PTRACE
   nebula-graphd-svc:
-    image: docker.io/vesoft/nebula-graphd:v3.6.0
+    image: docker.io/vesoft/nebula-graphd:v3.8.0
     container_name: nebula-graphd-svc
     environment:
       USER: root
