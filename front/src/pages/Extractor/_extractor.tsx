@@ -163,7 +163,7 @@ const buildGraph = (node: gnDecorate, edge?: geDecorate) => (source: Dep, depend
     const nodes = [root, ...depends.map(d => {
         return {
             id: d.purl,
-            style: node(source)
+            style: node(d)
         }
     })]
     const edges = depends.map(d => {

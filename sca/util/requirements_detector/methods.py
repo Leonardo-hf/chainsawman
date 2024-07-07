@@ -94,7 +94,11 @@ def from_pyproject_toml(text) -> Tuple[str, str, List[DetectedRequirement]]:
     parsed = toml.loads(text)
     poetry_section = parsed.get("tool", {}).get("poetry", {})
     artifact = poetry_section.get("name", '?')
+    if artifact == '?':
+        artifact = parsed.get('project', {}).get('name', '?')
     version = poetry_section.get("version", '?')
+    if version == '?':
+        version = parsed.get('project', {}).get('version', '?')
     dependencies = poetry_section.get("dependencies", {})
     # dependencies.update(poetry_section.get("dev-dependencies", {}))
 
