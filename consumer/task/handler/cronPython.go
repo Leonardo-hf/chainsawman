@@ -64,14 +64,14 @@ func (h *CronPython) Handle(task *model.KVTask) (string, error) {
 		resp, err := config.ScaClient.GetDeps(s.String(), "python")
 		// TODO：查询依赖失败，则跳过
 		if err != nil {
-			logx.Error(err)
+			logx.Errorf("[Cron] get Python dependency: %v, err: %v", s.String(), err)
 			continue
 		}
 		for _, dep := range resp.Deps.Dependencies {
 			purl, _ := packageurl.FromString(dep.Purl)
 			targetID, err := h.handleReleaseIfAbsent(t.FixedGraph.GraphID, &purl, libraryGen, releaseGen, &libraryCSV, &releaseCSV, &belong2CSV)
-			logx.Debugf("[Cron] handle Python dependency: %v -> %v, err: %v", sourceID, targetID, err)
 			if err != nil {
+				logx.Errorf("[Cron] handle Python dependency: %d -> %d, err: %v", sourceID, targetID, err)
 				return "", err
 			}
 			// 写入发行版本依赖, TODO: 没写入？
