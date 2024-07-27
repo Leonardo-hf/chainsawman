@@ -51,9 +51,12 @@ class ArchiveDepsHandler(DepsHandler):
                 # 统计依赖文件
                 m = list(filter(lambda m: name.lower().endswith(m), h.modules()))
                 if len(m):
-                    dep, status = h.deps(name.lower(), archive.get_file_by_name(name))
-                    if status == HttpStatus.OK:
-                        module_deps.append(dep)
+                    try:
+                        dep, status = h.deps(name.lower(), archive.get_file_by_name(name))
+                        if status == HttpStatus.OK:
+                            module_deps.append(dep)
+                    except Exception as e:
+                        print(e)
                     break
 
         archive.iter(get)
