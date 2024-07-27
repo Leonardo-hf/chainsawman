@@ -27,6 +27,11 @@ export default defineConfig({
             'changeOrigin': true,
             'pathRewrite': {'^/api/util': '/'},
         },
+        '/api/vul': {
+            'target': 'http://129.211.191.135/',
+            'changeOrigin': true,
+            'pathRewrite': {'^/api/vul': '/'},
+        },
         '/source': {
             'target': 'http://127.0.0.1:9000/',
             'changeOrigin': true,
@@ -40,7 +45,7 @@ export default defineConfig({
             'changeOrigin': true,
         },
     },
-    // mock: false,
+    mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
@@ -67,6 +72,11 @@ export default defineConfig({
             name: '图谱可视化',
             path: '/graph',
             routes: []
+        },
+        {
+            name: '漏洞情报库',
+            path: '/vul',
+            component: './Vul'
         },
         {
             name: '指标模型',

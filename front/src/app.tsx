@@ -141,7 +141,7 @@ export function render(oldRender: () => void) {
 export function patchClientRoutes({routes}) {
     // TODO: 这个是直接根据路由的序号找的，扩展性差
     routes[0].children[2].children = newGraphRoutes
-    routes[0].children[3].children = newAlgoRoutes
+    routes[0].children[4].children = newAlgoRoutes
 }
 
 export async function getInitialState(): Promise<{
