@@ -45,7 +45,7 @@ export default defineConfig({
             'changeOrigin': true,
         },
     },
-    mock: false,
+    // mock: false,
     dva: {},
     layout: {
         title: 'chainsawman',
@@ -69,47 +69,77 @@ export default defineConfig({
             component: './Dashboard',
         },
         {
-            name: '图谱可视化',
-            path: '/graph',
-            routes: []
+            name: '数据仓库',
+            path: '/database',
+            routes: [
+                {
+                    name: '基础软件资产',
+                    path: '/database/software',
+                },
+                {
+                    name: '软件依赖图谱',
+                    path: '/database/graph',
+                    routes: []
+                },
+                {
+                    name: '漏洞情报库',
+                    path: '/database/vul',
+                    component: './Vul'
+                },
+            ]
         },
         {
-            name: '漏洞情报库',
-            path: '/vul',
-            component: './Vul'
-        },
-        {
-            name: '指标模型',
+            name: '度量评估模型',
             path: '/algo',
             routes: []
         },
         {
-            name: '高影响力软件识别',
-            path: '/exec/impact',
-            component: './Impact'
+            name: '算法执行',
+            path: '/exec',
+            routes: [
+                {
+                    name: '高影响力软件识别',
+                    path: '/exec/impact',
+                    component: './Impact'
+                },
+                {
+                    name: '卡脖子软件识别',
+                    path: '/exec/strangle',
+                    component: './Strangle'
+                },
+                {
+                    name: '执行记录',
+                    path: '/exec/records',
+                    component: './AlgoExec'
+                },
+            ]
         },
         {
-            name: '卡脖子软件识别',
-            path: '/exec/strangle',
-            component: './Strangle'
+            name: '分析工具',
+            path: '/util',
+            routes: [
+                {
+                    name: '软件成分分析',
+                    path: '/util/extractor',
+                    component: './Extractor'
+                },
+                {
+                    name: '软件静态分析',
+                    path: '/util/lint',
+                    component: './Lint'
+                },
+                {
+                    name: '软件动态测试',
+                    path: '/util/dynamic',
+                },
+                {
+                    name: '软件漏洞修复',
+                    path: '/util/packet',
+                },
+            ]
         },
         {
-            name: '指标计算结果',
-            path: '/exec/others',
-            component: './AlgoExec'
-        },
-        {
-            name: '软件成分分析',
-            path: '/util/extractor',
-            component: './Extractor'
-        },
-        {
-            name: '软件静态检查',
-            path: '/util/lint',
-            component: './Lint'
-        },
-        {
-            name: '图谱配置',
+            name: '数据源管理',
             path: '/config',
             routes: [
                 {
@@ -118,14 +148,14 @@ export default defineConfig({
                     component: './Group'
                 },
                 {
-                    name: '数据源配置',
+                    name: '网络数据配置',
                     path: '/config/source',
                     component: './GTable',
                 },
             ]
         },
         {
-            name: '服务监控',
+            name: '系统监控',
             path: '/monitor',
             component: './Monitor'
         },

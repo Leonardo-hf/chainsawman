@@ -9,7 +9,7 @@ type VulResp = {
     _id: string,
     aliases: string[],
     database_specific: {
-        osv: {
+        osv?: {
             id: string,
             summary: string,
             details: string,
@@ -24,6 +24,25 @@ type VulResp = {
                 cwe_ids: []
             },
             references: { type: string, url: string }[],
+        }[],
+        exploit_db?: {
+            id: string,
+            file: string,
+            description: string,
+            date_published: string,
+            author: string,
+            type: string,
+            platform: string,
+            port: string,
+            date_added: string,
+            date_updated: string,
+            verified: string,
+            codes: string,
+            tags: string,
+            aliases: string[],
+            screenshot_url: string,
+            application_url: string,
+            source_url: string
         }[]
     }
 }
@@ -36,6 +55,7 @@ type VulInfo = {
     updatedAt: string,
     description: string,
     detail: string,
+    source: string
 }
 const VulList: React.FC = () => {
     const searchVulByPage = async (params: Record<string, any>) => {
@@ -60,19 +80,48 @@ const VulList: React.FC = () => {
             success: true,
             total: res.total,
             data: res.result.map((v: VulResp) => {
-                    const aliases = v.aliases?.sort((a, b) => a.includes('CVE') ? -1 : 1)
-                    const updated = v.database_specific.osv[0].modified
-                    return {
-                        id: v._id,
-                        name: aliases?.length > 0 ? aliases[0] : v._id,
-                        aliases: aliases?.length > 1 ? aliases.slice(1) : [],
-                        score: v.database_specific.osv[0].database_specific?.severity.toUpperCase(),
-                        updatedAt: updated.slice(0, updated.indexOf('.')),
-                        description: v.database_specific.osv[0].summary,
-                        detail: v.database_specific.osv[0].details,
+                    let r = parseOSV(v)
+                    if (r === undefined) {
+                        r = parseExploitDB(v)
                     }
+                    return r
                 }
-            )
+            ).filter((v: VulInfo | undefined) => v !== undefined)
+        }
+    }
+
+    const parseOSV = (v: VulResp): VulInfo | undefined => {
+        if (v.database_specific.osv === undefined) {
+            return undefined
+        }
+        const aliases = v.aliases?.sort((a, b) => a.includes('CVE') ? -1 : 1)
+        const updated = v.database_specific.osv[0].modified
+        return {
+            id: v._id,
+            name: aliases?.length > 0 ? aliases[0] : v._id,
+            aliases: aliases?.length > 1 ? aliases.slice(1) : [],
+            score: v.database_specific.osv[0].database_specific?.severity?.toUpperCase(),
+            updatedAt: updated.slice(0, updated.indexOf('.')),
+            description: v.database_specific.osv[0].summary,
+            detail: v.database_specific.osv[0].details,
+            source: 'OSV'
+        }
+    }
+
+    const parseExploitDB = (v: VulResp): VulInfo | undefined => {
+        if (v.database_specific.exploit_db === undefined) {
+            console.debug(v)
+            return undefined
+        }
+        const aliases = v.aliases?.sort((a, b) => a.includes('CVE') ? -1 : 1)
+        return {
+            id: v._id,
+            name: aliases?.length > 0 ? aliases[0] : v._id,
+            aliases: aliases?.length > 1 ? aliases.slice(1) : [],
+            updatedAt: v.database_specific.exploit_db[0].date_updated,
+            description: v.database_specific.exploit_db[0].description,
+            detail: v.database_specific.exploit_db[0].description,
+            source: 'ExploitDB'
         }
     }
 
@@ -85,10 +134,20 @@ const VulList: React.FC = () => {
             return <Tag color={'yellow'}>{v}</Tag>
         } else if (v === 'LOW') {
             return <Tag color={'green'}>{v}</Tag>
-        } else if (v === undefined){
+        } else if (v === undefined) {
             return null
         } else {
             return <Tag color={'blue'}>{v}</Tag>
+        }
+    }
+
+    const getSource = (v: string) => {
+        if (v === 'OSV') {
+            return <Tag color={'blue'}>{v}</Tag>
+        } else if (v === 'ExploitDB') {
+            return <Tag color={'purple'}>{v}</Tag>
+        } else {
+            return <Tag color={'gray'}>{v}</Tag>
         }
     }
 
@@ -115,8 +174,10 @@ const VulList: React.FC = () => {
                     render: (_, row) => {
                         return (
                             <Space>
-                                {row.aliases.slice(0, Math.min(3, row.aliases.length)).map((a: string) => <Tag key={a}>{a}</Tag>)}
+                                {row.aliases.slice(0, Math.min(3, row.aliases.length)).map((a: string) => <Tag
+                                    key={a}>{a}</Tag>)}
                                 {getSeverity(row.score)}
+                                {getSource(row.source)}
                             </Space>
                         );
                     },

@@ -206,7 +206,7 @@ const GTable: React.FC = () => {
     })
 
     const getGraphRoute = (g: GraphRef2Group) => {
-        let href = '/#/graph'
+        let href = '/#/database/graph'
         let group = g.group
         let groupHref: string = group.id.toString()
         while (group.parentId > 1) {

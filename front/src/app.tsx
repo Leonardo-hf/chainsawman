@@ -23,7 +23,7 @@ export function render(oldRender: () => void) {
             graphs = graphs.filter(a => a.status == 1)
             // 生成路由
             const rootRoute = {
-                path: '/graph',
+                path: '/database/graph',
                 children: []
             }
             const routeMap: any = {1: rootRoute}
@@ -140,8 +140,8 @@ export function render(oldRender: () => void) {
 // @ts-ignore
 export function patchClientRoutes({routes}) {
     // TODO: 这个是直接根据路由的序号找的，扩展性差
-    routes[0].children[2].children = newGraphRoutes
-    routes[0].children[4].children = newAlgoRoutes
+    routes[0].children[2].children[1].children = newGraphRoutes
+    routes[0].children[3].children = newAlgoRoutes
 }
 
 export async function getInitialState(): Promise<{

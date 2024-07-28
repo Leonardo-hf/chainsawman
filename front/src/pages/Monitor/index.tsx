@@ -1,5 +1,5 @@
 const Monitor: React.FC = (props) => {
-    window.location.href = 'http://127.0.0.1:8089/'
+    window.open('/api/monitor')
     return null
 }
 
